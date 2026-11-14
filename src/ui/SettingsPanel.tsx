@@ -153,7 +153,7 @@ export function SettingsPanel() {
   const t = useT()
   const open = useUI((s) => s.settingsOpen)
   const setOpen = useUI((s) => s.setSettingsOpen)
-  const { musicOn, toggleMusic, sfxOn, toggleSfx, quality, setQuality, language, setLanguage, timeSpeed, setTimeSpeed } = useSettings()
+  const { musicOn, toggleMusic, sfxOn, toggleSfx, quality, setQuality, language, setLanguage, timeSpeed, setTimeSpeed, guideArrows, setGuideArrows, guideHints, setGuideHints } = useSettings()
   const fullscreen = useFullscreen()
 
   useEffect(() => {
@@ -213,6 +213,12 @@ export function SettingsPanel() {
                 if ((v === 'on') !== sfxOn) toggleSfx()
               }}
             />
+          </Row>
+          <Row label={t('settings.guideArrows')}>
+            <Segmented value={guideArrows ? 'on' : 'off'} options={[...onOff]} onChange={(v) => setGuideArrows(v === 'on')} />
+          </Row>
+          <Row label={t('settings.guideHints')}>
+            <Segmented value={guideHints ? 'on' : 'off'} options={[...onOff]} onChange={(v) => setGuideHints(v === 'on')} />
           </Row>
           <Row label={t('clock.speed')}>
             <Segmented<TimeSpeed>

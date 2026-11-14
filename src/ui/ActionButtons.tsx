@@ -135,6 +135,7 @@ export function ActionButtons() {
 
   return (
     <div
+      data-tour="actions"
       className="absolute z-20 flex flex-col items-end gap-2"
       style={{
         right: 'max(0.75rem, env(safe-area-inset-right))',

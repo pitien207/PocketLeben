@@ -68,6 +68,21 @@ export const groundMaterial = new MeshLambertMaterial({ vertexColors: true })
 /** Never faded: characters and gameplay-critical props (e.g. the drink being made). */
 export const solidMaterial = new MeshLambertMaterial({ vertexColors: true })
 
+/**
+ * Characters: never faded, with a soft rim light so they stand out from the scenery
+ * (one shared material; works for skinned meshes).
+ */
+export const characterMaterial = new MeshLambertMaterial({ vertexColors: true })
+characterMaterial.onBeforeCompile = (shader) => {
+  shader.fragmentShader = shader.fragmentShader.replace(
+    '#include <opaque_fragment>',
+    `float rim = pow(1.0 - clamp(dot(normalize(vViewPosition), normalize(normal)), 0.0, 1.0), 2.6);
+    outgoingLight += diffuseColor.rgb * rim * 0.38;
+    #include <opaque_fragment>`,
+  )
+}
+characterMaterial.customProgramCacheKey = () => 'vh-character'
+
 /** See-through glass (drawn after opaque objects, so what's inside stays visible). */
 export const glassMaterial = new MeshLambertMaterial({ vertexColors: true, transparent: true, opacity: 0.38, depthWrite: false })
 

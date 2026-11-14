@@ -3,6 +3,7 @@ import { initAudio, setMusicTheme } from './game/systems/audio'
 import './game/systems/gameplay'
 import { loadGame, startAutosave } from './game/systems/save'
 import { startWatchers } from './game/systems/watchers'
+import { startGuide } from './game/systems/guide'
 import { SCENES } from './game/scenes/registry'
 import { useWorld } from './store/worldStore'
 
@@ -15,6 +16,7 @@ import { useWorld } from './store/worldStore'
 loadGame()
 startAutosave()
 startWatchers()
+startGuide()
 initAudio()
 
 // Background music follows the place you're in.

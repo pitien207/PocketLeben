@@ -19,6 +19,9 @@ import { useCare } from '../../store/careStore'
 import { useMinigame } from '../../store/minigameStore'
 import { usePfand } from '../../store/pfandStore'
 import { useToasts } from '../../store/toastStore'
+import { useGuide } from '../../store/guideStore'
+import { route } from './guide'
+import { localSnapshot } from './netState'
 import { travelTo } from './travel'
 import { runAction } from './actions'
 import { setFlag } from './conditions'
@@ -57,6 +60,22 @@ export function installDebugHooks() {
       minigame: useMinigame,
       pfand: usePfand,
       toasts: useToasts,
+      guide: useGuide,
+      /** What a multiplayer client would send for this player (see systems/netState.ts). */
+      snapshot: () => ({
+        scene: useWorld.getState().scene,
+        x: playerState.position.x,
+        z: playerState.position.z,
+        yaw: localSnapshot.yaw,
+        motion: { ...localSnapshot.motion },
+        outfit: usePlayer.getState().outfit,
+      }),
+      /** Fixed inspection camera: __vh.look([x,y,z], [x,y,z]); __vh.look() returns to the player. */
+      look: (from?: [number, number, number], at?: [number, number, number]) => {
+        cameraState.free = from && at ? { from, at } : null
+        cameraState.snap = true
+      },
+      route,
       travel: travelTo,
       action: runAction,
       setFlag,

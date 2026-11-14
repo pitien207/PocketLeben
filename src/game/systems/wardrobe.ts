@@ -11,8 +11,8 @@ import { useUI } from '../../store/uiStore'
 
 /** Which outfit fields each slot controls (to reset a slot to the default look). */
 const SLOT_FIELDS: Record<ClothingSlot, (keyof Outfit)[]> = {
-  shirt: ['shirt'],
-  shorts: ['shorts'],
+  shirt: ['shirt', 'top'],
+  shorts: ['shorts', 'bottom'],
   shoe: ['shoe'],
   hat: ['accessory', 'accent'],
   hair: ['hairStyle', 'hair'],

@@ -1,5 +1,6 @@
 import type { Localized } from '../i18n/localized'
 import type { Condition } from './conditions'
+import { STEP_GUIDES, type StepGuide } from './guides'
 
 /**
  * Story quests (plan §5.4): chapters of quests, each a checklist of steps. A step is done
@@ -12,6 +13,8 @@ export interface QuestStep {
   id: string
   text: Localized
   done: Condition
+  /** Where to go and how (data/guides.ts), for the step-by-step guide. */
+  guide?: StepGuide
 }
 
 export interface QuestDef {
@@ -25,7 +28,7 @@ export interface QuestDef {
 }
 
 const L = (vi: string, en: string): Localized => ({ vi, en })
-const step = (id: string, vi: string, en: string, done: Condition): QuestStep => ({ id, text: L(vi, en), done })
+const step = (id: string, vi: string, en: string, done: Condition): QuestStep => ({ id, text: L(vi, en), done, guide: STEP_GUIDES[id] })
 
 export const CHAPTER_NAMES: Record<number, Localized> = {
   1: L('Chương 1 · Học tiếng Đức ở Việt Nam', 'Chapter 1 · Learning German in Vietnam'),

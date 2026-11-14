@@ -12,6 +12,7 @@ import { QuestLog } from './ui/QuestLog'
 import { TransitionOverlay } from './ui/TransitionOverlay'
 import { VisaPanel } from './ui/VisaPanel'
 import { ClockPanel } from './ui/ClockPanel'
+import { GuideCard, GuideEdgeArrow, GuideUiPulse, Onboarding } from './ui/Guide'
 import { FastForwardOverlay, LocationCard, NewDayCard } from './ui/TimeOverlays'
 import { ControlsHint } from './ui/ControlsHint'
 import { DialogueBox } from './ui/DialogueBox'
@@ -40,6 +41,7 @@ export default function App() {
       <Game />
       {/* DOM overlay. Containers ignore pointers so drags fall through to the 3D view. */}
       <div className="pointer-events-none absolute inset-0">
+        <GuideEdgeArrow />
         <HUD />
         <ControlsHint />
         <LocationCard />
@@ -57,6 +59,9 @@ export default function App() {
         <QuestLog />
         <VisaPanel />
         <ClockPanel />
+        <GuideCard />
+        <GuideUiPulse />
+        <Onboarding />
         <MinigameHost />
         <SettingsPanel />
         <FastForwardOverlay />

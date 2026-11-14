@@ -33,10 +33,14 @@ const c = (
 
 export const CLOTHES: ClothingDef[] = [
   // Chị Hằng's clothes stall (Vietnam)
-  c('aoHong', 'Áo thun hồng', 'Pink T-shirt', 'shirt', 'vnClothes', 80_000, { shirt: '#ffb3c7' }, '#ffb3c7'),
-  c('aoDoi', 'Áo đội tuyển đỏ', 'Red football jersey', 'shirt', 'vnClothes', 120_000, { shirt: '#d4473b' }, '#d4473b'),
-  c('aoBaBa', 'Áo bà ba xanh ngọc', 'Jade áo bà ba shirt', 'shirt', 'vnClothes', 150_000, { shirt: '#8fd3c1' }, '#8fd3c1'),
-  c('quanJean', 'Quần short jean', 'Denim shorts', 'shorts', 'vnClothes', 100_000, { shorts: '#4f6fa8' }, '#4f6fa8'),
+  c('aoHong', 'Áo thun hồng', 'Pink T-shirt', 'shirt', 'vnClothes', 80_000, { shirt: '#ffb3c7', top: 'tee' }, '#ffb3c7'),
+  c('aoDoi', 'Áo đội tuyển đỏ', 'Red football jersey', 'shirt', 'vnClothes', 120_000, { shirt: '#d4473b', top: 'tee' }, '#d4473b'),
+  c('aoBaBa', 'Áo bà ba xanh ngọc', 'Jade áo bà ba shirt', 'shirt', 'vnClothes', 150_000, { shirt: '#8fd3c1', top: 'long' }, '#8fd3c1'),
+  c('aoSoMi', 'Sơ mi trắng dài tay', 'White long-sleeve shirt', 'shirt', 'vnClothes', 160_000, { shirt: '#f8f8f2', top: 'long' }, '#f8f8f2'),
+  c('aoBaLo', 'Áo ba lỗ', 'Tank top', 'shirt', 'vnClothes', 50_000, { shirt: '#ffe08a', top: 'sleeveless' }, '#ffe08a'),
+  c('quanJean', 'Quần short jean', 'Denim shorts', 'shorts', 'vnClothes', 100_000, { shorts: '#4f6fa8', bottom: 'shorts' }, '#4f6fa8'),
+  c('quanKaki', 'Quần kaki dài', 'Khaki trousers', 'shorts', 'vnClothes', 180_000, { shorts: '#c9ad85', bottom: 'pants' }, '#c9ad85'),
+  c('vayXoe', 'Chân váy xòe', 'Flared skirt', 'shorts', 'vnClothes', 140_000, { shorts: '#ff9fb2', bottom: 'skirt' }, '#ff9fb2'),
   c('depToOng', 'Dép tổ ong', 'Honeycomb sandals', 'shoe', 'vnClothes', 30_000, { shoe: '#f4f1e6' }, '#f4f1e6'),
   c('nonLa', 'Nón lá', 'Conical hat', 'hat', 'vnClothes', 50_000, { accessory: 'nonLa' }, '#f2d79c'),
   c('baloMoi', 'Balo du học', 'Study-abroad backpack', 'bag', 'vnClothes', 200_000, { bag: '#7fb8e8' }, '#7fb8e8'),
@@ -46,9 +50,9 @@ export const CLOTHES: ClothingDef[] = [
   c('tocBob', 'Tóc bob', 'Bob cut', 'hair', 'barber', 40_000, { hairStyle: 'bob' }, '#3d2c2c'),
   c('tocNau', 'Nhuộm nâu hạt dẻ', 'Chestnut dye', 'hair', 'barber', 120_000, { hair: '#7a4a32' }, '#7a4a32'),
   // Flohmarkt (Germany, EUR)
-  c('pulli', 'Áo len Pullover', 'Pullover', 'shirt', 'flohmarkt', 8, { shirt: '#5b7cc4' }, '#5b7cc4'),
-  c('regenjacke', 'Áo mưa vàng', 'Yellow rain jacket', 'shirt', 'flohmarkt', 18, { shirt: '#f4c04e' }, '#f4c04e'),
-  c('jeans', 'Quần jean', 'Jeans', 'shorts', 'flohmarkt', 12, { shorts: '#3f4a6b' }, '#3f4a6b'),
+  c('pulli', 'Áo len Pullover', 'Pullover', 'shirt', 'flohmarkt', 8, { shirt: '#5b7cc4', top: 'long' }, '#5b7cc4'),
+  c('regenjacke', 'Áo mưa vàng', 'Yellow rain jacket', 'shirt', 'flohmarkt', 18, { shirt: '#f4c04e', top: 'long' }, '#f4c04e'),
+  c('jeans', 'Quần jean', 'Jeans', 'shorts', 'flohmarkt', 12, { shorts: '#3f4a6b', bottom: 'pants' }, '#3f4a6b'),
   c('sneaker', 'Giày sneaker', 'Sneakers', 'shoe', 'flohmarkt', 15, { shoe: '#ffffff' }, '#ffffff'),
   c('muetze', 'Mũ len Mütze', 'Beanie', 'hat', 'flohmarkt', 5, { accessory: 'beanie', accent: '#d4473b' }, '#d4473b'),
   c('jutebeutel', 'Túi vải Jutebeutel', 'Tote bag', 'bag', 'flohmarkt', 3, { bag: '#e8dcc0' }, '#e8dcc0'),

@@ -9,6 +9,7 @@ export type Panel =
   | { type: 'quests' }
   | { type: 'visa' }
   | { type: 'clock' }
+  | { type: 'guide' }
 
 /** Full-screen fade between scenes, with an optional caption ("✈ Bay sang Đức…"). */
 export interface Transition {

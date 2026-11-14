@@ -72,6 +72,17 @@ export function CameraRig({ target }: { target: RefObject<Object3D | null> }) {
   useFrame((state, rawDt) => {
     const t = target.current
     if (!t) return
+    if (cameraState.free) {
+      camera.position.set(...cameraState.free.from)
+      camera.lookAt(...cameraState.free.at)
+      // Telephoto from a few metres away: outside the "too close to the lens" fade.
+      if (camera instanceof PerspectiveCamera && camera.fov !== 22) {
+        camera.fov = 22
+        camera.updateProjectionMatrix()
+      }
+      occlusion.target.value.copy(camera.position)
+      return
+    }
     const dt = Math.min(rawDt, 0.1)
     const cfg = CONFIG.camera
 

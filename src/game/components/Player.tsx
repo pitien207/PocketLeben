@@ -13,6 +13,7 @@ import { readMoveInput, type Vec2 } from '../systems/input'
 import { damp, dampAngle, dampFactor } from '../systems/math'
 import { playerState } from '../systems/playerState'
 import { ChibiModel, type MotionState } from './ChibiModel'
+import { localSnapshot } from '../systems/netState'
 
 const CAPSULE_RADIUS = 0.32
 const CAPSULE_HALF_HEIGHT = 0.42
@@ -147,6 +148,8 @@ export function Player({ visualRef }: PlayerProps) {
     m.held = pose?.held ?? null
     sipClock.current = pose?.sipping ? sipClock.current + dt : 0
     m.sip = pose?.sipping && sipClock.current % 1.8 > 0.5 && sipClock.current % 1.8 < 1.4 ? 1 : 0
+    localSnapshot.motion = m
+    localSnapshot.yaw = facing.current?.rotation.y ?? 0
   }, PLAYER_FRAME_PRIORITY)
 
   return (

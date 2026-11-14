@@ -82,6 +82,7 @@ export function Joystick() {
   return (
     <div
       role="application"
+      data-tour="joystick"
       aria-label={t('joystick.label')}
       className="pointer-events-auto absolute z-20 grid h-44 w-44 touch-none place-items-center select-none"
       style={{

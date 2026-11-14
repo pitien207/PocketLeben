@@ -53,9 +53,19 @@ export function currentObjective() {
 
 let busy = false
 
+/** After a story step: say what comes next (once the dust settles). */
+function announceNextStep() {
+  if (!useSettings.getState().guideHints) return
+  window.setTimeout(() => {
+    const next = currentObjective()
+    if (next) pushToast('toast.nextStep', 'info', { step: localize(next.step.text, currentLanguage()) })
+  }, 1600)
+}
+
 function evaluate() {
   if (busy) return
   busy = true
+  let mainStepDone = false
   try {
     // Quest steps are "sticky": once done, they stay done.
     // Steps of quests that aren't open yet are marked silently, so doing things
@@ -67,6 +77,7 @@ function evaluate() {
         if (stepDone(s.id) || !check(s.done)) continue
         setFlag(stepFlag(s.id), true)
         bumpFlag('log.steps')
+        if (visible && !q.side) mainStepDone = true
         if (visible) pushToast('toast.stepDone', 'good', { step: localize(s.text, currentLanguage()) })
       }
       if (visible && !wasComplete && questComplete(q)) {
@@ -84,6 +95,7 @@ function evaluate() {
   } finally {
     busy = false
   }
+  if (mainStepDone) announceNextStep()
 }
 
 /** Remember where the day started, for tomorrow's summary card. */

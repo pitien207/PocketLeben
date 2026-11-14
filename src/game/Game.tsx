@@ -13,6 +13,7 @@ import { Player } from './components/Player'
 import { SceneReady } from './components/SceneReady'
 import { TimeSystem } from './components/TimeSystem'
 import { Weather } from './components/Weather'
+import { GuideSystem } from './components/GuideSystem'
 import { PALETTE } from './scenes/shared/palette'
 import { SCENES } from './scenes/registry'
 import { DebugBridge } from './systems/debug'
@@ -76,6 +77,7 @@ export function Game() {
             <SceneRoot />
             <Player visualRef={playerVisual} />
             <CameraRig target={playerVisual} />
+            <GuideSystem />
             <InteractionSystem />
             <TimeSystem />
           </Physics>
@@ -84,6 +86,8 @@ export function Game() {
           {import.meta.env.DEV && <DebugBridge />}
         </Suspense>
       </Canvas>
+      {/* Soft vignette: frames the diorama and pulls the eye to the centre. */}
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_58%,rgba(70,48,40,0.22)_100%)]" />
     </div>
   )
 }

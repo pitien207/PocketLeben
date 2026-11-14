@@ -7,7 +7,7 @@ import { CONFIG } from '../../../data/config'
 import { RIDER_OUTFITS, type Outfit } from '../../../data/npcs'
 import { useBubbles } from '../../../store/bubbleStore'
 import { PALETTE as P } from '../../scenes/shared/palette'
-import { bicycleShapes, carShapes, motorbikeShapes } from '../../scenes/shared/props'
+import { bicycleShapes, carShapes, motorbikeShapes, RIDES } from '../../scenes/shared/props'
 import { Shapes } from '../../scenes/shared/Shapes'
 import { damp } from '../../systems/math'
 import { playerState } from '../../systems/playerState'
@@ -25,9 +25,9 @@ const BIKE_COLORS = [P.rose, P.sky2, P.butter, P.mint, P.lilac, P.peach]
 export type VehicleKind = 'motorbike' | 'car' | 'bicycle'
 
 const VEHICLE = {
-  motorbike: { shapes: motorbikeShapes, rider: { seatY: 0.86, z: -0.2 }, half: [0.28, 0.6, 0.85], speed: 1, honk: 'biker' },
-  bicycle: { shapes: bicycleShapes, rider: { seatY: 0.98, z: -0.15 }, half: [0.25, 0.6, 0.8], speed: 0.55, honk: 'cyclist' },
-  car: { shapes: carShapes, rider: null, half: [0.6, 0.7, 1.2], speed: 1.05, honk: 'driver' },
+  motorbike: { shapes: motorbikeShapes, ride: 'motorbike', half: [0.28, 0.6, 0.78], speed: 1, honk: 'biker' },
+  bicycle: { shapes: bicycleShapes, ride: 'bicycle', half: [0.25, 0.6, 0.66], speed: 0.55, honk: 'cyclist' },
+  car: { shapes: carShapes, ride: null, half: [0.6, 0.7, 1.2], speed: 1.05, honk: 'driver' },
 } as const
 const LANE_HALF_WIDTH = 1.1
 
@@ -45,7 +45,7 @@ function TrafficBike({ id, kind, lane, startX, color, outfit }: BikeProps) {
   const vehicle = VEHICLE[kind]
   const group = useRef<Group>(null)
   const rb = useRef<RapierRigidBody>(null)
-  const rider = useRef<MotionState>({ speed: 0, sit: 1, seatY: vehicle.rider?.seatY ?? 0.86, arms: 1 })
+  const rider = useRef<MotionState>({ speed: 0, ride: vehicle.ride, pedal: Math.random() * 6 })
   const shapes = useMemo(() => vehicle.shapes(color), [vehicle, color])
   const cfg = CONFIG.traffic
   const st = useRef<{ x: number; cruise: number; speed: number; honked: boolean; t: number } | null>(null)
@@ -74,6 +74,8 @@ function TrafficBike({ id, kind, lane, startX, color, outfit }: BikeProps) {
     }
     s.speed = damp(s.speed, target, target < s.speed ? 6 : 2, dt)
     s.x += lane.dir * s.speed * dt
+    // Cyclists pedal as fast as they travel.
+    rider.current.pedal = (rider.current.pedal ?? 0) - s.speed * dt * 2.6
     if (s.x * lane.dir > cfg.wrapX) {
       s.x = -lane.dir * cfg.wrapX
       s.cruise = (cfg.speedMin + Math.random() * (cfg.speedMax - cfg.speedMin)) * vehicle.speed
@@ -92,12 +94,12 @@ function TrafficBike({ id, kind, lane, startX, color, outfit }: BikeProps) {
     <>
       <group ref={group} position={[startX, 0, lane.z]} rotation={[0, yaw, 0]}>
         <Shapes shapes={shapes} />
-        {vehicle.rider && (
-          <group position={[0, 0, vehicle.rider.z]}>
+        {vehicle.ride && (
+          <group position={[0, 0, RIDES[vehicle.ride].riderZ]}>
             <ChibiModel motion={rider} outfit={outfit} />
           </group>
         )}
-        <SpeechBubble id={id} y={2.45} />
+        <SpeechBubble id={id} y={vehicle.ride ? 2.1 : 1.8} />
       </group>
       <RigidBody ref={rb} type="kinematicPosition" colliders={false} position={[startX, 0, lane.z]} rotation={[0, yaw, 0]}>
         <CuboidCollider args={[vehicle.half[0], vehicle.half[1], vehicle.half[2]]} position={[0, vehicle.half[1], 0]} />

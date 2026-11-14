@@ -247,6 +247,13 @@ registerTests({
   'visa.terminToday': () => terminDay() === useTime.getState().day,
   'visa.canHunt': () => !!visaPath() && !getFlag('visa.readyDay') && !(terminDay() !== null && (terminDay() ?? 0) >= useTime.getState().day),
   'visa.ready': visaReady,
+  // For the step-by-step guide
+  'visa.terminLater': () => (terminDay() ?? 0) > useTime.getState().day,
+  'visa.waiting': () => typeof getFlag('visa.readyDay') === 'number' && !visaReady(),
+  'visa.embassyOpen': () => {
+    const h = useTime.getState().minutes / 60
+    return h >= CONFIG.visa.embassyHours[0] && h < CONFIG.visa.embassyHours[1]
+  },
 })
 
 /** For the HUD: is the visa panel relevant right now? */

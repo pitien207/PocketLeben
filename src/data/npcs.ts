@@ -4,6 +4,10 @@ import type { Localized } from '../i18n/localized'
 
 export type HairStyle = 'bob' | 'short' | 'bun'
 export type Accessory = 'nonLa' | 'glasses' | 'helmet' | 'beanie' | null
+/** Cut of the top: short sleeves, long sleeves, or none. */
+export type TopStyle = 'tee' | 'long' | 'sleeveless'
+/** Cut of the bottom. */
+export type BottomStyle = 'shorts' | 'pants' | 'skirt'
 
 export interface Outfit {
   skin: string
@@ -17,6 +21,9 @@ export interface Outfit {
   accessory: Accessory
   /** Helmet colour etc. */
   accent?: string
+  /** Clothing cuts (default: T-shirt and shorts). `shirt` / `shorts` are their colours. */
+  top?: TopStyle
+  bottom?: BottomStyle
 }
 
 export const PLAYER_OUTFIT: Outfit = {
@@ -63,14 +70,14 @@ export const NPCS = {
     id: 'baSau',
     name: { vi: 'Bà Thu', en: 'Granny Thu', de: 'Oma Thu' },
     title: { vi: 'Bán trà đá', en: 'Iced-tea seller', de: 'Eistee-Verkäuferin' },
-    outfit: { skin: '#f0c8a8', hair: '#d9d6dc', hairStyle: 'bun', shirt: '#b8d8f0', shorts: '#3f4a5c', shoe: '#5d6170', bag: null, accessory: null },
+    outfit: { skin: '#f0c8a8', hair: '#d9d6dc', hairStyle: 'bun', shirt: '#b8d8f0', shorts: '#3f4a5c', shoe: '#5d6170', bag: null, accessory: null, top: 'long', bottom: 'pants' },
     dialogueId: 'baSau',
   },
   coBa: {
     id: 'coBa',
     name: { vi: 'Cô Liên', en: 'Auntie Liên', de: 'Tante Liên' },
     title: { vi: 'Chủ tạp hóa', en: 'Grocery owner', de: 'Ladenbesitzerin' },
-    outfit: { skin: '#f5cfb0', hair: '#2b2222', hairStyle: 'bun', shirt: '#f7a8c0', shorts: '#2f3a4d', shoe: '#ff9b8f', bag: null, accessory: null },
+    outfit: { skin: '#f5cfb0', hair: '#2b2222', hairStyle: 'bun', shirt: '#f7a8c0', shorts: '#2f3a4d', shoe: '#ff9b8f', bag: null, accessory: null, top: 'long', bottom: 'pants' },
     dialogueId: 'coBa',
   },
   chuBay: {
@@ -84,7 +91,7 @@ export const NPCS = {
     id: 'chuNam',
     name: { vi: 'Bác Hùng', en: 'Uncle Hùng', de: 'Onkel Hùng' },
     // The classic white tank top (áo ba lỗ).
-    outfit: { skin: '#e8b994', hair: '#4a4448', hairStyle: 'short', shirt: '#ffffff', shorts: '#6b7a8f', shoe: '#5d6170', bag: null, accessory: null },
+    outfit: { skin: '#e8b994', hair: '#4a4448', hairStyle: 'short', shirt: '#ffffff', shorts: '#6b7a8f', shoe: '#5d6170', bag: null, accessory: null, top: 'sleeveless' },
   },
   anhHai: {
     id: 'anhHai',
@@ -122,7 +129,7 @@ export const NPCS = {
     id: 'thayMinh',
     name: { vi: 'Thầy Minh', en: 'Teacher Minh', de: 'Lehrer Minh' },
     title: { vi: 'Lớp tiếng Đức', en: 'German class', de: 'Deutschkurs' },
-    outfit: { skin: '#eec39f', hair: '#2a2020', hairStyle: 'short', shirt: '#ffffff', shorts: '#3f4a5c', shoe: '#5d6170', bag: null, accessory: 'glasses' },
+    outfit: { skin: '#eec39f', hair: '#2a2020', hairStyle: 'short', shirt: '#ffffff', shorts: '#3f4a5c', shoe: '#5d6170', bag: null, accessory: 'glasses', top: 'long', bottom: 'pants' },
     dialogueId: 'thayMinh',
   },
   vy: {
@@ -134,7 +141,7 @@ export const NPCS = {
   hvLinh: {
     id: 'hvLinh',
     name: { vi: 'Linh', en: 'Linh', de: 'Linh' },
-    outfit: { skin: '#f9d4b8', hair: '#2b2222', hairStyle: 'bun', shirt: '#ffffff', shorts: '#2f3a4d', shoe: '#ffffff', bag: '#a8e6cf', accessory: null },
+    outfit: { skin: '#f9d4b8', hair: '#2b2222', hairStyle: 'bun', shirt: '#ffffff', shorts: '#2f3a4d', shoe: '#ffffff', bag: '#a8e6cf', accessory: null, top: 'long', bottom: 'skirt' },
   },
   hvQuang: {
     id: 'hvQuang',
@@ -154,20 +161,20 @@ export const NPCS = {
   giamThi: {
     id: 'giamThi',
     name: { vi: 'Cô giám thị', en: 'Exam supervisor', de: 'Prüfungsaufsicht' },
-    outfit: { skin: '#f5cfb0', hair: '#3d2c2c', hairStyle: 'bun', shirt: '#2f3a4d', shorts: '#2f3a4d', shoe: '#5d6170', bag: null, accessory: 'glasses' },
+    outfit: { skin: '#f5cfb0', hair: '#3d2c2c', hairStyle: 'bun', shirt: '#2f3a4d', shorts: '#2f3a4d', shoe: '#5d6170', bag: null, accessory: 'glasses', top: 'long', bottom: 'skirt' },
   },
   chiLua: {
     id: 'chiLua',
     name: { vi: 'Chị Lụa', en: 'Lụa', de: 'Lụa' },
     title: { vi: 'Xe đạp bán hoa', en: 'Flower bicycle', de: 'Blumenfahrrad' },
-    outfit: { skin: '#f0c8a8', hair: '#2b2222', hairStyle: 'bun', shirt: '#fff3dc', shorts: '#8e7cc3', shoe: '#ffffff', bag: null, accessory: 'nonLa' },
+    outfit: { skin: '#f0c8a8', hair: '#2b2222', hairStyle: 'bun', shirt: '#fff3dc', shorts: '#8e7cc3', shoe: '#ffffff', bag: null, accessory: 'nonLa', top: 'long', bottom: 'pants' },
     dialogueId: 'chiLua',
   },
   chiMai: {
     id: 'chiMai',
     name: { vi: 'Chị Mai', en: 'Mai', de: 'Mai' },
     title: { vi: 'Tư vấn du học', en: 'Study-abroad advisor', de: 'Auslandsberaterin' },
-    outfit: { skin: '#f5cfb0', hair: '#3d2c2c', hairStyle: 'bun', shirt: '#cdb8f0', shorts: '#2f3a4d', shoe: '#d4473b', bag: null, accessory: 'glasses' },
+    outfit: { skin: '#f5cfb0', hair: '#3d2c2c', hairStyle: 'bun', shirt: '#cdb8f0', shorts: '#2f3a4d', shoe: '#d4473b', bag: null, accessory: 'glasses', top: 'long', bottom: 'skirt' },
     dialogueId: 'chiMai',
   },
   anhTu: {
@@ -195,19 +202,19 @@ export const NPCS = {
     id: 'officer',
     name: { vi: 'Bà Lehmann', en: 'Ms Lehmann', de: 'Frau Lehmann' },
     title: { vi: 'Viên chức lãnh sự', en: 'Consular officer', de: 'Konsularbeamtin' },
-    outfit: { skin: '#fbe2d0', hair: '#c9a46a', hairStyle: 'bun', shirt: '#3f4a6b', shorts: '#2f3a4d', shoe: '#2f2f38', bag: null, accessory: 'glasses' },
+    outfit: { skin: '#fbe2d0', hair: '#c9a46a', hairStyle: 'bun', shirt: '#3f4a6b', shorts: '#2f3a4d', shoe: '#2f2f38', bag: null, accessory: 'glasses', top: 'long', bottom: 'pants' },
     dialogueId: 'officer',
   },
   me: {
     id: 'me',
     name: { vi: 'Mẹ', en: 'Mum', de: 'Mama' },
-    outfit: { skin: '#f0c8a8', hair: '#2b2222', hairStyle: 'bun', shirt: '#e98aa0', shorts: '#3f4a5c', shoe: '#ffffff', bag: null, accessory: null },
+    outfit: { skin: '#f0c8a8', hair: '#2b2222', hairStyle: 'bun', shirt: '#e98aa0', shorts: '#3f4a5c', shoe: '#ffffff', bag: null, accessory: null, top: 'long', bottom: 'pants' },
     dialogueId: 'me',
   },
   bo: {
     id: 'bo',
     name: { vi: 'Bố', en: 'Dad', de: 'Papa' },
-    outfit: { skin: '#e8b994', hair: '#4a4448', hairStyle: 'short', shirt: '#7fb8e8', shorts: '#3f4a5c', shoe: '#5d6170', bag: null, accessory: null },
+    outfit: { skin: '#e8b994', hair: '#4a4448', hairStyle: 'short', shirt: '#7fb8e8', shorts: '#3f4a5c', shoe: '#5d6170', bag: null, accessory: null, bottom: 'pants' },
   },
   emGai: {
     id: 'emGai',
@@ -220,66 +227,66 @@ export const NPCS = {
     id: 'lena',
     name: { vi: 'Lena', en: 'Lena', de: 'Lena' },
     title: { vi: 'Bạn cùng WG', en: 'Flatmate', de: 'Mitbewohnerin' },
-    outfit: { skin: '#fbe2d0', hair: '#d9a24e', hairStyle: 'bun', shirt: '#9fe0c9', shorts: '#3f4a6b', shoe: '#ffffff', bag: null, accessory: null },
+    outfit: { skin: '#fbe2d0', hair: '#d9a24e', hairStyle: 'bun', shirt: '#9fe0c9', shorts: '#3f4a6b', shoe: '#ffffff', bag: null, accessory: null, top: 'long' },
     dialogueId: 'lena',
   },
   jonas: {
     id: 'jonas',
     name: { vi: 'Jonas', en: 'Jonas', de: 'Jonas' },
     title: { vi: 'Bạn cùng WG', en: 'Flatmate', de: 'Mitbewohner' },
-    outfit: { skin: '#f6d6c0', hair: '#6b4a32', hairStyle: 'short', shirt: '#7a8bb5', shorts: '#2f3a4d', shoe: '#d4473b', bag: null, accessory: 'beanie', accent: '#f4c04e' },
+    outfit: { skin: '#f6d6c0', hair: '#6b4a32', hairStyle: 'short', shirt: '#7a8bb5', shorts: '#2f3a4d', shoe: '#d4473b', bag: null, accessory: 'beanie', accent: '#f4c04e', bottom: 'pants' },
     dialogueId: 'jonas',
   },
   clerk: {
     id: 'clerk',
     name: { vi: 'Ông Becker', en: 'Mr Becker', de: 'Herr Becker' },
     title: { vi: 'Nhân viên Bürgeramt', en: 'Bürgeramt clerk', de: 'Sachbearbeiter' },
-    outfit: { skin: '#f6d6c0', hair: '#b8b2ac', hairStyle: 'short', shirt: '#c9b48a', shorts: '#4f4a40', shoe: '#2f2f38', bag: null, accessory: 'glasses' },
+    outfit: { skin: '#f6d6c0', hair: '#b8b2ac', hairStyle: 'short', shirt: '#c9b48a', shorts: '#4f4a40', shoe: '#2f2f38', bag: null, accessory: 'glasses', top: 'long', bottom: 'pants' },
     dialogueId: 'clerk',
   },
   wagner: {
     id: 'wagner',
     name: { vi: 'Bà Wagner', en: 'Ms Wagner', de: 'Frau Wagner' },
     title: { vi: 'Ngân hàng Sparbank', en: 'Sparbank', de: 'Sparbank' },
-    outfit: { skin: '#fbe2d0', hair: '#5b3a2c', hairStyle: 'bob', shirt: '#d4473b', shorts: '#2f3a4d', shoe: '#2f2f38', bag: null, accessory: null },
+    outfit: { skin: '#fbe2d0', hair: '#5b3a2c', hairStyle: 'bob', shirt: '#d4473b', shorts: '#2f3a4d', shoe: '#2f2f38', bag: null, accessory: null, top: 'long', bottom: 'skirt' },
     dialogueId: 'wagner',
   },
   anna: {
     id: 'anna',
     name: { vi: 'Chị Anna', en: 'Nurse Anna', de: 'Schwester Anna' },
     title: { vi: 'Hướng dẫn thực tập', en: 'Mentor', de: 'Praxisanleiterin' },
-    outfit: { skin: '#fbe2d0', hair: '#c97b4a', hairStyle: 'bun', shirt: '#ffffff', shorts: '#ffffff', shoe: '#ffffff', bag: null, accessory: null },
+    outfit: { skin: '#fbe2d0', hair: '#c97b4a', hairStyle: 'bun', shirt: '#ffffff', shorts: '#ffffff', shoe: '#ffffff', bag: null, accessory: null, bottom: 'pants' },
     dialogueId: 'anna',
   },
   frauSchmidt: {
     id: 'frauSchmidt',
     name: { vi: 'Bà Schmidt', en: 'Mrs Schmidt', de: 'Frau Schmidt' },
-    outfit: { skin: '#f6dccb', hair: '#e8e4ec', hairStyle: 'bun', shirt: '#cdb8f0', shorts: '#6b5a7a', shoe: '#c97b63', bag: null, accessory: 'glasses' },
+    outfit: { skin: '#f6dccb', hair: '#e8e4ec', hairStyle: 'bun', shirt: '#cdb8f0', shorts: '#6b5a7a', shoe: '#c97b63', bag: null, accessory: 'glasses', top: 'long', bottom: 'skirt' },
   },
   herrWeber: {
     id: 'herrWeber',
     name: { vi: 'Ông Weber', en: 'Mr Weber', de: 'Herr Weber' },
-    outfit: { skin: '#f0d0bc', hair: '#dcd8de', hairStyle: 'short', shirt: '#8fa8c8', shorts: '#4f4a40', shoe: '#5d6170', bag: null, accessory: null },
+    outfit: { skin: '#f0d0bc', hair: '#dcd8de', hairStyle: 'short', shirt: '#8fa8c8', shorts: '#4f4a40', shoe: '#5d6170', bag: null, accessory: null, top: 'long', bottom: 'pants' },
   },
   frauHoffmann: {
     id: 'frauHoffmann',
     name: { vi: 'Bà Hoffmann', en: 'Mrs Hoffmann', de: 'Frau Hoffmann' },
-    outfit: { skin: '#f6dccb', hair: '#f0eef2', hairStyle: 'bob', shirt: '#f7a8c0', shorts: '#5d6b8a', shoe: '#ffffff', bag: null, accessory: null },
+    outfit: { skin: '#f6dccb', hair: '#f0eef2', hairStyle: 'bob', shirt: '#f7a8c0', shorts: '#5d6b8a', shoe: '#ffffff', bag: null, accessory: null, top: 'long' },
   },
   herrKrause: {
     id: 'herrKrause',
     name: { vi: 'Ông Krause', en: 'Mr Krause', de: 'Herr Krause' },
-    outfit: { skin: '#f0d0bc', hair: '#cfcfd6', hairStyle: 'short', shirt: '#a8c89a', shorts: '#4f5d75', shoe: '#5d6170', bag: null, accessory: 'glasses' },
+    outfit: { skin: '#f0d0bc', hair: '#cfcfd6', hairStyle: 'short', shirt: '#a8c89a', shorts: '#4f5d75', shoe: '#5d6170', bag: null, accessory: 'glasses', top: 'long', bottom: 'pants' },
   },
   herrMueller: {
     id: 'herrMueller',
     name: { vi: 'Ông Müller', en: 'Mr Müller', de: 'Herr Müller' },
-    outfit: { skin: '#f0d0bc', hair: '#a8a2a0', hairStyle: 'short', shirt: '#8a9a7a', shorts: '#4f4a40', shoe: '#5d6170', bag: null, accessory: 'beanie', accent: '#5b7cc4' },
+    outfit: { skin: '#f0d0bc', hair: '#a8a2a0', hairStyle: 'short', shirt: '#8a9a7a', shorts: '#4f4a40', shoe: '#5d6170', bag: null, accessory: 'beanie', accent: '#5b7cc4', top: 'long', bottom: 'pants' },
   },
   sophie: {
     id: 'sophie',
     name: { vi: 'Sophie', en: 'Sophie', de: 'Sophie' },
-    outfit: { skin: '#fbe2d0', hair: '#e0b45e', hairStyle: 'bob', shirt: '#ff9fb2', shorts: '#3f4a6b', shoe: '#ffffff', bag: '#e8dcc0', accessory: null },
+    outfit: { skin: '#fbe2d0', hair: '#e0b45e', hairStyle: 'bob', shirt: '#ff9fb2', shorts: '#3f4a6b', shoe: '#ffffff', bag: '#e8dcc0', accessory: null, top: 'long', bottom: 'pants' },
   },
   tom: {
     id: 'tom',

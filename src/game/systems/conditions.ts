@@ -58,6 +58,7 @@ export function check(c: Condition | undefined): boolean {
     return g.xp >= germanXpNeeded(g.level)
   }
   if ('money' in c) return usePlayer.getState().money >= c.money
+  if ('energy' in c) return usePlayer.getState().energy >= c.energy
   if ('scene' in c) return useWorld.getState().scene === c.scene
   if ('country' in c) return SCENES[useWorld.getState().scene].country === c.country
   if ('test' in c) return tests.get(c.test)?.() ?? false

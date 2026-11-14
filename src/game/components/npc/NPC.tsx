@@ -15,6 +15,7 @@ import { dampAngle } from '../../systems/math'
 import { playerState, type PointXZ, type ZoneXZ } from '../../systems/playerState'
 import { npcPositions } from '../../systems/registry'
 import { ChibiModel, type MotionState } from '../ChibiModel'
+import type { RideKind } from '../../scenes/shared/vehicles'
 import { useInteractable } from '../Interactable'
 import { NpcMarker } from './NpcMarker'
 import { SpeechBubble } from './SpeechBubble'
@@ -37,6 +38,8 @@ export interface NpcProps {
   activity?: 'sip' | 'fan' | null
   /** Arms forward (e.g. hands on handlebars), 0–1. */
   arms?: number
+  /** Sitting on a vehicle: hands on the grips, feet on the footrests. */
+  ride?: RideKind
   carry?: 'pole' | null
   path?: NpcPath
   /** Interaction area (default: a box around the NPC that follows them). */
@@ -54,7 +57,7 @@ const SIP_CYCLE = 6
  * A street character: walks a path (yielding to the player) or sits and sips/fans.
  * NPCs with a dialogue are interactive: they get a "!" until you talk to them today.
  */
-export function NPC({ def, at, yaw = 0, seatY, activity = null, arms = 0, carry = null, path, zone, extraActions, scale = 1, yieldLines = 'yield' }: NpcProps) {
+export function NPC({ def, at, yaw = 0, seatY, activity = null, arms = 0, ride, carry = null, path, zone, extraActions, scale = 1, yieldLines = 'yield' }: NpcProps) {
   const group = useRef<Group>(null)
   const body = useRef<RapierRigidBody>(null)
   const motion = useRef<MotionState>({ speed: 0 })
@@ -151,6 +154,7 @@ export function NPC({ def, at, yaw = 0, seatY, activity = null, arms = 0, carry 
     m.sit = seatY !== undefined ? 1 : 0
     m.seatY = seatY
     m.arms = arms
+    m.ride = ride ?? null
     s.clock += dt
     if (activity === 'sip') {
       const t = s.clock % SIP_CYCLE
@@ -174,14 +178,15 @@ export function NPC({ def, at, yaw = 0, seatY, activity = null, arms = 0, carry 
     if (walking) body.current?.setNextKinematicTranslation({ x: s.x, y: 0, z: s.z })
   })
 
+  const seated = seatY !== undefined || ride !== undefined
   return (
     <>
       <group ref={group} position={[at.x, 0, at.z]} rotation={[0, yaw, 0]}>
         <group scale={scale}>
           <ChibiModel motion={motion} outfit={def.outfit} carry={carry} />
         </group>
-        <SpeechBubble id={def.id} y={(seatY !== undefined ? 1.75 : 2.05) * scale + (carry ? 0.1 : 0)} />
-        {interactive && <NpcMarker visible={!talkedToday && !talking} y={(seatY !== undefined ? 2.0 : 2.3) * scale} />}
+        <SpeechBubble id={def.id} y={(seated ? 1.75 : 2.05) * scale + (carry ? 0.1 : 0)} />
+        {interactive && <NpcMarker visible={!talkedToday && !talking} y={(seated ? 2.0 : 2.3) * scale} />}
       </group>
       {walking ? (
         <RigidBody ref={body} type="kinematicPosition" colliders={false} position={[at.x, 0, at.z]}>

@@ -1,5 +1,83 @@
 # Changelog
 
+## 1.3.0 — Better-looking characters and vehicles
+
+### Changed — characters
+- Every character is now **one skinned mesh** (one draw call) with real joints: arms and legs have elbows and knees.
+  Draw calls dropped from ~190 to ~65 on the Hà Nội street and to 10–25 indoors.
+- **Riders hold the handlebars and rest their feet on the footboard**: hands and feet are placed by inverse
+  kinematics on anchor points of each vehicle (`RIDES` in `scenes/shared/vehicles.ts`). Cyclists' feet turn the
+  pedals as fast as they ride. Anh Tú sits properly on his xe ôm.
+- Drinking: the hand brings the glass to the mouth (IK), then lowers it; held glasses / fans stay upright.
+- Walking: knees bend, elbows swing softly; riders lean forward.
+- More detail: ears, soft eyebrows, side locks on bob hair, collar and hem lines, sleeve cuffs, button row on long
+  shirts, mitten hands with thumbs, two-tone shoes with soles, helmet chin straps removed (cleaner look).
+- Characters get a soft **rim light** so they stand out from the scenery.
+
+### Added — clothing cuts
+- Outfits now have a **top** (`tee`, `long` sleeves, `sleeveless`) and a **bottom** (`shorts`, `pants`, `skirt`).
+- New clothes at Chị Hằng's stall: white long-sleeve shirt, tank top, khaki trousers, flared skirt; the áo bà ba,
+  pullover and rain jacket now have long sleeves, jeans are full-length.
+- 22 NPCs dressed by role: teachers and office staff in long sleeves and trousers/skirts, Bác Hùng in a tank top…
+
+### Changed — vehicles & look
+- New scooter and city bicycle sized for the chibis (front fender, grips, mirrors, saddle, pedals, basket); the flower
+  bicycle rebuilt on the new frame.
+- A soft vignette frames the scene (CSS, no GPU cost).
+
+### For developers
+- `CLAUDE.md`: a short map of the project for coding sessions — kept up to date.
+- `systems/netState.ts`: a player is fully described by serialisable data (scene, position, yaw, `MotionState`,
+  `Outfit`) — groundwork for multiplayer. Dev: `__vh.snapshot()`, and `__vh.look(from, at)` for a fixed inspection camera.
+
+### Manual test checklist (phone)
+- [ ] Street: motorbike riders hold the handlebars with both hands and have their feet on the scooter; stand in the road to make one stop next to you.
+- [ ] Anh Tú (xe ôm) sits on his bike with hands on the grips.
+- [ ] Germany: cyclists' legs pedal while they ride.
+- [ ] Chị Mai at the café terrace lifts her glass to her mouth every few seconds, then lowers it.
+- [ ] Walk around: knees and elbows bend; nothing looks broken when sitting on a stool for trà đá.
+- [ ] Chị Hằng's stall: buy the khaki trousers / flared skirt / long-sleeve shirt → your character changes cut, not just colour; bag → wardrobe → "Mặc đồ cũ" goes back.
+- [ ] Frame rate feels at least as smooth as before (fewer draw calls).
+
+## 1.2.0 — Step-by-step guide
+
+New players always know what to do next and where to go.
+
+### Added
+- **Guide data** for every story step (`data/guides.ts`, attached to the steps in `data/quests.ts`): the target
+  (scene + NPC / interaction spot / point, or a HUD button), a "how to" hint (vi/en/de), and **blockers** with a way
+  out — not enough money (→ work at the café), centre / embassy / Bürgeramt closed (→ wait with the clock), Termin
+  not yet due, not enough XP for the exam, too tired (→ eat or sleep), already worked / viewed today, shift hours…
+- **Gold arrow + pulsing ring** over the current target in 3D, drawn through walls (2 draw calls); hidden when you
+  stand next to it.
+- **Edge arrow** with the distance ("12 m") when the target is off-screen, kept clear of the HUD and the joystick.
+- **Routing between scenes**: `route(from, to)` searches the map of doors (`SCENE_LINKS`) — at home it points to
+  the front door, on the street to the language centre or to Tú the xe ôm driver (embassy, airport), in Germany to
+  the WG door, the Bürgeramt or the tram stop.
+- **HUD buttons glow** when the step is "press this" (passport → visa file, clock → wait).
+- **Objective chip**: chapter progress ("2/8 bước"), a ⚠️ line when the step is blocked, a **"?"** button that opens
+  the **"Làm thế nào?"** card (how-to, why it's blocked, where it is, buttons to open the clock / visa file / quests),
+  a green ✓ flash when a step is done and a "👉 Tiếp theo: …" toast.
+- **First-time tour** (once, with "Bỏ qua"): walk (joystick lit up / WASD) → turn the camera → follow the arrow to
+  Bà Thu and talk → open the bag → open the clock → done. Each step advances when you do it. Existing saves with
+  lessons already taken don't see it.
+- **Settings**: "Chỉ đường" (arrows) and "Gợi ý" (hints, ⚠️ line, "?" button, next-step toasts) can be turned off.
+- New condition `{ energy: n }` and guide checks (`visa.terminLater`, `visa.embassyOpen`, `de.castedToday`,
+  `de.amtTerminToday/Later`, `care.shiftDoneToday`, `care.shiftHours`).
+
+### Manual test checklist (phone)
+- [ ] New game (Cài đặt → Chơi lại từ đầu): the tour card appears above the joystick, the joystick has a gold ring; walking moves to the next card.
+- [ ] Swipe to turn the camera → next card; a gold arrow bounces over Bà Thu → talk to her → the bag button glows → open/close the bag → the clock glows → open/close → "Bắt đầu chơi!".
+- [ ] After the tour: the 🎯 chip shows "0/8 bước" and a "?"; a gold arrow/ring sits at the language-centre door in the lane.
+- [ ] Turn the camera away: a round arrow at the screen edge points to the target with the distance in metres.
+- [ ] Go into your home: the arrow moves to the front door; "?" says you're at home and the way is "Ra phố".
+- [ ] Wait until after 21:00 (clock → Chờ): the chip shows ⚠️ "Trung tâm Đức ngữ mở 7–21h…", the "?" blinks, the arrow points to your study desk.
+- [ ] Spend money below 300.000 ₫ before enrolling: ⚠️ suggests the café and the arrow points at the café counter.
+- [ ] Finish a step: the chip flashes ✅ and a "👉 Tiếp theo" toast appears.
+- [ ] Visa chapter: the passport button glows; with a Termin on a later day the hint says to wait / sleep until that date.
+- [ ] Germany: the arrow leads to Lindenstraße 12, then the Bürgeramt, Ms Wagner, the WG laptop, the tram stop, Anna.
+- [ ] Cài đặt → Chỉ đường: Tắt hides arrows and glows; Gợi ý: Tắt hides the "?", ⚠️ line and next-step toasts.
+
 ## 1.1.0 — Hà Nội, class & exam scenes, time and days
 
 The Vietnamese chapter now takes place in Hà Nội's Old Quarter, lessons and exams have their own rooms,

@@ -1,7 +1,7 @@
 # Visa Hunter
 
 A cute, mobile-first 3D life-sim: learn German in Hà Nội's Old Quarter, hunt a visa, and build a life in Germany.
-Design and milestones: [docs/VISA_HUNTER_PLAN.md](docs/VISA_HUNTER_PLAN.md) · Progress: [docs/CHANGELOG.md](docs/CHANGELOG.md) ·
+Notes for coding sessions: [CLAUDE.md](CLAUDE.md) · Design and milestones: [docs/VISA_HUNTER_PLAN.md](docs/VISA_HUNTER_PLAN.md) · Progress: [docs/CHANGELOG.md](docs/CHANGELOG.md) ·
 Deploy: [docs/DEPLOY.md](docs/DEPLOY.md)
 
 ## Run
@@ -25,6 +25,9 @@ In dev builds the browser console has helpers (`window.__vh`):
 | `__vh.time.getState().setTime(1, 19 * 60)` | jump to day 1, 19:00 |
 | `__vh.stats.getState().setMoney(5_000_000, 'VND')` | set money |
 | `__vh.setFlag('de.wg', 1)`, `__vh.flags.getState()` | story flags |
+| `__vh.guide.getState()` | current guide (step, target, blocker); `__vh.route('home', 'embassy')` = first door on the way |
+| `__vh.setFlag('tut.done', true)` | skip the first-time tour |
+| `__vh.look([x,y,z], [x,y,z])` | fixed inspection camera (`__vh.look()` to return); `__vh.snapshot()` = multiplayer-ready player state |
 | `__vh.renderInfo()` | draw calls / triangles |
 
 ## Where things live
@@ -33,14 +36,14 @@ In dev builds the browser console has helpers (`window.__vh`):
 |---|---|
 | `src/main.tsx`, `src/boot.tsx` | Entry (title screen only) → the game, loaded after "▶ Chơi" |
 | `src/game/scenes/` | One folder per scene + `registry.ts` (spawns, plaques, lazy loading) and `interiors.ts` (seats/positions used by game logic). `shared/` has merged low-poly shapes, props, materials, `Room` (interiors), `Decor` (wall clock, fan, tear-off calendar) |
-| `src/game/components/` | Player, ChibiModel, CameraRig, Lighting (day/night/rain), Weather (particles), ActionSpot, Interactable, WorkStation… |
+| `src/game/components/` | Player, ChibiModel, CameraRig, Lighting (day/night/rain), Weather (particles), GuideSystem (guide arrow/ring + edge arrow), ActionSpot, Interactable, WorkStation… |
 | `src/game/components/npc/` | NPC (walk/sit/talk), Traffic (motorbikes, cars, bikes), ChatterDirector, SpeechBubble, NpcMarker |
 | `src/game/minigames/` | Vocabulary, der/die/das, sentence builder, exam, Termin hunt, Q&A interview |
-| `src/game/systems/` | Input, camera/player state, travel, time, calendar (dates, waiting), seats, places (doors of home/school), daylight, weather, dialogue, actions + conditions, quests/achievements watchers, german / visa / germany / pfand / wardrobe rules, audio, save/load, dev helpers |
-| `src/ui/` | DOM overlay: HUD, TitleScreen (+ HanoiScenery art), ClockPanel, TimeOverlays (wait, new-day card, place plaque), Joystick, ActionButtons, DialogueBox, panels (shop, bag, clothes, quests, visa, care, work), Toasts, Settings |
-| `src/store/` | Zustand stores (player, time, world, inventory, flags, dialogue, minigame, care, pfand, settings, ui, interaction, work, toasts) |
+| `src/game/systems/` | Input, camera/player state, travel, guide (step-by-step guide, routing, first-time tour), time, calendar (dates, waiting), seats, places (doors of home/school), daylight, weather, dialogue, actions + conditions, quests/achievements watchers, german / visa / germany / pfand / wardrobe rules, audio, save/load, dev helpers |
+| `src/ui/` | DOM overlay: HUD, TitleScreen (+ HanoiScenery art), Guide ("?" card, edge arrow, button glow, onboarding), ClockPanel, TimeOverlays (wait, new-day card, place plaque), Joystick, ActionButtons, DialogueBox, panels (shop, bag, clothes, quests, visa, care, work), Toasts, Settings |
+| `src/store/` | Zustand stores (player, time, world, guide, inventory, flags, dialogue, minigame, care, pfand, settings, ui, interaction, work, toasts) |
 | `src/data/config.ts` | Every tunable number (prices, fees, pay, energy, timings, weather, graphics) |
-| `src/data/` | Content: `schedule` (opening hours), `npcs`, `dialogues/` (street, story, germany), `chatter`, `quests`, `achievements`, `events`, `vocab`, `interviews`, `visa`, `care`, `clothes`, `items`, `shops`, `tasks` |
+| `src/data/` | Content: `guides` (targets, hints, blockers per step + door map between scenes), `schedule` (opening hours), `npcs`, `dialogues/` (street, story, germany), `chatter`, `quests`, `achievements`, `events`, `vocab`, `interviews`, `visa`, `care`, `clothes`, `items`, `shops`, `tasks` |
 | `src/i18n/` | `vi.json` (default), `en.json`, `de.json` |
 | `pwa/` | App icon source and the service-worker template (filled in by `vite.config.ts` at build time) |
 | `public/` | Manifest, icons, `staticwebapp.config.json` (Azure) |

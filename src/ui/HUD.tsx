@@ -15,10 +15,11 @@ import { longDate, shortDate } from '../game/systems/calendar'
 import { SCENES } from '../game/scenes/registry'
 import { useWorld } from '../store/worldStore'
 
-function HudButton({ label, onClick, children }: { label: string; onClick: () => void; children: ReactNode }) {
+function HudButton({ label, onClick, children, tour }: { label: string; onClick: () => void; children: ReactNode; tour?: string }) {
   return (
     <button
       type="button"
+      data-tour={tour}
       aria-label={label}
       title={label}
       onClick={onClick}
@@ -60,6 +61,7 @@ function Clock() {
     <button
       type="button"
       onClick={() => openPanel({ type: 'clock' })}
+      data-tour="clock"
       aria-label={`${formatClock(minutes)}, ${longDate(day, language)} — ${t('clock.title')}`}
       className="pointer-events-auto flex items-center gap-1.5 rounded-2xl bg-jade py-1 pr-3 pl-1.5 text-left text-white shadow-[0_3px_0_var(--color-jade-dark)] transition active:translate-y-[3px] active:shadow-none"
     >
@@ -112,17 +114,22 @@ export function HUD() {
           <HudButton label={musicOn ? t('hud.musicMute') : t('hud.musicUnmute')} onClick={toggleMusic}>
             {musicOn ? <MusicIcon /> : <MusicOffIcon className="opacity-60" />}
           </HudButton>
-          <HudButton label={t('hud.bag')} onClick={() => openPanel({ type: 'bag' })}>
+          <HudButton label={t('hud.bag')} onClick={() => openPanel({ type: 'bag' })} tour="bag">
             <BagIcon />
           </HudButton>
           {showVisa && (
-            <HudButton label={t('visa.title')} onClick={() => openPanel({ type: 'visa' })}>
+            <HudButton label={t('visa.title')} onClick={() => openPanel({ type: 'visa' })} tour="passport">
               <ActionIcon name="passport" />
             </HudButton>
           )}
         </div>
         <Clock />
-        <QuestTracker />
+        {/* Out of the column's flow so a long objective never squeezes the money/stat chips. */}
+        <div className="relative h-0 w-full">
+          <div className="absolute top-0 left-0">
+            <QuestTracker />
+          </div>
+        </div>
       </div>
 
       <div className="flex flex-col items-end gap-2">

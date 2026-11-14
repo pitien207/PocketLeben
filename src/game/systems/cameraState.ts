@@ -14,6 +14,8 @@ export const cameraState = {
   baseZoom: 1,
   /** Jump to the target next frame instead of easing (after a scene change). */
   snap: false,
+  /** Dev only: a fixed camera for inspecting models (`__vh.look(from, at)`, null = follow the player). */
+  free: null as null | { from: [number, number, number]; at: [number, number, number] },
 }
 
 /** Turn and zoom the camera for an interaction; call `resetCameraFocus()` afterwards. */

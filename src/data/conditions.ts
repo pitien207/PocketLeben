@@ -14,6 +14,8 @@ export type Condition =
   | { germanLevel: number }
   | { germanXpReady: true }
   | { money: number }
+  /** Energy ≥ n. */
+  | { energy: number }
   | { scene: SceneId }
   | { country: 'vn' | 'de' }
   | { hourBetween: [number, number] }

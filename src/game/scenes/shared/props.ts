@@ -39,26 +39,6 @@ export function plantShapes(leaf: string = P.leaf, pot: string = P.terracotta): 
   ]
 }
 
-/** A cute scooter-style motorbike — the most Vietnamese street prop there is. */
-export function motorbikeShapes(color: string): ShapeItem[] {
-  const tire = '#4a4856'
-  return [
-    { torus: [0.21, 0.08, 6, 14], at: [0, 0.29, -0.5], rot: [0, Math.PI / 2, 0], color: tire },
-    { torus: [0.21, 0.08, 6, 14], at: [0, 0.29, 0.55], rot: [0, Math.PI / 2, 0], color: tire },
-    { cyl: [0.09, 0.09, 0.14, 8], at: [0, 0.29, -0.5], rot: [0, 0, Math.PI / 2], color: P.steel },
-    { cyl: [0.09, 0.09, 0.14, 8], at: [0, 0.29, 0.55], rot: [0, 0, Math.PI / 2], color: P.steel },
-    { sphere: [0.4, 14, 10], at: [0, 0.6, -0.25], scale: [0.48, 0.5, 1.0], color },
-    { box: [0.3, 0.07, 0.5], at: [0, 0.4, 0.2], color: '#6b6878' },
-    { box: [0.34, 0.62, 0.12], at: [0, 0.68, 0.46], rot: [-0.25, 0, 0], color },
-    { sphere: [0.2, 12, 8], at: [0, 0.82, -0.22], scale: [0.62, 0.3, 1.45], color: '#6a4a40' },
-    { cyl: [0.035, 0.035, 0.42, 6], at: [0, 1.0, 0.56], rot: [-0.25, 0, 0], color },
-    { cyl: [0.028, 0.028, 0.62, 6], at: [0, 1.18, 0.6], rot: [0, 0, Math.PI / 2], color: P.darkSteel },
-    { sphere: [0.085, 10, 8], at: [0, 1.12, 0.7], color: '#fff6c8' },
-    { sphere: [0.05, 8, 6], at: [0.22, 1.32, 0.56], color: P.steel },
-    { sphere: [0.05, 8, 6], at: [-0.22, 1.32, 0.56], color: P.steel },
-  ]
-}
-
 /** Tiny plastic stool, the iconic sidewalk café seat. */
 export function stoolShapes(color: string): ShapeItem[] {
   return [
@@ -139,46 +119,7 @@ export function carShapes(color: string): ShapeItem[] {
   return s
 }
 
-/** A city bicycle with a basket (faces +Z). */
-export function bicycleShapes(color: string): ShapeItem[] {
-  return [
-    { torus: [0.3, 0.035, 5, 16], at: [0, 0.34, -0.48], rot: [0, Math.PI / 2, 0], color: '#3d3d48' },
-    { torus: [0.3, 0.035, 5, 16], at: [0, 0.34, 0.5], rot: [0, Math.PI / 2, 0], color: '#3d3d48' },
-    { cyl: [0.025, 0.025, 0.9, 5], at: [0, 0.55, 0.02], rot: [Math.PI / 2 - 0.35, 0, 0], color },
-    { cyl: [0.025, 0.025, 0.6, 5], at: [0, 0.6, -0.3], rot: [0.5, 0, 0], color },
-    { cyl: [0.025, 0.025, 0.5, 5], at: [0, 0.75, 0.45], rot: [-0.3, 0, 0], color },
-    { cyl: [0.02, 0.02, 0.5, 5], at: [0, 1.0, 0.52], rot: [0, 0, Math.PI / 2], color: '#4a4a55' },
-    { box: [0.18, 0.06, 0.28], at: [0, 0.92, -0.22], color: '#6a4a40' },
-    { box: [0.32, 0.22, 0.26], at: [0, 0.82, 0.78], color: '#d9b46b' },
-  ]
-}
 
-/** Hà Nội's flower bicycle: an old bike with a rack and two baskets overflowing with flowers. Faces +Z. */
-export function flowerBikeShapes(): ShapeItem[] {
-  const s: ShapeItem[] = [...bicycleShapes('#3f7d5c')]
-  // Rear rack + two woven baskets either side of the back wheel
-  s.push({ box: [0.5, 0.04, 0.5], at: [0, 0.78, -0.45], color: '#5d6170' })
-  for (const side of [-1, 1]) {
-    s.push({ cyl: [0.22, 0.17, 0.38, 10], at: [side * 0.34, 0.68, -0.45], color: '#c49a6c' })
-    s.push({ cyl: [0.225, 0.225, 0.04, 10], at: [side * 0.34, 0.86, -0.45], color: '#a8754f' })
-  }
-  // Bunches of flowers: lotus pink, daisies white, roses red, sunflowers yellow
-  const COLORS = ['#ff9fcf', '#ffffff', '#ff6b7a', '#ffd84d', '#ffc2e0', '#ffffff']
-  let n = 0
-  for (const side of [-1, 1]) {
-    for (let i = 0; i < 6; i++) {
-      const a = (i / 6) * Math.PI * 2
-      const x = side * 0.34 + Math.cos(a) * 0.12
-      const z = -0.45 + Math.sin(a) * 0.12
-      s.push({ cyl: [0.008, 0.008, 0.35, 4], at: [x, 1.02, z], color: '#5f9e57' })
-      s.push({ ico: [0.07 + (n % 3) * 0.015, 0], at: [x, 1.2 + (i % 2) * 0.07, z], color: COLORS[n++ % COLORS.length] })
-    }
-  }
-  // A bundle across the rack and a few leaves
-  for (let i = 0; i < 5; i++) s.push({ ico: [0.07, 0], at: [-0.16 + i * 0.08, 0.9 + (i % 2) * 0.04, -0.62], color: COLORS[(i + 2) % COLORS.length] })
-  s.push({ ico: [0.12, 0], at: [0, 0.88, -0.3], color: '#7cc27a' })
-  return s
-}
 
 /** A parked xích lô (cyclo): passenger seat with a folded hood in front, rider seat at the back. Faces +Z. */
 export function cycloShapes(color = '#2f6b8f'): ShapeItem[] {
@@ -200,3 +141,5 @@ export function cycloShapes(color = '#2f6b8f'): ShapeItem[] {
   s.push({ cyl: [0.02, 0.02, 0.5, 5], at: [0, 1.0, -0.38], rot: [0, 0, Math.PI / 2], color: '#4a4a55' })
   return s
 }
+
+export { bicycleShapes, flowerBikeShapes, motorbikeShapes, RIDES, type RideAnchors, type RideKind } from './vehicles'

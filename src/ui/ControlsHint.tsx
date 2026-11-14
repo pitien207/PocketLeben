@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { CONFIG } from '../data/config'
 import { useT } from '../i18n'
 import { useUI } from '../store/uiStore'
+import { useGuide } from '../store/guideStore'
 import { useIsTouch } from './useIsTouch'
 
 /** A short "how to move" bubble shown after loading. */
@@ -10,6 +11,7 @@ export function ControlsHint() {
   const isTouch = useIsTouch()
   const ready = useUI((s) => s.sceneReady)
   const [visible, setVisible] = useState(true)
+  const touring = useGuide((s) => s.tour !== null)
 
   useEffect(() => {
     if (!ready) return
@@ -20,7 +22,7 @@ export function ControlsHint() {
   return (
     <div
       className={`pointer-events-none absolute inset-x-0 z-10 flex justify-center px-6 transition-opacity duration-700 ${
-        ready && visible ? 'opacity-100' : 'opacity-0'
+        ready && visible && !touring ? 'opacity-100' : 'opacity-0'
       }`}
       // Above the joystick, clear of the HUD and the quest tracker.
       style={{ bottom: 'calc(max(1rem, env(safe-area-inset-bottom)) + 9.5rem)' }}

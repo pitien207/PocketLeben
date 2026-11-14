@@ -298,6 +298,12 @@ registerTests({
   'de.paperworkDone': paperworkDone,
   'de.canTakeNumber': () => getFlag('de.anmeldungTermin') === today() && getFlag('de.numberDay') !== today(),
   'de.numberCalled': () => getFlag('de.numberDay') === today(),
+  // For the step-by-step guide
+  'de.castedToday': () => getFlag('de.castingDay') === today() && !getFlag('de.wg'),
+  'de.amtTerminToday': () => getFlag('de.anmeldungTermin') === today(),
+  'de.amtTerminLater': () => flagNumber('de.anmeldungTermin') > today(),
+  'care.shiftDoneToday': () => getFlag('care.lastShiftDay') === today(),
+  'care.shiftHours': () => hour() >= CONFIG.care.startHours[0] && hour() < CONFIG.care.startHours[1],
 })
 
 /** Video call home from the WG laptop: once a day, a big mood boost. */

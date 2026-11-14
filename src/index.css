@@ -323,3 +323,40 @@ textarea {
 .mg-chalk .mg-heading {
   color: #ffe08a;
 }
+
+/* Step-by-step guide: a pulsing gold ring around the button to press. */
+@keyframes guide-ring {
+  0%,
+  100% {
+    box-shadow:
+      0 0 0 3px #ffc531,
+      0 0 14px 4px rgba(255, 197, 49, 0.55);
+  }
+  50% {
+    box-shadow:
+      0 0 0 5px #ffc531,
+      0 0 26px 10px rgba(255, 197, 49, 0.35);
+  }
+}
+.guide-spotlight {
+  animation: guide-ring 1.1s ease-in-out infinite;
+}
+
+/* The objective chip flashes green when a step is done. */
+@keyframes step-done {
+  0% {
+    box-shadow: 0 0 0 0 rgba(63, 125, 92, 0.9);
+    transform: scale(1);
+  }
+  30% {
+    box-shadow: 0 0 0 6px rgba(63, 125, 92, 0.5);
+    transform: scale(1.06);
+  }
+  100% {
+    box-shadow: 0 0 0 12px rgba(63, 125, 92, 0);
+    transform: scale(1);
+  }
+}
+.step-done-flash {
+  animation: step-done 0.9s ease-out;
+}
