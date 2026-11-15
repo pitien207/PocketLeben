@@ -10,6 +10,9 @@ export type Panel =
   | { type: 'visa' }
   | { type: 'clock' }
   | { type: 'guide' }
+  | { type: 'ending' }
+  | { type: 'map' }
+  | { type: 'secret'; id: string }
 
 /** Full-screen fade between scenes, with an optional caption ("✈ Bay sang Đức…"). */
 export interface Transition {
@@ -57,6 +60,8 @@ interface UIState {
   daySummary: DaySummary | null
   /** The new-day card is on screen. */
   newDayOpen: boolean
+  /** Chapter narration card (systems/story.ts), or null. */
+  chapterCard: number | null
   setSettingsOpen: (open: boolean) => void
   markSceneReady: () => void
   setMovementLocked: (locked: boolean) => void
@@ -67,6 +72,7 @@ interface UIState {
   setFastForward: (fastForward: FastForward | null) => void
   setDaySummary: (summary: DaySummary | null) => void
   setNewDayOpen: (open: boolean) => void
+  setChapterCard: (chapter: number | null) => void
 }
 
 export const useUI = create<UIState>()((set) => ({
@@ -79,6 +85,7 @@ export const useUI = create<UIState>()((set) => ({
   fastForward: null,
   daySummary: null,
   newDayOpen: false,
+  chapterCard: null,
   setSettingsOpen: (settingsOpen) => set({ settingsOpen }),
   markSceneReady: () => set({ sceneReady: true }),
   setMovementLocked: (movementLocked) => set({ movementLocked }),
@@ -89,4 +96,5 @@ export const useUI = create<UIState>()((set) => ({
   setFastForward: (fastForward) => set({ fastForward }),
   setDaySummary: (daySummary) => set({ daySummary }),
   setNewDayOpen: (newDayOpen) => set({ newDayOpen }),
+  setChapterCard: (chapterCard) => set({ chapterCard }),
 }))

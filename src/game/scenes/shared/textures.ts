@@ -86,13 +86,24 @@ export function makeSignTexture(opts: SignOptions) {
 
     ctx.textAlign = 'center'
     ctx.textBaseline = 'middle'
+    // Shrink each line until it fits inside the inner border (long names never spill out).
+    const fit = (text: string, weight: number, size: number, maxW: number) => {
+      let px = size
+      ctx.font = `${weight} ${px}px ${SIGN_FONT}`
+      while (px > 18 && ctx.measureText(text).width > maxW) {
+        px -= 4
+        ctx.font = `${weight} ${px}px ${SIGN_FONT}`
+      }
+      return px
+    }
+    const inner = w - 110
     ctx.fillStyle = opts.color
-    ctx.font = `800 ${opts.subtitle ? 118 : 150}px ${SIGN_FONT}`
-    ctx.fillText(opts.title, w / 2, opts.subtitle ? h * 0.44 : h * 0.54)
+    const titlePx = fit(opts.title, 800, opts.subtitle ? 112 : 140, inner)
+    ctx.fillText(opts.title, w / 2, opts.subtitle ? h * 0.42 + (112 - titlePx) * 0.15 : h * 0.53)
     if (opts.subtitle) {
       ctx.fillStyle = opts.accent
-      ctx.font = `700 48px ${SIGN_FONT}`
-      ctx.fillText(opts.subtitle, w / 2, h * 0.8)
+      fit(opts.subtitle, 700, 46, inner)
+      ctx.fillText(opts.subtitle, w / 2, h * 0.76)
     }
     texture.needsUpdate = true
   }

@@ -1,5 +1,6 @@
 import type { ComponentType } from 'react'
 import type { Localized } from '../../i18n/localized'
+import type { Condition } from '../../data/conditions'
 import type { SceneId } from '../../store/worldStore'
 
 export interface SpawnPoint {
@@ -19,7 +20,7 @@ export interface SceneInfo {
   /** Camera distance multiplier (rooms are viewed a little closer). */
   cameraZoom?: number
   /** Place-name plaque shown when you arrive (street sign style per country). */
-  plaque: { style: 'hanoi' | 'german' | 'room'; title: Localized; subtitle?: Localized }
+  plaque: { style: 'hanoi' | 'german' | 'room'; title: Localized; subtitle?: Localized; alt?: { if: Condition; title: Localized; subtitle?: Localized } }
   /** Each scene is its own code chunk, loaded on first visit (plan §3: lazy-load each scene). */
   load: () => Promise<{ default: ComponentType }>
 }
@@ -118,10 +119,20 @@ export const SCENES: Record<SceneId, SceneInfo> = {
     country: 'de',
     indoor: true,
     name: { vi: 'Căn hộ WG', en: 'The flat-share (WG)', de: 'Die WG' },
-    plaque: { style: 'room', title: { vi: 'Căn hộ WG', en: 'The WG', de: 'Die WG' }, subtitle: { vi: 'Lindenstraße 12, tầng 3', en: 'Lindenstraße 12, 3rd floor', de: 'Lindenstraße 12, 3. OG' } },
+    plaque: { style: 'room', title: { vi: 'Căn hộ WG', en: 'The WG', de: 'Die WG' }, subtitle: { vi: 'Lindenstraße 12, tầng 3', en: 'Lindenstraße 12, 3rd floor', de: 'Lindenstraße 12, 3. OG' }, alt: { if: { flag: 'de.ownFlat' }, title: { vi: 'Căn hộ của mình', en: 'My own flat', de: 'Meine Wohnung' }, subtitle: { vi: 'Lindenstraße 12, tầng 4', en: 'Lindenstraße 12, 4th floor', de: 'Lindenstraße 12, 4. OG' } } },
     spawns: { default: { x: 1.5, z: 2.4, yaw: 0 } },
     cameraZoom: 0.78,
     load: () => import('./WgRoom'),
+  },
+  university: {
+    id: 'university',
+    country: 'de',
+    indoor: true,
+    name: { vi: 'Đại học Lindenberg', en: 'Lindenberg University', de: 'Universität Lindenberg' },
+    plaque: { style: 'room', title: { vi: 'Universität Lindenberg', en: 'Lindenberg University', de: 'Universität Lindenberg' }, subtitle: { vi: 'Hörsaal 2 · Khoa Điều dưỡng', en: 'Lecture hall 2 · Nursing', de: 'Hörsaal 2 · Pflege' } },
+    spawns: { default: { x: 5.0, z: 3.6, yaw: 0 } },
+    cameraZoom: 0.95,
+    load: () => import('./University'),
   },
   careHome: {
     id: 'careHome',

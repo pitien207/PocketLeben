@@ -117,12 +117,13 @@ function lakeShapes(): ShapeItem[] {
   const s: ShapeItem[] = []
   const { minX, maxX } = PLAY
   const width = maxX - minX + 1.2
+  const cx = (minX + maxX) / 2
   // Stone embankment, iron railing (painted dark green), shoreline path
   s.push({ box: [140, 0.36, 0.5], at: [0, 0.16, SHORE_Z], color: '#cfc8bb' })
   s.push({ box: [140, 0.04, 0.55], at: [0, 0.35, SHORE_Z], color: '#e3ddd1' })
-  for (let x = -width / 2; x <= width / 2 + 0.01; x += 0.6) s.push({ box: [0.05, 0.75, 0.05], at: [x, 0.72, SHORE_Z], color: '#2c4a3a' })
-  s.push({ box: [width, 0.06, 0.06], at: [0, 1.08, SHORE_Z], color: '#2c4a3a' })
-  s.push({ box: [width, 0.05, 0.05], at: [0, 0.6, SHORE_Z], color: '#2c4a3a' })
+  for (let x = -width / 2; x <= width / 2 + 0.01; x += 0.6) s.push({ box: [0.05, 0.75, 0.05], at: [cx + x, 0.72, SHORE_Z], color: '#2c4a3a' })
+  s.push({ box: [width, 0.06, 0.06], at: [cx, 1.08, SHORE_Z], color: '#2c4a3a' })
+  s.push({ box: [width, 0.05, 0.05], at: [cx, 0.6, SHORE_Z], color: '#2c4a3a' })
   // Water, with a few lighter streaks of reflected sky
   s.push({ box: [160, 0.03, 80], at: [0, -0.005, SHORE_Z + 40.3], color: WATER })
   for (let i = 0; i < 18; i++) {
@@ -131,8 +132,8 @@ function lakeShapes(): ShapeItem[] {
     s.push({ box: [2 + (i % 4), 0.01, 0.12], at: [x, 0.015, z], color: '#b5dbd3' })
   }
   // Willows leaning over the water, just past the railing
-  for (let i = 0; i < 9; i++) {
-    const x = -24 + i * 6 + (i % 2) * 1.2
+  for (let i = 0; i < 12; i++) {
+    const x = -42 + i * 6 + (i % 2) * 1.2
     s.push(place(willowShapes(), [x, 0, SHORE_Z + 1.0 + (i % 3) * 0.4], i * 0.7, 1 + (i % 3) * 0.12))
   }
   s.push(place(turtleTowerShapes(), [-6, 0, SHORE_Z + 10], 0.15, 0.8))

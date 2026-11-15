@@ -113,7 +113,7 @@ export function TearCalendar({ position, rotation = [0, 0, 0], width = 0.42 }: {
   return (
     <group position={position} rotation={rotation}>
       <Shapes shapes={back} castShadow={false} />
-      <SignBoard options={options} width={width} position={[0, 0, 0.002]} />
+      <SignBoard options={options} width={width} position={[0, 0, 0.002]} flat />
     </group>
   )
 }

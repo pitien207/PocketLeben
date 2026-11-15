@@ -37,6 +37,8 @@ self.addEventListener('fetch', (event) => {
   const { request } = event
   if (request.method !== 'GET') return
   const url = new URL(request.url)
+  // Account, cloud save and multiplayer always go to the server, never the cache.
+  if (url.pathname.startsWith('/api/') || url.pathname.startsWith('/ws')) return
 
   // The page: network first so new versions arrive, the cached shell when offline.
   if (request.mode === 'navigate') {

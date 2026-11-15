@@ -6,6 +6,9 @@ import { startWatchers } from './game/systems/watchers'
 import { startGuide } from './game/systems/guide'
 import { SCENES } from './game/scenes/registry'
 import { useWorld } from './store/worldStore'
+import { startNet } from './net/client'
+import { startSecrets } from './game/systems/secrets'
+import { startStory } from './game/systems/story'
 
 /**
  * The game itself, loaded after the title screen (keeps the first paint light).
@@ -18,6 +21,10 @@ startAutosave()
 startWatchers()
 startGuide()
 initAudio()
+// Signed in: multiplayer room + cloud save (does nothing offline / without an account).
+startNet()
+startSecrets()
+startStory()
 
 // Background music follows the place you're in.
 const applyMusic = () => {

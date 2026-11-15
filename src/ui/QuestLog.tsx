@@ -9,6 +9,9 @@ import { useLocalize } from '../i18n/localized'
 import { useFlags } from '../store/flagsStore'
 import { useUI } from '../store/uiStore'
 import { Sheet } from './Sheet'
+import { SkipStepButton } from './TestTools'
+import { CheckIcon, ScrollIcon, StarIcon, TargetIcon } from './icons'
+import { SecretList } from './SecretCard'
 
 /**
  * "Next objective" chip under the clock: the step, chapter progress, a warning when the
@@ -45,7 +48,7 @@ export function QuestTracker() {
         onClick={() => openPanel({ type: 'quests' })}
         className={`hud-chip relative flex min-w-0 flex-1 items-start gap-1.5 px-2.5 py-1.5 text-left ${flash ? 'step-done-flash' : ''}`}
       >
-        <span className="mt-0.5 text-sm">{flash ? '✅' : '🎯'}</span>
+        <span className="mt-0.5 shrink-0 text-[18px]">{flash ? <CheckIcon /> : <TargetIcon />}</span>
         <span className="min-w-0">
           <span className="block text-[12px] leading-snug font-extrabold text-ink">{localize(objective.step.text)}</span>
           {guide && guide.stepId === stepId && (
@@ -56,6 +59,7 @@ export function QuestTracker() {
           {blocked && <span className="line-clamp-2 text-[11px] leading-tight font-bold text-lacquer">⚠️ {fillGuide(localize(blocked))}</span>}
         </span>
       </button>
+      <SkipStepButton stepId={objective.step.id} className="hud-chip px-2 text-base" />
       {hints && (
         <button
           type="button"
@@ -76,6 +80,7 @@ export function QuestLog() {
   const panel = useUI((s) => s.panel)
   const closePanel = useUI((s) => s.closePanel)
   useFlags((s) => s.flags)
+  const [tab, setTab] = useState<'quests' | 'secrets'>('quests')
   if (panel?.type !== 'quests') return null
 
   const visible = QUESTS.filter(questVisible)
@@ -83,7 +88,21 @@ export function QuestLog() {
 
   return (
     <Sheet title={t('quests.title')} onClose={closePanel}>
-      {chapters.map((ch) => (
+      <div className="mb-3 flex rounded-full border-2 border-outline bg-cream p-1">
+        {(['quests', 'secrets'] as const).map((id) => (
+          <button
+            key={id}
+            type="button"
+            data-testid={`tab-${id}`}
+            onClick={() => setTab(id)}
+            className={`flex-1 rounded-full px-2 py-1.5 text-[13px] font-extrabold transition ${tab === id ? 'bg-lacquer text-gold-light shadow' : 'text-ink/60'}`}
+          >
+            {t(id === 'quests' ? 'quests.tabQuests' : 'quests.tabSecrets')}
+          </button>
+        ))}
+      </div>
+      {tab === 'secrets' && <SecretList />}
+      {tab === 'quests' && chapters.map((ch) => (
         <section key={ch} className="mb-3">
           <h3 className="mb-1.5 font-display text-sm font-extrabold text-lacquer">{localize(CHAPTER_NAMES[ch])}</h3>
           <ul className="flex flex-col gap-2">
@@ -91,10 +110,18 @@ export function QuestLog() {
               .filter((q) => q.chapter === ch)
               .map((q) => {
                 const done = questComplete(q)
+                const doneSteps = q.steps.filter((s) => stepDone(s.id)).length
                 return (
                   <li key={q.id} className={`rounded-2xl bg-white/80 p-2.5 shadow-[inset_0_0_0_2px_#f1dcb6] ${done ? 'opacity-60' : ''}`}>
                     <div className="mb-1 flex items-center gap-1.5 text-[15px] font-black">
-                      {done ? '✅' : q.side ? '⭐' : '📜'} {localize(q.title)}
+                      <span className="flex-1">
+                        <span className="mr-1 inline-block align-[-3px] text-[20px]">{done ? <CheckIcon /> : q.side ? <StarIcon /> : <ScrollIcon />}</span>
+                        {localize(q.title)}
+                      </span>
+                      <span className="text-[11px] font-black text-ink/50 tabular-nums">{t('quests.progress', { done: doneSteps, total: q.steps.length })}</span>
+                    </div>
+                    <div className="mb-1.5 h-1.5 overflow-hidden rounded-full bg-ink/10">
+                      <div className={`h-full rounded-full ${q.side ? 'bg-gold' : 'bg-jade'}`} style={{ width: `${(doneSteps / q.steps.length) * 100}%` }} />
                     </div>
                     <ul className="flex flex-col gap-0.5">
                       {q.steps.map((s) => {
@@ -102,7 +129,8 @@ export function QuestLog() {
                         return (
                           <li key={s.id} className={`flex gap-1.5 text-[13px] font-bold ${ok ? 'text-jade line-through' : 'text-ink'}`}>
                             <span>{ok ? '✓' : '○'}</span>
-                            <span>{localize(s.text)}</span>
+                            <span className="flex-1">{localize(s.text)}</span>
+                            {!ok && <SkipStepButton stepId={s.id} />}
                           </li>
                         )
                       })}

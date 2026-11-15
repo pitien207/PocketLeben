@@ -13,6 +13,20 @@ type Direction = 'up' | 'down' | 'left' | 'right'
 
 const keys: Record<Direction, boolean> = { up: false, down: false, left: false, right: false }
 const joystick: Vec2 = { x: 0, y: 0 }
+/** Sprint: Shift held (keyboard) or the run toggle (touch). */
+const sprint = { shift: false, toggle: false }
+
+export function isSprinting() {
+  return sprint.shift || sprint.toggle
+}
+
+export function setSprintToggle(on: boolean) {
+  sprint.toggle = on
+}
+
+export function sprintToggleOn() {
+  return sprint.toggle
+}
 
 const KEY_MAP: Partial<Record<string, Direction>> = {
   KeyW: 'up',
@@ -49,21 +63,24 @@ function isTypingTarget(target: EventTarget | null) {
   return target instanceof HTMLElement && (target.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName))
 }
 
-/** Binds WASD + arrow keys. Returns an unbind function (use in useEffect). */
+/** Binds WASD + arrow keys (+ Shift to run). Returns an unbind function (use in useEffect). */
 export function bindKeyboard(): () => void {
   const onKeyDown = (e: KeyboardEvent) => {
+    if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') sprint.shift = true
     const dir = KEY_MAP[e.code]
     if (!dir || isTypingTarget(e.target)) return
     keys[dir] = true
     e.preventDefault() // stop arrow keys from scrolling
   }
   const onKeyUp = (e: KeyboardEvent) => {
+    if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') sprint.shift = false
     const dir = KEY_MAP[e.code]
     if (dir) keys[dir] = false
   }
   // Avoid "stuck" keys when the window loses focus mid-press.
   const releaseAll = () => {
     keys.up = keys.down = keys.left = keys.right = false
+    sprint.shift = false
   }
 
   window.addEventListener('keydown', onKeyDown)

@@ -1,0 +1,87 @@
+name: Build and deploy to Azure Container Apps
+
+# Every push to main: typecheck + build inside Docker, push the image to ghcr.io, roll the
+# Container App to the new image. Azure login uses OIDC (no client secret). Setup: docs/DEPLOY.md.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write # push to ghcr.io with GITHUB_TOKEN
+  id-token: write # OIDC token for azure/login
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+env:
+  # ghcr.io image names must be lowercase.
+  IMAGE_NAME: ghcr.io/${{ github.repository_owner }}/visa-hunter
+  CONTAINER_APP_NAME: visa-hunter
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3.12.0
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3.7.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push image
+        uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6.19.2
+        with:
+          context: .
+          push: true
+          tags: |
+            ${{ env.IMAGE_NAME }}:latest
+            ${{ env.IMAGE_NAME }}:${{ github.sha }}
+          labels: |
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+            org.opencontainers.image.revision=${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          provenance: false
+          sbom: false
+
+      - name: Log in to Azure (OIDC, no client secret)
+        if: ${{ vars.AZURE_RESOURCE_GROUP != '' }}
+        uses: azure/login@7184910d9eb2b1c5e48f7073824a90609bb9b6d6 # v2.3.1
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Deploy new image to the Container App
+        if: ${{ vars.AZURE_RESOURCE_GROUP != '' }}
+        run: |
+          az config set extension.use_dynamic_install=yes_without_prompt
+          az containerapp update \
+            --name "$CONTAINER_APP_NAME" \
+            --resource-group "${{ vars.AZURE_RESOURCE_GROUP }}" \
+            --image "$IMAGE_NAME:${{ github.sha }}" \
+            --output none
+          az containerapp show \
+            --name "$CONTAINER_APP_NAME" \
+            --resource-group "${{ vars.AZURE_RESOURCE_GROUP }}" \
+            --query "{revision: properties.latestRevisionName, image: properties.template.containers[0].image, status: properties.runningStatus}" \
+            --output table
+
+      # Keep the 10 newest images on ghcr.io (= the last 10 deploys for rollback).
+      - name: Delete old images from ghcr.io
+        continue-on-error: true
+        uses: actions/delete-package-versions@e5bc658cc4c965c472efe991f8beea3981499c55 # v5.0.0
+        with:
+          package-name: visa-hunter
+          package-type: container
+          min-versions-to-keep: 10

@@ -7,7 +7,8 @@ import { TearCalendar, WallClock, WallFan } from '../shared/Decor'
 import { PALETTE as P } from '../shared/palette'
 import { motorbikeShapes, place, plantShapes } from '../shared/props'
 import { Room } from '../shared/Room'
-import type { ShapeItem } from '../shared/Shapes'
+import { Shapes, type ShapeItem } from '../shared/Shapes'
+import { useFlags } from '../../../store/flagsStore'
 
 /**
  * Home, the ground floor of the family's tube house in the lane: a wooden bed with a
@@ -106,10 +107,42 @@ const BED: SpotAction[] = [
   { id: 'save', labelKey: 'action.save', icon: 'save', action: 'home.save' },
 ]
 const DESK: SpotAction[] = [{ id: 'study', labelKey: 'action.selfStudy', icon: 'book', action: 'german.selfStudy', primary: true }]
-const EXIT: SpotAction[] = [{ id: 'exit', labelKey: 'action.toStreet', icon: 'door', action: 'home.leave', primary: true }]
+const EXIT: SpotAction[] = [
+  { id: 'exit', labelKey: 'action.toStreet', icon: 'door', action: 'home.leave', primary: true, if: { noFlag: 'trip.away' } },
+  { id: 'flyBack', labelKey: 'action.flyBack', icon: 'passport', action: 'trip.return', primary: true, if: { flag: 'trip.away' } },
+]
+
+/** Tết decorations for the visit home (chapter 5): peach blossom, bánh chưng, red couplets. */
+function tetDecor(): ShapeItem[] {
+  const s: ShapeItem[] = []
+  // Peach blossom tree in a pot against the back wall, beside the bed
+  s.push({ cyl: [0.28, 0.22, 0.4, 12], at: [-1.75, 0.2, BACK + 0.45], color: '#b8322a' })
+  s.push({ cyl: [0.05, 0.07, 1.1, 6], at: [-1.75, 0.9, BACK + 0.45], color: '#6a4a3a' })
+  for (let i = 0; i < 9; i++) {
+    const a = (i / 9) * Math.PI * 2
+    const r = 0.25 + (i % 3) * 0.08
+    s.push({ ico: [0.11 + (i % 2) * 0.03, 0], at: [-1.75 + Math.cos(a) * r, 1.35 + (i % 3) * 0.15, BACK + 0.45 + Math.sin(a) * r * 0.6], color: i % 3 === 0 ? '#ffd1e0' : '#ff9fc4' })
+  }
+  // Bánh chưng stack on the tea table, wrapped in green leaves with bamboo ties
+  for (let i = 0; i < 3; i++) {
+    const y = 0.64 + i * 0.1
+    s.push({ box: [0.2, 0.09, 0.2], at: [-2.0 + (i - 1) * 0.06, y, 1.1], color: '#4f8f45' })
+    s.push({ box: [0.21, 0.092, 0.02], at: [-2.0 + (i - 1) * 0.06, y, 1.1], color: '#e9d8a6' })
+  }
+  // Red couplets either side of the family altar, a lantern
+  for (const x of [-1.3, 0.45]) {
+    s.push({ box: [0.22, 1.0, 0.02], at: [x, 1.8, BACK + 0.03], color: '#d4473b' })
+    for (let k = 0; k < 4; k++) s.push({ box: [0.12, 0.12, 0.01], at: [x, 2.15 - k * 0.24, BACK + 0.045], color: '#f4c04e' })
+  }
+  s.push({ sphere: [0.2, 12, 10], at: [0, 2.5, 1.2], scale: [1, 0.85, 1], color: '#d4473b' })
+  s.push({ cyl: [0.07, 0.07, 0.06, 8], at: [0, 2.3, 1.2], color: '#f4c04e' })
+  return s
+}
 
 const Home = memo(function Home() {
   const shapes = useMemo(furniture, [])
+  const tet = useMemo(tetDecor, [])
+  const visiting = useFlags((s) => !!s.flags['trip.away'])
   const { bed, desk } = HOME_ROOM
   return (
     <>
@@ -134,6 +167,12 @@ const Home = memo(function Home() {
 
       <NPC def={NPCS.bo} at={{ x: -2.95, z: 1.1 }} yaw={Math.PI / 2} seatY={0.44} arms={1} />
       <NPC def={NPCS.emGai} at={{ x: -2.0, z: 1.75 }} yaw={Math.PI} seatY={0.3} scale={0.85} />
+      {visiting && (
+        <>
+          <Shapes shapes={tet} />
+          <NPC def={NPCS.me} at={{ x: 0.6, z: 0.6 }} yaw={Math.PI * 0.85} zone={{ x: 0.6, z: 1.2, halfX: 1.0, halfZ: 0.9 }} />
+        </>
+      )}
 
       <ActionSpot id="home-bed" nameKey="interact.bed" zone={{ x: bed.x + 0.2, z: bed.z + 1.55, halfX: 1.1, halfZ: 0.55 }} actions={BED} />
       <ActionSpot id="home-desk" nameKey="interact.studyDesk" zone={{ x: desk.x, z: desk.z + 1.05, halfX: 0.9, halfZ: 0.6 }} actions={DESK} />

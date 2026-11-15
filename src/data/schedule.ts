@@ -24,7 +24,9 @@ export const SCHEDULE: PlaceHours[] = [
   { id: 'buergeramt', icon: '🏛️', country: 'de', name: { vi: 'Bürgeramt', en: 'Bürgeramt', de: 'Bürgeramt' }, hours: CONFIG.germany.officeHours, closedDays: [5, 6] },
   { id: 'supermarkt', icon: '🛒', country: 'de', name: { vi: 'Siêu thị', en: 'Supermarket', de: 'Supermarkt' }, hours: shopHours('supermarkt'), closedDays: [6] },
   { id: 'baeckerei', icon: '🥨', country: 'de', name: { vi: 'Tiệm bánh', en: 'Bakery', de: 'Bäckerei' }, hours: shopHours('baeckerei') },
+  { id: 'asiaMarkt', icon: '🍜', country: 'de', name: { vi: 'Siêu thị châu Á', en: 'Asia market', de: 'Asia-Markt' }, hours: shopHours('asiaMarkt'), closedDays: [6] },
   { id: 'imbiss', icon: '🥙', country: 'de', name: { vi: 'Quán Döner', en: 'Döner stand', de: 'Dönerladen' }, hours: shopHours('imbiss') },
+  { id: 'uni', icon: '🎓', country: 'de', name: { vi: 'Đại học (bài giảng, thư viện)', en: 'University (lectures, library)', de: 'Universität (Vorlesung, Bibliothek)' }, hours: CONFIG.uni.hours, closedDays: [5, 6] },
   { id: 'care', icon: '🩺', country: 'de', name: { vi: 'Vào ca ở viện dưỡng lão', en: 'Care-home shift start', de: 'Schichtbeginn Pflegeheim' }, hours: CONFIG.care.startHours },
 ]
 

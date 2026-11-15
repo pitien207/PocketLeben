@@ -146,7 +146,7 @@ export function StoryPlaces() {
     <>
       <Shapes shapes={shapes} />
       <SignBoard options={CENTER_SIGN} width={2.9} position={[CENTER.x, 2.75, CENTER.front + 0.2]} />
-      <SignBoard options={CENTER_BANNER} width={1.15} position={[CENTER.x + 1.28, 1.5, CENTER.front + 0.07]} />
+      <SignBoard options={CENTER_BANNER} width={1.15} position={[CENTER.x + 1.28, 1.5, CENTER.front + 0.07]} flat />
       <SignBoard options={STREET_PLAQUE} width={0.95} position={[HOME.x + 2.27, 3.2, -4.4]} />
       <ActionSpot
         id="center-door"

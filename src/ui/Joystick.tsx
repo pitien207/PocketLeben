@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react'
 import { CONFIG } from '../data/config'
-import { setJoystick } from '../game/systems/input'
+import { setJoystick, setSprintToggle, sprintToggleOn } from '../game/systems/input'
 import { useT } from '../i18n'
+import { RunIcon } from './icons'
 import { useUI } from '../store/uiStore'
 import { useIsTouch } from './useIsTouch'
 
@@ -16,6 +17,7 @@ export function Joystick() {
   const knobRef = useRef<HTMLDivElement>(null)
   const activePointer = useRef<number | null>(null)
   const [engaged, setEngaged] = useState(false)
+  const [running, setRunning] = useState(sprintToggleOn)
   // Hidden while the game moves the player (e.g. working behind the counter).
   const locked = useUI((s) => s.movementLocked)
 
@@ -80,6 +82,22 @@ export function Joystick() {
   }
 
   return (
+    <>
+    <button
+      type="button"
+      aria-pressed={running}
+      aria-label={t('joystick.run')}
+      onClick={() => {
+        setSprintToggle(!running)
+        setRunning(!running)
+      }}
+      className={`pointer-events-auto absolute z-20 grid h-12 w-12 place-items-center rounded-full border-[3px] text-2xl shadow-lg select-none active:translate-y-0.5 ${
+        running ? 'border-outline bg-gold shadow-[0_3px_0_var(--color-outline)]' : 'border-outline bg-cream shadow-[0_3px_0_var(--color-outline)]'
+      }`}
+      style={{ left: 'calc(max(0.25rem, env(safe-area-inset-left)) + 9.4rem)', bottom: 'calc(max(0.5rem, env(safe-area-inset-bottom)) + 7.6rem)' }}
+    >
+      <RunIcon />
+    </button>
     <div
       role="application"
       data-tour="joystick"
@@ -110,5 +128,6 @@ export function Joystick() {
         />
       </div>
     </div>
+    </>
   )
 }

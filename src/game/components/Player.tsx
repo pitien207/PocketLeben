@@ -9,7 +9,7 @@ import { useMinigame } from '../../store/minigameStore'
 import { useDialogue } from '../../store/dialogueStore'
 import { cameraState } from '../systems/cameraState'
 import { PLAYER_GROUPS } from '../systems/collisionGroups'
-import { readMoveInput, type Vec2 } from '../systems/input'
+import { isSprinting, readMoveInput, type Vec2 } from '../systems/input'
 import { damp, dampAngle, dampFactor } from '../systems/math'
 import { playerState } from '../systems/playerState'
 import { ChibiModel, type MotionState } from './ChibiModel'
@@ -118,6 +118,7 @@ export function Player({ visualRef }: PlayerProps) {
       const cos = Math.cos(cameraState.yaw)
       moveX = cos * _input.x - sin * _input.y
       moveZ = -sin * _input.x - cos * _input.y
+      if (isSprinting()) speedScale = cfg.runMultiplier
     }
 
     const v = velocity.current
@@ -139,7 +140,7 @@ export function Player({ visualRef }: PlayerProps) {
     // Animate from real velocity so walking into a wall looks like standing.
     const planarSpeed = Math.hypot(current.x, current.z)
     const m = motion.current
-    m.speed = damp(m.speed, Math.min(1, planarSpeed / cfg.walkSpeed), 10, dt)
+    m.speed = damp(m.speed, Math.min(cfg.runMultiplier, planarSpeed / cfg.walkSpeed), 10, dt)
 
     // Sitting down for a drink etc.
     const pose = playerState.pose

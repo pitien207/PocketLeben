@@ -4,15 +4,19 @@ import { pushToast } from '../../store/toastStore'
 import { registerActions } from './actions'
 import { playSfx } from './audio'
 import { bumpFlag, flagNumber, setFlag } from './conditions'
+import { canCarry } from './bag'
 
 /** Pfand (plan §6 side hustles, milestone M8): collect bottles, return them for 25 cents each. */
 
 export const carried = () => flagNumber('pfand.carried')
 
-export function pickUpBottle() {
+/** Pick up a bottle if it fits in the bag. */
+export function pickUpBottle(): boolean {
+  if (!canCarry(CONFIG.bag.bottleKg)) return false
   bumpFlag('pfand.carried')
   playSfx('pickup')
   pushToast('toast.bottlePicked', 'info', { n: carried() })
+  return true
 }
 
 function returnBottles() {

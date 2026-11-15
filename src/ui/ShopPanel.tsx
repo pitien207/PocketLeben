@@ -1,4 +1,6 @@
 import { getItem, type ItemDef } from '../data/items'
+import { bagCapacity, bagWeight, formatKg } from '../game/systems/bag'
+import { useFlags } from '../store/flagsStore'
 import { SHOPS, type ShopId } from '../data/shops'
 import { buyItem } from '../game/systems/effects'
 import { formatMoney } from '../i18n/format'
@@ -31,6 +33,7 @@ export function ShopPanel() {
   const money = usePlayer((s) => s.money)
   const currency = usePlayer((s) => s.currency)
   const owned = useInventory((s) => s.items)
+  useFlags((s) => s.flags)
 
   if (panel?.type !== 'shop') return null
   const shop = SHOPS[panel.shopId as ShopId]
@@ -42,6 +45,7 @@ export function ShopPanel() {
         {t('shop.yourMoney')}:
         <CoinIcon className="text-lg" />
         <span className="font-display text-base font-extrabold tabular-nums">{formatMoney(money, currency)}</span>
+        <span className="ml-2 rounded-full bg-ink/10 px-2 py-0.5 text-[12px] font-black tabular-nums">🎒 {t('shop.bagRoom', { kg: formatKg(bagWeight()).replace(' kg', ''), max: bagCapacity() })}</span>
       </div>
       <ul className="grid grid-cols-2 gap-2">
         {shop.items.map((id) => {
@@ -55,7 +59,10 @@ export function ShopPanel() {
               )}
               <ItemIcon name={item.icon} className="text-[40px]" />
               <span className="text-sm leading-tight font-extrabold">{localize(item.name)}</span>
-              <EffectChips item={item} />
+              <span className="flex flex-wrap justify-center gap-1">
+                <EffectChips item={item} />
+                <span className="rounded-full bg-ink/10 px-1.5 py-0.5 text-[11px] font-black tabular-nums">{formatKg(item.weight)}</span>
+              </span>
               <button
                 type="button"
                 onClick={() => buyItem(id, false)}

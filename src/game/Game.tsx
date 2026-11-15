@@ -17,6 +17,8 @@ import { GuideSystem } from './components/GuideSystem'
 import { PALETTE } from './scenes/shared/palette'
 import { SCENES } from './scenes/registry'
 import { DebugBridge } from './systems/debug'
+import { LocalEmote, RemotePlayers } from './components/RemotePlayers'
+import { SecretGlints } from './components/SecretGlints'
 
 /** Physics steps after the player sets its velocity (-100) and before the camera (0). */
 const PHYSICS_PRIORITY = -50
@@ -77,6 +79,9 @@ export function Game() {
             <SceneRoot />
             <Player visualRef={playerVisual} />
             <CameraRig target={playerVisual} />
+            <RemotePlayers />
+            <LocalEmote />
+            <SecretGlints />
             <GuideSystem />
             <InteractionSystem />
             <TimeSystem />

@@ -75,14 +75,14 @@ function RoundAction({ action, index, showKeys }: { action: ContextAction; index
       className="pointer-events-auto flex w-[4.75rem] flex-col items-center gap-1 select-none"
     >
       <span
-        className={`relative grid h-16 w-16 place-items-center rounded-full bg-paper text-[34px] shadow-[inset_0_0_0_3px_var(--color-gold),0_4px_0_rgba(91,70,54,0.28)] transition active:translate-y-1 active:scale-95 active:shadow-[inset_0_0_0_3px_var(--color-gold)] ${
+        className={`relative grid h-16 w-16 place-items-center rounded-full border-[3px] border-outline bg-cream text-[34px] shadow-[inset_0_-4px_0_#f1dcb6,inset_0_3px_0_#ffffff,0_4px_0_var(--color-outline)] transition active:translate-y-1 active:scale-95 active:shadow-[inset_0_-4px_0_#f1dcb6] ${
           action.muted ? 'opacity-50 grayscale' : ''
         }`}
       >
         <ActionIcon name={action.icon} />
         {showKeys && <KeyBadge label={String(index + 1)} />}
       </span>
-      <span className="rounded-full bg-paper/95 px-2 py-0.5 text-xs leading-tight font-black whitespace-nowrap text-ink shadow-sm">
+      <span className="rounded-full border-2 border-outline bg-cream px-2 py-0.5 text-xs leading-tight font-black whitespace-nowrap text-ink">
         {t(action.labelKey)}
       </span>
     </button>
@@ -96,10 +96,10 @@ function PrimaryAction({ action, showKeys }: { action: ContextAction; showKeys: 
       type="button"
       onClick={action.onPress}
       className={`pointer-events-auto relative flex h-16 items-center gap-2 rounded-full pr-6 pl-2 font-display text-lg font-extrabold transition select-none active:translate-y-1 active:shadow-none ${
-        action.muted ? 'bg-paper text-ink/60 shadow-[inset_0_0_0_2px_#f1dcb6,0_4px_0_rgba(91,70,54,0.25)]' : 'btn-lacquer'
+        action.muted ? 'border-[2.5px] border-outline bg-cream text-ink/60 shadow-[0_4px_0_var(--color-outline)]' : 'btn-lacquer'
       }`}
     >
-      <span className="grid h-12 w-12 place-items-center rounded-full bg-paper text-[30px] shadow-[inset_0_0_0_2px_var(--color-gold)]">
+      <span className="grid h-12 w-12 place-items-center rounded-full border-[2.5px] border-outline bg-cream text-[30px] shadow-[inset_0_-3px_0_#f1dcb6]">
         <ActionIcon name={action.icon} />
       </span>
       {t(action.labelKey)}

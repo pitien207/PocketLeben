@@ -1,10 +1,15 @@
 import type { Localized } from '../../i18n/localized'
 import { CONFIG } from '../config'
 import type { DialogueDef } from '../dialogueTypes'
+import { useFlags } from '../../store/flagsStore'
 
 /** Characters in Germany: WG flatmates, Bürgeramt, bank, care home. */
 
 const L = (vi: string, en: string, de?: string): Localized => ({ vi, en, de })
+const num = (key: string) => {
+  const v = useFlags.getState().flags[key]
+  return typeof v === 'number' ? v : 0
+}
 const OK = L('Okay, tschüss!', 'Okay, bye!', 'Okay, tschüss!')
 
 export const GERMANY_DIALOGUES: Record<string, DialogueDef> = {
@@ -66,6 +71,7 @@ export const GERMANY_DIALOGUES: Record<string, DialogueDef> = {
   },
 
   clerk: {
+    vars: () => ({ weeks: CONFIG.career.residence.rentWeeks }),
     start: [
       { if: { flag: 'de.anmeldung' }, node: 'done' },
       { if: { test: 'de.numberCalled' }, node: 'called' },
@@ -92,6 +98,34 @@ export const GERMANY_DIALOGUES: Record<string, DialogueDef> = {
       },
       done: {
         text: L('Sie sind angemeldet. Hier ist Ihre Meldebescheinigung. (Bạn đã đăng ký cư trú. Đây là giấy xác nhận.) Schönen Tag noch!', 'You’re registered. Here’s your certificate. Have a nice day!'),
+        choices: [
+          {
+            text: L('Thi „Leben in Deutschland“', 'Take the “Life in Germany” test'),
+            if: { all: [{ flag: 'job.fulltime' }, { noFlag: 'pr.lid' }] },
+            effect: { type: 'action', id: 'pr.lidTest' },
+          },
+          {
+            text: L('Nộp hồ sơ định cư (Niederlassungserlaubnis)', 'Apply for permanent residence'),
+            if: { all: [{ flag: 'job.fulltime' }, { noFlag: 'pr.granted' }] },
+            next: 'residence',
+          },
+          {
+            text: L(`Nộp hồ sơ nhập quốc tịch (${CONFIG.career.citizenship.fee} €)`, `Apply for citizenship (${CONFIG.career.citizenship.fee} €)`),
+            if: { all: [{ flag: 'pr.granted' }, { noFlag: 'cz.granted' }] },
+            effect: { type: 'action', id: 'cz.apply' },
+          },
+          { text: OK },
+        ],
+      },
+      residence: {
+        text: L(
+          'Niederlassungserlaubnis? Bình thường phải lên Ausländerbehörde tầng 2, nhưng hôm nay tôi nhận giúp. Cần: hợp đồng chính thức, căn hộ riêng, đóng tiền nhà đủ {weeks} tuần và bài thi „Leben in Deutschland“.',
+          'Permanent residence? Normally that’s the immigration office upstairs, but I’ll take it today. You need: a permanent contract, your own flat, {weeks} weeks of rent paid and the “Life in Germany” test.',
+        ),
+        choices: [
+          { text: L('Nộp hồ sơ', 'Hand in the application'), effect: { type: 'action', id: 'pr.apply' } },
+          { text: L('Để tôi chuẩn bị thêm.', 'I’ll prepare some more.') },
+        ],
       },
     },
   },
@@ -118,8 +152,21 @@ export const GERMANY_DIALOGUES: Record<string, DialogueDef> = {
   },
 
   anna: {
-    vars: () => ({ from: CONFIG.care.startHours[0], to: CONFIG.care.startHours[1] }),
-    start: [{ if: { not: { test: 'de.paperworkDone' } }, node: 'paperwork' }, { node: 'hello' }],
+    vars: () => ({
+      from: CONFIG.care.startHours[0],
+      to: CONFIG.care.startHours[1],
+      zSchool: CONFIG.career.zwischen.school,
+      zShifts: CONFIG.career.zwischen.shifts,
+      fSchool: CONFIG.career.final.school,
+      fShifts: CONFIG.career.final.shifts,
+      school: num('stats.berufsschule'),
+      shifts: num('stats.careShifts'),
+    }),
+    start: [
+      { if: { not: { test: 'de.paperworkDone' } }, node: 'paperwork' },
+      { if: { all: [{ flag: 'care.examen' }, { noFlag: 'job.fulltime' }] }, node: 'graduated' },
+      { node: 'hello' },
+    ],
     nodes: {
       paperwork: {
         text: L(
@@ -127,7 +174,7 @@ export const GERMANY_DIALOGUES: Record<string, DialogueDef> = {
           'Welcome to Sonnenhof! Before you start you need: the Anmeldung, a bank account (for your pay) and health insurance.',
         ),
         choices: [
-          { text: L('Học lý thuyết (Berufsschule)', 'Study theory (Berufsschule)'), effect: { type: 'action', id: 'care.berufsschule' } },
+          { text: L('Học lý thuyết (Berufsschule)', 'Study theory (Berufsschule)'), if: { not: { flag: 'visa.path', is: 'studium' } }, effect: { type: 'action', id: 'care.berufsschule' } },
           { text: L('Dạ em đi làm giấy tờ đây.', 'I’ll get the paperwork done.') },
         ],
       },
@@ -139,8 +186,37 @@ export const GERMANY_DIALOGUES: Record<string, DialogueDef> = {
         choices: [
           { text: L('Bắt đầu ca làm', 'Start the shift'), effect: { type: 'action', id: 'care.startShift' } },
           { text: L('Học lý thuyết (Berufsschule)', 'Study theory (Berufsschule)'), effect: { type: 'action', id: 'care.berufsschule' } },
+          {
+            text: L('Thi giữa khóa (Zwischenprüfung)', 'Take the mid-term exam (Zwischenprüfung)'),
+            if: { all: [{ noFlag: 'care.zwischen' }, { flag: 'stats.careShifts', atLeast: 1 }, { not: { flag: 'visa.path', is: 'studium' } }] },
+            effect: { type: 'action', id: 'care.exam', arg: 'zwischen' },
+          },
+          {
+            text: L('Thi tốt nghiệp (Abschlussprüfung)', 'Take the final exam (Abschlussprüfung)'),
+            if: { all: [{ flag: 'care.zwischen' }, { noFlag: 'care.examen' }, { not: { flag: 'visa.path', is: 'studium' } }] },
+            effect: { type: 'action', id: 'care.exam', arg: 'final' },
+          },
+          { text: L('Em cần học bao nhiêu nữa ạ?', 'How much more do I need to study?'), if: { all: [{ noFlag: 'care.examen' }, { not: { flag: 'visa.path', is: 'studium' } }] }, next: 'progress' },
           { text: L('Chị hướng dẫn lại giúp em', 'Explain again, please'), next: 'howto' },
           { text: L('Lát nữa ạ.', 'Later.') },
+        ],
+      },
+      progress: {
+        text: L(
+          'Thi giữa khóa cần {zSchool} buổi Berufsschule và {zShifts} ca. Thi tốt nghiệp cần {fSchool} buổi và {fShifts} ca. Em đang có {school} buổi, {shifts} ca. Cố lên!',
+          'The mid-term needs {zSchool} Berufsschule lessons and {zShifts} shifts. The final needs {fSchool} lessons and {fShifts} shifts. You have {school} lessons and {shifts} shifts. Keep going!',
+        ),
+        next: 'hello',
+      },
+      graduated: {
+        text: L(
+          'Herzlichen Glückwunsch, Pflegefachkraft! 🎉 Ông Vogel, giám đốc viện, muốn giữ em ở lại làm chính thức. Em sẵn sàng phỏng vấn chưa?',
+          'Congratulations, qualified nurse! 🎉 Mr Vogel, the director, wants to keep you on permanently. Ready for the interview?',
+        ),
+        choices: [
+          { text: L('Phỏng vấn với ông Vogel', 'Interview with Mr Vogel'), effect: { type: 'action', id: 'career.interview' } },
+          { text: L('Bắt đầu ca làm', 'Start the shift'), effect: { type: 'action', id: 'care.startShift' } },
+          { text: L('Để em chuẩn bị đã.', 'Let me prepare first.') },
         ],
       },
       howto: {

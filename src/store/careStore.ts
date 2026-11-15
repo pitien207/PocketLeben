@@ -58,7 +58,7 @@ function reward(s: CareSession): CareReward {
   const mult = CONFIG.work.payMultiplier.min + ((CONFIG.work.payMultiplier.max - CONFIG.work.payMultiplier.min) * s.meter) / 100
   return {
     fraction,
-    pay: Math.round(cfg.pay * fraction * mult * 100) / 100,
+    pay: Math.round(cfg.pay * fraction * mult * (useFlags.getState().flags['job.fulltime'] ? CONFIG.career.proPayMultiplier : 1) * 100) / 100,
     xp: Math.round(cfg.xp * fraction),
     energy: Math.round(cfg.energyCost * fraction),
     minutes: Math.round(cfg.hours * 60 * fraction),
@@ -169,6 +169,7 @@ export const useCare = create<CareState>()((set, get) => ({
       const flags = useFlags.getState()
       flags.setFlag('stats.careShifts', ((flags.flags['stats.careShifts'] as number) ?? 0) + 1)
       flags.setFlag('care.lastShiftDay', useTime.getState().day)
+      if (flags.flags['job.fulltime']) flags.setFlag('stats.proShifts', ((flags.flags['stats.proShifts'] as number) ?? 0) + 1)
       if (session.meter >= 100 && r.fraction >= 0.99) flags.setFlag('achv.perfectCare', true)
     }
     set({ session: null, reward: null })

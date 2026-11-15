@@ -6,11 +6,13 @@
 export type Vec3 = [number, number, number]
 
 export const CONFIG = {
-  version: '1.3.0',
+  version: '1.7.0',
 
   player: {
     /** Metres per second at full joystick / key press. */
     walkSpeed: 4.2,
+    /** Running (Shift / run button): walk speed × this. */
+    runMultiplier: 1.75,
     /** How quickly velocity reaches the target (higher = snappier). */
     accelSharpness: 12,
     /** How quickly the character turns to face the move direction. */
@@ -191,6 +193,38 @@ export const CONFIG = {
     patienceSec: 16,
     meter: { start: 50, helped: 10, wrong: 6, missed: 12 },
   },
+
+  /** Chapter 4–5: training milestones, career, own flat, Tết trip, residence (EUR). */
+  career: {
+    zwischen: { school: 3, shifts: 6, questions: 5, pass: 0.6 },
+    final: { school: 6, shifts: 12, questions: 6, pass: 0.65 },
+    interview: { questions: 5, pass: 0.6 },
+    /** A qualified nurse (Pflegefachkraft) earns this much more per shift. */
+    proPayMultiplier: 1.8,
+    proShifts: 5,
+    tripCost: 650,
+    tripDays: 4,
+    flatDeposit: 900,
+    flatRentPerWeek: 160,
+    residence: { rentWeeks: 6, questions: 6, pass: 0.6 },
+    citizenship: { questions: 5, pass: 0.7, fee: 255 },
+    goalSavings: 10_000,
+  },
+
+  /** Chapter 4A — Studium (dual nursing degree, B.Sc. Pflege): university in Germany. EUR. */
+  uni: {
+    semesterFee: 320,
+    /** Lectures and the library: weekdays, these hours. */
+    hours: [8, 18] as [number, number],
+    lectureEnergy: 15,
+    lectureMinutes: 120,
+    lectureQuestions: 3,
+    klausur: { lectures: 6, groupWork: 2, questions: 6, pass: 0.6 },
+    thesis: { lectures: 12, shifts: 6, questions: 5, pass: 0.6 },
+  },
+
+  /** The backpack: everything you carry has a weight (items.ts, keyItems.ts). */
+  bag: { capacityKg: 6, bottleKg: 0.35 },
 
   /** Collecting deposit bottles (plan §6 side hustles). */
   pfand: {

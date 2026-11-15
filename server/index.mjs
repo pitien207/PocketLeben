@@ -1,0 +1,341 @@
+// Visa Hunter server: accounts, cloud saves and multiplayer rooms (docs/MULTIPLAYER_PLAN.md, phase 1).
+// Plain Node + `ws`, no build step. Usage: `npm run server` (PORT=8787, DATA_DIR=server/data).
+// In production (Docker / Azure Container Apps, see docs/DEPLOY.md) it also serves dist/ so the whole
+// game runs from one process, and stores data in Azure DocumentDB (MONGO_URI, MONGO_DB).
+// Rooms live in memory: run exactly ONE instance (Container App max replicas = 1).
+import { createServer } from 'node:http'
+import { randomBytes, scrypt as scryptCb, timingSafeEqual } from 'node:crypto'
+import { existsSync, statSync, createReadStream } from 'node:fs'
+import { extname, join, normalize, resolve, sep } from 'node:path'
+import { promisify } from 'node:util'
+import { WebSocketServer } from 'ws'
+import { openStore } from './store.mjs'
+
+const scrypt = promisify(scryptCb)
+const PORT = Number(process.env.PORT ?? 8787)
+const ROOT = resolve(import.meta.dirname, '..')
+const DATA_DIR = resolve(process.env.DATA_DIR ?? join(ROOT, 'server', 'data'))
+const DIST = join(ROOT, 'dist')
+const MAX_SAVE = 512 * 1024
+const ROOM_CAP = 25
+
+/** Scenes everyone shares. Homes, exams and interviews stay private (instances). */
+const PUBLIC_SCENES = new Set(['vietnam', 'germany', 'classroom', 'buergeramt', 'university', 'airport', 'careHome'])
+const ALL_SCENES = new Set([...PUBLIC_SCENES, 'home', 'examHall', 'embassy', 'wg'])
+const EMOTES = new Set(['wave', 'heart', 'laugh', 'wow', 'sad', 'dance', 'hello', 'thanks', 'luck', 'tschuess', 'follow', 'yes'])
+
+// ---------------------------------------------------------------------------------------
+// Storage (server/store.mjs): DocumentDB / MongoDB in production, JSON files locally.
+const store = await openStore({ mongoUri: process.env.MONGO_URI, mongoDb: process.env.MONGO_DB ?? 'visahunter', dataDir: DATA_DIR })
+
+const keyOf = (name) => name.trim().toLowerCase()
+const NAME_RE = /^[\p{L}\p{N}_ .-]{3,16}$/u
+
+async function hashPassword(password, salt) {
+  return /** @type {Buffer} */ (await scrypt(password, salt, 32)).toString('hex')
+}
+
+async function newToken(user) {
+  const token = randomBytes(24).toString('base64url')
+  await store.createToken(token, user)
+  return token
+}
+
+const bearer = (header) => /^Bearer (.+)$/.exec(header ?? '')?.[1] ?? null
+
+/** Account key for a bearer token, or null. */
+async function auth(header) {
+  const token = bearer(header)
+  return token ? store.tokenUser(token) : null
+}
+
+/** Behind Azure's ingress the socket address is the proxy: use the forwarded client address. */
+const clientIp = (req) => (req.headers['x-forwarded-for']?.split(',')[0] ?? req.socket.remoteAddress ?? '').trim()
+
+// ---------------------------------------------------------------------------------------
+// HTTP: tiny JSON API + static files.
+function send(res, status, body) {
+  const text = body === undefined ? '' : JSON.stringify(body)
+  res.writeHead(status, { 'content-type': 'application/json', 'cache-control': 'no-store' })
+  res.end(text)
+}
+
+function readBody(req, limit = 4096) {
+  return new Promise((ok, fail) => {
+    let size = 0
+    const chunks = []
+    req.on('data', (c) => {
+      size += c.length
+      if (size > limit) {
+        fail(new Error('too large'))
+        req.destroy()
+      } else chunks.push(c)
+    })
+    req.on('end', () => {
+      try {
+        ok(chunks.length ? JSON.parse(Buffer.concat(chunks).toString('utf8')) : {})
+      } catch {
+        fail(new Error('bad json'))
+      }
+    })
+    req.on('error', fail)
+  })
+}
+
+/** Slow down password guessing: 10 attempts per minute per address. */
+const attempts = new Map()
+function limited(ip) {
+  const now = Date.now()
+  const a = attempts.get(ip) ?? { n: 0, at: now }
+  if (now - a.at > 60_000) Object.assign(a, { n: 0, at: now })
+  a.n++
+  attempts.set(ip, a)
+  return a.n > 10
+}
+
+const routes = {
+  async 'POST /api/register'(req, res) {
+    if (limited(clientIp(req))) return send(res, 429, { error: 'tooMany' })
+    const { name, password } = await readBody(req)
+    if (typeof name !== 'string' || !NAME_RE.test(name.trim())) return send(res, 400, { error: 'badName' })
+    if (typeof password !== 'string' || password.length < 6 || password.length > 100) return send(res, 400, { error: 'badPassword' })
+    const user = keyOf(name)
+    const salt = randomBytes(16).toString('hex')
+    const account = { name: name.trim(), salt, hash: await hashPassword(password, salt), created: Date.now() }
+    if (!(await store.createUser(user, account))) return send(res, 409, { error: 'taken' })
+    send(res, 200, { token: await newToken(user), name: account.name })
+  },
+  async 'POST /api/login'(req, res) {
+    if (limited(clientIp(req))) return send(res, 429, { error: 'tooMany' })
+    const { name, password } = await readBody(req)
+    const account = typeof name === 'string' ? await store.getUser(keyOf(name)) : null
+    if (!account || typeof password !== 'string') return send(res, 401, { error: 'wrong' })
+    const hash = Buffer.from(await hashPassword(password, account.salt), 'hex')
+    if (!timingSafeEqual(hash, Buffer.from(account.hash, 'hex'))) return send(res, 401, { error: 'wrong' })
+    send(res, 200, { token: await newToken(keyOf(name)), name: account.name })
+  },
+  async 'POST /api/logout'(req, res) {
+    const token = bearer(req.headers.authorization)
+    if (token) await store.deleteToken(token)
+    send(res, 200, {})
+  },
+  async 'GET /api/me'(req, res) {
+    const user = await auth(req.headers.authorization)
+    const account = user && (await store.getUser(user))
+    if (!account) return send(res, 401, { error: 'auth' })
+    const save = await store.getSave(user)
+    send(res, 200, { name: account.name, savedAt: save?.savedAt ?? null })
+  },
+  async 'GET /api/save'(req, res) {
+    const user = await auth(req.headers.authorization)
+    if (!user) return send(res, 401, { error: 'auth' })
+    const saved = await store.getSave(user)
+    send(res, 200, { save: saved?.save ?? null })
+  },
+  async 'PUT /api/save'(req, res) {
+    const user = await auth(req.headers.authorization)
+    if (!user) return send(res, 401, { error: 'auth' })
+    const save = await readBody(req, MAX_SAVE)
+    if (typeof save !== 'object' || save === null || typeof save.version !== 'number' || typeof save.savedAt !== 'number') {
+      return send(res, 400, { error: 'badSave' })
+    }
+    await store.putSave(user, save, save.savedAt)
+    send(res, 200, { savedAt: save.savedAt })
+  },
+  async 'GET /api/health'(_req, res) {
+    send(res, 200, { ok: true, store: store.kind.split(' ')[0], online: clients.size })
+  },
+  async 'GET /api/online'(_req, res) {
+    const scenes = {}
+    for (const c of clients.values()) if (c.scene) scenes[c.scene] = (scenes[c.scene] ?? 0) + 1
+    send(res, 200, { total: clients.size, scenes })
+  },
+}
+
+const MIME = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.webmanifest': 'application/manifest+json', '.svg': 'image/svg+xml', '.png': 'image/png', '.wasm': 'application/wasm' }
+
+function serveStatic(req, res) {
+  if (!existsSync(DIST)) return send(res, 404, { error: 'notFound' })
+  const path = decodeURIComponent(new URL(req.url, 'http://x').pathname)
+  let file = normalize(join(DIST, path))
+  if (!file.startsWith(DIST + sep) || !existsSync(file) || statSync(file).isDirectory()) file = join(DIST, 'index.html')
+  const hashed = file.startsWith(join(DIST, 'assets') + sep)
+  res.writeHead(200, { 'content-type': MIME[extname(file)] ?? 'application/octet-stream', 'cache-control': hashed ? 'public, max-age=31536000, immutable' : 'no-cache' })
+  createReadStream(file).pipe(res)
+}
+
+const http = createServer(async (req, res) => {
+  const route = routes[`${req.method} ${new URL(req.url, 'http://x').pathname}`]
+  try {
+    if (route) await route(req, res)
+    else if (req.url.startsWith('/api/')) send(res, 404, { error: 'notFound' })
+    else serveStatic(req, res)
+  } catch (e) {
+    const known = e.message === 'too large' || e.message === 'bad json'
+    if (!known) console.error(e)
+    if (!res.headersSent) send(res, e.message === 'too large' ? 413 : known ? 400 : 500, { error: known ? e.message : 'server' })
+  }
+})
+
+// ---------------------------------------------------------------------------------------
+// Multiplayer: one room per public scene (split into #2, #3… when full). The server
+// relays snapshots between players in the same room; private scenes see nobody.
+const wss = new WebSocketServer({ noServer: true, maxPayload: 16 * 1024 })
+/** @type {Map<number, { id: number, user: string, name: string, ws: import('ws').WebSocket, scene: string | null, room: string | null, snap: object | null, lastSnap: number, lastEmote: number }>} */
+const clients = new Map()
+/** @type {Map<string, Set<number>>} */
+const rooms = new Map()
+let nextId = 1
+
+http.on('upgrade', (req, socket, head) => {
+  if (!req.url.startsWith('/ws')) return socket.destroy()
+  wss.handleUpgrade(req, socket, head, (ws) => wss.emit('connection', ws))
+})
+
+const num = (v, lo, hi) => (typeof v === 'number' && Number.isFinite(v) ? Math.min(hi, Math.max(lo, v)) : 0)
+const str = (v, max = 24) => (typeof v === 'string' ? v.slice(0, max) : undefined)
+
+/** Keep only known, bounded fields: never relay arbitrary client data. */
+function cleanSnap(s) {
+  if (!s || typeof s !== 'object' || !ALL_SCENES.has(s.scene)) return null
+  const m = s.motion ?? {}
+  const o = s.outfit ?? {}
+  const outfit = {}
+  for (const k of ['skin', 'hair', 'hairStyle', 'shirt', 'shorts', 'shoe', 'bag', 'accessory', 'accent', 'top', 'bottom', 'neck', 'neckColor', 'eye']) {
+    const v = o[k] === null ? null : str(o[k])
+    if (v !== undefined) outfit[k] = v
+  }
+  return {
+    scene: s.scene,
+    x: num(s.x, -300, 300),
+    z: num(s.z, -300, 300),
+    yaw: num(s.yaw, -100, 100),
+    motion: {
+      speed: num(m.speed, 0, 2),
+      sit: num(m.sit, 0, 1),
+      seatY: m.seatY === undefined ? undefined : num(m.seatY, 0, 2),
+      ride: str(m.ride, 12) ?? null,
+      pedal: num(m.pedal, -1e6, 1e6),
+      sip: num(m.sip, 0, 1),
+      fan: num(m.fan, 0, 1),
+      arms: num(m.arms, 0, 1),
+      kick: num(m.kick, 0, 1),
+      held: m.held === 'glass' || m.held === 'fan' ? m.held : null,
+    },
+    outfit,
+  }
+}
+
+function broadcast(room, msg, except) {
+  const ids = rooms.get(room)
+  if (!ids) return
+  const text = JSON.stringify(msg)
+  for (const id of ids) {
+    const c = clients.get(id)
+    if (c && id !== except && c.ws.readyState === 1) c.ws.send(text)
+  }
+}
+
+function leaveRoom(c) {
+  if (!c.room) return
+  const ids = rooms.get(c.room)
+  ids?.delete(c.id)
+  broadcast(c.room, { t: 'leave', id: c.id })
+  if (ids && ids.size === 0) rooms.delete(c.room)
+  c.room = null
+}
+
+function joinRoom(c, scene) {
+  if (!PUBLIC_SCENES.has(scene)) return
+  let n = 1
+  while ((rooms.get(n === 1 ? scene : `${scene}#${n}`)?.size ?? 0) >= ROOM_CAP) n++
+  const room = n === 1 ? scene : `${scene}#${n}`
+  if (!rooms.has(room)) rooms.set(room, new Set())
+  const others = [...rooms.get(room)].map((id) => clients.get(id)).filter((o) => o?.snap)
+  rooms.get(room).add(c.id)
+  c.room = room
+  c.ws.send(JSON.stringify({ t: 'room', room, players: others.map((o) => ({ id: o.id, name: o.name, s: o.snap })) }))
+  broadcast(room, { t: 'join', id: c.id, name: c.name, s: c.snap }, c.id)
+}
+
+wss.on('connection', (ws) => {
+  /** @type {any} */
+  let c = null
+  let authing = false
+  const timeout = setTimeout(() => ws.close(4001, 'auth'), 8000)
+  ws.on('message', async (raw) => {
+    let msg
+    try {
+      msg = JSON.parse(raw.toString())
+    } catch {
+      return
+    }
+    if (!c) {
+      // Only the first message (auth) counts until we know who this is.
+      if (authing) return
+      authing = true
+      const user = msg.t === 'auth' && typeof msg.token === 'string' ? await store.tokenUser(msg.token).catch(() => null) : null
+      const account = user && (await store.getUser(user).catch(() => null))
+      if (!account || ws.readyState !== 1) return ws.close(4001, 'auth')
+      clearTimeout(timeout)
+      // One connection per account: a new tab replaces the old one.
+      for (const other of clients.values()) if (other.user === user) other.ws.close(4002, 'replaced')
+      c = { id: nextId++, user, name: account.name, ws, scene: null, room: null, snap: null, lastSnap: 0, lastEmote: 0 }
+      clients.set(c.id, c)
+      ws.send(JSON.stringify({ t: 'welcome', id: c.id, name: c.name }))
+      return
+    }
+    const now = Date.now()
+    if (msg.t === 'snap') {
+      if (now - c.lastSnap < 60) return // ~15 Hz max
+      c.lastSnap = now
+      const snap = cleanSnap(msg.s)
+      if (!snap) return
+      c.snap = snap
+      if (snap.scene !== c.scene) {
+        leaveRoom(c)
+        c.scene = snap.scene
+        joinRoom(c, snap.scene)
+      } else if (c.room) broadcast(c.room, { t: 'snap', id: c.id, s: snap }, c.id)
+    } else if (msg.t === 'emote' && EMOTES.has(msg.e) && c.room) {
+      if (now - c.lastEmote < 1000) return
+      c.lastEmote = now
+      broadcast(c.room, { t: 'emote', id: c.id, e: msg.e }, c.id)
+    } else if (msg.t === 'ping') {
+      ws.send(JSON.stringify({ t: 'pong', at: msg.at, online: clients.size }))
+    }
+  })
+  ws.on('close', () => {
+    clearTimeout(timeout)
+    if (!c) return
+    leaveRoom(c)
+    clients.delete(c.id)
+  })
+})
+
+// Keep idle connections alive through proxies, drop dead ones.
+setInterval(() => {
+  for (const ws of wss.clients) {
+    if (ws.isAlive === false) {
+      ws.terminate()
+      continue
+    }
+    ws.isAlive = false
+    ws.ping()
+  }
+}, 30_000).unref()
+wss.on('connection', (ws) => {
+  ws.isAlive = true
+  ws.on('pong', () => (ws.isAlive = true))
+})
+
+const shutdown = async () => {
+  for (const ws of wss.clients) ws.close(1012, 'restart')
+  http.close()
+  await store.close().catch(() => {})
+  process.exit(0)
+}
+process.on('SIGTERM', shutdown)
+process.on('SIGINT', shutdown)
+
+http.listen(PORT, () => console.log(`Visa Hunter server on http://localhost:${PORT} (storage: ${store.kind})`))

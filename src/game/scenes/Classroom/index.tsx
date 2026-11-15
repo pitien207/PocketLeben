@@ -143,10 +143,10 @@ const Classroom = memo(function Classroom() {
   return (
     <>
       <Room w={W} d={D} h={H} style={STYLE} furniture={shapes} blockers={blockers} />
-      <SignBoard options={BOARD} width={3.9} position={[0, 1.74, BACK + 0.07]} />
+      <SignBoard options={BOARD} width={3.9} position={[0, 1.74, BACK + 0.07]} flat />
       <SignBoard options={BANNER} width={4.6} position={[0, 2.86, BACK + 0.02]} />
-      <SignBoard options={ARTICLES} width={1.05} position={[3.55, 1.8, BACK + 0.02]} />
-      <SignBoard options={DOOR_SIGN} width={0.8} position={[W / 2 - 0.02, 1.0, 2.6]} rotation={[0, -Math.PI / 2, 0]} />
+      <SignBoard options={ARTICLES} width={1.05} position={[3.55, 1.8, BACK + 0.02]} flat />
+      <SignBoard options={DOOR_SIGN} width={0.8} position={[W / 2 - 0.02, 0.74, 2.6]} rotation={[0, -Math.PI / 2, 0]} />
       <WallClock position={[3.55, 2.72, BACK + 0.04]} radius={0.28} />
       <WallFan position={[W / 2 - 0.05, 2.35, BACK + 1.0]} rotation={[0, -Math.PI / 2, 0]} />
 

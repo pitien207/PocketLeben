@@ -34,6 +34,9 @@ export type ActionIconName =
   | 'hanger'
   | 'laptop'
   | 'number'
+  | 'incense'
+  | 'swing'
+  | 'duck'
 
 export interface TaskAction {
   id: string

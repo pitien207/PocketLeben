@@ -84,7 +84,7 @@ const Buergeramt = memo(function Buergeramt() {
         blockers={[[0.4, -2.3, 4.0, 0.45], [-4.2, 0.2, 0.35, 0.3], [0.1, 0.85, 1.9, 0.3], [4.4, 1.2, 0.25, 0.25], [-4.5, -2.8, 0.35, 0.3]]}
       />
       <SignBoard options={SIGN} width={3.6} position={[0.4, 2.65, -3.48]} />
-      <SignBoard options={POSTER} width={0.9} position={[-4.98, 1.7, -1.2]} rotation={[0, Math.PI / 2, 0]} />
+      <SignBoard options={POSTER} width={0.9} position={[-4.98, 1.7, -1.2]} rotation={[0, Math.PI / 2, 0]} flat />
       <NPC def={NPCS.clerk} at={{ x: 0.4, z: -3.0 }} yaw={0} zone={{ x: 0.4, z: -1.5, halfX: 1.6, halfZ: 0.9 }} />
       <NPC def={NPCS.sophie} at={{ x: -0.8, z: 0.8 }} yaw={Math.PI} seatY={0.48} />
       <ActionSpot id="ticket-machine" nameKey="interact.ticketMachine" zone={{ x: -3.7, z: 0.7, halfX: 1.0, halfZ: 1.0 }} actions={MACHINE} />

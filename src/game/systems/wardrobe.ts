@@ -17,6 +17,7 @@ const SLOT_FIELDS: Record<ClothingSlot, (keyof Outfit)[]> = {
   hat: ['accessory', 'accent'],
   hair: ['hairStyle', 'hair'],
   bag: ['bag'],
+  neck: ['neck', 'neckColor'],
 }
 
 export function isWearing(id: string): boolean {
@@ -46,6 +47,14 @@ export function wear(id: string) {
   const p = usePlayer.getState()
   if (!item || !p.wardrobe.includes(id)) return
   p.setOutfit({ ...p.outfit, ...item.apply })
+}
+
+/** A clothing item found as a secret: free, straight into the wardrobe. */
+export function giftClothing(id: string) {
+  const p = usePlayer.getState()
+  if (!getClothing(id) || p.wardrobe.includes(id)) return false
+  p.addClothing(id)
+  return true
 }
 
 /** Back to the default look for that slot. */

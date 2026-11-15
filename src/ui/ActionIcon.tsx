@@ -259,6 +259,39 @@ function NumberIcon(props: Props) {
   )
 }
 
+/** Fortune sticks in a bamboo cup (xin quẻ). */
+function IncenseIcon(props: Props) {
+  return (
+    <Base {...props}>
+      <path d="M11 4l2 12M15 3l1 13M19 4l-1 12M22 6l-3 10" stroke="#c8322b" strokeWidth="2" />
+      <path d="M8 15h16l-2 13H10z" fill="#d9b878" stroke={INK} strokeWidth="2" />
+      <path d="M9 20h14" stroke={INK} strokeWidth="1.4" />
+      <circle cx="16" cy="24" r="1.8" fill="#c8322b" />
+    </Base>
+  )
+}
+
+function SwingIcon(props: Props) {
+  return (
+    <Base {...props}>
+      <path d="M4 5h24" stroke={INK} strokeWidth="2.4" />
+      <path d="M10 5l3 17M22 5l-3 17" stroke="#8a6a4a" strokeWidth="1.8" />
+      <rect x="10" y="21" width="12" height="4" rx="1.5" fill="#ff9b8f" stroke={INK} strokeWidth="2" />
+    </Base>
+  )
+}
+
+function DuckIcon(props: Props) {
+  return (
+    <Base {...props}>
+      <path d="M5 19c0 5 4 8 11 8s11-3 11-8c-3 1-6 1-9-1-1-2 0-4-1-6-1-3-4-4-6-3-3 1-3 5-1 8-2 1-4 2-5 2z" fill="#fff6e3" stroke={INK} strokeWidth="2" />
+      <path d="M17 11l4 1-4 2z" fill="#f4a440" stroke={INK} strokeWidth="1.4" />
+      <circle cx="14" cy="11" r="1.2" fill={INK} />
+      <path d="M2 29c4-2 8-2 12 0s8 2 12 0" fill="none" stroke="#8cc2d8" strokeWidth="2" />
+    </Base>
+  )
+}
+
 const ICONS: Record<ActionIconName, (props: Props) => JSX.Element> = {
   feed: FeedIcon,
   wipe: WipeIcon,
@@ -282,6 +315,9 @@ const ICONS: Record<ActionIconName, (props: Props) => JSX.Element> = {
   shop: ShopIcon,
   sleep: SleepIcon,
   save: SaveIcon,
+  incense: IncenseIcon,
+  swing: SwingIcon,
+  duck: DuckIcon,
 }
 
 export function ActionIcon({ name, ...props }: Props & { name: ActionIconName }) {

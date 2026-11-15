@@ -1,6 +1,7 @@
 import { lazy, StrictMode, Suspense, useState } from 'react'
 import { createRoot } from 'react-dom/client'
 import { TitleScreen } from './ui/TitleScreen'
+import { pullCloudSave } from './net/auth'
 import './index.css'
 
 /**
@@ -15,7 +16,13 @@ const AUTOSTART = import.meta.env.DEV && navigator.webdriver
 
 function Root() {
   const [playing, setPlaying] = useState(AUTOSTART)
-  if (!playing) return <TitleScreen onPlay={() => setPlaying(true)} />
+  const [syncing, setSyncing] = useState(false)
+  // Signed in: take the cloud save first if it is newer than this device's.
+  const play = () => {
+    setSyncing(true)
+    void pullCloudSave().finally(() => setPlaying(true))
+  }
+  if (!playing) return <TitleScreen onPlay={play} loading={syncing} />
   return (
     <Suspense fallback={<TitleScreen loading />}>
       <Game />

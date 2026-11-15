@@ -89,33 +89,105 @@ function shade(hex: string, factor: number) {
   return `#${_c.set(hex).multiplyScalar(factor).getHexString()}`
 }
 
+/** Bangs over the forehead (kept above the eyebrows). */
+function fringe(color: string, parted = false): ShapeItem[] {
+  return [
+    { sphere: [0.12, 16, 10], at: [-0.12, 0.225, 0.25], rot: [0, -0.35, parted ? 0.25 : 0.1], scale: [1.15, 0.62, 0.62], color },
+    { sphere: [0.12, 16, 10], at: [0.0, 0.245, 0.27], scale: [1.1, 0.6, 0.62], color },
+    { sphere: [0.12, 16, 10], at: [0.12, 0.225, 0.25], rot: [0, 0.35, parted ? -0.25 : -0.1], scale: [1.15, 0.62, 0.62], color },
+  ]
+}
+
+/** The usual hair cap: a slightly bigger sphere shifted up/back leaves the face uncovered. */
+const cap = (color: string): ShapeItem => ({ sphere: [0.385, 28, 20], at: [0, 0.065, -0.04], color })
+
 function hairShapes(o: Outfit): ShapeItem[] {
+  const c = o.hair
   switch (o.hairStyle) {
     case 'short':
       return [
-        { sphere: [0.375, 28, 20], at: [0, 0.095, -0.065], color: o.hair },
-        { cyl: [0, 0.05, 0.16, 6], at: [-0.06, 0.46, 0.02], rot: [0.3, 0, 0.4], color: o.hair },
-        { cyl: [0, 0.05, 0.16, 6], at: [0.07, 0.46, 0.0], rot: [0.2, 0, -0.5], color: o.hair },
+        { sphere: [0.375, 28, 20], at: [0, 0.095, -0.065], color: c },
+        { cyl: [0, 0.05, 0.16, 6], at: [-0.06, 0.46, 0.02], rot: [0.3, 0, 0.4], color: c },
+        { cyl: [0, 0.05, 0.16, 6], at: [0.07, 0.46, 0.0], rot: [0.2, 0, -0.5], color: c },
+        { sphere: [0.1, 10, 8], at: [0.1, 0.25, 0.26], rot: [0, 0.3, -0.3], scale: [1.3, 0.55, 0.6], color: c },
       ]
+    case 'buzz':
+      return [{ sphere: [0.368, 24, 16], at: [0, 0.075, -0.05], color: c }]
     case 'bun':
       return [
-        { sphere: [0.385, 28, 20], at: [0, 0.065, -0.04], color: o.hair },
-        { sphere: [0.14, 16, 12], at: [0, 0.36, -0.24], color: o.hair },
+        cap(c),
+        ...fringe(c, true),
+        { sphere: [0.14, 16, 12], at: [0, 0.36, -0.24], color: c },
         { torus: [0.09, 0.025, 6, 14], at: [0, 0.29, -0.2], rot: [0.9, 0, 0], color: CHEEK },
       ]
+    case 'long':
+      return [
+        cap(c),
+        ...fringe(c),
+        // Curtain down the back to the shoulders, long locks framing the face
+        { sphere: [0.3, 16, 12], at: [0, -0.22, -0.17], scale: [1.18, 1.45, 0.62], color: c },
+        { sphere: [0.11, 10, 8], at: [-0.31, -0.2, 0.04], scale: [0.55, 2.3, 0.9], color: c },
+        { sphere: [0.11, 10, 8], at: [0.31, -0.2, 0.04], scale: [0.55, 2.3, 0.9], color: c },
+      ]
+    case 'ponytail':
+      return [
+        cap(c),
+        ...fringe(c, true),
+        { torus: [0.05, 0.022, 6, 12], at: [0, 0.2, -0.38], rot: [0.5, 0, 0], color: o.accent ?? CHEEK },
+        { sphere: [0.12, 12, 10], at: [0, 0.02, -0.47], rot: [0.35, 0, 0], scale: [0.85, 1.9, 0.8], color: c },
+        { sphere: [0.08, 10, 8], at: [0, -0.2, -0.5], rot: [0.2, 0, 0], scale: [0.8, 1.5, 0.8], color: c },
+      ]
+    case 'twin':
+      return [
+        cap(c),
+        ...fringe(c),
+        ...[-1, 1].flatMap((side): ShapeItem[] => [
+          { torus: [0.045, 0.02, 6, 12], at: [side * 0.36, 0.1, -0.08], rot: [0, 0, Math.PI / 2], color: o.accent ?? CHEEK },
+          { sphere: [0.11, 12, 10], at: [side * 0.42, -0.08, -0.1], rot: [0, 0, side * 0.25], scale: [0.75, 1.9, 0.75], color: c },
+        ]),
+      ]
+    case 'spiky': {
+      const s: ShapeItem[] = [{ sphere: [0.375, 24, 16], at: [0, 0.09, -0.06], color: c }]
+      const spikes: [number, number, number, number, number][] = [
+        [0, 0.47, -0.02, 0.15, 0],
+        [-0.17, 0.42, 0.04, 0.3, 0.5],
+        [0.17, 0.42, 0.04, 0.3, -0.5],
+        [-0.1, 0.4, -0.22, -0.3, 0.3],
+        [0.1, 0.4, -0.22, -0.3, -0.3],
+        [0, 0.33, 0.24, 0.9, 0],
+      ]
+      for (const [x, y, z, rx, rz] of spikes) s.push({ cyl: [0, 0.08, 0.22, 6], at: [x, y, z], rot: [rx, 0, rz], color: c })
+      return s
+    }
+    case 'curly': {
+      const s: ShapeItem[] = [{ sphere: [0.375, 24, 16], at: [0, 0.08, -0.06], color: c }]
+      for (let ring = 0; ring < 2; ring++) {
+        const n = ring ? 7 : 11
+        for (let i = 0; i < n; i++) {
+          const a = (i / n) * Math.PI * 2 + ring * 0.3
+          const r = ring ? 0.2 : 0.33
+          const y = ring ? 0.42 : 0.24
+          // Leave the face open: no curls low in front.
+          if (!ring && Math.sin(a) > 0.55) continue
+          s.push({ ico: [0.13, 1], at: [Math.cos(a) * r, y, Math.sin(a) * r - 0.04], color: c })
+        }
+      }
+      s.push(...fringe(c))
+      return s
+    }
     case 'bob':
     default:
-      // A slightly bigger sphere shifted up/back leaves the face uncovered; side locks frame it.
       return [
-        { sphere: [0.385, 28, 20], at: [0, 0.065, -0.04], color: o.hair },
-        { cyl: [0, 0.05, 0.18, 6], at: [0.05, 0.47, 0.0], rot: [0.2, 0, -0.5], color: o.hair },
-        { sphere: [0.11, 10, 8], at: [-0.31, -0.13, 0.06], scale: [0.55, 1.5, 0.9], color: o.hair },
-        { sphere: [0.11, 10, 8], at: [0.31, -0.13, 0.06], scale: [0.55, 1.5, 0.9], color: o.hair },
+        cap(c),
+        ...fringe(c),
+        { sphere: [0.11, 10, 8], at: [-0.31, -0.13, 0.06], scale: [0.55, 1.5, 0.9], color: c },
+        { sphere: [0.11, 10, 8], at: [0.31, -0.13, 0.06], scale: [0.55, 1.5, 0.9], color: c },
       ]
   }
 }
 
 function accessoryShapes(o: Outfit): ShapeItem[] {
+  const accent = o.accent
   switch (o.accessory) {
     case 'nonLa': // Vietnamese conical hat
       return [
@@ -128,16 +200,64 @@ function accessoryShapes(o: Outfit): ShapeItem[] {
         { torus: [0.075, 0.012, 6, 16], at: [0.125, -0.02, 0.35], color: '#4a3b4a' },
         { box: [0.1, 0.018, 0.018], at: [0, -0.005, 0.36], color: '#4a3b4a' },
       ]
+    case 'sunglasses':
+      return [
+        { sphere: [0.08, 12, 8], at: [-0.125, -0.02, 0.345], scale: [1.15, 0.85, 0.35], color: '#2a2330' },
+        { sphere: [0.08, 12, 8], at: [0.125, -0.02, 0.345], scale: [1.15, 0.85, 0.35], color: '#2a2330' },
+        { sphere: [0.022, 6, 5], at: [-0.15, 0.01, 0.37], color: '#8a7f99' },
+        { sphere: [0.022, 6, 5], at: [0.1, 0.01, 0.37], color: '#8a7f99' },
+        { box: [0.1, 0.02, 0.02], at: [0, 0.005, 0.365], color: '#2a2330' },
+        { box: [0.03, 0.02, 0.3], at: [-0.33, 0.0, 0.2], color: '#2a2330' },
+        { box: [0.03, 0.02, 0.3], at: [0.33, 0.0, 0.2], color: '#2a2330' },
+      ]
     case 'beanie': // German Mütze with a pompom
       return [
-        { sphere: [0.405, 24, 12, Math.PI / 2], at: [0, 0.1, -0.03], rot: [-0.18, 0, 0], color: o.accent ?? '#d4473b' },
+        { sphere: [0.405, 24, 12, Math.PI / 2], at: [0, 0.1, -0.03], rot: [-0.18, 0, 0], color: accent ?? '#d4473b' },
         { torus: [0.37, 0.045, 6, 24], at: [0, 0.13, -0.01], rot: [Math.PI / 2 - 0.18, 0, 0], color: '#fff6e3' },
         { sphere: [0.09, 10, 8], at: [0, 0.53, -0.1], color: '#fff6e3' },
       ]
     case 'helmet': // half-dome motorbike helmet with a chin strap
       return [
-        { sphere: [0.415, 24, 12, Math.PI / 2], at: [0, 0.06, -0.03], rot: [-0.22, 0, 0], color: o.accent ?? '#ff9b8f' },
+        { sphere: [0.415, 24, 12, Math.PI / 2], at: [0, 0.06, -0.03], rot: [-0.22, 0, 0], color: accent ?? '#ff9b8f' },
         { box: [0.34, 0.03, 0.12], at: [0, 0.16, 0.36], rot: [-0.35, 0, 0], color: '#5d6170' },
+      ]
+    case 'cap': // baseball cap, brim forward
+      return [
+        { sphere: [0.4, 24, 12, Math.PI / 2], at: [0, 0.09, -0.03], rot: [-0.14, 0, 0], color: accent ?? '#4f86d9' },
+        { cyl: [0.21, 0.21, 0.03, 18], at: [0, 0.14, 0.33], rot: [0.22, 0, 0], scale: [1, 1, 1.35], color: shade(accent ?? '#4f86d9', 0.8) },
+        { sphere: [0.035, 8, 6], at: [0, 0.49, -0.08], color: shade(accent ?? '#4f86d9', 0.8) },
+        { sphere: [0.08, 10, 8], at: [0, 0.3, 0.3], rot: [-0.6, 0, 0], scale: [1, 1, 0.2], color: '#ffffff' },
+      ]
+    case 'beret':
+      return [
+        { sphere: [0.34, 20, 12], at: [0.05, 0.31, -0.03], rot: [0, 0, -0.18], scale: [1.12, 0.36, 1.12], color: accent ?? '#c8322b' },
+        { cyl: [0.015, 0.02, 0.06, 5], at: [0.06, 0.45, -0.03], color: accent ?? '#c8322b' },
+      ]
+    case 'bow': // big hair bow on one side
+      return [
+        { sphere: [0.09, 10, 8], at: [0.12, 0.38, -0.06], rot: [0, 0, -0.5], scale: [1.2, 0.75, 0.45], color: accent ?? '#ff6f91' },
+        { sphere: [0.09, 10, 8], at: [0.3, 0.3, -0.06], rot: [0, 0, -0.5], scale: [1.2, 0.75, 0.45], color: accent ?? '#ff6f91' },
+        { sphere: [0.045, 8, 6], at: [0.21, 0.34, -0.04], color: shade(accent ?? '#ff6f91', 0.8) },
+      ]
+    case 'flowerCrown': {
+      const s: ShapeItem[] = [{ torus: [0.36, 0.022, 5, 22], at: [0, 0.24, -0.04], rot: [Math.PI / 2 + 0.15, 0, 0], color: '#6fae5a' }]
+      const colors = ['#ff9fb2', '#ffe08a', '#ffffff', '#cdb8f0', '#ff9b8f', '#a9d6ff', '#ffe08a']
+      for (let i = 0; i < 7; i++) {
+        const a = -Math.PI / 2 + ((i - 3) / 6) * Math.PI * 1.25
+        s.push({ ico: [0.055, 0], at: [Math.cos(a) * 0.36, 0.24 - Math.sin(a) * 0.36 * 0.15, -Math.sin(a) * 0.36 - 0.04], color: colors[i] })
+      }
+      return s
+    }
+    case 'catEars':
+      return [-1, 1].flatMap((side): ShapeItem[] => [
+        { cyl: [0, 0.11, 0.2, 4], at: [side * 0.2, 0.42, -0.02], rot: [0, Math.PI / 4, side * -0.35], color: accent ?? '#3d3540' },
+        { cyl: [0, 0.06, 0.12, 4], at: [side * 0.195, 0.41, 0.015], rot: [0, Math.PI / 4, side * -0.35], color: '#ffb3c7' },
+      ])
+    case 'headphones':
+      return [
+        { torus: [0.4, 0.028, 6, 18, Math.PI], at: [0, 0.03, -0.02], color: '#3a3a44' },
+        { cyl: [0.11, 0.11, 0.09, 14], at: [-0.38, -0.02, -0.02], rot: [0, 0, Math.PI / 2], color: accent ?? '#ff9b8f' },
+        { cyl: [0.11, 0.11, 0.09, 14], at: [0.38, -0.02, -0.02], rot: [0, 0, Math.PI / 2], color: accent ?? '#ff9b8f' },
       ]
     default:
       return []
@@ -172,9 +292,12 @@ type Carry = 'pole' | null
 /** Shapes per bone, in that bone's local space. */
 function bodyParts(o: Outfit, carry: Carry): [number, ShapeItem[]][] {
   const top = o.top ?? 'tee'
-  const bottom = o.bottom ?? 'shorts'
+  const longSleeves = top === 'long' || top === 'hoodie' || top === 'jacket' || top === 'aoDai'
+  // A dress replaces the bottom (same colour as the top); an áo dài is worn over silk trousers.
+  const bottom = top === 'dress' ? 'skirt' : top === 'aoDai' ? 'pants' : (o.bottom ?? 'shorts')
+  if (top === 'dress') o = { ...o, shorts: o.shirt }
   const sleeve = top === 'sleeveless' ? o.skin : o.shirt
-  const lowerArm = top === 'long' ? o.shirt : o.skin
+  const lowerArm = longSleeves ? o.shirt : o.skin
   const thighColor = bottom === 'skirt' ? o.skin : o.shorts
   const shinColor = bottom === 'pants' ? o.shorts : o.skin
   const brow = shade(o.skin, 0.62)
@@ -190,15 +313,22 @@ function bodyParts(o: Outfit, carry: Carry): [number, ShapeItem[]][] {
     { sphere: [0.06, 12, 8], at: [-0.2, -0.1, 0.268], rot: [0, -0.62, 0], scale: [1, 0.6, 0.3], color: CHEEK },
     { sphere: [0.06, 12, 8], at: [0.2, -0.1, 0.268], rot: [0, 0.62, 0], scale: [1, 0.6, 0.3], color: CHEEK },
     { torus: [0.035, 0.009, 6, 12, Math.PI], at: [0, -0.115, 0.336], rot: [0, 0, Math.PI], color: MOUTH },
+    { sphere: [0.017, 8, 6], at: [0, -0.06, 0.355], scale: [1.2, 0.8, 0.8], color: shade(o.skin, 0.88) },
     { box: [0.07, 0.011, 0.016], at: [-0.13, 0.085, 0.33], rot: [0, -0.33, -0.1], color: brow },
     { box: [0.07, 0.011, 0.016], at: [0.13, 0.085, 0.33], rot: [0, 0.33, 0.1], color: brow },
   ]
 
   // Eyes are their own bone so they can blink.
+  const iris = o.eye ?? EYE
   const eyes: ShapeItem[] = [-1, 1].flatMap(
     (side): ShapeItem[] => [
-      { sphere: [0.048, 12, 10], at: [side * 0.125, 0, 0.325], scale: [1, 1.15, 0.55], color: EYE },
-      { sphere: [0.016, 8, 6], at: [side * 0.125 + 0.016, 0.02, 0.35], color: WHITE },
+      { sphere: [0.052, 12, 10], at: [side * 0.125, 0, 0.322], scale: [1, 1.22, 0.55], color: iris },
+      { sphere: [0.03, 10, 8], at: [side * 0.125, -0.018, 0.338], scale: [1, 0.9, 0.4], color: shade(iris, 1.6) },
+      { sphere: [0.018, 8, 6], at: [side * 0.125 + 0.017, 0.024, 0.352], color: WHITE },
+      { sphere: [0.009, 6, 5], at: [side * 0.125 - 0.014, -0.022, 0.352], color: WHITE },
+      // Upper lid line with a little flick at the outer corner
+      { box: [0.098, 0.014, 0.014], at: [side * 0.125, 0.056, 0.334], rot: [0, side * -0.3, side * -0.12], color: '#2d2430' },
+      { box: [0.03, 0.012, 0.012], at: [side * 0.178, 0.05, 0.322], rot: [0, side * -0.6, side * 0.5], color: '#2d2430' },
     ],
   )
 
@@ -212,6 +342,46 @@ function bodyParts(o: Outfit, carry: Carry): [number, ShapeItem[]][] {
   if (top === 'long') {
     // A row of buttons
     for (let i = 0; i < 3; i++) torso.push({ sphere: [0.016, 6, 5], at: [0, 0.13 - i * 0.085, 0.2 + (i === 1 ? 0.012 : 0)], color: shade(o.shirt, 0.7) })
+  }
+  if (top === 'hoodie') {
+    torso.push(
+      { sphere: [0.17, 14, 10], at: [0, 0.2, -0.17], scale: [1.05, 0.62, 0.62], color: shade(o.shirt, 0.9) },
+      { box: [0.24, 0.1, 0.03], at: [0, -0.03, 0.205], rot: [-0.12, 0, 0], color: shade(o.shirt, 0.88) },
+      { cyl: [0.007, 0.007, 0.12, 4], at: [-0.04, 0.17, 0.215], rot: [-0.2, 0, 0], color: '#ffffff' },
+      { cyl: [0.007, 0.007, 0.12, 4], at: [0.04, 0.17, 0.215], rot: [-0.2, 0, 0], color: '#ffffff' },
+    )
+  }
+  if (top === 'jacket') {
+    // Open jacket over a white shirt, with lapels
+    torso.push(
+      { box: [0.1, 0.34, 0.02], at: [0, 0.05, 0.208], rot: [-0.1, 0, 0], color: '#fbfaf5' },
+      { box: [0.05, 0.16, 0.02], at: [-0.065, 0.15, 0.212], rot: [-0.1, 0, 0.35], color: shade(o.shirt, 0.8) },
+      { box: [0.05, 0.16, 0.02], at: [0.065, 0.15, 0.212], rot: [-0.1, 0, -0.35], color: shade(o.shirt, 0.8) },
+      { sphere: [0.015, 6, 5], at: [-0.07, -0.02, 0.215], color: shade(o.shirt, 0.6) },
+    )
+  }
+  if (top === 'aoDai') {
+    // High mandarin collar, the diagonal closure, front and back panels to the knees
+    torso.push(
+      { cyl: [0.085, 0.095, 0.07, 14], at: [0, 0.25, 0.0], color: o.shirt },
+      { box: [0.016, 0.16, 0.012], at: [0.07, 0.15, 0.205], rot: [0, 0, 0.6], color: shade(o.shirt, 0.75) },
+      { box: [0.26, 0.32, 0.02], at: [0, -0.3, 0.14], rot: [0.12, 0, 0], color: o.shirt },
+      { box: [0.26, 0.32, 0.02], at: [0, -0.3, -0.15], rot: [-0.12, 0, 0], color: o.shirt },
+    )
+  }
+  if (o.neck === 'scarf') {
+    const c = o.neckColor ?? '#d4473b'
+    torso.push(
+      { torus: [0.12, 0.05, 6, 16], at: [0, 0.225, 0.01], rot: [Math.PI / 2, 0, 0], color: c },
+      { box: [0.08, 0.2, 0.04], at: [0.08, 0.1, 0.2], rot: [-0.15, 0, 0.12], color: c },
+      { box: [0.082, 0.025, 0.042], at: [0.072, 0.03, 0.21], rot: [-0.15, 0, 0.12], color: shade(c, 0.75) },
+    )
+  } else if (o.neck === 'tie') {
+    const c = o.neckColor ?? '#2c5aa0'
+    torso.push(
+      { box: [0.045, 0.035, 0.03], at: [0, 0.2, 0.2], color: c },
+      { box: [0.05, 0.2, 0.018], at: [0, 0.07, 0.212], rot: [-0.08, 0, 0], color: c },
+    )
   }
   if (bottom === 'skirt') torso.push({ cyl: [0.19, 0.31, 0.2, 16], at: [0, -0.2, 0], color: o.shorts })
   if (o.bag) {
@@ -236,13 +406,13 @@ function bodyParts(o: Outfit, carry: Carry): [number, ShapeItem[]][] {
   const upperArm: ShapeItem[] = [
     { sphere: [0.088, 12, 8], at: [0, -0.02, 0], color: sleeve },
     { cyl: [0.066, 0.058, UPPER * 0.62, 8], at: [0, -UPPER * 0.36, 0], color: sleeve },
-    { cyl: [0.054, 0.052, UPPER * 0.5, 8], at: [0, -UPPER * 0.78, 0], color: top === 'long' ? o.shirt : o.skin },
+    { cyl: [0.054, 0.052, UPPER * 0.5, 8], at: [0, -UPPER * 0.78, 0], color: longSleeves ? o.shirt : o.skin },
   ]
-  if (top === 'tee') upperArm.push({ torus: [0.06, 0.012, 4, 12], at: [0, -UPPER * 0.66, 0], rot: [Math.PI / 2, 0, 0], color: shade(o.shirt, 0.86) })
+  if (top === 'tee' || top === 'dress') upperArm.push({ torus: [0.06, 0.012, 4, 12], at: [0, -UPPER * 0.66, 0], rot: [Math.PI / 2, 0, 0], color: shade(o.shirt, 0.86) })
   const forearm = (side: number): ShapeItem[] => [
     { sphere: [0.056, 10, 8], color: lowerArm },
     { cyl: [0.053, 0.048, FORE - 0.04, 8], at: [0, -(FORE - 0.04) / 2, 0], color: lowerArm },
-    ...(top === 'long' ? [{ torus: [0.05, 0.014, 4, 12], at: [0, -FORE + 0.055, 0], rot: [Math.PI / 2, 0, 0], color: shade(o.shirt, 0.86) } as ShapeItem] : []),
+    ...(longSleeves ? [{ torus: [0.05, 0.014, 4, 12], at: [0, -FORE + 0.055, 0], rot: [Math.PI / 2, 0, 0], color: shade(o.shirt, 0.86) } as ShapeItem] : []),
     // Mitten hand with a thumb
     { sphere: [0.066, 12, 8], at: [0, -FORE, 0], scale: [0.9, 1.05, 1], color: o.skin },
     { sphere: [0.03, 8, 6], at: [-side * 0.035, -FORE + 0.012, 0.045], color: o.skin },
@@ -415,9 +585,10 @@ export function ChibiModel({ motion, outfit = PLAYER_OUTFIT, carry = null }: Chi
 
     const stand = 1 - a.sit
     const sin = Math.sin(a.walkPhase)
-    const swing = sin * 0.75 * s * stand
+    // Running (s > 1): longer, faster strides, capped so legs stay plausible.
+    const swing = sin * 0.75 * Math.min(s, 1.4) * stand
     const bounce = Math.abs(sin) * 0.07 * s * stand
-    const breathe = Math.sin(a.time * 2.4) * (1 - s)
+    const breathe = Math.sin(a.time * 2.4) * Math.max(0, 1 - s)
 
     // Body: bounce while walking, drop onto the seat, lean
     const rootY = bounce + (seatY - HIP_Y) * a.sit

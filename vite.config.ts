@@ -35,10 +35,22 @@ const VENDOR_CHUNKS: [string, RegExp][] = [
   ['physics', /node_modules\/(@dimforge|@react-three\/rapier)\//],
 ]
 
+/** Accounts + multiplayer server (server/index.mjs). */
+const SERVER = process.env.VH_SERVER ?? 'http://localhost:8787'
+const VERSION = (JSON.parse(readFileSync('package.json', 'utf8')) as { version: string }).version
+
 export default defineConfig({
   plugins: [react(), tailwindcss(), serviceWorker()],
+  define: { __APP_VERSION__: JSON.stringify(VERSION) },
   // host: true exposes the dev server on your LAN so you can open it on a phone.
-  server: { host: true },
+  // /api and /ws go to the game server (npm run server). VH_SERVER overrides the address.
+  server: {
+    host: true,
+    proxy: {
+      '/api': SERVER,
+      '/ws': { target: SERVER.replace(/^http/, 'ws'), ws: true },
+    },
+  },
   preview: { host: true },
   build: {
     // The physics engine ships its WebAssembly inlined (~2 MB); that's expected.

@@ -6,6 +6,11 @@ import { useDialogue } from '../store/dialogueStore'
 import { useSettings, type TimeSpeed, type Language } from '../store/settingsStore'
 import { useUI } from '../store/uiStore'
 import { CloseIcon } from './icons'
+import { TestTools } from './TestTools'
+import { pushToast } from '../store/toastStore'
+import { LoginPanel, useAccount } from './LoginPanel'
+import { pullCloudSave, pushCloudSave, signOut } from '../net/auth'
+import { useNet } from '../store/netStore'
 
 function Row({ label, children }: { label: string; children: ReactNode }) {
   return (
@@ -149,12 +154,68 @@ function SaveData() {
 }
 
 /** Settings dialog. Esc toggles it on desktop (plan §4) unless something else is open. */
+/** Account: sign in for multiplayer + cloud save, the online switch, sign out. */
+function AccountSection() {
+  const t = useT()
+  const account = useAccount()
+  const online = useSettings((s) => s.online)
+  const setOnline = useSettings((s) => s.setOnline)
+  const status = useNet((s) => s.status)
+  const [loginOpen, setLoginOpen] = useState(false)
+  const afterLogin = async () => {
+    setLoginOpen(false)
+    // The account already has newer progress (another device): load it.
+    if ((await pullCloudSave()) === 'cloud') {
+      suspendSaving()
+      window.location.reload()
+    } else void pushCloudSave()
+  }
+  return (
+    <section className="mb-3 rounded-2xl border-2 border-outline bg-white/70 p-3" data-testid="account-section">
+      <div className="flex items-center justify-between gap-2">
+        <span className="min-w-0">
+          <span className="block text-xs font-black text-ink/60">{t('account.title')}</span>
+          <span className="flex items-center gap-1.5 truncate font-display text-base font-extrabold">
+            <span className={`h-2.5 w-2.5 shrink-0 rounded-full ${status === 'online' ? 'bg-[#3fae72]' : 'bg-ink/30'}`} />
+            {account ? account.name : t('account.guest')}
+          </span>
+        </span>
+        {account ? (
+          <button type="button" onClick={() => void pushCloudSave().then(signOut)} className="shrink-0 rounded-full bg-ink/10 px-3 py-1.5 text-sm font-black">
+            {t('account.signOut')}
+          </button>
+        ) : (
+          <button type="button" onClick={() => setLoginOpen(true)} data-testid="settings-login" className="shrink-0 rounded-full btn-jade px-4 py-1.5 text-sm font-black">
+            {t('account.login')}
+          </button>
+        )}
+      </div>
+      {account ? (
+        <Row label={t('account.online')}>
+          <Segmented
+            value={online ? 'on' : 'off'}
+            options={[
+              { value: 'on', label: t('settings.on') },
+              { value: 'off', label: t('settings.off') },
+            ]}
+            onChange={(v) => setOnline(v === 'on')}
+          />
+        </Row>
+      ) : (
+        <p className="mt-1 text-[12px] leading-snug font-bold text-ink/60">{t('account.why')}</p>
+      )}
+      {loginOpen && <LoginPanel onClose={() => void afterLogin()} />}
+    </section>
+  )
+}
+
 export function SettingsPanel() {
   const t = useT()
   const open = useUI((s) => s.settingsOpen)
   const setOpen = useUI((s) => s.setSettingsOpen)
   const { musicOn, toggleMusic, sfxOn, toggleSfx, quality, setQuality, language, setLanguage, timeSpeed, setTimeSpeed, guideArrows, setGuideArrows, guideHints, setGuideHints } = useSettings()
   const fullscreen = useFullscreen()
+  const taps = useRef({ n: 0, at: 0 })
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -196,6 +257,8 @@ export function SettingsPanel() {
         </button>
 
         <div className="max-h-[70dvh] overflow-y-auto overscroll-contain" style={{ touchAction: 'pan-y' }}>
+          <TestTools />
+          <AccountSection />
           <Row label={t('settings.music')}>
             <Segmented
               value={musicOn ? 'on' : 'off'}
@@ -269,7 +332,19 @@ export function SettingsPanel() {
           >
             {t('settings.close')}
           </button>
-          <p className="mt-3 text-center text-xs font-bold text-ink/50">
+          <p
+            className="mt-3 cursor-default text-center text-xs font-bold text-ink/50 select-none"
+            onClick={() => {
+              // Tap the version 5 times quickly: toggle test mode (developer tools).
+              const now = Date.now()
+              taps.current = { n: now - taps.current.at < 700 ? taps.current.n + 1 : 1, at: now }
+              if (taps.current.n < 5) return
+              taps.current.n = 0
+              const on = !useSettings.getState().testMode
+              useSettings.getState().setTestMode(on)
+              pushToast(on ? 'toast.testOn' : 'toast.testOff', 'info')
+            }}
+          >
             Visa Hunter · {t('settings.version', { version: CONFIG.version })} · {LANGUAGE_NAMES[language]}
           </p>
         </div>

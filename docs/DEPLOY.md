@@ -1,88 +1,78 @@
-# Triển khai Visa Hunter lên Azure Static Web Apps (M10)
+# Triển khai Visa Hunter lên Azure (Container Apps + DocumentDB)
 
-Mục tiêu: game chạy tại **https://visahunter.nghiapham.org**, tự cập nhật mỗi lần push lên nhánh `main`.
+Từ 1.7.0 game có server (tài khoản, save trên mây, multiplayer qua WebSocket), nên **không** dùng Static Web Apps
+nữa (không chạy được server WebSocket). Cách triển khai giống dự án lofitalk:
 
-Những gì đã có sẵn trong repo:
+```
+git push main ──► GitHub Actions (.github/workflows/deploy.yml)
+                    ├─ docker build (npm ci + typecheck + vite build, server deps)
+                    ├─ push ghcr.io/pitien207/visa-hunter:<sha>
+                    └─ az containerapp update (đăng nhập Azure bằng OIDC, không có mật khẩu)
+                                   │
+Azure  visahunter-rg ─ visahunter-env ─ Container App "visa-hunter" (Node 24, cổng 8080, 0–1 bản sao)
+                                   │  MONGO_URI (secret) ─► lofitalk-db (Azure DocumentDB, gói Free), database "visahunter"
+```
 
-| File | Tác dụng |
+## Tài nguyên đã tạo (2026-11-15)
+
+| Thứ | Giá trị |
 |---|---|
-| `.github/workflows/azure-static-web-apps.yml` | GitHub Actions: `npm ci` → `npm run build` → upload `dist/` lên Azure. Mỗi pull request có một URL xem thử riêng. |
-| `public/staticwebapp.config.json` | Cấu hình Azure: mọi đường dẫn lạ trả về `index.html`; `assets/` cache 1 năm (tên file có hash); `index.html` và `sw.js` không cache (để bản mới tới ngay); MIME cho `.webmanifest` và `.wasm`; vài header bảo mật. |
-| `public/manifest.webmanifest`, `dist/sw.js` (tạo lúc build) | PWA: cài lên màn hình chính, chơi offline sau lần mở đầu tiên. |
+| Resource group | `visahunter-rg` (Germany West Central) |
+| Container Apps environment | `visahunter-env` (Consumption, không gửi log → không tốn Log Analytics) |
+| Container App | `visa-hunter`, 0.25 vCPU / 0.5 GiB, **min 0 – max 1 bản sao** |
+| Địa chỉ | https://visa-hunter.blackisland-f796aa91.germanywestcentral.azurecontainerapps.io |
+| Database | cụm có sẵn `lofitalk-db` (DocumentDB, MongoDB API) — database riêng `visahunter` (collections `users`, `tokens`, `saves`) |
+| GitHub → Azure | app registration `github-visahunter-deploy` (OIDC, chỉ nhánh `main` của `pitien207/visa-hunter`), quyền **Container Apps Contributor** trên `visahunter-rg` |
+| GitHub secrets / variables | `AZURE_CLIENT_ID`, `AZURE_TENANT_ID`, `AZURE_SUBSCRIPTION_ID`, biến `AZURE_RESOURCE_GROUP=visahunter-rg` |
 
-Gói **Free** của Static Web Apps là đủ (100 GB băng thông/tháng, 2 custom domain, SSL miễn phí).
+**Max 1 bản sao là bắt buộc**: các phòng multiplayer nằm trong bộ nhớ của một tiến trình. Khi không ai chơi, app
+scale về 0 (gần như miễn phí); người đầu tiên vào sẽ chờ vài giây để app khởi động.
 
----
+## Việc bạn cần làm một lần
 
-## 1. Đưa code lên GitHub
+### 1. Cho image trên ghcr.io ở chế độ Public
+Lần chạy workflow đầu tiên tạo package `visa-hunter` (mặc định **Private**, Azure không kéo về được):
+GitHub → hồ sơ của bạn → *Packages* → **visa-hunter** → *Package settings* → *Change visibility* → **Public**.
+(Giống package `lofitalk`.) Sau đó chạy lại workflow: *Actions* → *Build and deploy…* → **Re-run**.
 
-```bash
-git init
-git add .
-git commit -m "Visa Hunter 1.0"
-git branch -M main
-git remote add origin https://github.com/<tài-khoản>/visa-hunter.git
-git push -u origin main
-```
+### 2. Kết nối database (connection string của DocumentDB)
+Không có bước này game vẫn chạy, nhưng tài khoản và save chỉ nằm tạm trong container (mất khi app khởi động lại).
 
-`.gitignore` đã bỏ qua `node_modules/` và `dist/`.
-
-## 2. Tạo Static Web App
-
-**Cách A — Azure Portal (dễ nhất):**
-
-1. Portal → *Create a resource* → **Static Web App**.
-2. Plan: **Free**. Region: *West Europe* (gần Đức và Việt Nam đều ổn).
-3. Deployment source: **Other**. Ta dùng workflow có sẵn trong repo, nên **không** chọn GitHub ở đây; nếu chọn GitHub, Azure sẽ tự thêm một workflow thứ hai.
-4. Create → mở resource → **Manage deployment token** → copy token.
-
-**Cách B — Azure CLI:**
+Lấy connection string: Portal → `lofitalk-db` → *Settings → Connection strings* (thay `<user>`/`<password>` bằng
+tài khoản admin của cụm). Rồi chạy (PowerShell hoặc Git Bash):
 
 ```bash
-az login
-az group create -n rg-visa-hunter -l westeurope
-az staticwebapp create -n visa-hunter -g rg-visa-hunter -l westeurope --sku Free
-az staticwebapp secrets list -n visa-hunter -g rg-visa-hunter --query "properties.apiKey" -o tsv
+az containerapp secret set -n visa-hunter -g visahunter-rg --secrets "mongo-uri=<connection string>"
+az containerapp update   -n visa-hunter -g visahunter-rg --set-env-vars MONGO_URI=secretref:mongo-uri MONGO_DB=visahunter
 ```
 
-## 3. Cho GitHub quyền deploy
+Kiểm tra: mở `https://…azurecontainerapps.io/api/health` → `{"ok":true,"store":"mongodb",…}`.
+(Firewall của `lofitalk-db` đã cho phép dịch vụ Azure, nên Container App kết nối được.)
 
-GitHub repo → *Settings → Secrets and variables → Actions → New repository secret*:
+### 3. (Tuỳ chọn) Tên miền `visahunter.nghiapham.org`
+Ở nơi quản lý DNS của `nghiapham.org` thêm:
 
-- Name: `AZURE_STATIC_WEB_APPS_API_TOKEN`
-- Value: token vừa copy
+| Loại | Tên | Giá trị |
+|---|---|---|
+| CNAME | `visahunter` | `visa-hunter.blackisland-f796aa91.germanywestcentral.azurecontainerapps.io` |
+| TXT | `asuid.visahunter` | mã xác minh: `az containerapp show -n visa-hunter -g visahunter-rg --query properties.customDomainVerificationId -o tsv` |
 
-Sau đó vào tab **Actions** → *Deploy to Azure Static Web Apps* → **Run workflow** (hoặc push một commit). Khoảng 2 phút sau, game chạy ở địa chỉ mặc định dạng `https://<tên-ngẫu-nhiên>.azurestaticapps.net` (xem ở trang Overview của resource).
+Rồi gắn domain + chứng chỉ miễn phí:
 
-## 4. Gắn subdomain `visahunter.nghiapham.org`
+```bash
+az containerapp hostname add  -n visa-hunter -g visahunter-rg --hostname visahunter.nghiapham.org
+az containerapp hostname bind -n visa-hunter -g visahunter-rg --hostname visahunter.nghiapham.org --environment visahunter-env --validation-method CNAME
+```
 
-1. Ở nơi quản lý DNS của `nghiapham.org`, thêm bản ghi:
+## Hằng ngày
+- `git push` lên `main` → khoảng 3–4 phút sau bản mới chạy trên Azure (xem tab *Actions*).
+- Quay về bản cũ: `az containerapp update -n visa-hunter -g visahunter-rg --image ghcr.io/pitien207/visa-hunter:<sha cũ>`
+  (workflow giữ 10 image gần nhất).
+- Xem log trực tiếp: `az containerapp logs show -n visa-hunter -g visahunter-rg --follow`.
+- Chạy giống production trên máy: `npm run build && npm start` (http://localhost:8787; thêm `MONGO_URI=…` để dùng DB).
 
-   | Type | Name | Value | TTL |
-   |---|---|---|---|
-   | CNAME | `visahunter` | `<tên-ngẫu-nhiên>.azurestaticapps.net` | 3600 |
-
-   Nếu dùng Cloudflare: để **DNS only** (mây xám) cho tới khi Azure cấp xong chứng chỉ.
-
-2. Azure Portal → Static Web App → **Custom domains** → *Add* → *Custom domain on other DNS* → nhập `visahunter.nghiapham.org` → Validate (CNAME) → Add.
-
-   Hoặc bằng CLI:
-
-   ```bash
-   az staticwebapp hostname set -n visa-hunter -g rg-visa-hunter --hostname visahunter.nghiapham.org
-   ```
-
-3. Chờ trạng thái **Ready** (vài phút đến 1 giờ). Chứng chỉ HTTPS do Azure tự cấp và tự gia hạn.
-
-## 5. Kiểm tra sau khi deploy
-
-- [ ] Mở `https://visahunter.nghiapham.org` trên **iPhone (Safari)** và **Android (Chrome)**: màn hình tiêu đề hiện ngay, bấm **▶ Chơi** → vào phố.
-- [ ] Âm thanh có sau lần chạm đầu tiên (iOS cần tắt chế độ im lặng).
-- [ ] Safari: *Chia sẻ → Thêm vào MH chính*. Chrome: menu → *Cài đặt ứng dụng*. Mở từ icon → toàn màn hình.
-- [ ] Bật chế độ máy bay → mở lại từ icon → vẫn chơi được (save nằm trong máy).
-- [ ] Đổi code, push → sau ~2 phút tải lại trang hai lần (lần đầu service worker tải bản mới, lần sau dùng nó).
-
-## Ghi chú
-
-- Save game nằm trong `localStorage` của từng trình duyệt; đổi domain thì save cũ không theo sang. Dùng *Cài đặt → Dữ liệu → Xuất* để chuyển save.
-- Muốn host chỗ khác (Netlify, Cloudflare Pages, GitHub Pages): chỉ cần upload thư mục `dist/` sau `npm run build`. Nếu đặt game trong thư mục con (vd. `/visa-hunter/`), build với `npx vite build --base=/visa-hunter/`.
+## Chi phí ước tính
+- Container Apps Consumption: mỗi tháng miễn phí 180.000 vCPU-giây + 360.000 GiB-giây — với 0.25 vCPU, app chạy
+  liên tục khoảng 200 giờ/tháng vẫn trong mức miễn phí; scale về 0 khi vắng người.
+- DocumentDB: dùng chung cụm gói Free đang có, không phát sinh thêm.
+- ghcr.io: miễn phí cho package public.

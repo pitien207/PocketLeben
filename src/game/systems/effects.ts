@@ -16,6 +16,7 @@ import { placeAtSpawn } from './travel'
 import { getSeat } from './registry'
 import { saveGame } from './save'
 import { canSleep, spendTime } from './time'
+import { canCarry } from './bag'
 
 /**
  * Things that change the player's state: buying, eating, sitting down for a drink,
@@ -50,7 +51,9 @@ export function consumeItem(item: ItemDef) {
 
 export function buyItem(itemId: string, use: boolean) {
   const item = getItem(itemId)
-  if (!item || !pay(item.price)) return false
+  if (!item) return false
+  if (!use && !canCarry(item.weight)) return false
+  if (!pay(item.price)) return false
   if (use) {
     consumeItem(item)
   } else {

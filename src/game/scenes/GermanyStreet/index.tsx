@@ -17,13 +17,24 @@ import { makeTileTexture, type SignOptions } from '../shared/textures'
 import { Backdrop } from '../VietnamStreet/Backdrop'
 import { Altbau } from './Altbau'
 import { PfandBottles } from './PfandBottles'
+import { Stadtpark } from './Stadtpark'
 
 /**
  * Lindenstraße (chapter 3–4): an Altbau street with the WG, the Bürgeramt, a supermarket,
  * a bakery and bank, a tram stop, a Döner kiosk and a flea market across the road.
+ * West end (map extension): an Apotheke, the Asia-Markt and a small square with a fountain.
+ * East end (1.7): the Stadtpark (Stadtpark.tsx).
  */
 
 const FRONT = -4.5
+/** Walkable area. */
+const PLAY = { minX: -32, maxX: 34, minZ: FRONT, maxZ: 14.5 }
+/** Where the Altbau row ends and the Stadtpark begins. */
+const ROW_END = 14.5
+/** Nothing from the distant skyline may stand in the street or the park. */
+const CLEAR = { ...PLAY, minZ: -13 }
+const MID_X = (PLAY.minX + PLAY.maxX) / 2
+const PLAY_W = PLAY.maxX - PLAY.minX
 const DEPTH = 8.5
 const CZ = FRONT - DEPTH / 2
 const ROAD = { minZ: 3.2, maxZ: 8.6 }
@@ -50,11 +61,13 @@ const SIGNS = {
   baeckerei: sign('BÄCKEREI', 'Frische Brötchen', '#f4c04e', '#5b4636', 3.2),
   bank: sign('SPARBANK', 'Geldautomat 24h', '#2f8c7f', '#ffffff', 3.2),
   doener: sign('DÖNER', 'Kebab · Falafel', '#ff9b8f', '#ffffff', 2.4),
+  apotheke: sign('APOTHEKE', 'Notdienst · Nhà thuốc', '#ffffff', '#d4473b', 3.6),
+  asia: sign('ASIA-MARKT', 'Reis · Nudeln · Nước mắm · Phở', '#c8322b', '#ffe08a', 4.4),
 }
 
 function GermanyGround() {
   const paving = useMemo(() => {
-    const map = makeTileTexture('#dcd7cf', '#c2bbb0', 30, 28)
+    const map = makeTileTexture('#dcd7cf', '#c2bbb0', PLAY_W + 1.2, 28)
     return new MeshLambertMaterial({ map })
   }, [])
   useEffect(
@@ -73,7 +86,7 @@ function GermanyGround() {
     s.push({ box: [160, 0.12, 0.22], at: [0, 0.06, ROAD.maxZ], color: '#cfcac0' })
     for (let z = ROAD.minZ + 0.45; z < ROAD.maxZ - 0.2; z += 0.8) s.push({ box: [2.2, 0.01, 0.42], at: [-6, 0.022, z], color: P.roadLine })
     // Park strip across the road
-    s.push({ box: [29, 0.03, 3.6], at: [0, 0.01, 12.4], color: '#b9d9a0' })
+    s.push({ box: [PLAY_W, 0.03, 3.6], at: [MID_X, 0.01, 12.4], color: '#b9d9a0' })
     return s
   }, [])
   return (
@@ -81,8 +94,8 @@ function GermanyGround() {
       <mesh rotation-x={-Math.PI / 2} position={[0, -0.02, 0]} material={lambert('#bcd6a6')} receiveShadow>
         <planeGeometry args={[220, 220]} />
       </mesh>
-      <mesh rotation-x={-Math.PI / 2} position={[0, 0, 0.5]} material={paving} receiveShadow>
-        <planeGeometry args={[29.2, 28]} />
+      <mesh rotation-x={-Math.PI / 2} position={[MID_X, 0, 0.5]} material={paving} receiveShadow>
+        <planeGeometry args={[PLAY_W + 0.2, 28]} />
       </mesh>
       <Shapes shapes={road} material={groundMaterial} castShadow={false} />
     </>
@@ -101,11 +114,12 @@ function streetShapes(): ShapeItem[] {
     [-2, 13.2],
     [7.5, 12.8],
     [12.2, 13.2],
+    ...WEST_TREES,
   ]) {
     s.push(place(treeShapes('linden'), [x, 0, z], x * 0.7, 1.15))
   }
   // Classic lamp posts
-  for (const x of [-8, 3.8, 10.8]) {
+  for (const x of [-27, -19.5, -8, 3.8, 10.8]) {
     s.push({ cyl: [0.06, 0.09, 3.6, 8], at: [x, 1.8, 2.75], color: '#3a4a44' })
     s.push({ box: [0.34, 0.45, 0.34], at: [x, 3.75, 2.75], color: '#3a4a44' })
     s.push({ box: [0.26, 0.32, 0.26], at: [x, 3.72, 2.75], color: '#fff2b3' })
@@ -149,8 +163,46 @@ function streetShapes(): ShapeItem[] {
   s.push(place(benchShapes('#3a4a44'), [-4, 0, 11.6], Math.PI))
   s.push(place(plantShapes(P.leafDark, '#b8aa98'), [-6.2, 0, -3.9], 0, 1.1))
   s.push(place(plantShapes(P.leaf, '#b8aa98'), [7.4, 0, -3.9], 0, 1.1))
-  s.push(place(coneShapes(), [-13.6, 0, 2.7]))
-  s.push(place(coneShapes(), [13.6, 0, 9.1]))
+  s.push(place(coneShapes(), [PLAY.minX + 0.4, 0, 2.7]))
+  s.push(...westShapes())
+  return s
+}
+
+const WEST_TREES: [number, number][] = [
+  [-17.0, 2.4],
+  [-24.0, 2.4],
+  [-31.0, 2.4],
+  [-18.5, 12.8],
+  [-25.0, 13.2],
+  [-30.5, 12.8],
+]
+const FOUNTAIN = { x: -29.6, z: -1.2 }
+
+/** West end: Apotheke display, Asia-Markt crates, a fountain square with benches. */
+function westShapes(): ShapeItem[] {
+  const s: ShapeItem[] = []
+  // Apotheke: the red Gothic "A" sign and a display window
+  s.push({ box: [0.7, 0.8, 0.12], at: [-15.6, 2.9, FRONT + 0.15], color: '#d4473b' })
+  s.push({ box: [0.4, 0.5, 0.13], at: [-15.6, 2.9, FRONT + 0.16], color: '#ffffff' })
+  // Asia-Markt: crates of fruit and veg out front, a stack of rice bags
+  const COLORS = ['#ffd84d', '#7cc27a', '#ff9b8f', '#f2a35c', '#cfe8a0']
+  for (let i = 0; i < 5; i++) {
+    s.push({ box: [0.55, 0.3, 0.4], at: [-26.2 + i * 0.6, 0.45, FRONT + 0.5], color: '#c4a074' })
+    s.push({ box: [0.5, 0.12, 0.35], at: [-26.2 + i * 0.6, 0.66, FRONT + 0.5], color: COLORS[i] })
+  }
+  s.push({ box: [1.8, 0.3, 0.06], at: [-25.0, 0.3, FRONT + 0.72], color: '#8e6844' })
+  for (let i = 0; i < 3; i++) s.push({ box: [0.5, 0.18, 0.32], at: [-22.4, 0.1 + i * 0.19, FRONT + 0.5], color: i % 2 ? '#f6f1e7' : '#e8dcc0' })
+  // Fountain square: round basin, column, water, benches facing it
+  const { x: fx, z: fz } = FOUNTAIN
+  s.push({ cyl: [1.3, 1.4, 0.5, 20], at: [fx, 0.25, fz], color: '#cfc8bb' })
+  s.push({ cyl: [1.15, 1.15, 0.05, 20], at: [fx, 0.46, fz], color: '#8cc2d8' })
+  s.push({ cyl: [0.18, 0.22, 1.3, 10], at: [fx, 0.9, fz], color: '#cfc8bb' })
+  s.push({ cyl: [0.5, 0.3, 0.2, 12], at: [fx, 1.6, fz], color: '#cfc8bb' })
+  s.push({ sphere: [0.22, 10, 8], at: [fx, 1.85, fz], color: '#a9d6ff' })
+  s.push(place(benchShapes('#3a4a44'), [fx - 2.4, 0, fz + 1.0], Math.PI / 2 + 0.3))
+  s.push(place(benchShapes('#3a4a44'), [fx + 2.4, 0, fz + 1.0], -Math.PI / 2 - 0.3))
+  s.push(place(benchShapes('#3a4a44'), [-21, 0, 11.6], Math.PI))
+  s.push(place(plantShapes(P.leaf, '#b8aa98'), [-20.4, 0, -3.9], 0, 1.1))
   return s
 }
 
@@ -178,6 +230,7 @@ const WG_ACTIONS: SpotAction[] = [
   { id: 'enter', labelKey: 'action.enterHome', icon: 'door', action: 'de.viewWg', primary: true, if: { flag: 'de.wg' } },
   { id: 'view', labelKey: 'action.viewWg', icon: 'door', action: 'de.viewWg', primary: true, if: { noFlag: 'de.wg' } },
   { id: 'hostel', labelKey: 'action.hostel', icon: 'sleep', action: 'de.hostel', if: { noFlag: 'de.wg' } },
+  { id: 'flat', labelKey: 'action.rentFlat', icon: 'door', action: 'de.rentFlat', if: { all: [{ flag: 'job.fulltime' }, { noFlag: 'de.ownFlat' }] } },
 ]
 const AMT: SpotAction[] = [{ id: 'enter', labelKey: 'action.enter', icon: 'door', action: 'de.enterBuergeramt', primary: true }]
 const MARKET: SpotAction[] = [
@@ -188,8 +241,10 @@ const BAKERY: SpotAction[] = [{ id: 'shop', labelKey: 'action.shop', icon: 'shop
 const KIOSK: SpotAction[] = [{ id: 'shop', labelKey: 'action.shop', icon: 'shop', action: 'de.openShop', arg: 'imbiss', primary: true }]
 const TRAM: SpotAction[] = [
   { id: 'tram', labelKey: 'action.tramCare', icon: 'tram', action: 'de.tram', arg: 'careHome', primary: true },
+  { id: 'uni', labelKey: 'action.tramUni', icon: 'tram', action: 'de.tram', arg: 'university', if: { any: [{ flag: 'visa.path', is: 'studium' }, { flag: 'talked.anna' }] } },
   { id: 'ticket', labelKey: 'action.buyTicket', icon: 'ticket', action: 'de.buyTicket', if: { not: { test: 'de.ticketValid' } } },
 ]
+const ASIA: SpotAction[] = [{ id: 'shop', labelKey: 'action.shop', icon: 'shop', action: 'de.openShop', arg: 'asiaMarkt', primary: true }]
 const FLEA: SpotAction[] = [{ id: 'shop', labelKey: 'action.shop', icon: 'hanger', action: 'clothes.open', arg: 'flohmarkt', primary: true }]
 
 const at = (x: number, y: number, z: number): Vec3 => [x, y, z]
@@ -207,20 +262,25 @@ const GermanyStreet = memo(function GermanyStreet() {
         <CuboidCollider args={[3, 2.2, DEPTH / 2]} position={[0, 2.2, 0]} collisionGroups={BUILDING_GROUPS} />
       </RigidBody>
       <Altbau position={[11.2, 0, CZ]} width={5.5} depth={DEPTH} floors={3} wall="#f2c4a8" trim="#ffffff" roof="#6b7280" doorX={1.2} flowers />
+      <Altbau position={[-16.6, 0, CZ]} width={5.8} depth={DEPTH} floors={4} wall="#d8e4c8" trim="#ffffff" roof="#6b7280" doorX={0.8} flowers />
+      <Altbau position={[-23.4, 0, CZ]} width={7.0} depth={DEPTH} floors={3} wall="#efe2c4" trim="#ffffff" roof="#b5524a" doorX={0} />
+      <SignBoard options={SIGNS.apotheke} width={2.2} position={[-17.2, 3.0, FRONT + 0.24]} />
+      <SignBoard options={SIGNS.asia} width={3.4} position={[-23.4, 3.1, FRONT + 0.24]} />
 
-      <SignBoard options={SIGNS.wg} width={2.2} position={[-9.5, 3.15, FRONT + 0.08]} />
-      <SignBoard options={SIGNS.buergeramt} width={3.6} position={[-2.0, 3.25, FRONT + 0.08]} />
-      <SignBoard options={SIGNS.supermarkt} width={4.6} position={[4.8, 3.35, FRONT + 0.12]} />
-      <SignBoard options={SIGNS.baeckerei} width={2.0} position={[9.9, 2.8, FRONT + 0.08]} />
-      <SignBoard options={SIGNS.bank} width={2.0} position={[12.4, 2.8, FRONT + 0.08]} />
+      <SignBoard options={SIGNS.wg} width={2.2} position={[-9.5, 3.15, FRONT + 0.24]} />
+      <SignBoard options={SIGNS.buergeramt} width={3.6} position={[-2.0, 3.25, FRONT + 0.24]} />
+      <SignBoard options={SIGNS.supermarkt} width={4.6} position={[4.8, 3.35, FRONT + 0.26]} />
+      <SignBoard options={SIGNS.baeckerei} width={2.0} position={[9.9, 2.8, FRONT + 0.24]} />
+      <SignBoard options={SIGNS.bank} width={2.0} position={[12.4, 2.8, FRONT + 0.24]} />
       <SignBoard options={SIGNS.doener} width={1.6} position={[9.2, 2.05, 1.56]} />
 
       <Shapes shapes={street} />
       <RigidBody type="fixed" colliders={false}>
-        {[[-11.5, 2.4], [-3.6, 2.4], [5.6, 2.4], [12.6, 2.4], [-10, 12.8], [-2, 13.2], [7.5, 12.8], [12.2, 13.2]].map(([x, z]) => (
+        {[[-11.5, 2.4], [-3.6, 2.4], [5.6, 2.4], [12.6, 2.4], [-10, 12.8], [-2, 13.2], [7.5, 12.8], [12.2, 13.2], ...WEST_TREES].map(([x, z]) => (
           <CylinderCollider key={`t${x},${z}`} args={[0.8, 0.25]} position={[x, 0.8, z]} collisionGroups={PROP_GROUPS} />
         ))}
         <CylinderCollider args={[1.3, 0.5]} position={[-6.2, 1.3, 1.8]} collisionGroups={PROP_GROUPS} />
+        <CylinderCollider args={[0.6, 1.4]} position={[FOUNTAIN.x, 0.6, FOUNTAIN.z]} collisionGroups={PROP_GROUPS} />
         <CuboidCollider args={[1.25, 1.2, 0.08]} position={[1.2, 1.2, 2.95]} collisionGroups={PROP_GROUPS} />
         <CuboidCollider args={[0.3, 0.75, 0.22]} position={[2.9, 0.75, 2.2]} collisionGroups={PROP_GROUPS} />
         <CuboidCollider args={[0.95, 1.2, 0.65]} position={[9.2, 1.2, 2.2]} collisionGroups={PROP_GROUPS} />
@@ -229,10 +289,10 @@ const GermanyStreet = memo(function GermanyStreet() {
         <CuboidCollider args={[1.8, 0.45, 0.45]} position={[3.5, 0.45, 12.5]} collisionGroups={PROP_GROUPS} />
         <CuboidCollider args={[0.8, 0.45, 0.25]} position={[-4, 0.45, 11.6]} collisionGroups={PROP_GROUPS} />
         {/* Invisible bounds (incl. a wall just behind the facades so nobody slips between houses) */}
-        <CuboidCollider args={[15, 4, 0.3]} position={[0, 4, FRONT - 0.5]} collisionGroups={PROP_GROUPS} />
-        <CuboidCollider args={[0.5, 4, 15]} position={[-14.5, 4, 0.5]} collisionGroups={PROP_GROUPS} />
-        <CuboidCollider args={[0.5, 4, 15]} position={[14.5, 4, 0.5]} collisionGroups={PROP_GROUPS} />
-        <CuboidCollider args={[15, 4, 0.5]} position={[0, 4, 14.5]} collisionGroups={PROP_GROUPS} />
+        <CuboidCollider args={[(ROW_END - PLAY.minX) / 2 + 0.5, 4, 0.3]} position={[(ROW_END + PLAY.minX) / 2, 4, FRONT - 0.5]} collisionGroups={PROP_GROUPS} />
+        <CuboidCollider args={[0.5, 4, 15]} position={[PLAY.minX - 0.5, 4, 0.5]} collisionGroups={PROP_GROUPS} />
+        <CuboidCollider args={[0.5, 4, 15]} position={[PLAY.maxX, 4, 0.5]} collisionGroups={PROP_GROUPS} />
+        <CuboidCollider args={[PLAY_W / 2 + 0.5, 4, 0.5]} position={[MID_X, 4, 14.5]} collisionGroups={PROP_GROUPS} />
       </RigidBody>
 
       {/* Doors and counters */}
@@ -242,19 +302,23 @@ const GermanyStreet = memo(function GermanyStreet() {
       <ActionSpot id="de-bakery" nameKey="interact.bakery" zone={{ x: 9.6, z: -3.5, halfX: 0.9, halfZ: 0.9 }} actions={BAKERY} />
       <ActionSpot id="de-kiosk" nameKey="interact.doener" zone={{ x: 9.2, z: 0.9, halfX: 1.2, halfZ: 0.8 }} actions={KIOSK} />
       <ActionSpot id="de-tram" nameKey="interact.tramStop" zone={{ x: 1.6, z: 1.8, halfX: 1.8, halfZ: 0.9 }} actions={TRAM} marker={{ at: at(-0.4, 3.3, 2.2), when: { all: [{ test: 'de.paperworkDone' }, { not: { flag: 'stats.careShifts', atLeast: 1 } }] } }} />
+      <ActionSpot id="de-asia" nameKey="interact.asiaMarkt" zone={{ x: -23.4, z: -3.4, halfX: 2.0, halfZ: 1.0 }} actions={ASIA} />
       <ActionSpot id="de-flea" nameKey="interact.flohmarkt" zone={{ x: 3.5, z: 11.4, halfX: 2.0, halfZ: 1.0 }} actions={FLEA} />
 
       {/* People */}
       <NPC def={NPCS.wagner} at={{ x: 12.6, z: -3.8 }} yaw={0} zone={{ x: 12.5, z: -3.4, halfX: 1.2, halfZ: 0.9 }} />
       <NPC def={NPCS.herrMueller} at={{ x: -4, z: 11.6 }} yaw={Math.PI} seatY={0.45} />
       <NPC def={NPCS.tom} at={{ x: 3.5, z: 13.3 }} yaw={Math.PI} seatY={0.33} activity="sip" />
-      <NPC def={NPCS.sophie} at={{ x: -12.5, z: 0.6 }} path={{ points: [{ x: -12.5, z: 0.6 }, { x: 12.5, z: 0.6 }], pauseSec: [0.5, 3] }} yieldLines="yieldDe" />
-      <NPC def={NPCS.anhKhoa} at={{ x: 13, z: 9.6 }} path={{ points: [{ x: -13, z: 9.6 }, { x: 13, z: 9.6 }], pauseSec: [1, 4] }} yieldLines="yieldDe" />
+      <NPC def={NPCS.sophie} at={{ x: -12.5, z: 0.6 }} path={{ points: [{ x: -29, z: 0.6 }, { x: 12.5, z: 0.6 }], pauseSec: [0.5, 3] }} yieldLines="yieldDe" />
+      <NPC def={NPCS.anhKhoa} at={{ x: 13, z: 9.6 }} path={{ points: [{ x: -30, z: 9.6 }, { x: 13, z: 9.6 }], pauseSec: [1, 4] }} yieldLines="yieldDe" />
       <Traffic lanes={LANES} perLane={2} kinds={[...KINDS]} />
       <ChatterDirector groups={[]} solos={['herrMueller', 'sophie', 'anhKhoa:anhKhoaDe', 'tom', 'wagner']} />
 
       <PfandBottles />
-      <Backdrop colors={GERMAN_COLORS} roof="#8a5a52" sideRoad={false} tree="linden" />
+      <NPC def={NPCS.herrLi} at={{ x: -24.4, z: -2.9 }} yaw={0} zone={{ x: -23.4, z: -2.6, halfX: 2.0, halfZ: 1.0 }} />
+      <NPC def={NPCS.frauBeck} at={{ x: FOUNTAIN.x - 2.3, z: FOUNTAIN.z + 1.0 }} yaw={Math.PI / 2 + 0.3} seatY={0.45} />
+      <Backdrop colors={GERMAN_COLORS} roof="#8a5a52" sideRoad={false} tree="linden" clear={CLEAR} />
+      <Stadtpark />
     </>
   )
 })

@@ -1,5 +1,208 @@
 # Changelog
 
+## 1.7.0 — Accounts + multiplayer, new districts with secrets, prettier characters, a fuller story
+
+### Added — accounts, cloud save, multiplayer (phase 1 of docs/MULTIPLAYER_PLAN.md)
+- **Server** `server/index.mjs` (Node + `ws`, no build step): accounts (name + password, scrypt hashes, 10 tries/min),
+  cloud saves, and multiplayer rooms. `npm run server` (port 8787, data in `server/data/`, git-ignored).
+  `npm start` also serves `dist/`, so one process can run the whole game. The dev server proxies `/api` and `/ws`.
+- **Sign in** on the title screen ("Đăng nhập để chơi online") or in Settings → Tài khoản. Playing offline without an
+  account still works exactly as before.
+- **Cloud save**: uploaded every 30 s and when the page is hidden; on "Chơi" (and right after signing in) the newer
+  save wins — continue on another device.
+- **See each other**: one room per public place (street, Lindenstraße, classroom, Bürgeramt, university, airport,
+  care home; max 25, then #2…). Homes, exams and interviews stay private. Other players are chibis with a name plate
+  and their own outfit, smoothly following their position (10 updates/s), sitting/riding like you.
+- **Emotes & quick phrases** (no free chat): 👋 💖 😆 😮 🥲 💃 + "Xin chào!", "Cảm ơn nha!", "Viel Glück!", "Tschüss!",
+  "Đi theo mình!", "Ok luôn!" — a bubble above your head for everyone in the room.
+- HUD: "N online" chip (tap → who is here), emote button. One connection per account (a new tab takes over;
+  the old one offers "reconnect"). Each player still keeps their own clock (phase 2 = shared world clock).
+
+### Added — bigger, more varied map with secrets
+- **Hà Nội east block** (past the side road): **Đình Hàng Gai** (gate, courtyard with an incense urn, hall) where
+  Ông Từ tells its history and you can **draw a fortune stick** (8 quẻ, once a day); a **hidden alley** with a cat
+  and an old well; **Nước mía Cô Tư** (sugarcane juice, chè, kem Tràng Tiền); the **old bookshop** of Chú Hưng
+  (read daily for German XP; he was a contract worker in Leipzig in 1987); the **night market** along the lake
+  (17–24h, chè, bánh tráng nướng, lanterns that glow at night).
+- **Lindenstraße east: the Stadtpark** — duck pond (feed the ducks a Brötchen), playground with **swings**, slide and
+  sandbox, a statue at the gate, the **Kiosk am See** with beer-garden tables, Luca's **ice-cream cart**, and
+  **Oma Gerda** on the bench (German words every day).
+- **18 secrets** to discover by walking around (alley cat, old well, Hồ Gươm turtle, banyan shrine, mural, the
+  keeper's Peugeot, night-market lights after 19h, a 1989 letter, grandma's scarf + the wedding photo at home,
+  hedgehog Herbert, a geocache, a glove on the statue, a daisy meadow by day, a shooting star at night, a message in
+  a bottle, Mieze the cat, an old note in the university library). A golden sparkle shows within a few metres.
+  Each opens a little story card with a reward (money, mood, energy, German XP or **exclusive clothes**);
+  all 18 → the golden Visa Hunter hoodie. Quest log → **Khám phá** tab lists them with hints.
+- University library is open to Ausbildung players too (tram, after meeting Anna) — for the secret and side quest.
+- New food: chè ba màu, bánh tráng nướng, kem Tràng Tiền, Spaghettieis, Apfelschorle (+ icons).
+- Achievements: Nhà thám hiểm, Thổ địa chính hiệu, Xin quẻ đầu năm, Bạn của lũ vịt, Mọt sách.
+
+### Changed — characters & clothes
+- Faces: bigger eyes with two highlights, an upper lid line, a small nose; eye colours per character.
+- New hairstyles: long, ponytail, twin tails, curly, spiky, buzz cut (+ bangs on bob/long/bun).
+- New accessories: cap, beret, hair bow, flower crown, cat ears, headphones, sunglasses.
+- New cuts: **hoodie** (hood, pocket, drawstrings), **jacket** (lapels over a white shirt), **dress**, real **áo dài**
+  (mandarin collar, front/back panels over silk trousers); **scarf** and **tie** (new "neck" slot).
+- 33 new clothing items across the four shops + 5 found as secrets (59 total). Dialogue portraits draw the new styles.
+- Some NPCs restyled (Sophie, Tom) and 9 new people.
+
+### Added — story
+- **Chapter cards**: each chapter opens with a storybook page (who you are, what's at stake, a proverb).
+- Story side quests: **Phố cổ của tôi** (fortune, Chú Hưng's Leipzig story, the night market),
+  **Hành trang kỷ niệm** (grandma's scarf, the wedding photo, the 1989 letter), **Bà ngoại ở nước Đức**
+  (befriend Oma Gerda → she becomes your "Leih-Oma"), **Không ai cô đơn** (the bottle message, Schulz's note, a call home).
+- The ending card tells *your* journey (path, Leih-Oma, Tết, Chú Hưng, secrets, citizenship).
+
+### Changed — UI
+- Title screen: a little plane flies Hà Nội → Germany along a dashed route, drifting clouds, version badge,
+  account chip. Login panel, discovery card, chapter card, emote picker and online list in the same outlined style.
+
+### Manual test checklist (phone)
+- [ ] `npm run server` running → title: "Đăng nhập để chơi online" → create an account → the green chip shows your name.
+- [ ] Two phones/tabs with different accounts on the street: each sees the other with a name plate; walking, sitting
+      at the trà đá stall and riding look right; emote bubble appears for both.
+- [ ] Go home (private): the other player no longer sees you; come back: you reappear.
+- [ ] Play a bit on one device, then "Chơi" on another with the same account: progress continues.
+- [ ] Without the server: the game starts normally, no online chip, nothing breaks.
+- [ ] Walk east past the side road: đình, alley (cat → card + cat ears), juice shop, bookshop, night market (glows after 19h).
+- [ ] Draw a fortune at the đình; read at the bookshop (+XP); chè at the night market (17–24h).
+- [ ] Germany east: Stadtpark — swing, feed ducks (buy a Brötchen first), Oma Gerda, kiosk, ice cream.
+- [ ] Quest log → Khám phá: hints for missing secrets, stories for found ones.
+- [ ] Barber/Chị Hằng/tailor/Flohmarkt: try long hair, ponytail, hoodie, dress, áo dài, cap, scarf, tie.
+- [ ] A new chapter shows its story card once.
+
+## 1.6.0 — Game-like UI, visual backpack, map teleport, fixed signs, multiplayer plan
+
+### Changed — UI
+- New visual language: every panel, chip and button has a dark brown outline, a top highlight and a solid
+  "3D" bottom edge (cartoon-game look instead of soft generic pills). Buttons get a gradient + text shadow.
+- HUD: energy/mood icons sit in round badges that overlap the chip; the coin overlaps the money chip; clock chip outlined.
+- Emoji in the interface replaced by drawn SVG icons (objective target, check, scroll, star, skip, run, map, lock, trash),
+  so they look the same on every phone.
+- Action buttons, sheet close buttons and tabs restyled to match.
+
+### Added — visual backpack
+- The bag is now an **inventory grid** (4 columns, empty slots dashed): each item is a tile with its icon and count;
+  important papers are gold tiles with a lock and their own drawn icons (passport, certificates, visa, ticket, cards,
+  keys, student ID, diplomas, contract, residence permit). Tap a tile → the detail card at the top shows name,
+  effects, weight and **Dùng / Vứt** (tap twice).
+- New item icons: phở bowl, rice bag, fish sauce, medicated oil.
+
+### Added — map teleport (test mode)
+- In test mode the big map lets you **tap anywhere to teleport**, lists every place in the scene (tap → go there) and
+  every other scene (tap → travel there).
+
+### Fixed — signs
+- Black corners on every shop sign (transparent canvas corners) — gone.
+- Text that was too long is shrunk to fit the board (no more cut-off names).
+- Signs on the German street sat behind the floor cornices (a bar crossed the text) — now mounted in front.
+- Shop signs have a backing plate (thickness) like real signs; posters stay flat.
+- Classroom exit sign no longer sticks up above the low side wall.
+
+### Docs
+- `docs/MULTIPLAYER_PLAN.md`: how multiplayer would work (shared world clock vs personal progress, what replaces
+  sleeping / waiting / long trips, shared vs private rooms, co-op activities, architecture, roadmap, open questions).
+
+### Manual test checklist (phone)
+- [ ] HUD looks outlined and "chunky"; icons are drawings, not emoji.
+- [ ] Shop signs on both streets: no black corners, no bar through the text, long names fit.
+- [ ] Bag: grid of tiles, papers with a lock; tap a tile → details on top; Dùng / Vứt work.
+- [ ] Test mode → 🗺️: tap the map → you jump there; tap a place name → you go there; tap another scene → you travel.
+
+## 1.5.0 — University path, backpack weight, running, bigger map
+
+### Added — Studium (chapter 4A)
+- Choosing **Du học (Studium)** now leads to **Universität Lindenberg**: a dual nursing degree (B.Sc. Pflegewissenschaft).
+  New scene: lecture hall with raised desk rows, blackboard + projector, Prof. Schulz at the lectern, the
+  student office (Frau Klein) and a library corner (Kenji); reached by tram ("Đi tram tới đại học").
+- Quests **Sinh viên năm nhất** (enrol 320 € incl. a semester transit pass → first lecture → one Werkstudent shift),
+  **Học kỳ đầu tiên** (6 lectures, 2 library group sessions, Klausur), **Tốt nghiệp cử nhân** (12 lectures,
+  6 Werkstudent shifts, thesis defence). The degree also makes you a qualified nurse, so chapter 5 is shared.
+- Lectures/exams are Q&A with the professor (Pflegeprozess, prevention, evidence-based care, fall prevention,
+  palliative care, citing sources…); group work is the sentence builder. Uni: Mon–Fri 8–18, one lecture a day.
+- Quests can now branch: `when` (path condition) and `after` with several ids. Anna's Ausbildung choices only show
+  on the Ausbildung path. Test mode: switch the path (🎓 Du học / 🩺 Học nghề).
+
+### Added — backpack
+- The bag has a **weight limit** (6 kg; +2/+4/+6 kg with the tote bag / study backpack / new hiking backpack).
+  Every food item has a weight (rice 2 kg, phở 0.8 kg…); Pfand bottles weigh 0.35 kg each.
+- Bag tab: weight bar, items with their weight, **🗑 throw away** (tap twice to confirm), Pfand bottles, and
+  **🔒 important papers** (passport, certificates, visa, ticket, Anmeldung, bank/insurance cards, keys, student ID,
+  diplomas, contract, residence permit) that can't be thrown away.
+- Buying take-away or picking up bottles with a full bag is refused with a hint; red dot on the bag button when
+  it's ≥ 90 % full; shops show item weights and your bag load.
+
+### Added — running
+- **Hold Shift** to run (×1.75). On phones: the **🏃** toggle above the joystick. Longer, faster strides.
+
+### Added — bigger map + map view
+- Hà Nội street is 18 m longer to the west: **Phở Gia Truyền** (Bác Phở — eat in or take away), **Nhà thuốc**
+  (Cô Thảo — dầu gió), **May đo áo dài** (Cô Hoa — áo dài shop: red/yellow/white áo dài, silk trousers, nón lá),
+  a banyan tree with a small shrine, more trees, poles, bikes, willows along Hồ Gươm.
+- Lindenstraße is longer too: **Apotheke**, **Asia-Markt** (Chú Lý: rice, fish sauce, noodles), a fountain square
+  with Frau Beck, more lindens and Pfand spots.
+- **Map**: 🗺️ button (phones) / live minimap in the corner (wide screens) → big map with streets, buildings,
+  labelled places, people, your arrow and the ⭐ goal; tells you which scene the goal is in and the next door.
+
+### Changed — UI
+- Quest log: a progress bar and "x/y bước" per quest. Clock panel: university and Asia-Markt hours.
+- Controls hint mentions Shift / 🏃.
+
+### Manual test checklist (phone)
+- [ ] Tap 🏃 above the joystick → you run; tap again → walk. (Desktop: hold Shift.)
+- [ ] 🗺️ (under the energy/mood chips) → map of the street with your arrow, ⭐ goal and place names.
+- [ ] Walk west past Cô Liên's grocery: phở shop, pharmacy, áo dài tailor, banyan tree. Eat a phở at Bác Phở.
+- [ ] Bag: weight bar, papers with 🔒, 🗑 asks for a second tap; buy many take-away items until "Ba lô đầy" appears; the bag button gets a red dot.
+- [ ] Buy the hiking backpack at the Flohmarkt (or the study backpack at Chị Hằng), wear it → capacity rises.
+- [ ] Test mode → Đường đi: 🎓 Du học → Nhảy tới Chương 4 → tram stop → "Đi tram tới đại học" → enrol, lecture, library group work.
+- [ ] Prof. Schulz → "Em còn thiếu gì ạ?" shows lectures/group/shift counts; Klausur and thesis appear when ready; after the thesis the objective is the contract with Mr Vogel.
+- [ ] Germany: walk west → Apotheke, Asia-Markt (Chú Lý), fountain with Frau Beck.
+
+## 1.4.0 — The full story: chapters 4–5, ending, test mode
+
+### Added — chapter 4 (nursing training)
+- **Học nghề điều dưỡng**: 3 Berufsschule lessons + 6 care shifts → **Zwischenprüfung** (mid-term, Q&A with the
+  examiner Dr Brandt: hygiene, drinking, pressure sores, records, confidentiality, falls).
+- **Kỳ thi tốt nghiệp**: 6 lessons + 12 shifts → **Abschlussprüfung** (dementia, blood pressure, handover, fever…).
+  Pass = Pflegefachkraft. Exams once per day; Anna shows your progress ("Em cần học bao nhiêu nữa?").
+
+### Added — chapter 5 (a new life in Germany)
+- **Hợp đồng chính thức**: Anna congratulates you, interview with the director Mr Vogel → permanent contract,
+  shift pay ×1.8.
+- **Tết đoàn viên**: book a flight home on the WG laptop (650 €) → home in Hà Nội decorated for Tết (peach blossom,
+  bánh chưng, red couplets, lantern), Mum is home, Dad's Tết conversation, lucky money for your sister → fly back
+  from the door (4 days pass).
+- **Tổ ấm riêng**: save the 900 € deposit, rent your own flat at the Lindenstraße 12 door → no more flatmates, sofa,
+  red lanterns, family photo; rent 160 €/week; the plaque says "Căn hộ của mình".
+- **Định cư**: 6 weeks of rent + the **"Leben in Deutschland"** test (16 states, flag, Article 1, 1989…) at the
+  Bürgeramt → Niederlassungserlaubnis → **ending card** (your journey in numbers) → free play.
+- Post-game "Ước mơ tiếp theo": citizenship interview, save 10,000 €, 50 shifts, 1,000 Pfand bottles.
+- 7 new achievements; step-by-step guide entries (targets, hints, blockers) for every new step; the guide routes
+  WG → home (Tết flight) and home → Germany.
+- The ending can be replayed from the laptop.
+
+### Added — test mode (developer)
+- Turn on: **Settings → tap the version line 5 times**, or open the game with **`?test=1`** (`?test=0` turns it off).
+- ⏭ button on the objective chip and on every unfinished step in the quest log: skips the step **for real** (sets the
+  flags, German level, visa, flight, currency…), so later steps work normally.
+- Settings → 🧪 Test mode: skip the current step, **jump to chapter 2/3/4/5 or to the ending**, +money, refill
+  energy/mood, next day.
+
+### Fixed
+- Random morning events with money (e.g. the 20,000 ₫ bike repair) no longer fire in Vietnam while you hold euros.
+- "Cuộc sống ở Đức" side quest: Berufsschule / 5 shifts moved into the main story; new step "video-call home".
+
+### Manual test checklist (phone)
+- [ ] Open the game with `?test=1` (or tap the version 5× in Settings): a 🧪 section appears at the top of Settings and ⏭ next to the objective.
+- [ ] ⏭ on the objective chip skips one step; "Nhảy tới: Chương 4" flies you to Germany with paperwork done and euros.
+- [ ] Chapter 4: Anna → Học lý thuyết / Bắt đầu ca; after 3 lessons + 6 shifts → "Thi giữa khóa"; after 6 + 12 → "Thi tốt nghiệp". The exam card shows 📝 then the questions.
+- [ ] Anna → "Phỏng vấn với ông Vogel" → contract; the next shift pays about ×1.8.
+- [ ] WG laptop → "Đặt vé về Hà Nội ăn Tết" → long flight card → home with Tết decor and Mum; the door says "Ra sân bay, bay về Đức" but refuses until you talk to Dad.
+- [ ] Back in Germany → Lindenstraße 12 door → "Thuê căn hộ riêng" → the room has a sofa and lanterns, no Lena/Jonas, plaque "Căn hộ của mình".
+- [ ] Bürgeramt (Mon–Fri 8–16) → Mr Becker → "Leben in Deutschland" test → "Nộp hồ sơ định cư" → ending card → "Chơi tiếp".
+- [ ] "Nhảy tới: Đoạn kết" from a fresh game reaches the ending card.
+- [ ] Turn test mode off (Settings → 🧪 → Tắt): no ⏭ buttons anywhere.
+
 ## 1.3.0 — Better-looking characters and vehicles
 
 ### Changed — characters

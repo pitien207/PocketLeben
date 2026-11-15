@@ -12,7 +12,7 @@ import { shortDate } from './calendar'
 import { cameraState } from './cameraState'
 import { check, flagNumber, getFlag, germanXpNeeded, setFlag } from './conditions'
 import { playerState } from './playerState'
-import { currentObjective, stepDone } from './watchers'
+import { currentObjective, questApplies, stepDone } from './watchers'
 
 /**
  * The step-by-step guide (data in data/guides.ts): which step is next, what blocks it,
@@ -72,7 +72,7 @@ function chapterProgress(chapter: number) {
   let done = 0
   let total = 0
   for (const q of QUESTS) {
-    if (q.side || q.chapter !== chapter) continue
+    if (q.side || q.chapter !== chapter || !questApplies(q)) continue
     for (const s of q.steps) {
       total++
       if (stepDone(s.id)) done++

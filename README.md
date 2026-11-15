@@ -11,8 +11,18 @@ npm install
 npm run dev        # http://localhost:5173 (also prints a Network URL for your phone)
 ```
 
+**Online (accounts, cloud save, multiplayer):** in a second terminal run `npm run server` (port 8787; data in
+`server/data/`). The dev server forwards `/api` and `/ws` to it. Without it the game simply plays offline.
+`npm run build && npm start` serves the built game and the API from one Node process.
+
 Other scripts: `npm run typecheck`, `npm run build` (outputs `dist/`, incl. the service worker), `npm run preview`
 (test the production build: title screen, PWA install, offline).
+
+**Test mode** (also on a phone / production build): open the game with `?test=1`, or tap the version line in
+Settings 5 times. Then ⏭ next to the objective skips a story step, and Settings → 🧪 jumps to any chapter or the
+ending, switches the path (Studium / Ausbildung) and gives money / energy / next day. `?test=0` turns it off. In test mode the map (🗺️) teleports you: tap the map, a place or another scene.
+
+Controls: WASD / arrows to walk, **hold Shift to run** (phones: 🏃 next to the joystick), E to interact, 🗺️ for the map.
 
 In dev builds the browser console has helpers (`window.__vh`):
 
@@ -28,7 +38,9 @@ In dev builds the browser console has helpers (`window.__vh`):
 | `__vh.guide.getState()` | current guide (step, target, blocker); `__vh.route('home', 'embassy')` = first door on the way |
 | `__vh.setFlag('tut.done', true)` | skip the first-time tour |
 | `__vh.look([x,y,z], [x,y,z])` | fixed inspection camera (`__vh.look()` to return); `__vh.snapshot()` = multiplayer-ready player state |
+| `__vh.skip('tr.zwischen')`, `__vh.jump(5)`, `__vh.objective()` | test mode: skip a step, jump to a chapter, current step id |
 | `__vh.renderInfo()` | draw calls / triangles |
+| `import('/src/net/client.ts')` → `remotes` | other players' latest snapshots (multiplayer) |
 
 ## Where things live
 
@@ -44,6 +56,8 @@ In dev builds the browser console has helpers (`window.__vh`):
 | `src/store/` | Zustand stores (player, time, world, guide, inventory, flags, dialogue, minigame, care, pfand, settings, ui, interaction, work, toasts) |
 | `src/data/config.ts` | Every tunable number (prices, fees, pay, energy, timings, weather, graphics) |
 | `src/data/` | Content: `guides` (targets, hints, blockers per step + door map between scenes), `schedule` (opening hours), `npcs`, `dialogues/` (street, story, germany), `chatter`, `quests`, `achievements`, `events`, `vocab`, `interviews`, `visa`, `care`, `clothes`, `items`, `shops`, `tasks` |
+| `src/net/` | Account + cloud save (`auth.ts`, tiny, used by the title screen) and the multiplayer client (`client.ts`) |
+| `server/` | `index.mjs`: accounts, cloud saves, WebSocket rooms (Node + `ws`) |
 | `src/i18n/` | `vi.json` (default), `en.json`, `de.json` |
 | `pwa/` | App icon source and the service-worker template (filled in by `vite.config.ts` at build time) |
 | `public/` | Manifest, icons, `staticwebapp.config.json` (Azure) |

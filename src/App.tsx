@@ -9,6 +9,10 @@ import { CarePanel, CareResults } from './ui/CarePanel'
 import { ClothesPanel } from './ui/ClothesPanel'
 import { MinigameHost } from './game/minigames/MinigameHost'
 import { QuestLog } from './ui/QuestLog'
+import { EndingPanel } from './ui/EndingPanel'
+import { MapPanel } from './ui/MapView'
+import { SecretCard } from './ui/SecretCard'
+import { ChapterCard } from './ui/ChapterCard'
 import { TransitionOverlay } from './ui/TransitionOverlay'
 import { VisaPanel } from './ui/VisaPanel'
 import { ClockPanel } from './ui/ClockPanel'
@@ -60,6 +64,10 @@ export default function App() {
         <VisaPanel />
         <ClockPanel />
         <GuideCard />
+        <EndingPanel />
+        <MapPanel />
+        <SecretCard />
+        <ChapterCard />
         <GuideUiPulse />
         <Onboarding />
         <MinigameHost />

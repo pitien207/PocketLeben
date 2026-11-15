@@ -9,11 +9,23 @@ import { useUI } from '../store/uiStore'
 import { useFlags } from '../store/flagsStore'
 import { ActionIcon } from './ActionIcon'
 import { QuestTracker } from './QuestLog'
-import { BagIcon, BoltIcon, CoinIcon, GearIcon, MoodIcon, MoonIcon, MusicIcon, MusicOffIcon, RainIcon, SunIcon } from './icons'
+import { MiniMap } from './MapView'
+import { bagCapacity, bagWeight } from '../game/systems/bag'
+import { useInventory } from '../store/inventoryStore'
+import { BagIcon, BoltIcon, CoinIcon, GearIcon, MapIcon, MoodIcon, MoonIcon, MusicIcon, MusicOffIcon, RainIcon, SunIcon } from './icons'
 import { isRaining } from '../game/systems/weather'
 import { longDate, shortDate } from '../game/systems/calendar'
 import { SCENES } from '../game/scenes/registry'
 import { useWorld } from '../store/worldStore'
+import { EmoteButton, OnlineChip } from './OnlineUI'
+
+/** Red dot on the bag button when the backpack is (almost) full. */
+function BagFullBadge() {
+  useInventory((s) => s.items)
+  useFlags((s) => s.flags)
+  if (bagWeight() < bagCapacity() * 0.9) return null
+  return <span className="absolute -top-1 -right-1 h-3.5 w-3.5 rounded-full border-2 border-white bg-lacquer" />
+}
 
 function HudButton({ label, onClick, children, tour }: { label: string; onClick: () => void; children: ReactNode; tour?: string }) {
   return (
@@ -23,7 +35,7 @@ function HudButton({ label, onClick, children, tour }: { label: string; onClick:
       aria-label={label}
       title={label}
       onClick={onClick}
-      className="hud-chip pointer-events-auto grid h-11 w-11 place-items-center text-[22px] text-ink transition active:translate-y-[3px] active:shadow-none"
+      className="hud-chip pointer-events-auto relative grid h-11 w-11 place-items-center text-[22px] text-ink transition active:translate-y-[3px] active:shadow-none"
     >
       {children}
     </button>
@@ -63,7 +75,7 @@ function Clock() {
       onClick={() => openPanel({ type: 'clock' })}
       data-tour="clock"
       aria-label={`${formatClock(minutes)}, ${longDate(day, language)} — ${t('clock.title')}`}
-      className="pointer-events-auto flex items-center gap-1.5 rounded-2xl bg-jade py-1 pr-3 pl-1.5 text-left text-white shadow-[0_3px_0_var(--color-jade-dark)] transition active:translate-y-[3px] active:shadow-none"
+      className="pointer-events-auto flex items-center gap-1.5 rounded-2xl border-[2.5px] border-outline bg-jade bg-linear-to-b from-[#4f9a72] to-jade py-1 pr-3 pl-1.5 text-left text-white shadow-[inset_0_2px_0_rgba(255,255,255,0.3),0_3px_0_var(--color-outline)] [text-shadow:0_2px_0_rgba(20,50,34,0.5)] transition active:translate-y-[3px] active:shadow-none"
     >
       <span className="grid h-7 w-7 place-items-center rounded-full bg-white/20 text-lg">{raining ? <RainIcon /> : daytime ? <SunIcon /> : <MoonIcon />}</span>
       <span className="font-display text-lg leading-none font-extrabold tabular-nums">{formatClock(minutes)}</span>
@@ -79,9 +91,9 @@ function Clock() {
 function StatChip({ label, icon, value, max, barClass }: { label: string; icon: ReactNode; value: number; max: number; barClass: string }) {
   const pct = Math.max(0, Math.min(100, Math.round((value / max) * 100)))
   return (
-    <div role="status" aria-label={`${label}: ${Math.round(value)}/${max}`} className="hud-chip flex h-9 items-center gap-1.5 px-2 text-sm font-extrabold text-ink">
-      <span className="shrink-0 text-lg">{icon}</span>
-      <div className="hidden h-2 w-7 overflow-hidden rounded-full bg-ink/15 min-[380px]:block sm:w-12">
+    <div role="status" aria-label={`${label}: ${Math.round(value)}/${max}`} className="hud-chip flex h-9 items-center gap-1.5 pr-2 pl-0.5 font-display text-[15px] font-extrabold text-ink">
+      <span className="-ml-2.5 grid h-8 w-8 shrink-0 place-items-center rounded-full border-[2.5px] border-outline bg-cream text-[19px] shadow-[0_2px_0_var(--color-outline)]">{icon}</span>
+      <div className="hidden h-2.5 w-7 overflow-hidden rounded-full border-[1.5px] border-outline bg-ink/15 min-[380px]:block sm:w-12">
         <div className={`h-full rounded-full transition-[width] duration-500 ${barClass}`} style={{ width: `${pct}%` }} />
       </div>
       <span className="w-6 text-right tabular-nums">{Math.round(value)}</span>
@@ -116,6 +128,7 @@ export function HUD() {
           </HudButton>
           <HudButton label={t('hud.bag')} onClick={() => openPanel({ type: 'bag' })} tour="bag">
             <BagIcon />
+            <BagFullBadge />
           </HudButton>
           {showVisa && (
             <HudButton label={t('visa.title')} onClick={() => openPanel({ type: 'visa' })} tour="passport">
@@ -137,9 +150,9 @@ export function HUD() {
           <div
             role="status"
             aria-label={`${t('hud.money')}: ${formatMoney(money, currency)}`}
-            className="hud-chip flex h-11 items-center gap-1.5 px-3 font-display text-base font-extrabold text-ink sm:text-lg"
+            className="hud-chip flex h-11 items-center gap-1.5 pr-3 pl-1 font-display text-base font-extrabold text-ink sm:text-lg"
           >
-            <CoinIcon className={`shrink-0 text-[22px] ${gain ? 'animate-coin' : ''}`} key={gain?.key} />
+            <CoinIcon className={`-ml-3 shrink-0 text-[30px] drop-shadow-[0_2px_0_var(--color-outline)] ${gain ? 'animate-coin' : ''}`} key={gain?.key} />
             <span className="tabular-nums">{formatMoney(money, currency)}</span>
           </div>
           {gain && (
@@ -161,6 +174,16 @@ export function HUD() {
           />
           <StatChip label={t('hud.mood')} icon={<MoodIcon value={mood} />} value={mood} max={100} barClass="bg-linear-to-r from-rose to-[#ff7f9f]" />
         </div>
+        <div className="flex flex-col items-end gap-1.5 sm:flex-row sm:items-center">
+          <OnlineChip />
+          <EmoteButton />
+        </div>
+        <MiniMap />
+        <span className="sm:hidden">
+          <HudButton label={t('map.title')} onClick={() => openPanel({ type: 'map' })} tour="map">
+            <MapIcon />
+          </HudButton>
+        </span>
       </div>
     </header>
   )

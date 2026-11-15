@@ -4,6 +4,7 @@ import { longDate } from '../game/systems/calendar'
 import { formatClock } from '../game/systems/time'
 import { isRainyDay } from '../game/systems/weather'
 import { SCENES } from '../game/scenes/registry'
+import { check } from '../game/systems/conditions'
 import { formatMoney } from '../i18n/format'
 import { useT } from '../i18n'
 import { useLocalize } from '../i18n/localized'
@@ -149,7 +150,8 @@ export function LocationCard() {
   }, [scene, ready, transition])
 
   if (!shown || playing || talking) return null
-  const plaque = SCENES[shown.scene].plaque
+  const base = SCENES[shown.scene].plaque
+  const plaque = base.alt && check(base.alt.if) ? { ...base, ...base.alt } : base
   const style =
     plaque.style === 'hanoi'
       ? 'plaque-hanoi'

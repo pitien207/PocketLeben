@@ -1,0 +1,130 @@
+import { useState } from 'react'
+import { useT } from '../i18n'
+import { useLocalize } from '../i18n/localized'
+import { EMOTES } from '../game/components/RemotePlayers'
+import { reconnect, sendEmote } from '../net/client'
+import { useNet, type EmoteId } from '../store/netStore'
+
+/** Speech-bubble icon for the emote button. */
+export function ChatIcon(props: { className?: string }) {
+  return (
+    <svg viewBox="0 0 32 32" width="1em" height="1em" aria-hidden="true" {...props}>
+      <path d="M5 7.5A3.5 3.5 0 0 1 8.5 4h15A3.5 3.5 0 0 1 27 7.5v10a3.5 3.5 0 0 1-3.5 3.5H15l-6 5v-5h-.5A3.5 3.5 0 0 1 5 17.5z" fill="#fff" stroke="#4a3226" strokeWidth="2.2" strokeLinejoin="round" />
+      <circle cx="11" cy="12.5" r="1.8" fill="#4a3226" />
+      <circle cx="16" cy="12.5" r="1.8" fill="#4a3226" />
+      <circle cx="21" cy="12.5" r="1.8" fill="#4a3226" />
+    </svg>
+  )
+}
+
+const ORDER: EmoteId[] = ['wave', 'heart', 'laugh', 'wow', 'sad', 'dance', 'hello', 'thanks', 'luck', 'tschuess', 'follow', 'yes']
+
+/** HUD button + popover with emotes and quick phrases (no free chat: safe for everyone). */
+export function EmoteButton() {
+  const t = useT()
+  const localize = useLocalize()
+  const status = useNet((s) => s.status)
+  const [open, setOpen] = useState(false)
+  if (status !== 'online') return null
+  return (
+    <div className="relative">
+      <button
+        type="button"
+        aria-label={t('online.emotes')}
+        title={t('online.emotes')}
+        aria-expanded={open}
+        data-testid="emote-button"
+        onClick={() => setOpen((o) => !o)}
+        className="hud-chip pointer-events-auto relative grid h-9 w-9 place-items-center text-[20px] transition active:translate-y-[3px] active:shadow-none"
+      >
+        <ChatIcon />
+      </button>
+      {open && (
+        <div className="panel pointer-events-auto fixed inset-x-3 z-30 mx-auto max-w-[19rem] p-2.5" style={{ top: 'calc(max(0.625rem, env(safe-area-inset-top)) + 9rem)' }} data-testid="emote-picker">
+          <div className="grid grid-cols-6 gap-1.5">
+            {ORDER.slice(0, 6).map((e) => (
+              <button
+                key={e}
+                type="button"
+                onClick={() => {
+                  sendEmote(e)
+                  setOpen(false)
+                }}
+                className="grid aspect-square place-items-center rounded-xl border-2 border-outline bg-white text-2xl shadow-[0_2px_0_var(--color-outline)] active:translate-y-0.5 active:shadow-none"
+                aria-label={e}
+              >
+                {EMOTES[e].icon}
+              </button>
+            ))}
+          </div>
+          <div className="mt-2 grid grid-cols-2 gap-1.5">
+            {ORDER.slice(6).map((e) => (
+              <button
+                key={e}
+                type="button"
+                data-testid={`emote-${e}`}
+                onClick={() => {
+                  sendEmote(e)
+                  setOpen(false)
+                }}
+                className="flex items-center gap-1 rounded-xl border-2 border-outline bg-cream px-2 py-1.5 text-left text-[13px] font-black shadow-[0_2px_0_var(--color-outline)] active:translate-y-0.5 active:shadow-none"
+              >
+                <span className="text-lg">{EMOTES[e].icon}</span>
+                <span className="truncate">{localize(EMOTES[e].text!)}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+/** Green "online" chip: how many players are online, who is here. */
+export function OnlineChip() {
+  const t = useT()
+  const status = useNet((s) => s.status)
+  const online = useNet((s) => s.online)
+  const roster = useNet((s) => s.roster)
+  const [open, setOpen] = useState(false)
+  if (status === 'off') return null
+  if (status === 'replaced') {
+    return (
+      <button type="button" onClick={reconnect} data-testid="online-chip" className="hud-chip pointer-events-auto flex h-8 items-center gap-1.5 px-3 text-xs font-black text-ink">
+        <span className="h-2.5 w-2.5 rounded-full bg-gold" /> {t('online.replaced')}
+      </button>
+    )
+  }
+  const live = status === 'online'
+  return (
+    <div className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        data-testid="online-chip"
+        aria-label={live ? t('online.count', { n: Math.max(online, 1) }) : t('online.connecting')}
+        className="hud-chip pointer-events-auto flex h-8 items-center gap-1.5 px-3 text-xs font-black text-ink"
+      >
+        <span className={`h-2.5 w-2.5 rounded-full ${live ? 'bg-[#3fae72]' : 'animate-pulse bg-ink/40'}`} />
+        <span className="tabular-nums sm:hidden">{live ? Math.max(online, 1) : '…'}</span>
+        <span className="hidden sm:inline">{live ? t('online.count', { n: Math.max(online, 1) }) : t('online.connecting')}</span>
+      </button>
+      {open && live && (
+        <div className="panel pointer-events-auto absolute top-full right-0 z-30 mt-2 w-52 p-3 text-sm" data-testid="online-list">
+          <p className="mb-1.5 font-display font-extrabold text-lacquer">{t('online.here')}</p>
+          {roster.length === 0 ? (
+            <p className="text-[13px] font-bold text-ink/65">{t('online.nobody')}</p>
+          ) : (
+            <ul className="flex flex-col gap-1">
+              {roster.map((p) => (
+                <li key={p.id} className="flex items-center gap-1.5 font-black">
+                  <span className="h-2 w-2 rounded-full bg-[#3fae72]" /> {p.name}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
+    </div>
+  )
+}

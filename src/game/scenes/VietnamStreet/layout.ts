@@ -16,9 +16,12 @@ import type { TreeVariant } from '../shared/props'
  *   z=3.2  ════════════ main road ══════════════════╪═════
  *   z=8.6  far sidewalk (trees, bench)
  *   z=14   hedge
+ *
+ * West of x=-14 the street continues (map extension): phở shop, pharmacy, tailor, banyan.
+ * East of the side road (1.7): the communal house (đình), a hidden alley, two shops, the night market.
  */
 
-export const PLAY = { minX: -14, maxX: 14, minZ: -13, maxZ: 14 }
+export const PLAY = { minX: -32, maxX: 34, minZ: -13, maxZ: 14 }
 
 export const BUILDING_FRONT_Z = -4.5
 export const BUILDING_BACK_Z = -13
@@ -31,6 +34,29 @@ export const SIDE_ROAD = { minX: 10, maxX: 13.6 }
 export const HOME = { x: -5.5, width: 4.5, floors: 3 }
 export const NEIGHBOR = { x: -10, width: 4.4, floors: 2 }
 export const CAFE = { x: 4.5, width: 7, depth: 6, z: BUILDING_FRONT_Z - 3 }
+
+/** The western block: three shop houses and the banyan tree at the end. */
+export const WEST = {
+  houses: [
+    { x: -17.0, width: 4.6, floors: 3 },
+    { x: -21.9, width: 4.6, floors: 2 },
+    { x: -26.8, width: 4.6, floors: 3 },
+  ],
+  banyan: { x: -30.2, z: -6.5 },
+}
+
+/** East block (EastBlock.tsx). */
+export const EAST = {
+  /** Communal house: courtyard between the gate (front) and the hall (hallZ). */
+  dinh: { x0: 16, x1: 24, hallZ: -9.6, urn: { x: 20, z: -7.1 } },
+  /** Narrow alley between the đình wall and the juice shop. */
+  alley: { x0: 24.1, x1: 25.9, cat: { x: 24.75, z: -10.0 }, well: { x: 25.0, z: -12.25 } },
+  houses: [
+    { x: 28.2, width: 4.4, floors: 3 },
+    { x: 32.3, width: 3.4, floors: 2 },
+  ],
+  market: { z: 11.3, stalls: [17.6, 21.6, 25.6, 29.6] },
+}
 
 /**
  * Café interior in café-local coordinates (origin = centre of the open hall,
@@ -65,6 +91,12 @@ export const TREES: { at: Vec3; variant: TreeVariant; scale?: number }[] = [
   { at: [-4, 0, 10.4], variant: 'blossom' },
   { at: [3.2, 0, 10.4], variant: 'green' },
   { at: [10.6, 0, 10.4], variant: 'green', scale: 1.1 },
+  { at: [-15.6, 0, 2.3], variant: 'blossom' },
+  { at: [-23.0, 0, 2.3], variant: 'green' },
+  { at: [-30.0, 0, 2.3], variant: 'blossom', scale: 0.9 },
+  { at: [-18.0, 0, 10.4], variant: 'blossom' },
+  { at: [-25.0, 0, 10.4], variant: 'green' },
+  { at: [-31.0, 0, 10.4], variant: 'green', scale: 1.1 },
 ]
 
 export const PLANTS: Vec3[] = [
@@ -74,6 +106,9 @@ export const PLANTS: Vec3[] = [
   [1.4, 0, -4.0],
   [7.6, 0, -4.0],
   [0.5, 0, -8.0],
+  [-19.4, 0, -4.0],
+  [-24.3, 0, -4.0],
+  [-29.0, 0, -4.0],
 ]
 
 export const MOTORBIKES: { at: Vec3; rotY: number; color: string }[] = [
@@ -81,6 +116,9 @@ export const MOTORBIKES: { at: Vec3; rotY: number; color: string }[] = [
   { at: [-1.7, 0, -6.8], rotY: 0.1, color: P.mint },
   { at: [6.2, 0, 11.0], rotY: Math.PI / 2 + 0.1, color: P.lilac },
   { at: [11.9, 0, 10.6], rotY: Math.PI / 2, color: P.butter },
+  { at: [-19.6, 0, -2.4], rotY: Math.PI + 0.2, color: P.sky2 },
+  { at: [-20.6, 0, -2.3], rotY: Math.PI - 0.1, color: P.coral },
+  { at: [-28.6, 0, -2.2], rotY: Math.PI + 0.1, color: P.mint },
 ]
 
 export const CAFE_TABLES: { at: Vec3; stools: string[] }[] = [
@@ -92,19 +130,26 @@ export const CAFE_TABLES: { at: Vec3; stools: string[] }[] = [
 export const BENCHES: { at: Vec3; rotY: number }[] = [
   { at: [-0.4, 0, 11.6], rotY: Math.PI },
   { at: [7.6, 0, 11.6], rotY: Math.PI },
+  { at: [-21.0, 0, 11.6], rotY: Math.PI },
+  { at: [-27.5, 0, 11.6], rotY: Math.PI },
 ]
 
 const POLE_Z = 2.6
 
 export const POLES: PoleSpec[] = [
-  { x: -19, z: POLE_Z, collider: false },
+  { x: -19, z: POLE_Z, lamp: true },
   { x: -11.6, z: POLE_Z, lamp: true },
   { x: -4.2, z: POLE_Z },
   { x: 2.6, z: POLE_Z, lamp: true },
   { x: 9.4, z: POLE_Z, transformer: true },
   { x: 9.4, z: -6.8, lamp: true },
   { x: 9.4, z: -16, collider: false },
-  { x: 17, z: POLE_Z, collider: false },
+  { x: 17, z: POLE_Z, lamp: true },
+  { x: -26.4, z: POLE_Z },
+  { x: -36, z: POLE_Z, collider: false },
+  { x: 25, z: POLE_Z, lamp: true },
+  { x: 32.6, z: POLE_Z },
+  { x: 42, z: POLE_Z, collider: false },
 ]
 
 export const POLE_SPANS: [number, number][] = [
@@ -115,6 +160,11 @@ export const POLE_SPANS: [number, number][] = [
   [4, 5],
   [5, 6],
   [4, 7],
+  [8, 0],
+  [9, 8],
+  [7, 10],
+  [10, 11],
+  [11, 12],
 ]
 
 export const POLE_DROPS: { from: number; to: Vec3 }[] = [
@@ -150,6 +200,8 @@ export const HOME_DOOR_ZONE: ZoneXZ = { x: HOME.x, z: BUILDING_FRONT_Z + 0.9, ha
 
 /** Bánh mì vendor with a shoulder pole, strolling the near sidewalk. */
 export const VENDOR_PATH: PointXZ[] = [
+  { x: -29.0, z: 1.35 },
+  { x: -20.5, z: 1.35 },
   { x: -12.4, z: 1.35 },
   { x: -6.2, z: 1.35 },
   { x: 0.6, z: 1.35 },
@@ -158,12 +210,12 @@ export const VENDOR_PATH: PointXZ[] = [
 
 export const WALKER_PATHS: Record<'coHoa' | 'anhKhoa' | 'chiLan', PointXZ[]> = {
   coHoa: [
-    { x: -12.8, z: 0.45 },
+    { x: -29.5, z: 0.45 },
     { x: 8.8, z: 0.45 },
   ],
   anhKhoa: [
-    { x: -13.2, z: 9.6 },
-    { x: 13.2, z: 9.6 },
+    { x: -30.5, z: 9.6 },
+    { x: 32.5, z: 9.6 },
   ],
   chiLan: [
     { x: 8.65, z: -12.3 },

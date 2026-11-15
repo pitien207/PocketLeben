@@ -196,6 +196,101 @@ const ICONS: Record<ItemIconName, (props: Props) => JSX.Element> = {
   xoi: Xoi,
   nuocMia: NuocMia,
   tangLuc: TangLuc,
+  pho: Pho,
+  rice: Rice,
+  fishSauce: FishSauce,
+  oil: Oil,
+  che: Che,
+  banhTrang: BanhTrang,
+  kem: Kem,
+}
+
+function Pho(props: Props) {
+  return (
+    <Base {...props}>
+      <path d="M3.5 14h25a12.5 12.5 0 0 1-25 0z" fill="#ffffff" stroke={INK} strokeWidth="2" />
+      <path d="M5.5 16.5h21" stroke="#2c5aa0" strokeWidth="1.6" />
+      <ellipse cx="16" cy="14" rx="12.5" ry="2.6" fill="#e8b04a" stroke={INK} strokeWidth="1.6" />
+      <path d="M9 13.5c2-1 3 1 5 0s3 1 5 0 3 1 4 0" fill="none" stroke="#fff6e3" strokeWidth="1.4" />
+      <circle cx="11" cy="13.5" r="1.2" fill="#7fc27a" />
+      <circle cx="20" cy="13" r="1.1" fill="#7fc27a" />
+      <path d="M14 13l3-.6" stroke="#a85a3a" strokeWidth="2" />
+      <path d="M21 4l-5 9M25 5l-6 8.5" stroke="#8e6844" strokeWidth="1.8" />
+    </Base>
+  )
+}
+
+function Rice(props: Props) {
+  return (
+    <Base {...props}>
+      <path d="M8 8c0-2 3-3 8-3s8 1 8 3l1.5 17a3 3 0 0 1-3 3.2h-13A3 3 0 0 1 6.5 25z" fill="#f6f1e7" stroke={INK} strokeWidth="2" />
+      <path d="M8 8.5c3 1.5 13 1.5 16 0" fill="none" stroke={INK} strokeWidth="1.6" />
+      <rect x="10" y="14" width="12" height="8" rx="1.5" fill="#c8322b" />
+      <path d="M13 18c1.5-2 4.5-2 6 0" fill="none" stroke="#ffe08a" strokeWidth="1.6" />
+    </Base>
+  )
+}
+
+function FishSauce(props: Props) {
+  return (
+    <Base {...props}>
+      <path d="M13 3h6v5l3 4v15a2 2 0 0 1-2 2h-8a2 2 0 0 1-2-2V12l3-4z" fill="#d98a3a" stroke={INK} strokeWidth="2" />
+      <rect x="12.5" y="2" width="7" height="3" rx="1" fill="#c8322b" stroke={INK} strokeWidth="1.4" />
+      <rect x="11" y="15" width="10" height="8" rx="1" fill="#fff6e3" />
+      <path d="M13 19.5c1.5-1.5 4-1.5 5.5 0l1.5-1v2l-1.5-1" fill="#2c5aa0" />
+    </Base>
+  )
+}
+
+function Oil(props: Props) {
+  return (
+    <Base {...props}>
+      <rect x="10" y="10" width="12" height="18" rx="3" fill="#7fc27a" stroke={INK} strokeWidth="2" />
+      <rect x="13" y="5" width="6" height="5" rx="1" fill="#3f7d5c" stroke={INK} strokeWidth="1.6" />
+      <rect x="12" y="15" width="8" height="8" rx="1" fill="#ffffff" />
+      <path d="M16 16.5v5M13.5 19h5" stroke="#c8322b" strokeWidth="2" />
+    </Base>
+  )
+}
+
+/** Glass of three-colour chè: red beans, green jelly, coconut milk, crushed ice. */
+function Che(props: Props) {
+  return (
+    <Base {...props}>
+      <path d="M9 6h14l-2 22H11z" fill="#f6fbff" stroke={INK} strokeWidth="2" />
+      <path d="M10.6 22h10.8l-.5 5.5H11.1z" fill="#c8322b" />
+      <path d="M10.2 16h11.6l-.5 6H10.7z" fill="#7cc27a" />
+      <path d="M9.8 11h12.4l-.4 5H10.2z" fill="#fff3d6" />
+      <path d="M17 3l3 9" stroke="#ff9fb2" strokeWidth="2" />
+    </Base>
+  )
+}
+
+/** Grilled rice paper folded in half, with egg and spring onion. */
+function BanhTrang(props: Props) {
+  return (
+    <Base {...props}>
+      <path d="M4 22a12 12 0 0 1 24 0z" fill="#f2c46d" stroke={INK} strokeWidth="2" />
+      <path d="M8 21a8 8 0 0 1 16 0" fill="none" stroke="#e8a25a" strokeWidth="2.5" />
+      <circle cx="12" cy="17" r="1.3" fill="#7cc27a" />
+      <circle cx="18" cy="15" r="1.3" fill="#7cc27a" />
+      <circle cx="21" cy="19" r="1.3" fill="#c8322b" />
+      <path d="M3 22h26" stroke={INK} strokeWidth="2" />
+    </Base>
+  )
+}
+
+/** Ice cream on a stick / scoop in a cone. */
+function Kem(props: Props) {
+  return (
+    <Base {...props}>
+      <path d="M10 15l6 14 6-14z" fill="#e8b46b" stroke={INK} strokeWidth="2" />
+      <path d="M12 18l6 3M11.5 21l7-3" stroke="#b98a64" strokeWidth="1.2" />
+      <circle cx="16" cy="11" r="6" fill="#ffd1dc" stroke={INK} strokeWidth="2" />
+      <circle cx="13" cy="9" r="1.4" fill="#ffffff" opacity="0.8" />
+      <circle cx="18" cy="5" r="2" fill="#c8322b" stroke={INK} strokeWidth="1.4" />
+    </Base>
+  )
 }
 
 export function ItemIcon({ name, ...props }: Props & { name: ItemIconName }) {

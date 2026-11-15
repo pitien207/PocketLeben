@@ -11,6 +11,7 @@ const SPOTS: [number, number][] = [
   [-12, -2.2], [-8, -1.5], [-6, -2.6], [-4.5, 0.2], [-1, -1.8], [0.6, 0.9], [3.2, -2.2], [5.2, 0.5],
   [7.2, -1.6], [8.6, -0.2], [11, -1.4], [13, 0.4], [-11, 9.8], [-7, 10.4], [-1, 10.2], [1.6, 10.0],
   [6, 10.6], [9.5, 10.0], [11.8, 10.6], [-13, 11],
+  [-16, -1.8], [-19.5, 0.4], [-22, -2.4], [-26.8, 0.6], [-27.6, -2.8], [-31, 1.2], [-17, 10.4], [-23, 9.8], [-28.5, 10.6],
 ]
 
 const COLORS = ['#5fa06a', '#a8754f', '#cfe8f6']
@@ -52,10 +53,9 @@ export function PfandBottles() {
     const p = playerState.position
     const r = CONFIG.pfand.pickupRadius
     const picked = current.find((b) => Math.hypot(b.x - p.x, b.z - p.z) < r)
-    if (picked) {
+    if (picked && pickUpBottle()) {
       setBottles(current.filter((b) => b.id !== picked.id))
       respawns.current.push(rand(CONFIG.pfand.respawnSec))
-      pickUpBottle()
       return
     }
     if (respawns.current.length) {

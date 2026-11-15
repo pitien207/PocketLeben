@@ -25,6 +25,11 @@ import { localSnapshot } from './netState'
 import { travelTo } from './travel'
 import { runAction } from './actions'
 import { setFlag } from './conditions'
+import { jumpToChapter, skipStep } from './testMode'
+import { currentObjective } from './watchers'
+import { remotes } from '../../net/client'
+import { pullCloudSave, pushCloudSave } from '../../net/auth'
+import { useNet } from '../../store/netStore'
 
 /**
  * Dev-only console helpers (stripped from production builds):
@@ -61,6 +66,10 @@ export function installDebugHooks() {
       pfand: usePfand,
       toasts: useToasts,
       guide: useGuide,
+      /** Multiplayer: other players as last received, and the account / cloud-save helpers. */
+      remotes: () => [...remotes.values()],
+      net: useNet,
+      cloud: { push: pushCloudSave, pull: pullCloudSave },
       /** What a multiplayer client would send for this player (see systems/netState.ts). */
       snapshot: () => ({
         scene: useWorld.getState().scene,
@@ -79,6 +88,9 @@ export function installDebugHooks() {
       travel: travelTo,
       action: runAction,
       setFlag,
+      skip: skipStep,
+      jump: jumpToChapter,
+      objective: () => currentObjective()?.step.id ?? null,
       project: () => null,
     },
   })

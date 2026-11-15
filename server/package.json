@@ -1,0 +1,11 @@
+{
+  "name": "visa-hunter-server",
+  "private": true,
+  "type": "module",
+  "description": "Accounts, cloud saves and multiplayer rooms for Visa Hunter (installed alone in the Docker image).",
+  "engines": { "node": ">=22" },
+  "dependencies": {
+    "mongodb": "^6.20.0",
+    "ws": "^8.23.0"
+  }
+}

@@ -159,8 +159,15 @@ export const STORY_DIALOGUES: Record<string, DialogueDef> = {
   },
 
   me: {
-    start: 'hello',
+    start: [{ if: { flag: 'trip.away' }, node: 'tet' }, { node: 'hello' }],
     nodes: {
+      tet: {
+        text: [
+          L('Con gầy đi rồi! Ăn đi con, mẹ nấu toàn món con thích: nem rán, canh măng, thịt đông.', 'You’ve got thinner! Eat — I cooked all your favourites: spring rolls, bamboo soup, jellied pork.'),
+          L('Bên đó lạnh không con? Mẹ đan cho con cái khăn len rồi đấy, mang theo nhé.', 'Is it cold over there? I knitted you a scarf — take it with you.'),
+        ],
+        choices: [{ text: L('Con nhớ cơm mẹ nấu lắm!', 'I missed your cooking so much!'), effect: { type: 'mood', amount: 10 } }],
+      },
       hello: {
         text: L('Con đi đường bình an nhé. Nhớ ăn uống đầy đủ, mặc ấm, rảnh thì gọi video về cho mẹ.', 'Take care, my child. Eat well, dress warmly, and video-call me when you can.'),
         next: 'bag',
@@ -175,6 +182,95 @@ export const STORY_DIALOGUES: Record<string, DialogueDef> = {
       fishSauce: {
         text: L('Kệ, mẹ gói kỹ lắm rồi! Đi đi con, đi bình an.', 'Never mind, I wrapped it very well! Go now, travel safely.'),
         choices: [{ text: L('Dạ, con đi đây!', 'Okay, I’m off!'), effect: { type: 'mood', amount: 10 } }],
+      },
+    },
+  },
+
+  bo: {
+    start: [
+      { if: { all: [{ flag: 'trip.away' }, { noFlag: 'trip.reunion' }] }, node: 'tet' },
+      { if: { flag: 'trip.away' }, node: 'stay' },
+      { node: 'hello' },
+    ],
+    nodes: {
+      hello: {
+        text: [
+          L('Học hành chăm chỉ vào con. Bố tin con làm được!', 'Study hard. I believe in you!'),
+          L('Tiếng Đức khó lắm hả con? Hồi xưa bố học tiếng Nga cũng vất vả lắm.', 'Is German hard? Back in my day Russian was tough too.'),
+        ],
+      },
+      tet: {
+        text: L('Con về rồi! Cả nhà chờ con mãi. Bánh chưng mẹ gói từ hôm qua, hoa đào bố mua sáng nay đấy!', 'You’re home! We’ve been waiting. Mum wrapped bánh chưng yesterday and I bought peach blossoms this morning!'),
+        choices: [
+          {
+            text: L('Chúc bố mẹ năm mới an khang thịnh vượng!', 'Happy New Year — health and prosperity!'),
+            effect: { type: 'setFlag', key: 'trip.reunion', value: true },
+            next: 'proud',
+          },
+        ],
+      },
+      proud: {
+        text: L(
+          'Con bây giờ là điều dưỡng ở Đức rồi. Hàng xóm ai cũng hỏi thăm, bố mẹ tự hào lắm. Nhớ lì xì em gái nhé!',
+          'You’re a nurse in Germany now. All the neighbours ask about you — we’re so proud. Don’t forget lucky money for your sister!',
+        ),
+        choices: [
+          { text: L('Lì xì cho em gái', 'Lucky money for my sister'), cost: 20, effect: { type: 'action', id: 'trip.lixi' } },
+          { text: L('Con thương bố mẹ!', 'I love you both!'), effect: { type: 'mood', amount: 10 } },
+        ],
+      },
+      stay: {
+        text: [
+          L('Ở chơi thêm đi con. Khi nào bay thì ra cửa, bố chở ra sân bay.', 'Stay a little longer. When it’s time to fly, head for the door and I’ll drive you to the airport.'),
+          L('Ăn thêm miếng bánh chưng nữa đi. Sang đó làm gì có!', 'Have another piece of bánh chưng. You won’t find that over there!'),
+        ],
+        choices: [
+          { text: L('Lì xì cho em gái', 'Lucky money for my sister'), cost: 20, effect: { type: 'action', id: 'trip.lixi' } },
+          { text: L('Dạ.', 'Okay.') },
+        ],
+      },
+    },
+  },
+
+  bacPho: {
+    start: 'hello',
+    nodes: {
+      hello: {
+        text: [
+          { vi: 'Phở đây! Nước dùng bác ninh từ 3 giờ sáng, xương bò với quế, hồi, gừng nướng. Ăn một bát nhé?', en: 'Phở here! I’ve simmered the broth since 3 a.m. — beef bones, cinnamon, star anise, charred ginger. A bowl?', de: 'Phở! Die Brühe köchelt seit 3 Uhr früh. Eine Schüssel?' },
+          { vi: 'Sáng ăn bát phở là cả ngày có sức học tiếng Đức!', en: 'A bowl of phở in the morning and you can study German all day!', de: 'Eine Schüssel Phở am Morgen, und du lernst den ganzen Tag Deutsch!' },
+        ],
+        choices: [
+          { text: { vi: 'Một bát phở bò, ăn tại chỗ', en: 'One beef phở, to eat here', de: 'Eine Rinder-Phở, hier essen' }, cost: 45_000, effect: { type: 'buy', itemId: 'pho', use: true } },
+          { text: { vi: 'Gói mang đi', en: 'To take away', de: 'Zum Mitnehmen' }, cost: 45_000, effect: { type: 'buy', itemId: 'pho', use: false } },
+          { text: { vi: 'Dạ thôi bác.', en: 'No thanks.', de: 'Nein, danke.' } },
+        ],
+      },
+    },
+  },
+
+  coThuoc: {
+    start: 'hello',
+    nodes: {
+      hello: {
+        text: { vi: 'Học khuya mỏi cổ hả cháu? Lọ dầu gió này xoa vào là tỉnh ngay. Sang Đức nhớ mang theo vài lọ!', en: 'Stiff neck from studying late? Rub on some medicated oil and you’re wide awake. Take a few bottles to Germany!', de: 'Nacken steif vom Lernen? Ein bisschen Heilöl, und du bist wach!' },
+        choices: [
+          { text: { vi: 'Mua một lọ dầu gió', en: 'Buy a bottle of medicated oil', de: 'Ein Fläschchen Heilöl' }, cost: 25_000, effect: { type: 'buy', itemId: 'dauGio', use: false } },
+          { text: { vi: 'Dạ cháu cảm ơn cô.', en: 'Thank you.', de: 'Danke.' } },
+        ],
+      },
+    },
+  },
+
+  coMay: {
+    start: 'hello',
+    nodes: {
+      hello: {
+        text: { vi: 'Cháu ơi, may một bộ áo dài mặc ngày tốt nghiệp hay ngày bay sang Đức đi! Cô đo cho vừa in.', en: 'Have an áo dài made for your graduation or your flight to Germany! I’ll measure you perfectly.', de: 'Lass dir ein Áo dài für den Abschluss oder den Flug nach Deutschland nähen!' },
+        choices: [
+          { text: { vi: 'Xem áo dài', en: 'Show me the áo dài', de: 'Áo dài ansehen' }, effect: { type: 'action', id: 'clothes.open', arg: 'tailor' } },
+          { text: { vi: 'Dạ để lúc khác ạ.', en: 'Maybe later.', de: 'Vielleicht später.' } },
+        ],
       },
     },
   },

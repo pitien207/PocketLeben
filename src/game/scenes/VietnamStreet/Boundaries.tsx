@@ -39,6 +39,11 @@ export function Boundaries() {
     const wallX = minX - 0.4 + wallLen / 2
     s.push({ box: [wallLen, 1.8, 0.4], at: [wallX, 0.9, minZ - 0.2], color: P.cream })
     s.push({ box: [wallLen + 0.1, 0.14, 0.5], at: [wallX, 1.85, minZ - 0.2], color: P.peach })
+    // …and continues east of it, behind the đình and the east houses
+    const eastLen = maxX + 0.4 - SIDE_ROAD.maxX
+    const eastX = SIDE_ROAD.maxX + eastLen / 2
+    s.push({ box: [eastLen, 1.8, 0.4], at: [eastX, 0.9, minZ - 0.2], color: P.cream })
+    s.push({ box: [eastLen + 0.1, 0.14, 0.5], at: [eastX, 1.85, minZ - 0.2], color: P.peach })
 
     // Hedges along the west, south and east edges (gaps where the roads pass)
     s.push(...hedge([minX - 0.35, -4.2], [minX - 0.35, ROAD.minZ - 0.4]))

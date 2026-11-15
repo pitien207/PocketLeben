@@ -25,7 +25,15 @@ function onRoad(x: number, z: number, sideRoad: boolean, lake: boolean) {
   return onMain || onSide
 }
 
-function backdropShapes(colors: string[], roof: string, sideRoad: boolean, tree: 'green' | 'linden', lake: boolean): ShapeItem[] {
+/** Rectangle (play area + margin) where no backdrop block may stand. */
+export interface ClearArea {
+  minX: number
+  maxX: number
+  minZ: number
+  maxZ: number
+}
+
+function backdropShapes(colors: string[], roof: string, sideRoad: boolean, tree: 'green' | 'linden', lake: boolean, clear?: ClearArea): ShapeItem[] {
   const s: ShapeItem[] = []
   let seed = 1
   for (let ring = 0; ring < 2; ring++) {
@@ -37,6 +45,7 @@ function backdropShapes(colors: string[], roof: string, sideRoad: boolean, tree:
       const x = Math.cos(a) * r
       const z = Math.sin(a) * r
       if (onRoad(x, z, sideRoad, lake)) continue
+      if (clear && x > clear.minX - 5 && x < clear.maxX + 5 && z > clear.minZ - 5 && z < clear.maxZ + 5) continue
       const w = 4 + rand(seed++) * 4
       const d = 4 + rand(seed++) * 3
       const h = 5 + rand(seed++) * (ring === 0 ? 8 : 14)
@@ -59,13 +68,15 @@ export function Backdrop({
   sideRoad = true,
   tree = 'green',
   lake = false,
+  clear,
 }: {
   colors?: string[]
   roof?: string
   sideRoad?: boolean
   tree?: 'green' | 'linden'
   lake?: boolean
+  clear?: ClearArea
 }) {
-  const shapes = useMemo(() => backdropShapes(colors, roof, sideRoad, tree, lake), [colors, roof, sideRoad, tree, lake])
+  const shapes = useMemo(() => backdropShapes(colors, roof, sideRoad, tree, lake, clear), [colors, roof, sideRoad, tree, lake, clear])
   return <Shapes shapes={shapes} castShadow={false} receiveShadow={false} />
 }

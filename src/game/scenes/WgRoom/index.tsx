@@ -6,11 +6,15 @@ import { NPC } from '../../components/npc/NPC'
 import { PALETTE as P } from '../shared/palette'
 import { place, plantShapes } from '../shared/props'
 import { Room } from '../shared/Room'
-import type { ShapeItem } from '../shared/Shapes'
+import { Shapes, type ShapeItem } from '../shared/Shapes'
 import { SignBoard } from '../shared/SignBoard'
 import type { SignOptions } from '../shared/textures'
 
-/** The WG (M6): your room (bed, laptop) and the shared kitchen with Lena and Jonas. */
+/**
+ * The WG (M6): your room (bed, laptop) and the shared kitchen with Lena and Jonas.
+ * Chapter 5: once you rent your own flat it becomes yours alone, with a sofa, lanterns
+ * and a family photo.
+ */
 
 const W = 9
 const D = 7
@@ -53,17 +57,42 @@ function furniture(): ShapeItem[] {
   return s
 }
 
+/** Your own flat (chapter 5): sofa, rug, red lanterns, family photo, more plants. */
+function ownFlatDecor(): ShapeItem[] {
+  const s: ShapeItem[] = []
+  s.push({ box: [1.6, 0.42, 0.7], at: [0.9, 0.21, 1.6], color: '#5b7cc4' })
+  s.push({ box: [1.6, 0.5, 0.18], at: [0.9, 0.55, 1.95], color: '#4a68ad' })
+  for (const dx of [-0.75, 0.75]) s.push({ box: [0.16, 0.55, 0.7], at: [0.9 + dx, 0.32, 1.6], color: '#4a68ad' })
+  s.push({ sphere: [0.16, 10, 8], at: [0.5, 0.55, 1.65], scale: [1, 0.8, 0.5], color: '#ffd84d' })
+  s.push({ cyl: [1.0, 1.0, 0.02, 24], at: [0.9, 0.03, 0.6], color: '#f2b45c' })
+  s.push({ box: [0.7, 0.35, 0.45], at: [0.9, 0.18, 0.6], color: P.wood })
+  s.push({ cyl: [0.07, 0.06, 0.16, 8], at: [0.9, 0.44, 0.6], color: P.white })
+  for (const x of [-2.2, -0.2]) {
+    s.push({ cyl: [0.005, 0.005, 0.3, 4], at: [x, 2.75, -3.2], color: '#2f2f38' })
+    s.push({ sphere: [0.17, 12, 10], at: [x, 2.45, -3.2], scale: [1, 0.85, 1], color: '#d4473b' })
+    s.push({ cyl: [0.06, 0.06, 0.05, 8], at: [x, 2.27, -3.2], color: '#f4c04e' })
+  }
+  s.push({ box: [0.5, 0.38, 0.03], at: [-2.6, 1.6, -3.47], color: '#c49a6c' })
+  s.push({ box: [0.42, 0.3, 0.02], at: [-2.6, 1.6, -3.455], color: '#ffe8c4' })
+  s.push(place(plantShapes(P.leaf, '#d4473b'), [-0.9, 0, 2.6], 0, 1.2))
+  return s
+}
+
 const ROOM_ACTIONS: SpotAction[] = [
   { id: 'insurance', labelKey: 'action.insurance', icon: 'laptop', action: 'de.insurance', primary: true, if: { all: [{ flag: 'de.wg' }, { noFlag: 'de.insurance' }] } },
   { id: 'callHome', labelKey: 'action.callHome', icon: 'talk', action: 'de.callHome', if: { flag: 'de.wg' } },
   { id: 'study', labelKey: 'action.selfStudy', icon: 'book', action: 'german.selfStudy', if: { flag: 'de.wg' } },
+  { id: 'trip', labelKey: 'action.bookTrip', icon: 'passport', action: 'trip.book', if: { all: [{ flag: 'job.fulltime' }, { noFlag: 'trip.away' }] } },
+  { id: 'ending', labelKey: 'action.replayEnding', icon: 'start', action: 'story.ending', if: { flag: 'story.done' } },
 ]
 const BED: SpotAction[] = [{ id: 'sleep', labelKey: 'action.sleep', icon: 'sleep', action: 'de.sleep', primary: true, if: { flag: 'de.wg' } }]
 const EXIT: SpotAction[] = [{ id: 'exit', labelKey: 'action.exit', icon: 'door', action: 'de.leaveWg', primary: true }]
 
 const WgRoom = memo(function WgRoom() {
   const shapes = useMemo(furniture, [])
+  const decor = useMemo(ownFlatDecor, [])
   const isHome = useFlags((s) => !!s.flags['de.wg'])
+  const ownFlat = useFlags((s) => !!s.flags['de.ownFlat'])
   return (
     <>
       <Room
@@ -74,9 +103,15 @@ const WgRoom = memo(function WgRoom() {
         furniture={shapes}
         blockers={[[-3.6, -2.3, 0.6, 1.0], [-1.6, -3.15, 0.75, 0.3], [-4.0, 0.2, 0.5, 0.3], [2.9, -3.1, 1.3, 0.35], [4.2, -2.2, 0.35, 0.35], [2.4, -0.2, 0.7, 0.45]]}
       />
-      <SignBoard options={PUTZPLAN} width={0.8} position={[1.2, 1.65, -3.48]} />
-      <NPC def={NPCS.lena} at={{ x: 1.4, z: 0.1 }} yaw={1.2} seatY={0.48} zone={{ x: 1.4, z: 0.6, halfX: 1.3, halfZ: 1.2 }} />
-      <NPC def={NPCS.jonas} at={{ x: 3.2, z: -2.5 }} yaw={-0.6} zone={{ x: 3.2, z: -1.6, halfX: 1.0, halfZ: 0.8 }} />
+      {ownFlat ? (
+        <Shapes shapes={decor} />
+      ) : (
+        <>
+          <SignBoard options={PUTZPLAN} width={0.8} position={[1.2, 1.65, -3.48]} flat />
+          <NPC def={NPCS.lena} at={{ x: 1.4, z: 0.1 }} yaw={1.2} seatY={0.48} zone={{ x: 1.4, z: 0.6, halfX: 1.3, halfZ: 1.2 }} />
+          <NPC def={NPCS.jonas} at={{ x: 3.2, z: -2.5 }} yaw={-0.6} zone={{ x: 3.2, z: -1.6, halfX: 1.0, halfZ: 0.8 }} />
+        </>
+      )}
       {isHome && (
         <>
           <ActionSpot id="wg-laptop" nameKey="interact.laptop" zone={{ x: -1.6, z: -2.4, halfX: 0.9, halfZ: 0.8 }} actions={ROOM_ACTIONS} />

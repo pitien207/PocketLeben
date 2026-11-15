@@ -80,14 +80,15 @@ export function chargeRent() {
   if (getFlag('de.rentPaidDay') === today()) return
   setFlag('de.rentPaidDay', today())
   const p = usePlayer.getState()
-  if (p.money >= g.rentPerWeek) {
-    p.addMoney(-g.rentPerWeek)
+  const rent = getFlag('de.ownFlat') ? CONFIG.career.flatRentPerWeek : g.rentPerWeek
+  if (p.money >= rent) {
+    p.addMoney(-rent)
     bumpFlag('stats.rentPaid')
-    pushToast('toast.rentPaid', 'info', { rent: g.rentPerWeek })
+    pushToast('toast.rentPaid', 'info', { rent })
   } else {
-    bumpFlag('de.rentDebt', g.rentPerWeek)
+    bumpFlag('de.rentDebt', rent)
     p.changeMood(-10)
-    pushToast('toast.rentMissing', 'bad', { rent: g.rentPerWeek })
+    pushToast('toast.rentMissing', 'bad', { rent })
   }
 }
 
@@ -213,7 +214,7 @@ function buyTicket() {
 
 /** Ride the tram. No valid ticket? A ticket inspector may be on board… */
 function tram(arg?: string) {
-  const dest = arg === 'careHome' ? 'careHome' : 'germany'
+  const dest = arg === 'careHome' || arg === 'university' ? arg : 'germany'
   if (!ticketValid()) {
     bumpFlag('stats.schwarzfahren')
     if (Math.random() < g.fareCheckChance) {
@@ -224,7 +225,7 @@ function tram(arg?: string) {
   }
   travelTo(dest, dest === 'germany' ? 'tram' : 'default', {
     minutes: g.tramMinutes,
-    label: dest === 'careHome' ? undefined : { vi: 'Về Lindenstraße', en: 'Back to Lindenstraße', de: 'Zurück zur Lindenstraße' },
+    label: dest === 'germany' ? { vi: 'Về Lindenstraße', en: 'Back to Lindenstraße', de: 'Zurück zur Lindenstraße' } : undefined,
   })
   playSfx('door')
   return true
@@ -313,6 +314,7 @@ function callHome() {
     return false
   }
   setFlag('de.callDay', today())
+  bumpFlag('stats.calls')
   spendTime(30)
   usePlayer.getState().changeMood(12)
   pushToast('toast.calledHome', 'good')

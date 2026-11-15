@@ -53,6 +53,20 @@ export const EXAM_HALL = {
   exit: { x: 4.6, z: 3.3 },
 }
 
+/** Universität Lindenberg: lecture hall (long desk rows) + library corner + student office. */
+export const UNIVERSITY = {
+  w: 14,
+  d: 10,
+  h: 3.6,
+  /** Long desks: centre z of each row (they span x ∈ [-3.2, 3.2]). */
+  rows: [-1.6, 0.2, 2.0],
+  seat: { x: 0.9, z: 0.2 + 0.55, yaw: Math.PI, sitY: 0.58 } as Seat,
+  professor: { x: 0, z: -3.9 },
+  office: { x: 5.2, z: -3.4 },
+  library: { x: -5.2, z: 1.2 },
+  exit: { x: 5.6, z: 4.2 },
+}
+
 export const HOME_ROOM = {
   w: 9,
   d: 7,

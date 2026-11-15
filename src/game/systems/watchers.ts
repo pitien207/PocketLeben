@@ -13,6 +13,7 @@ import { useUI } from '../../store/uiStore'
 import { useSettings } from '../../store/settingsStore'
 import { shortDate } from './calendar'
 import { chargeRent } from './germany'
+import { SCENES } from '../scenes/registry'
 
 /**
  * Background game logic that reacts to state changes: quest progress, achievements,
@@ -32,13 +33,20 @@ export function questComplete(q: QuestDef): boolean {
 /** A later main quest is already complete: this one was skipped or done out of order. */
 function superseded(q: QuestDef): boolean {
   if (q.side) return false
-  return QUESTS.slice(QUESTS.indexOf(q) + 1).some((later) => !later.side && questComplete(later))
+  return QUESTS.slice(QUESTS.indexOf(q) + 1).some((later) => !later.side && questApplies(later) && questComplete(later))
+}
+
+/** Part of this player's story (path branches: Studium vs Ausbildung). */
+export function questApplies(q: QuestDef): boolean {
+  return !q.when || check(q.when)
 }
 
 export function questVisible(q: QuestDef): boolean {
+  if (!questApplies(q)) return false
   if (!q.after) return true
-  const prev = QUESTS.find((p) => p.id === q.after)
-  return !prev || questComplete(prev) || superseded(prev) || superseded(q)
+  const ids = Array.isArray(q.after) ? q.after : [q.after]
+  const prevs = QUESTS.filter((p) => ids.includes(p.id) && questApplies(p))
+  return prevs.length === 0 || prevs.some((p) => questComplete(p) || superseded(p)) || superseded(q)
 }
 
 /** The next thing to do: first unfinished step of the first open main quest. */
@@ -130,7 +138,9 @@ function morningEvent(day: number) {
   if (getFlag('event.day') === day) return
   setFlag('event.day', day)
   if (Math.random() > EVENT_CHANCE) return
-  const pool = EVENTS.filter((e) => check(e.when))
+  // Money events are in the local currency: skip them while visiting home with euros.
+  const wrongCurrency = (SCENES[useWorld.getState().scene].country === 'vn') !== (usePlayer.getState().currency === 'VND')
+  const pool = EVENTS.filter((e) => check(e.when) && !(e.money && wrongCurrency))
   const total = pool.reduce((s, e) => s + (e.weight ?? 1), 0)
   let roll = Math.random() * total
   const event = pool.find((e) => (roll -= e.weight ?? 1) <= 0)

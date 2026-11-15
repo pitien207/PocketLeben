@@ -28,7 +28,7 @@ export function Sheet({ title, onClose, children }: { title: string; onClose: ()
           type="button"
           aria-label={t('settings.close')}
           onClick={onClose}
-          className="absolute top-2 right-2 grid h-9 w-9 place-items-center rounded-full bg-ink/10 text-lg"
+          className="absolute top-2 right-2 grid h-9 w-9 place-items-center rounded-full border-2 border-outline bg-cream text-lg shadow-[0_2px_0_var(--color-outline)] active:translate-y-0.5"
         >
           <CloseIcon />
         </button>

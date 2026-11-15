@@ -14,6 +14,7 @@ import {
   NEIGHBOR,
   POLE_DROPS,
   POLE_SPANS,
+  PLAY,
   POLES,
 } from './layout'
 import { StreetGround } from './StreetGround'
@@ -22,6 +23,8 @@ import { StreetLife } from './StreetLife'
 import { StreetProps } from './StreetProps'
 import type { SignOptions } from '../shared/textures'
 import { TubeHouse, type HousePalette } from './TubeHouse'
+import { WestBlock } from './WestBlock'
+import { EastBlock } from './EastBlock'
 
 /** "Vàng Hà Nội": ochre walls, green wooden shutters, dark green ironwork. */
 const HOME_PALETTE: HousePalette = {
@@ -93,7 +96,9 @@ export const VietnamStreet = memo(function VietnamStreet() {
       <PowerLines poles={POLES} spans={POLE_SPANS} drops={POLE_DROPS} />
       <Boundaries />
       <HoGuom />
-      <Backdrop lake colors={HANOI_BACKDROP} roof="#c8653d" />
+      <WestBlock />
+      <EastBlock />
+      <Backdrop lake colors={HANOI_BACKDROP} roof="#c8653d" clear={PLAY} />
     </group>
   )
 })
