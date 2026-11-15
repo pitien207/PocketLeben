@@ -87,13 +87,16 @@ export function serverConfig() {
   return config
 }
 
-export type GoogleResult = Account | AuthError | { needName: true; ticket: string; suggested: string; email: string | null }
+export type GoogleResult = Account | AuthError | { needName: true; ticket: string; suggested: string; email: string | null; greeting: string | null; picture: string | null }
 
 /** Google's ID token → logged in, or (first time) a ticket to choose a player name. */
 export async function googleSignIn(credential: string, remember = true): Promise<GoogleResult> {
   try {
-    const r = await api<TokenReply & { needName?: boolean; ticket?: string; suggested?: string; email?: string | null }>('POST', 'google', { credential }, undefined)
-    if (r.ok && r.data.needName && r.data.ticket) return { needName: true, ticket: r.data.ticket, suggested: r.data.suggested ?? '', email: r.data.email ?? null }
+    const r = await api<TokenReply & { needName?: boolean; ticket?: string; suggested?: string; email?: string | null; greeting?: string | null; picture?: string | null }>('POST', 'google', { credential }, undefined)
+    if (r.ok && r.data.needName && r.data.ticket) {
+      const d = r.data
+      return { needName: true, ticket: d.ticket!, suggested: d.suggested ?? '', email: d.email ?? null, greeting: d.greeting ?? null, picture: d.picture ?? null }
+    }
     return accepted(r, remember)
   } catch {
     return 'offline'

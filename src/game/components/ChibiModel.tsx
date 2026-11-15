@@ -435,10 +435,42 @@ function bodyParts(o: Outfit, carry: Carry): [number, ShapeItem[]][] {
   ]
 }
 
+/**
+ * Mesh detail. The shapes above are authored generously; a street has ~30 characters, all
+ * casting shadows, so the segment counts are scaled down: "high" for your own character (always
+ * close to the camera), "low" for everyone else. ~9,000 → ~2,000 triangles per NPC.
+ */
+export type ChibiDetail = 'high' | 'low'
+const DETAIL: Record<ChibiDetail, number> = { high: 0.8, low: 0.42 }
+
+const seg = (n: number | undefined, fallback: number, k: number, min: number) => Math.max(min, Math.round((n ?? fallback) * k))
+
+function simplify(items: ShapeItem[], k: number): ShapeItem[] {
+  return items.map((it): ShapeItem => {
+    if ('group' in it) return { ...it, group: simplify(it.group, k) }
+    if ('sphere' in it) {
+      const [r, w, h, theta] = it.sphere
+      return { ...it, sphere: [r, seg(w, 32, k, r < 0.05 ? 6 : 8), seg(h, 16, k, r < 0.05 ? 4 : 6), theta] }
+    }
+    if ('cyl' in it) {
+      const [rt, rb, h, radial] = it.cyl
+      return { ...it, cyl: [rt, rb, h, seg(radial, 32, k * 1.2, 5)] }
+    }
+    if ('torus' in it) {
+      const [r, tube, radial, tubular, arc] = it.torus
+      return { ...it, torus: [r, tube, Math.max(3, Math.round((radial ?? 12) * 0.7)), seg(tubular, 48, k * 1.1, 8), arc] }
+    }
+    // Curls and flowers: a faceted icosahedron is plenty at this size.
+    if ('ico' in it) return { ...it, ico: [it.ico[0], k < 0.6 ? 0 : Math.min(1, it.ico[1] ?? 0)] }
+    return it
+  })
+}
+
 /** All parts merged into one geometry, each vertex bound to its bone. */
-function buildGeometry(o: Outfit, carry: Carry): BufferGeometry {
+function buildGeometry(o: Outfit, carry: Carry, detail: ChibiDetail): BufferGeometry {
+  const k = DETAIL[detail]
   const parts = bodyParts(o, carry).map(([bone, shapes]) => {
-    const g = buildShapes([{ group: shapes, at: BIND[bone] }])
+    const g = buildShapes([{ group: simplify(shapes, k), at: BIND[bone] }])
     const n = g.attributes.position.count
     const index = new Uint16Array(n * 4)
     const weight = new Float32Array(n * 4)
@@ -458,10 +490,10 @@ function buildGeometry(o: Outfit, carry: Carry): BufferGeometry {
 
 // Same outfit (by value) = same geometry, shared by every character wearing it.
 const geometryCache = new Map<string, BufferGeometry>()
-function chibiGeometry(key: string, o: Outfit, carry: Carry) {
+function chibiGeometry(key: string, o: Outfit, carry: Carry, detail: ChibiDetail) {
   let g = geometryCache.get(key)
   if (!g) {
-    g = buildGeometry(o, carry)
+    g = buildGeometry(o, carry, detail)
     geometryCache.set(key, g)
   }
   return g
@@ -539,12 +571,14 @@ export interface ChibiModelProps {
   outfit?: Outfit
   /** Carried object attached to the body. */
   carry?: Carry
+  /** Mesh detail: "high" only for the local player (see DETAIL). */
+  detail?: ChibiDetail
 }
 
-export function ChibiModel({ motion, outfit = PLAYER_OUTFIT, carry = null }: ChibiModelProps) {
-  const key = `${JSON.stringify(outfit)}|${carry ?? ''}`
+export function ChibiModel({ motion, outfit = PLAYER_OUTFIT, carry = null, detail = 'low' }: ChibiModelProps) {
+  const key = `${JSON.stringify(outfit)}|${carry ?? ''}|${detail}`
   const rig = useMemo(
-    () => createRig(chibiGeometry(key, outfit, carry)),
+    () => createRig(chibiGeometry(key, outfit, carry, detail)),
     // The key describes the outfit by value.
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [key],

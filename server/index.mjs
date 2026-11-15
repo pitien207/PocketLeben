@@ -159,7 +159,7 @@ const routes = {
     const ticket = randomBytes(18).toString('base64url')
     tickets.set(ticket, { ...g, until: Date.now() + 10 * 60_000 })
     const suggested = (g.name ?? g.email?.split('@')[0] ?? '').replace(/[^\p{L}\p{N}_ .-]/gu, '').slice(0, 16)
-    send(res, 200, { needName: true, ticket, suggested, email: g.email })
+    send(res, 200, { needName: true, ticket, suggested, email: g.email, greeting: g.name, picture: g.picture })
   },
   async 'POST /api/google/register'(req, res) {
     if (limited(clientIp(req), 'google')) return send(res, 429, { error: 'tooMany' })

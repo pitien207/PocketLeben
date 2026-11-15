@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { useThree } from '@react-three/fiber'
-import { Vector3 } from 'three'
+import { Vector3, type BufferGeometry } from 'three'
 import { useDialogue } from '../../store/dialogueStore'
 import { useFlags } from '../../store/flagsStore'
 import { useInteraction } from '../../store/interactionStore'
@@ -105,6 +105,36 @@ export function DebugBridge() {
     vh.renderInfo = () => {
       const { calls, triangles } = get().gl.info.render
       return { calls, triangles }
+    }
+    /** The 15 heaviest static meshes: triangles and where they are (bounding-box centre). */
+    vh.heavyMeshes = () => {
+      const rows: { tris: number; at: string; shadow: boolean }[] = []
+      get().scene.traverseVisible((o) => {
+        const m = o as unknown as { isMesh?: boolean; isSkinnedMesh?: boolean; geometry?: BufferGeometry; castShadow: boolean }
+        if (!m.isMesh || m.isSkinnedMesh || !m.geometry) return
+        const g = m.geometry
+        const tris = (g.index ? g.index.count : g.attributes.position.count) / 3
+        g.computeBoundingBox()
+        const c = g.boundingBox!.getCenter(new Vector3()).applyMatrix4(o.matrixWorld)
+        rows.push({ tris: Math.round(tris), at: `${c.x.toFixed(0)},${c.y.toFixed(0)},${c.z.toFixed(0)}`, shadow: m.castShadow })
+      })
+      return rows.sort((a, b) => b.tris - a.tris).slice(0, 15)
+    }
+    /** Triangles per kind of object (visible meshes only), to find what is heavy. */
+    vh.sceneStats = () => {
+      const out: Record<string, { meshes: number; tris: number; shadow: number }> = {}
+      get().scene.traverseVisible((o) => {
+        const m = o as unknown as { isMesh?: boolean; isSkinnedMesh?: boolean; isInstancedMesh?: boolean; geometry?: { index: { count: number } | null; attributes: { position: { count: number } } }; castShadow: boolean; count?: number }
+        if (!m.isMesh || !m.geometry) return
+        const g = m.geometry
+        const tris = ((g.index ? g.index.count : g.attributes.position.count) / 3) * (m.isInstancedMesh ? (m.count ?? 1) : 1)
+        const kind = m.isSkinnedMesh ? 'character' : m.isInstancedMesh ? 'instanced' : tris > 20000 ? `big:${o.parent?.type ?? ''}` : 'mesh'
+        const row = (out[kind] ??= { meshes: 0, tris: 0, shadow: 0 })
+        row.meshes++
+        row.tris += Math.round(tris)
+        if (m.castShadow) row.shadow += Math.round(tris)
+      })
+      return out
     }
     vh.project = (x: number, y: number, z: number) => {
       const { camera, size } = get()

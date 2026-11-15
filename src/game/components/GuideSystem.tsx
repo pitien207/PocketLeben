@@ -54,8 +54,11 @@ export function GuideSystem() {
     return { cone, disc, material }
   }, [])
 
+  // The edge arrow element, looked up once (not every frame) and again only if it was replaced.
+  const edgeRef = useRef<HTMLElement | null>(null)
   useFrame(({ camera, clock, size }) => {
-    const edge = document.getElementById('guide-edge')
+    if (!edgeRef.current?.isConnected) edgeRef.current = document.getElementById('guide-edge')
+    const edge = edgeRef.current
     const { guide, tour } = useGuide.getState()
     const ui = useUI.getState()
     const enabled = useSettings.getState().guideArrows && !ui.transition && !ui.sleeping

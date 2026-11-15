@@ -452,9 +452,8 @@
   "toast.wordsLearned": "New words with Oma Gerda: +{xp} XP",
   "story.go": "Begin the chapter",
   "toast.uniVisitor": "You’re on the training path — no need to enrol, but the library and lecture hall are open to visitors.",
-  "account.or": "or with name + password",
+  "account.or": "or",
   "account.pickName": "Choose your name",
-  "account.pickNameHint": "{email} verified. Pick the player name others will see on the street.",
   "account.back": "Back",
   "account.errUseGoogle": "This account signs in with Google — use the Google button above.",
   "account.errGoogle": "Google sign-in didn’t work, please try again.",
@@ -464,5 +463,14 @@
   "account.linkGoogleHint": "Link Google to sign in with one tap next time, no password:",
   "settings.offline": "Game data on this device",
   "settings.offlineReady": "{mb} MB stored · plays offline",
-  "settings.offlineNot": "Not stored yet"
+  "settings.offlineNot": "Not stored yet",
+  "account.perkCloud": "Cloud save",
+  "account.perkFriends": "Meet other players",
+  "account.perkDevices": "Continue on any device",
+  "account.googleOneTap": "One tap · no password to remember",
+  "account.usePassword": "Use a player name + password",
+  "account.hello": "Hi {name}!",
+  "account.pickNameLabel": "Character name (others see it on the street)",
+  "account.start": "Start playing",
+  "account.nameRule": "3–16 letters or digits."
 }

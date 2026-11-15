@@ -452,9 +452,8 @@
   "toast.wordsLearned": "Neue Wörter mit Oma Gerda: +{xp} XP",
   "story.go": "Kapitel beginnen",
   "toast.uniVisitor": "Du machst eine Ausbildung — keine Einschreibung nötig, aber Bibliothek und Hörsaal sind offen für Gäste.",
-  "account.or": "oder mit Name + Passwort",
+  "account.or": "oder",
   "account.pickName": "Wähle deinen Namen",
-  "account.pickNameHint": "{email} bestätigt. Wähle den Namen, den andere auf der Straße sehen.",
   "account.back": "Zurück",
   "account.errUseGoogle": "Dieses Konto meldet sich mit Google an — nutze den Google-Button oben.",
   "account.errGoogle": "Google-Anmeldung fehlgeschlagen, bitte nochmal versuchen.",
@@ -464,5 +463,14 @@
   "account.linkGoogleHint": "Verknüpfe Google, um dich künftig ohne Passwort anzumelden:",
   "settings.offline": "Spieldaten auf dem Gerät",
   "settings.offlineReady": "{mb} MB gespeichert · offline spielbar",
-  "settings.offlineNot": "Noch nicht gespeichert"
+  "settings.offlineNot": "Noch nicht gespeichert",
+  "account.perkCloud": "Cloud-Speicher",
+  "account.perkFriends": "Andere Spieler treffen",
+  "account.perkDevices": "Auf jedem Gerät weiter",
+  "account.googleOneTap": "Ein Tipp · kein Passwort nötig",
+  "account.usePassword": "Mit Spielername + Passwort",
+  "account.hello": "Hallo {name}!",
+  "account.pickNameLabel": "Name deiner Figur (für andere sichtbar)",
+  "account.start": "Los geht’s",
+  "account.nameRule": "3–16 Buchstaben oder Ziffern."
 }

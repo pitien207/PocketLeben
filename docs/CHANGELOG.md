@@ -1,5 +1,25 @@
 # Changelog
 
+## 1.8.1 — Less lag, nicer Google login
+
+### Performance
+- Characters were the heaviest thing on screen: ~9,100 triangles each, ~30 per street, all casting shadows
+  (256k of 368k triangles on the Hà Nội street). Mesh detail is now scaled down when the model is built
+  (`ChibiModel` `detail`: NPCs "low" ≈ 3,300, your own character "high"). Hà Nội street 368k → ~215k triangles,
+  Lindenstraße 147k → ~75k; the same test machine draws 2.3× more frames.
+- The guide arrow no longer looks up a DOM element every frame.
+- Dev helpers: `__vh.sceneStats()` (triangles per kind of object), `__vh.heavyMeshes()` (heaviest static meshes).
+
+### Login panel
+- Google is the main way in: three benefit tiles (cloud save, meet players, any device), the official Google button in
+  a framed card ("one tap, no password"); the name + password form folds away behind "Dùng tên người chơi + mật khẩu".
+- First Google sign-in: your Google photo (or initial), "Xin chào …!", the Gmail address, then the character name.
+
+### Manual test checklist (phone)
+- [ ] Walking on the Hà Nội street feels smoother than before (especially near the café / trà đá).
+- [ ] Login: Google card on top; "Dùng tên người chơi + mật khẩu" opens the classic form.
+- [ ] First Google login shows your photo and greeting.
+
 ## 1.8.0 — Sign in with Google, stay signed in, much less bandwidth
 
 ### Added — accounts

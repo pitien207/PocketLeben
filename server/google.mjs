@@ -22,7 +22,7 @@ async function keys(force = false) {
 const part = (s) => JSON.parse(Buffer.from(s, 'base64url').toString('utf8'))
 
 /**
- * @returns {Promise<{ sub: string, email: string | null, name: string | null } | null>}
+ * @returns {Promise<{ sub: string, email: string | null, name: string | null, picture: string | null } | null>}
  *   the Google account, or null if the token is not valid for this app.
  */
 export async function verifyGoogleToken(credential) {
@@ -50,5 +50,6 @@ export async function verifyGoogleToken(credential) {
     sub: claims.sub,
     email: typeof claims.email === 'string' && claims.email_verified !== false ? claims.email : null,
     name: typeof claims.given_name === 'string' ? claims.given_name : typeof claims.name === 'string' ? claims.name : null,
+    picture: typeof claims.picture === 'string' && claims.picture.startsWith('https://') ? claims.picture : null,
   }
 }

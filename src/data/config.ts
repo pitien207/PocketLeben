@@ -6,7 +6,7 @@
 export type Vec3 = [number, number, number]
 
 export const CONFIG = {
-  version: '1.8.0',
+  version: '1.8.1',
 
   player: {
     /** Metres per second at full joystick / key press. */
