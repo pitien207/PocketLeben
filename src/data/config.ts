@@ -6,7 +6,7 @@
 export type Vec3 = [number, number, number]
 
 export const CONFIG = {
-  version: '1.8.1',
+  version: '1.9.0',
 
   player: {
     /** Metres per second at full joystick / key press. */
@@ -33,8 +33,14 @@ export const CONFIG = {
     portraitFov: 62,
     /** Distance from the look target in landscape. */
     distance: 9,
-    /** Downward angle of the camera (plan §2: ~35–45°). */
+    /** Downward angle of the camera (plan §2: ~35–45°); the player can drag it within min/max. */
     pitchDeg: 40,
+    minPitchDeg: 15,
+    maxPitchDeg: 75,
+    /** Player zoom (distance multiplier): pinch, mouse wheel or the +− buttons. */
+    userZoom: { default: 1.15, min: 0.55, max: 2.1 },
+    /** Degrees of tilt per pixel dragged up/down. */
+    tiltSensitivity: 0.18,
     /** Extra distance multiplier for tall portrait screens. */
     portraitDistanceScale: 1.3,
     followSharpness: 7,
@@ -265,7 +271,7 @@ export const CONFIG = {
 
   joystick: {
     /** How far (px) the knob can travel from the centre. */
-    radiusPx: 52,
+    radiusPx: 40,
     /** Fraction of the radius ignored around the centre. */
     deadZone: 0.12,
   },

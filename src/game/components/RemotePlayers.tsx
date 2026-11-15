@@ -56,6 +56,40 @@ export function EmoteBubble({ emote, y = 2.15 }: { emote: { e: EmoteId; key: num
   )
 }
 
+const CHAT_MS = 6000
+
+/** A world-chat line above someone's head (only people in my room are drawn). */
+export function ChatBubble({ chat, y = 2.15 }: { chat: { text: string; key: number } | null | undefined; y?: number }) {
+  const [visible, setVisible] = useState<number | null>(null)
+  useEffect(() => {
+    if (!chat) return
+    const left = CHAT_MS - (Date.now() - chat.key)
+    if (left <= 0) return
+    setVisible(chat.key)
+    const id = window.setTimeout(() => setVisible(null), left)
+    return () => window.clearTimeout(id)
+  }, [chat])
+  if (!chat || visible !== chat.key) return null
+  return (
+    <Html position={[0, y, 0]} center distanceFactor={9} zIndexRange={[7, 0]} style={{ pointerEvents: 'none' }}>
+      <div
+        key={chat.key}
+        data-testid="chat-bubble"
+        className="animate-bubble relative w-max max-w-[220px] rounded-2xl border-[2.5px] border-outline bg-white px-2.5 py-1 text-[13px] leading-snug font-bold break-words text-ink shadow-[0_3px_0_var(--color-outline)]"
+      >
+        {chat.text}
+        <span className="absolute -bottom-[8px] left-1/2 h-3 w-3 -translate-x-1/2 rotate-45 border-r-[2.5px] border-b-[2.5px] border-outline bg-white" />
+      </div>
+    </Html>
+  )
+}
+
+/** The newer of an emote and a chat line wins the spot above the head. */
+function Bubbles({ emote, chat }: { emote: { e: EmoteId; key: number } | null | undefined; chat: { text: string; key: number } | null | undefined }) {
+  if (chat && (!emote || chat.key > emote.key)) return <ChatBubble chat={chat} />
+  return <EmoteBubble emote={emote} />
+}
+
 function NamePlate({ name }: { name: string }) {
   return (
     <Html position={[0, 1.78, 0]} center distanceFactor={10} zIndexRange={[3, 0]} style={{ pointerEvents: 'none' }}>
@@ -73,6 +107,7 @@ function RemotePlayer({ id, name }: { id: number; name: string }) {
   const facing = useRef<Group>(null)
   const motion = useRef<MotionState>({ speed: 0 })
   const emote = useNet((s) => s.emotes[id])
+  const chat = useNet((s) => s.chats[id])
   const outfitKey = useRef('')
   const [, rerender] = useReducer((n: number) => n + 1, 0)
   const r0 = remotes.get(id)
@@ -100,7 +135,7 @@ function RemotePlayer({ id, name }: { id: number; name: string }) {
         <ChibiModel motion={motion} outfit={r0?.outfit} />
       </group>
       <NamePlate name={name} />
-      <EmoteBubble emote={emote} />
+      <Bubbles emote={emote} chat={chat} />
     </group>
   )
 }
@@ -123,12 +158,13 @@ export function RemotePlayers() {
 export function LocalEmote() {
   const root = useRef<Group>(null)
   const emote = useNet((s) => s.myEmote)
+  const chat = useNet((s) => s.chats[-1])
   useFrame(() => {
     root.current?.position.copy(playerState.position)
   })
   return (
     <group ref={root}>
-      <EmoteBubble emote={emote} />
+      <Bubbles emote={emote} chat={chat} />
     </group>
   )
 }

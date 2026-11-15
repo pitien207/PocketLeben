@@ -1,5 +1,84 @@
 # Changelog
 
+## 1.10.0 — Phone: friends, messages, world chat · Thê Húc bridge to Đền Ngọc Sơn · natural see-through
+
+### Added — the phone (📱 button top-left, where the music button was; music stays in Settings)
+- **Friends:** add by player name (any case) or tap "+" next to a name in the World channel / the online list;
+  requests show a toast and a red badge; accept / decline / cancel; unfriend; block (removes the friendship, stops
+  requests and messages; unblock in the list). Friends' online dots update live.
+- **Messages:** private chats with friends only, last 100 messages per pair kept on the server (cloud), live delivery,
+  unread counts per chat + toast "… vừa nhắn tin cho bạn".
+- **World channel:** one channel for everyone online (last 60 lines, memory only). Lines from people in the same
+  place also pop up as a speech bubble above their head (and above mine).
+- Safety: 200 characters max, control / invisible characters removed, a small bad-word filter (vi/en/de),
+  1 world line per 2 s and 1 private message per 0.6 s (client and server), blocked people are hidden.
+- No account / offline: the phone explains how to sign in or go online.
+- Server: `server/social.mjs` (routes `/api/social`, `/api/friends/request|accept|remove`, `/api/block`,
+  `/api/dm`, `/api/chat/world`; WebSocket `chat` / `dm`), store collections `social` and `dms`.
+
+### Added — Hồ Gươm
+- The red **Thê Húc bridge** is walkable now: it arches over the water from the Đài Nghiên gate (with Tháp Bút)
+  to **Đền Ngọc Sơn** on its island: Đắc Nguyệt gate, incense urn (light incense once a day: mood +12),
+  banyan, the temple hall, the Trấn Ba pavilion with the turtle. New NPCs: Cụ Từ (temple keeper, tells the legend
+  of the returned sword) and two tourists. Map updated.
+
+### Changed
+- **Secrets are switched off for now** (`SECRETS_ENABLED = false` in `data/secrets.ts`): no sparkles, no Secrets tab,
+  no secret quests / achievements / hints. Saved secrets stay in the save file.
+- **Seeing the player behind things:** walls and roofs no longer get a round hole cut into them. When something is
+  between the camera and you, your character shows through as a soft blue silhouette (only the hidden part);
+  only objects almost touching the camera lens disappear.
+- Toasts now appear above open panels (e.g. over the phone).
+
+### Manual test checklist (phone)
+- [ ] Two accounts on two devices: send a friend request by name, see the badge + toast, accept.
+- [ ] Message each other; the other side gets a toast; unread number on the chat; history still there after reload.
+- [ ] World channel: both stand on the street, write a line → bubble above the head; a swear word shows as ****.
+- [ ] Send two world lines fast → "Gửi chậm lại chút nhé…", the text stays in the box.
+- [ ] Block a friend: they disappear from the list, they can't message you.
+- [ ] Typing in the phone never moves the character; the keyboard on the phone doesn't hide the text box.
+- [ ] Walk over the Thê Húc bridge to Đền Ngọc Sơn and back; light incense; talk to Cụ Từ.
+- [ ] Walk behind the Đài Nghiên gate / under a balcony: blue silhouette, no hole in the wall.
+- [ ] No secret sparkles anywhere, no Secrets tab in the Quest log.
+
+## 1.9.0 — New character style (toon + painted faces), camera zoom & tilt, phone controls
+
+### Changed — characters (design from the user's chibi.js)
+- Toon look: cel shading in three bands (MeshToonMaterial + 3-step gradient) and a dark ink outline
+  (inverted hull, pushed out along the skinned normals).
+- Painted anime faces on the head sphere: gradient irises, pupil, two highlights, thick upper lid (+ lashes), soft
+  blush, brows in the hair colour, mouth per expression (neutral "w", happy, happy-closed, surprised, sad);
+  blinking swaps to a closed-eyes face.
+- Rounded lathe body; hair with bang "lobes" and side locks; styles short, spiky, bob, long, ponytail, twin buns,
+  braid, elder bun (+ our twin tails, curly, buzz); conical hat, helmet with visor, beanie with band + pompom,
+  Tyrolean hat, thin glasses.
+- New outfit cuts: bà ba, puffer jacket, scrubs (v-neck, badge, pocket), dirndl (blouse, laces, long skirt, apron),
+  wide trousers, lederhosen with suspenders + knee socks, red neckerchief, apron; prints (stripes, flowers);
+  shoe shapes sneaker / sandal (dép tổ ong) / boot / loafer.
+- 26 NPCs dressed after the presets (Bà Thu in a floral bà ba, Anna in scrubs, Mr Brandl in lederhosen + Tyrolean
+  hat, little Emma in a dirndl, Mr Müller in a winter puffer…); 10 new clothes (69 total). Dialogue portraits use
+  the same eyes and expressions.
+- Still cheap: one shared skeleton, three skinned meshes per character (body, face, outline = 3 draw calls instead
+  of the original's ~60 meshes); the outline uses coarser geometry and is only drawn within 26 m.
+  Same frame rate as before on the test machine.
+
+### Added — camera
+- Drag left/right orbits 360°, drag up/down tilts (15°–75°); pinch with two fingers or the mouse wheel zooms
+  (0.55×–2.1×, default a bit farther than before). Zoom and tilt are remembered on the device.
+- Phones: small + / − buttons on the right edge (hold to keep zooming).
+
+### Changed — phone controls
+- Smaller joystick (stick base 104 px instead of 128); the run button is smaller and tucked against the stick.
+- A big round interact button always sits bottom-right (like the E key): it lights up with the action's icon and
+  name when something is in reach, other actions stack to its left; nothing in reach → a dimmed hand.
+
+### Manual test checklist (phone)
+- [ ] Characters look like the chibi.js style: outline, anime eyes that blink, blush.
+- [ ] Ride a xe ôm, sit at the trà đá stall: hands/feet still on grips/stool.
+- [ ] Pinch to zoom, hold −/+ to zoom, drag up/down to tilt; reopen the game: the view is remembered.
+- [ ] Interact button: dim when nothing is near, red with "Nói chuyện" next to Bà Thu; extra actions on its left.
+- [ ] Buy the dirndl / lederhosen / puffer / boots at the Flohmarkt, bà ba / striped tee at Chị Hằng's.
+
 ## 1.8.1 — Less lag, nicer Google login
 
 ### Performance

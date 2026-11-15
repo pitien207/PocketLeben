@@ -4,6 +4,7 @@ import { useLocalize } from '../i18n/localized'
 import { EMOTES } from '../game/components/RemotePlayers'
 import { reconnect, sendEmote } from '../net/client'
 import { useNet, type EmoteId } from '../store/netStore'
+import { requestFriend, useSocial } from '../net/social'
 
 /** Speech-bubble icon for the emote button. */
 export function ChatIcon(props: { className?: string }) {
@@ -80,12 +81,37 @@ export function EmoteButton() {
   )
 }
 
+const keyOf = (name: string) => name.trim().toLowerCase()
+
+/** "+ Add" next to a player standing here (or a tag if already a friend / invited). */
+function RosterAdd({ name, isFriend, pending, onAsk }: { name: string; isFriend: boolean; pending: boolean; onAsk: () => void }) {
+  const t = useT()
+  if (isFriend) return <span className="text-[11px] text-jade">{t('phone.friendTag')}</span>
+  if (pending) return <span className="text-[11px] text-ink/50">{t('phone.pending')}</span>
+  return (
+    <button
+      type="button"
+      data-testid={'roster-add-' + keyOf(name)}
+      onClick={() => {
+        onAsk()
+        void requestFriend(name)
+      }}
+      className="rounded-full border-2 border-outline bg-jade px-2 text-[11px] text-white shadow-[0_2px_0_var(--color-outline)] active:translate-y-0.5 active:shadow-none"
+    >
+      + {t('phone.add')}
+    </button>
+  )
+}
+
 /** Green "online" chip: how many players are online, who is here. */
 export function OnlineChip() {
   const t = useT()
   const status = useNet((s) => s.status)
   const online = useNet((s) => s.online)
   const roster = useNet((s) => s.roster)
+  const friends = useSocial((s) => s.friends)
+  const outgoing = useSocial((s) => s.outgoing)
+  const [asked, setAsked] = useState<string[]>([])
   const [open, setOpen] = useState(false)
   if (status === 'off') return null
   if (status === 'replaced') {
@@ -118,7 +144,9 @@ export function OnlineChip() {
             <ul className="flex flex-col gap-1">
               {roster.map((p) => (
                 <li key={p.id} className="flex items-center gap-1.5 font-black">
-                  <span className="h-2 w-2 rounded-full bg-[#3fae72]" /> {p.name}
+                  <span className="h-2 w-2 rounded-full bg-[#3fae72]" />
+                  <span className="min-w-0 flex-1 truncate">{p.name}</span>
+                  <RosterAdd name={p.name} isFriend={friends.some((f) => f.key === keyOf(p.name))} pending={outgoing.some((f) => f.key === keyOf(p.name)) || asked.includes(keyOf(p.name))} onAsk={() => setAsked([...asked, keyOf(p.name)])} />
                 </li>
               ))}
             </ul>

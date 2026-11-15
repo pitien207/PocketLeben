@@ -28,7 +28,7 @@ const ROAD_LINE = '#f6f1e7'
 
 export const SCENE_MAPS: Partial<Record<SceneId, SceneMap>> = {
   vietnam: {
-    bounds: { minX: -33, maxX: 35, minZ: -13.5, maxZ: 16 },
+    bounds: { minX: -33, maxX: 35, minZ: -13.5, maxZ: 38 },
     ground: '#efe2c8',
     rects: [
       // Lake (Hồ Gươm) along the bottom, grass strip, main road, side road
@@ -48,10 +48,15 @@ export const SCENE_MAPS: Partial<Record<SceneId, SceneMap>> = {
       { x0: 26, z0: -13, x1: 30.4, z1: -4.5, color: '#ffc8b4' },
       { x0: 30.6, z0: -13, x1: 34, z1: -4.5, color: '#dfe8f2' },
       { x0: 16.4, z0: 10.8, x1: 30.8, z1: 11.8, color: '#ff9b8f' },
+      // Thê Húc bridge and the temple hall on Jade Island
+      { x0: 9.05, z0: 14.2, x1: 10.95, z1: 25.3, color: '#d6362c' },
+      { x0: 6.5, z0: 31.8, x1: 13.5, z1: 36.2, color: '#c8322b' },
     ],
     circles: [
       { x: -30.2, z: -6.5, r: 1.6, color: '#7cb35d' },
       { x: 20, z: -7.1, r: 0.5, color: '#b8863a' },
+      { x: 10, z: 31.2, r: 6.6, color: '#9ccc78' },
+      { x: 10, z: 28.9, r: 0.6, color: '#b8863a' },
     ],
   },
   germany: {

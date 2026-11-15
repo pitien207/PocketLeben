@@ -6,9 +6,9 @@ import { MeshBasicMaterial, MeshLambertMaterial, Vector3, type Material } from '
  */
 
 /**
- * See-through occluders: scene materials dither away fragments that sit on the line
- * between the camera and the player, or right in front of the lens. Poles, trees and
- * roofs therefore never hide the character. The CameraRig updates the target each frame.
+ * Near-lens fade: scene materials dither away fragments right in front of the camera.
+ * (A player hidden behind poles, trees or roofs is drawn as a silhouette instead — see
+ * ChibiModel.) The CameraRig still updates the target each frame.
  */
 export const occlusion = {
   target: { value: new Vector3(0, -1000, 0) },
@@ -16,27 +16,10 @@ export const occlusion = {
 
 const OCCLUSION_FRAGMENT = /* glsl */ `
 {
-  vec3 occSeg = uOccTarget - cameraPosition;
-  float occLen = length(occSeg);
-  vec3 occDir = occSeg / max(occLen, 1e-4);
-  vec3 occRel = vOccWorld - cameraPosition;
-  float occAlong = dot(occRel, occDir);
-  float occRadial = length(occRel - occDir * occAlong);
-  // A soft tube around the sight line: wide near the camera, narrowing toward the
-  // player and stopping just short of them, so things they hold or work on stay solid.
-  float occT = occAlong / max(occLen, 1e-4);
-  float occR = mix(1.15, 0.55, smoothstep(0.55, 1.0, occT));
-  float occLine = (1.0 - smoothstep(occR * 0.65, occR, occRadial))
-    * step(0.0, occAlong)
-    * (1.0 - smoothstep(occLen - 1.5, occLen - 0.9, occAlong));
-  // Anything almost touching the lens.
-  float occNear = 1.0 - smoothstep(2.2, 3.6, length(occRel));
-  // Fully clear at the core; the smoothstep edges give a dithered rim.
-  float occFade = max(occLine, occNear);
-  // 4x4 ordered dither: a screen-door fade without transparency sorting.
-  ivec2 occP = ivec2(mod(floor(gl_FragCoord.xy), 4.0));
-  const float occBayer[16] = float[16](0., 8., 2., 10., 12., 4., 14., 6., 3., 11., 1., 9., 15., 7., 13., 5.);
-  if (occFade > (occBayer[occP.x + occP.y * 4] + 0.5) / 16.0) discard;
+  // Only things almost touching the lens dissolve, so the camera never looks out of a wall.
+  // A player hidden behind something shows as a silhouette instead (no see-through tube).
+  // A clean cut (no dither): half-dissolved surfaces would make the player's silhouette flicker.
+  if (length(vOccWorld - cameraPosition) < 2.6) discard;
 }
 `
 

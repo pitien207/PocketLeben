@@ -94,7 +94,23 @@ function gerdaWords() {
   return true
 }
 
+/** Ngọc Sơn: light incense and make a wish — calm and luck, once a day. */
+function incense() {
+  if (doneToday('incense.day')) {
+    pushToast('toast.incenseAgain', 'info')
+    return false
+  }
+  setFlag('incense.day', today())
+  bumpFlag('stats.incense')
+  usePlayer.getState().changeMood(12)
+  spendTime(15)
+  playSfx('bell')
+  pushToast('toast.incense', 'good')
+  return true
+}
+
 registerActions({
+  'place.incense': incense,
   'place.fortune': fortune,
   'place.drawFortune': drawFortune,
   'place.readBook': readBook,

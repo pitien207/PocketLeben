@@ -25,6 +25,7 @@ import type { SignOptions } from '../shared/textures'
 import { TubeHouse, type HousePalette } from './TubeHouse'
 import { WestBlock } from './WestBlock'
 import { EastBlock } from './EastBlock'
+import { NgocSon } from './NgocSon'
 
 /** "Vàng Hà Nội": ochre walls, green wooden shutters, dark green ironwork. */
 const HOME_PALETTE: HousePalette = {
@@ -98,6 +99,7 @@ export const VietnamStreet = memo(function VietnamStreet() {
       <HoGuom />
       <WestBlock />
       <EastBlock />
+      <NgocSon />
       <Backdrop lake colors={HANOI_BACKDROP} roof="#c8653d" clear={PLAY} />
     </group>
   )

@@ -45,6 +45,22 @@ export const WEST = {
   banyan: { x: -30.2, z: -6.5 },
 }
 
+/**
+ * Đền Ngọc Sơn (NgocSon.tsx): the Thê Húc bridge runs south from the lake railing (z ≈ 14.45)
+ * to Jade Island. Walls in Boundaries.tsx leave a gap at the bridge.
+ */
+export const NGOC_SON = {
+  bridge: { x: 10, z0: 14.2, z1: 25.3, width: 1.9, peak: 0.85 },
+  island: { x: 10, z: 31.2, rx: 7, rz: 6.2 },
+  shoreGateZ: 12.9,
+  penTower: { x: 7.0, z: 13.0 },
+  gateZ: 26.5,
+  urn: { x: 10, z: 28.9 },
+  banyan: { x: 5.4, z: 30.6 },
+  hall: { z: 34, w: 7, d: 4.4 },
+  turtle: { x: 14.7, z: 29.8 },
+}
+
 /** East block (EastBlock.tsx). */
 export const EAST = {
   /** Communal house: courtyard between the gate (front) and the hall (hallZ). */

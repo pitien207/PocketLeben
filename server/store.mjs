@@ -4,6 +4,12 @@
 import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 
+/** Messages kept per conversation (older ones drop off). */
+export const DM_KEEP = 100
+export const emptySocial = () => ({ friends: [], incoming: [], outgoing: [], blocked: [] })
+/** Conversation id of two accounts (order-independent). */
+export const pairKey = (a, b) => (a < b ? `${a}|${b}` : `${b}|${a}`)
+
 /** A login token stays valid this long after its last use ("remember me": using the game renews it). */
 export const TOKEN_DAYS = 365
 /** Renew a token's date at most this often (saves writes). */
@@ -11,6 +17,8 @@ const TOUCH_MS = 86_400_000
 
 /**
  * @typedef {{ name: string, salt: string | null, hash: string | null, created: number }} User
+ * @typedef {{ friends: string[], incoming: string[], outgoing: string[], blocked: string[] }} Social
+ * @typedef {{ from: string, text: string, at: number }} Dm
  *   (salt/hash null = an account created with Google, no password)
  * @typedef {{
  *   kind: string,
@@ -21,6 +29,10 @@ const TOUCH_MS = 86_400_000
  *   deleteToken(token: string): Promise<void>,
  *   googleUser(sub: string): Promise<string | null>,
  *   googleOf(user: string): Promise<string | null>,
+ *   getSocial(user: string): Promise<Social>,
+ *   setSocial(user: string, social: Social): Promise<void>,
+ *   getDms(pair: string): Promise<Dm[]>,
+ *   addDm(pair: string, dm: Dm): Promise<void>,
  *   linkGoogle(sub: string, user: string, email: string | null): Promise<boolean>,
  *   getSave(user: string): Promise<{ save: object, savedAt: number } | null>,
  *   putSave(user: string, save: object, savedAt: number): Promise<void>,
@@ -45,6 +57,8 @@ async function openMongo(uri, dbName) {
   const tokens = db.collection('tokens')
   const saves = db.collection('saves')
   const google = db.collection('google')
+  const social = db.collection('social')
+  const dms = db.collection('dms')
   // Old tokens disappear by themselves (TTL index on the creation date).
   // (Cosmos DB's MongoDB API only allows TTL on _ts: then expiry is just checked in code.)
   await tokens.createIndex({ at: 1 }, { expireAfterSeconds: TOKEN_DAYS * 86_400 }).catch(() => {})
@@ -98,6 +112,21 @@ async function openMongo(uri, dbName) {
       const doc = await saves.findOne({ _id: user })
       return doc ? { save: JSON.parse(doc.data), savedAt: doc.savedAt } : null
     },
+    async getSocial(user) {
+      const doc = await social.findOne({ _id: user })
+      return doc ? { ...emptySocial(), friends: doc.friends ?? [], incoming: doc.incoming ?? [], outgoing: doc.outgoing ?? [], blocked: doc.blocked ?? [] } : emptySocial()
+    },
+    async setSocial(user, data) {
+      await social.replaceOne({ _id: user }, { friends: data.friends, incoming: data.incoming, outgoing: data.outgoing, blocked: data.blocked }, { upsert: true })
+    },
+    async getDms(pair) {
+      return (await dms.findOne({ _id: pair }))?.msgs ?? []
+    },
+    // Read-modify-write keeps it portable (Cosmos DB's MongoDB API and plain MongoDB).
+    async addDm(pair, dm) {
+      const msgs = [...((await dms.findOne({ _id: pair }))?.msgs ?? []), dm].slice(-DM_KEEP)
+      await dms.replaceOne({ _id: pair }, { msgs, at: new Date() }, { upsert: true })
+    },
     async putSave(user, save, savedAt) {
       await saves.replaceOne({ _id: user }, { data: JSON.stringify(save), savedAt, updated: new Date() }, { upsert: true })
     },
@@ -110,7 +139,7 @@ function openFiles(dir) {
   mkdirSync(join(dir, 'saves'), { recursive: true })
   const ACCOUNTS = join(dir, 'accounts.json')
   /** @type {{ users: Record<string, User>, tokens: Record<string, { user: string, at: number }>, google: Record<string, { user: string, email: string | null }> }} */
-  const db = { users: {}, tokens: {}, google: {}, ...(existsSync(ACCOUNTS) ? JSON.parse(readFileSync(ACCOUNTS, 'utf8')) : {}) }
+  const db = { users: {}, tokens: {}, google: {}, social: {}, dms: {}, ...(existsSync(ACCOUNTS) ? JSON.parse(readFileSync(ACCOUNTS, 'utf8')) : {}) }
   const writeAtomic = (file, text) => {
     const tmp = `${file}.${process.pid}.tmp`
     writeFileSync(tmp, text)
@@ -168,6 +197,20 @@ function openFiles(dir) {
       if (!existsSync(file)) return null
       const save = JSON.parse(readFileSync(file, 'utf8'))
       return { save, savedAt: save.savedAt }
+    },
+    async getSocial(user) {
+      return { ...emptySocial(), ...(db.social[user] ?? {}) }
+    },
+    async setSocial(user, data) {
+      db.social[user] = data
+      persist()
+    },
+    async getDms(pair) {
+      return db.dms[pair] ?? []
+    },
+    async addDm(pair, dm) {
+      db.dms[pair] = [...(db.dms[pair] ?? []), dm].slice(-DM_KEEP)
+      persist()
     },
     async putSave(user, save) {
       writeAtomic(saveFile(user), JSON.stringify(save))

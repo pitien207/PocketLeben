@@ -30,3 +30,5 @@ Every asset must be CC0 or our own (plan §2, §9). List each one here with its 
 ## Audio
 - No audio files. Music themes, sound effects and rain ambience are synthesised at runtime with the
   WebAudio API (`src/game/systems/audio.ts`) — original work.
+
+- Character style (toon shading, ink outline, painted anime face, hair/outfit shapes): based on the project owner's own design file "chibi.js" (Visa Hunter / "Đi Đức"), re-implemented in src/game/components/chibi/.

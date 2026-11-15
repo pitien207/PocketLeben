@@ -108,6 +108,85 @@ function PrimaryAction({ action, showKeys }: { action: ContextAction; showKeys: 
   )
 }
 
+/** Hand icon of the interact button when nothing is in reach. */
+function HandIcon() {
+  return (
+    <svg viewBox="0 0 32 32" width="1em" height="1em" aria-hidden="true">
+      <path
+        d="M11 15V7.5a2 2 0 0 1 4 0V14m0-1.5V5.5a2 2 0 0 1 4 0V14m0-1V7a2 2 0 0 1 4 0v9.5c0 6-3.6 10-8.5 10-3.4 0-5.6-1.6-7.4-4.6L4 17.2a2 2 0 0 1 3.3-2.2L11 19"
+        fill="#fff6e3"
+        stroke="#4a3226"
+        strokeWidth="2.2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
+}
+
+/**
+ * Phones: one big round interact button always sits bottom-right (like the E key). It lights up
+ * with the main action's icon when something is in reach; extra actions are small round buttons
+ * stacked to its left. Nothing in reach → a dimmed hand.
+ */
+function TouchActions({ name, primary, others, working }: { name: string; primary?: ContextAction; others: ContextAction[]; working: boolean }) {
+  const t = useT()
+  const main = primary ?? others[0]
+  const rest = primary ? others : others.slice(1)
+  const live = !!main && !main.muted
+  return (
+    <div
+      data-tour="actions"
+      className="absolute z-20 flex items-end gap-2"
+      style={{ right: 'max(0.75rem, env(safe-area-inset-right))', bottom: 'max(1rem, calc(env(safe-area-inset-bottom) + 0.5rem))' }}
+    >
+      {rest.length > 0 && (
+        <div className="mb-1 flex flex-col items-end gap-1.5">
+          {rest.slice(0, 4).map((a) => (
+            <button
+              key={a.id}
+              type="button"
+              onClick={a.onPress}
+              aria-label={t(a.labelKey)}
+              className={`pointer-events-auto flex items-center gap-1.5 rounded-full border-[2.5px] border-outline bg-cream py-0.5 pr-0.5 pl-2.5 text-[12px] font-black text-ink shadow-[0_3px_0_var(--color-outline)] select-none active:translate-y-0.5 active:shadow-none ${a.muted ? 'opacity-50' : ''}`}
+            >
+              <span className="whitespace-nowrap">{t(a.labelKey)}</span>
+              <span className="grid h-9 w-9 place-items-center rounded-full bg-white text-[22px] shadow-[inset_0_-2px_0_#f1dcb6]">
+                <ActionIcon name={a.icon} />
+              </span>
+            </button>
+          ))}
+        </div>
+      )}
+      <div className="flex flex-col items-center gap-1">
+        {main && !working && name && (
+          <span className="max-w-[9.5rem] truncate rounded-full bg-jade px-2.5 py-0.5 text-[11px] font-extrabold text-white shadow-[0_2px_0_var(--color-jade-dark)]">{name}</span>
+        )}
+        <button
+          type="button"
+          data-testid="interact-button"
+          disabled={!main}
+          onClick={main?.onPress}
+          aria-label={main ? t(main.labelKey) : t('action.interact')}
+          className={`pointer-events-auto relative grid h-[4.75rem] w-[4.75rem] place-items-center rounded-full border-[3px] border-outline text-[38px] transition select-none active:translate-y-1 active:shadow-none ${
+            live
+              ? 'bg-linear-to-b from-[#e8574d] to-lacquer shadow-[inset_0_3px_0_rgba(255,230,166,0.6),0_5px_0_var(--color-outline)]'
+              : 'bg-cream opacity-60 shadow-[0_4px_0_var(--color-outline)]'
+          }`}
+        >
+          <span className={`grid h-14 w-14 place-items-center rounded-full ${live ? 'bg-cream shadow-[inset_0_-3px_0_#f1dcb6]' : ''}`}>
+            {main ? <ActionIcon name={main.icon} /> : <HandIcon />}
+          </span>
+          {live && <span className="pointer-events-none absolute -inset-1.5 animate-ping rounded-full border-[3px] border-gold opacity-40" />}
+        </button>
+        {main && (
+          <span className="max-w-[6.5rem] truncate rounded-full border-2 border-outline bg-cream px-2 text-[11px] leading-tight font-black text-ink">{t(main.labelKey)}</span>
+        )}
+      </div>
+    </div>
+  )
+}
+
 /**
  * Context action buttons, bottom-right. They appear only while the player is
  * near an interactable and show that interactable's current actions.
@@ -127,7 +206,14 @@ export function ActionButtons() {
   const busy = uiBusy || talking || playing || careDone
   useActionKeys()
 
-  if (!def || actions.length === 0 || busy) return null
+  if (busy) return null
+  if (isTouch) {
+    const list = def ? actions : []
+    const primary = list.find((a) => a.primary)
+    const name = def ? (def.name ? localize(def.name) : def.nameKey ? t(def.nameKey) : '') : ''
+    return <TouchActions name={name} primary={primary} others={list.filter((a) => a !== primary)} working={working} />
+  }
+  if (!def || actions.length === 0) return null
   const showKeys = !isTouch
   const primary = actions.find((a) => a.primary)
   const others = actions.filter((a) => a !== primary)

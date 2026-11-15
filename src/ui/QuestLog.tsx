@@ -12,6 +12,7 @@ import { Sheet } from './Sheet'
 import { SkipStepButton } from './TestTools'
 import { CheckIcon, ScrollIcon, StarIcon, TargetIcon } from './icons'
 import { SecretList } from './SecretCard'
+import { SECRETS_ENABLED } from '../data/secrets'
 
 /**
  * "Next objective" chip under the clock: the step, chapter progress, a warning when the
@@ -88,6 +89,7 @@ export function QuestLog() {
 
   return (
     <Sheet title={t('quests.title')} onClose={closePanel}>
+      {SECRETS_ENABLED && (
       <div className="mb-3 flex rounded-full border-2 border-outline bg-cream p-1">
         {(['quests', 'secrets'] as const).map((id) => (
           <button
@@ -101,8 +103,9 @@ export function QuestLog() {
           </button>
         ))}
       </div>
-      {tab === 'secrets' && <SecretList />}
-      {tab === 'quests' && chapters.map((ch) => (
+      )}
+      {SECRETS_ENABLED && tab === 'secrets' && <SecretList />}
+      {(tab === 'quests' || !SECRETS_ENABLED) && chapters.map((ch) => (
         <section key={ch} className="mb-3">
           <h3 className="mb-1.5 font-display text-sm font-extrabold text-lacquer">{localize(CHAPTER_NAMES[ch])}</h3>
           <ul className="flex flex-col gap-2">

@@ -2,6 +2,7 @@ import type { Localized } from '../i18n/localized'
 import type { Condition } from './conditions'
 import { CONFIG } from './config'
 import { STEP_GUIDES, type StepGuide } from './guides'
+import { SECRETS_ON } from './secrets'
 
 /**
  * Story quests (plan §5.4): chapters of quests, each a checklist of steps. A step is done
@@ -76,7 +77,6 @@ export const QUESTS: QuestDef[] = [
     steps: [
       step('pc.fortune', 'Xin một quẻ ở Đình Hàng Gai (phía đông, qua đường bên)', 'Draw a fortune stick at the Hàng Gai đình (east, past the side road)', { flag: 'fortune.first' }),
       step('pc.leipzig', 'Nghe Chú Hưng hiệu sách cũ kể chuyện nước Đức năm 1989', 'Hear Uncle Hưng at the old bookshop tell his 1989 Germany story', { flag: 'story.leipzig' }),
-      step('pc.lanterns', 'Ngắm chợ đêm lên đèn bên Hồ Gươm (sau 19h)', 'See the night market light up by the lake (after 7 pm)', { flag: 'secret.denLong' }),
     ],
   },
   {
@@ -124,6 +124,7 @@ export const QUESTS: QuestDef[] = [
     chapter: 2,
     title: L('Hành trang kỷ niệm', 'Packing memories'),
     after: 'path',
+    when: SECRETS_ON,
     side: true,
     steps: [
       step('kn.scarf', 'Tìm chiếc khăn bà nội đan (ở nhà, cuối giường)', 'Find the scarf Grandma knitted (at home, foot of the bed)', { flag: 'secret.khanBa' }),
@@ -200,7 +201,6 @@ export const QUESTS: QuestDef[] = [
       step('lo.meet', 'Làm quen Bà Gerda ở hồ vịt Stadtpark (phía đông)', 'Meet Oma Gerda at the Stadtpark duck pond (east end)', { flag: 'talked.omaGerda' }),
       step('lo.ducks', 'Cho vịt ăn bằng một ổ Brötchen', 'Feed the ducks a Brötchen', { flag: 'stats.ducks', atLeast: 1 }),
       step('lo.words', 'Học từ mới với Bà Gerda 3 ngày', 'Learn words with Oma Gerda on 3 days', { flag: 'stats.gerdaWords', atLeast: 3 }),
-      step('lo.igel', 'Tìm chú nhím Herbert của bà', 'Find her hedgehog friend Herbert', { flag: 'secret.igel' }),
       step('lo.kaffee', 'Uống Kaffee với Bà Gerda', 'Have Kaffee with Oma Gerda', { flag: 'gerda.friend' }),
     ],
   },
@@ -209,6 +209,7 @@ export const QUESTS: QuestDef[] = [
     chapter: 4,
     title: L('Không ai cô đơn', 'Nobody is alone'),
     after: 'arrival',
+    when: SECRETS_ON,
     side: true,
     steps: [
       step('na.bottle', 'Tìm thư trong chai ở đài phun nước phía tây', 'Find the message in a bottle at the west fountain', { flag: 'secret.flaschenpost' }),

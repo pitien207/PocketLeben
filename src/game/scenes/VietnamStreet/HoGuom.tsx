@@ -1,7 +1,7 @@
 import { memo, useMemo } from 'react'
 import { place } from '../shared/props'
 import { Shapes, type ShapeItem } from '../shared/Shapes'
-import { PLAY } from './layout'
+import { NGOC_SON, PLAY } from './layout'
 
 /**
  * Hồ Gươm (Hoàn Kiếm Lake) just across the far sidewalk: a stone embankment with an
@@ -68,51 +68,6 @@ function turtleTowerShapes(): ShapeItem[] {
   return s
 }
 
-/** Thê Húc bridge: a red wooden arch from the shore to the temple islet, with a gate. */
-function bridgeShapes(from: [number, number], to: [number, number]): ShapeItem[] {
-  const s: ShapeItem[] = []
-  const red = '#d6362c'
-  const N = 16
-  const dx = to[0] - from[0]
-  const dz = to[1] - from[1]
-  const len = Math.hypot(dx, dz)
-  const yaw = Math.atan2(dx, dz)
-  const segLen = len / N
-  const height = (t: number) => 0.35 + 1.5 * Math.sin(Math.PI * t)
-  for (let i = 0; i < N; i++) {
-    const t0 = i / N
-    const t1 = (i + 1) / N
-    const tm = (t0 + t1) / 2
-    const y0 = height(t0)
-    const y1 = height(t1)
-    const pitch = -Math.atan2(y1 - y0, segLen)
-    const x = from[0] + dx * tm
-    const z = from[1] + dz * tm
-    const y = (y0 + y1) / 2
-    s.push({ box: [1.6, 0.1, segLen + 0.05], at: [x, y, z], rot: [pitch, yaw, 0], color: '#b52b23' })
-    for (const side of [-1, 1]) {
-      const ox = Math.cos(yaw) * side * 0.78
-      const oz = -Math.sin(yaw) * side * 0.78
-      s.push({ box: [0.08, 0.08, segLen + 0.05], at: [x + ox, y + 0.6, z + oz], rot: [pitch, yaw, 0], color: red })
-      s.push({ box: [0.07, 0.6, 0.07], at: [x + ox, y + 0.3, z + oz], rot: [0, yaw, 0], color: red })
-      if (i % 4 === 0) s.push({ cyl: [0.05, 0.05, Math.max(0.3, y + 0.2), 5], at: [x + ox, (y - 0.2) / 2, z + oz], color: '#8e2a22' })
-    }
-  }
-  // Temple gate (Đắc Nguyệt lầu style) on the islet end
-  const gx = to[0] + Math.sin(yaw) * 1.6
-  const gz = to[1] + Math.cos(yaw) * 1.6
-  s.push({ ico: [3.4, 1], at: [gx + Math.sin(yaw) * 2.2, -1.4, gz + Math.cos(yaw) * 2.2], scale: [1.2, 0.55, 1.2], color: '#8fbf6a' })
-  for (const side of [-1, 1]) {
-    const ox = Math.cos(yaw) * side * 1.1
-    const oz = -Math.sin(yaw) * side * 1.1
-    s.push({ box: [0.3, 2.6, 0.3], at: [gx + ox, 1.3, gz + oz], rot: [0, yaw, 0], color: red })
-  }
-  s.push({ box: [3.0, 0.3, 1.0], at: [gx, 2.75, gz], rot: [0, yaw, 0], color: '#f2c46d' })
-  s.push({ cyl: [0.4, 1.9, 0.7, 4], at: [gx, 3.25, gz], rot: [0, yaw + Math.PI / 4, 0], scale: [1, 1, 0.55], color: '#5b4a3e' })
-  s.push({ box: [1.2, 0.3, 0.06], at: [gx + Math.sin(yaw) * -0.52, 2.75, gz + Math.cos(yaw) * -0.52], rot: [0, yaw, 0], color: '#c8322b' })
-  return s
-}
-
 function lakeShapes(): ShapeItem[] {
   const s: ShapeItem[] = []
   const { minX, maxX } = PLAY
@@ -121,9 +76,19 @@ function lakeShapes(): ShapeItem[] {
   // Stone embankment, iron railing (painted dark green), shoreline path
   s.push({ box: [140, 0.36, 0.5], at: [0, 0.16, SHORE_Z], color: '#cfc8bb' })
   s.push({ box: [140, 0.04, 0.55], at: [0, 0.35, SHORE_Z], color: '#e3ddd1' })
-  for (let x = -width / 2; x <= width / 2 + 0.01; x += 0.6) s.push({ box: [0.05, 0.75, 0.05], at: [cx + x, 0.72, SHORE_Z], color: '#2c4a3a' })
-  s.push({ box: [width, 0.06, 0.06], at: [cx, 1.08, SHORE_Z], color: '#2c4a3a' })
-  s.push({ box: [width, 0.05, 0.05], at: [cx, 0.6, SHORE_Z], color: '#2c4a3a' })
+  // Railing posts and bars, with an opening for the Thê Húc bridge
+  const gap0 = NGOC_SON.bridge.x - NGOC_SON.bridge.width / 2 - 0.1
+  const gap1 = NGOC_SON.bridge.x + NGOC_SON.bridge.width / 2 + 0.1
+  for (let x = -width / 2; x <= width / 2 + 0.01; x += 0.6) {
+    if (cx + x > gap0 && cx + x < gap1) continue
+    s.push({ box: [0.05, 0.75, 0.05], at: [cx + x, 0.72, SHORE_Z], color: '#2c4a3a' })
+  }
+  const left = gap0 - (cx - width / 2)
+  const right = cx + width / 2 - gap1
+  for (const [y, t] of [[1.08, 0.06], [0.6, 0.05]] as const) {
+    s.push({ box: [left, t, t], at: [cx - width / 2 + left / 2, y, SHORE_Z], color: '#2c4a3a' })
+    s.push({ box: [right, t, t], at: [gap1 + right / 2, y, SHORE_Z], color: '#2c4a3a' })
+  }
   // Water, with a few lighter streaks of reflected sky
   s.push({ box: [160, 0.03, 80], at: [0, -0.005, SHORE_Z + 40.3], color: WATER })
   for (let i = 0; i < 18; i++) {
@@ -137,7 +102,6 @@ function lakeShapes(): ShapeItem[] {
     s.push(place(willowShapes(), [x, 0, SHORE_Z + 1.0 + (i % 3) * 0.4], i * 0.7, 1 + (i % 3) * 0.12))
   }
   s.push(place(turtleTowerShapes(), [-6, 0, SHORE_Z + 10], 0.15, 0.8))
-  s.push(...bridgeShapes([9.5, SHORE_Z + 1.2], [15.5, SHORE_Z + 9]))
   return s
 }
 

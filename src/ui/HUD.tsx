@@ -12,7 +12,8 @@ import { QuestTracker } from './QuestLog'
 import { MiniMap } from './MapView'
 import { bagCapacity, bagWeight } from '../game/systems/bag'
 import { useInventory } from '../store/inventoryStore'
-import { BagIcon, BoltIcon, CoinIcon, GearIcon, MapIcon, MoodIcon, MoonIcon, MusicIcon, MusicOffIcon, RainIcon, SunIcon } from './icons'
+import { BagIcon, BoltIcon, CoinIcon, GearIcon, MapIcon, MoodIcon, MoonIcon, RainIcon, SunIcon } from './icons'
+import { PhoneBadge, PhoneIcon } from './PhonePanel'
 import { isRaining } from '../game/systems/weather'
 import { longDate, shortDate } from '../game/systems/calendar'
 import { SCENES } from '../game/scenes/registry'
@@ -109,8 +110,6 @@ export function HUD() {
   const energy = usePlayer((s) => Math.round(s.energy))
   const maxEnergy = usePlayer((s) => s.maxEnergy)
   const mood = usePlayer((s) => Math.round(s.mood))
-  const musicOn = useSettings((s) => s.musicOn)
-  const toggleMusic = useSettings((s) => s.toggleMusic)
   const setSettingsOpen = useUI((s) => s.setSettingsOpen)
   const openPanel = useUI((s) => s.openPanel)
   const gain = useMoneyGain(money)
@@ -123,8 +122,10 @@ export function HUD() {
           <HudButton label={t('hud.settings')} onClick={() => setSettingsOpen(true)}>
             <GearIcon />
           </HudButton>
-          <HudButton label={musicOn ? t('hud.musicMute') : t('hud.musicUnmute')} onClick={toggleMusic}>
-            {musicOn ? <MusicIcon /> : <MusicOffIcon className="opacity-60" />}
+          {/* Music on/off lives in Settings; this spot is the phone (friends, chat). */}
+          <HudButton label={t('hud.phone')} onClick={() => openPanel({ type: 'phone' })} tour="phone">
+            <PhoneIcon />
+            <PhoneBadge />
           </HudButton>
           <HudButton label={t('hud.bag')} onClick={() => openPanel({ type: 'bag' })} tour="bag">
             <BagIcon />

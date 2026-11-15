@@ -91,10 +91,11 @@ export function Joystick() {
         setSprintToggle(!running)
         setRunning(!running)
       }}
-      className={`pointer-events-auto absolute z-20 grid h-12 w-12 place-items-center rounded-full border-[3px] text-2xl shadow-lg select-none active:translate-y-0.5 ${
+      className={`pointer-events-auto absolute z-20 grid h-10 w-10 place-items-center rounded-full border-[2.5px] text-[20px] select-none active:translate-y-0.5 ${
         running ? 'border-outline bg-gold shadow-[0_3px_0_var(--color-outline)]' : 'border-outline bg-cream shadow-[0_3px_0_var(--color-outline)]'
       }`}
-      style={{ left: 'calc(max(0.25rem, env(safe-area-inset-left)) + 9.4rem)', bottom: 'calc(max(0.5rem, env(safe-area-inset-bottom)) + 7.6rem)' }}
+      // Tucked against the top-right of the stick ring.
+      style={{ left: 'calc(max(0.25rem, env(safe-area-inset-left)) + 6.9rem)', bottom: 'calc(max(0.5rem, env(safe-area-inset-bottom)) + 6.4rem)' }}
     >
       <RunIcon />
     </button>
@@ -102,7 +103,7 @@ export function Joystick() {
       role="application"
       data-tour="joystick"
       aria-label={t('joystick.label')}
-      className="pointer-events-auto absolute z-20 grid h-44 w-44 touch-none place-items-center select-none"
+      className="pointer-events-auto absolute z-20 grid h-36 w-36 touch-none place-items-center select-none"
       style={{
         left: 'max(0.25rem, env(safe-area-inset-left))',
         bottom: 'max(0.5rem, env(safe-area-inset-bottom))',
@@ -116,13 +117,13 @@ export function Joystick() {
     >
       <div
         ref={baseRef}
-        className={`relative h-32 w-32 rounded-full border-4 border-gold/80 bg-paper/40 shadow-lg backdrop-blur-sm transition-opacity ${
+        className={`relative h-[6.5rem] w-[6.5rem] rounded-full border-[3px] border-gold/80 bg-paper/40 shadow-lg backdrop-blur-sm transition-opacity ${
           engaged ? 'opacity-100' : 'opacity-75'
         }`}
       >
         <div
           ref={knobRef}
-          className={`absolute top-1/2 left-1/2 -mt-7 -ml-7 h-14 w-14 rounded-full border-4 border-gold-light bg-lacquer shadow-[0_4px_0_var(--color-lacquer-dark)] ${
+          className={`absolute top-1/2 left-1/2 -mt-[1.375rem] -ml-[1.375rem] h-11 w-11 rounded-full border-[3px] border-gold-light bg-lacquer shadow-[0_3px_0_var(--color-lacquer-dark)] ${
             engaged ? '' : 'transition-transform duration-150'
           }`}
         />

@@ -7,7 +7,9 @@ import { startGuide } from './game/systems/guide'
 import { SCENES } from './game/scenes/registry'
 import { useWorld } from './store/worldStore'
 import { startNet } from './net/client'
+import { startSocial } from './net/social'
 import { startSecrets } from './game/systems/secrets'
+import { SECRETS_ENABLED } from './data/secrets'
 import { startStory } from './game/systems/story'
 
 /**
@@ -22,8 +24,9 @@ startWatchers()
 startGuide()
 initAudio()
 // Signed in: multiplayer room + cloud save (does nothing offline / without an account).
+startSocial()
 startNet()
-startSecrets()
+if (SECRETS_ENABLED) startSecrets()
 startStory()
 
 // Background music follows the place you're in.

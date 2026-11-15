@@ -2,7 +2,7 @@ import { currentLanguage, localize, type Localized } from '../../i18n/localized'
 import { useFlags } from '../../store/flagsStore'
 import type { DialogueDef } from '../dialogueTypes'
 import { FORTUNES } from '../fortunes'
-import { SECRETS } from '../secrets'
+import { SECRETS, SECRETS_ENABLED } from '../secrets'
 
 /** People of the new districts (1.7): the đình keeper, the bookseller, the chè granny, Oma Gerda. */
 
@@ -62,10 +62,56 @@ export const EXPLORE_DIALOGUES: Record<string, DialogueDef> = {
           L('Tối tối ra chợ đêm mà xem đèn lồng. Đứng sát lan can hồ, may ra thấy cụ Rùa.', 'In the evening, go see the lanterns at the night market. Stand by the lake railing — with luck you’ll see the old turtle.'),
           L('Cây đa đầu phố phía tây có miếu thổ địa, thắp nén hương cho khỏe người.', 'The banyan at the west end has a little earth-god shrine. Light incense there for strength.'),
         ],
-        next: 'progress',
+        next: SECRETS_ENABLED ? 'progress' : 'hello',
       },
       progress: {
         text: L('Cháu tìm được {found}/{total} điều bí mật của phố rồi đấy. Cứ đi chậm mà nhìn, phố cổ còn nhiều chuyện lắm.', 'You’ve found {found}/{total} hidden things so far. Walk slowly and look around — the old streets have many stories.'),
+        next: 'hello',
+      },
+    },
+  },
+
+  cuTu: {
+    start: 'hello',
+    nodes: {
+      hello: {
+        text: [
+          L('Chào cháu. Đền này thờ Văn Xương Đế Quân, vị thần văn chương, và Đức Thánh Trần. Học trò hay lên đây thắp hương trước kỳ thi đấy.', 'Hello, child. This temple honours Văn Xương, god of literature, and Saint Trần. Students come to light incense before their exams.'),
+          L('Lại lên đền à? Đi qua cầu Thê Húc buổi sáng là đẹp nhất — "Thê Húc" nghĩa là nơi đậu ánh nắng ban mai.', 'Back again? The Thê Húc bridge is prettiest in the morning — "Thê Húc" means "where the morning sunlight rests".'),
+        ],
+        choices: [
+          { text: L('Ông kể sự tích hồ Gươm đi ạ', 'Tell me the legend of the lake'), next: 'legend1' },
+          { text: L('Tháp Bút ngoài cổng là gì ạ?', 'What is the tower at the gate?'), next: 'tower' },
+          { text: L('Cháu sắp thi tiếng Đức…', 'I have a German exam soon…'), next: 'exam' },
+          { text: L('Cháu chào ông', 'Goodbye') },
+        ],
+      },
+      legend1: {
+        text: L(
+          'Ngày xưa vua Lê Lợi được Long Vương cho mượn thanh gươm thần đánh giặc Minh. Thắng trận rồi, vua đi thuyền trên hồ thì cụ Rùa Vàng nổi lên đòi gươm.',
+          'Long ago King Lê Lợi borrowed a magic sword from the Dragon King to drive out the Ming. After the victory, as he boated on this lake, a golden turtle rose and asked for it back.',
+        ),
+        next: 'legend2',
+      },
+      legend2: {
+        text: L(
+          'Vua trả gươm, từ đó hồ mang tên Hoàn Kiếm — "trả gươm". Trong đình Trấn Ba kia còn giữ tiêu bản một cụ rùa đấy, cháu ra xem.',
+          'He returned it, and the lake has been called Hoàn Kiếm — "returned sword" — ever since. The Trấn Ba pavilion over there keeps a preserved giant turtle; go and see.',
+        ),
+        next: 'hello',
+      },
+      tower: {
+        text: L(
+          'Đó là Tháp Bút, ngọn tháp hình cây bút lông, trên đề ba chữ "Tả Thanh Thiên" — viết lên trời xanh. Còn cổng kia là Đài Nghiên, cái nghiên mực đặt trên lưng ba con cóc.',
+          'That’s Tháp Bút, a tower shaped like a brush; it says "Tả Thanh Thiên" — write on the blue sky. The gate is Đài Nghiên, an ink slab carried by three toads.',
+        ),
+        next: 'hello',
+      },
+      exam: {
+        text: L(
+          'Thắp nén hương ở lư hương giữa sân, khấn cho thành tâm. Nhưng nhớ: thần Văn Xương chỉ giúp người chịu học thôi nhé. Viel Glück, như người Đức nói!',
+          'Light a stick of incense at the urn in the courtyard and make a sincere wish. But remember: the god of literature only helps those who study. Viel Glück, as the Germans say!',
+        ),
         next: 'hello',
       },
     },
@@ -141,7 +187,7 @@ export const EXPLORE_DIALOGUES: Record<string, DialogueDef> = {
 
   omaGerda: {
     start: [
-      { if: { all: [{ noFlag: 'gerda.friend' }, { flag: 'stats.gerdaWords', atLeast: 3 }, { flag: 'secret.igel' }, { flag: 'stats.ducks', atLeast: 1 }] }, node: 'kaffee' },
+      { if: { all: [{ noFlag: 'gerda.friend' }, { flag: 'stats.gerdaWords', atLeast: 3 }, { flag: 'stats.ducks', atLeast: 1 }] }, node: 'kaffee' },
       { if: { flag: 'gerda.friend' }, node: 'friend' },
       { node: 'hello' },
     ],

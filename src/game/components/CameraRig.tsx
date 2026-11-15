@@ -3,7 +3,7 @@ import { useFrame, useThree } from '@react-three/fiber'
 import { useRapier } from '@react-three/rapier'
 import { PerspectiveCamera, Vector3, type Object3D } from 'three'
 import { CONFIG } from '../../data/config'
-import { cameraState } from '../systems/cameraState'
+import { cameraState, tiltCamera, zoomCamera } from '../systems/cameraState'
 import { occlusion } from '../scenes/shared/materials'
 import { CAMERA_RAY_GROUPS } from '../systems/collisionGroups'
 import { damp, dampAngle, dampFactor } from '../systems/math'
@@ -17,7 +17,8 @@ const _dir = new Vector3()
 const WALL_PADDING = 0.35
 
 /**
- * Third-person follow camera (plan §2): high angle, smooth follow, drag to rotate.
+ * Third-person follow camera (plan §2): high angle, smooth follow. Drag to orbit 360° (left/right)
+ * and tilt (up/down); pinch with two fingers or use the mouse wheel to zoom.
  * Must live inside <Physics> — it ray-casts against buildings so they never hide the player.
  */
 export function CameraRig({ target }: { target: RefObject<Object3D | null> }) {
@@ -31,40 +32,61 @@ export function CameraRig({ target }: { target: RefObject<Object3D | null> }) {
   const zoom = useRef(1)
   const initialized = useRef(false)
 
-  // Drag anywhere on the 3D view (mouse or a finger not on the joystick) to orbit.
+  // One finger / mouse: orbit + tilt. Two fingers: pinch to zoom. Wheel: zoom.
   useEffect(() => {
     const el = gl.domElement
-    let activePointer: number | null = null
-    let lastX = 0
+    const pointers = new Map<number, { x: number; y: number }>()
+    let pinchDist = 0
 
+    const spread = () => {
+      const [p, q] = [...pointers.values()]
+      return Math.hypot(p.x - q.x, p.y - q.y)
+    }
     const onDown = (e: PointerEvent) => {
-      if (activePointer !== null) return
       if (e.pointerType === 'mouse' && e.button !== 0) return
-      activePointer = e.pointerId
-      lastX = e.clientX
+      if (pointers.size >= 2) return
+      pointers.set(e.pointerId, { x: e.clientX, y: e.clientY })
       cameraState.targetYaw = null // the player takes over
       el.setPointerCapture(e.pointerId)
+      if (pointers.size === 2) pinchDist = spread()
     }
     const onMove = (e: PointerEvent) => {
-      if (e.pointerId !== activePointer) return
-      cameraState.yaw -= (e.clientX - lastX) * CONFIG.camera.dragSensitivity
-      lastX = e.clientX
+      const p = pointers.get(e.pointerId)
+      if (!p) return
+      const dx = e.clientX - p.x
+      const dy = e.clientY - p.y
+      p.x = e.clientX
+      p.y = e.clientY
+      if (pointers.size === 2) {
+        const d = spread()
+        if (pinchDist > 0 && d > 0) zoomCamera(pinchDist / d)
+        pinchDist = d
+        return
+      }
+      cameraState.yaw -= dx * CONFIG.camera.dragSensitivity
+      tiltCamera(dy * CONFIG.camera.tiltSensitivity)
     }
     const onUp = (e: PointerEvent) => {
-      if (e.pointerId !== activePointer) return
-      activePointer = null
+      if (!pointers.delete(e.pointerId)) return
+      pinchDist = 0
       if (el.hasPointerCapture(e.pointerId)) el.releasePointerCapture(e.pointerId)
+    }
+    const onWheel = (e: WheelEvent) => {
+      e.preventDefault()
+      zoomCamera(Math.exp(Math.max(-60, Math.min(60, e.deltaY)) * 0.0022))
     }
 
     el.addEventListener('pointerdown', onDown)
     el.addEventListener('pointermove', onMove)
     el.addEventListener('pointerup', onUp)
     el.addEventListener('pointercancel', onUp)
+    el.addEventListener('wheel', onWheel, { passive: false })
     return () => {
       el.removeEventListener('pointerdown', onDown)
       el.removeEventListener('pointermove', onMove)
       el.removeEventListener('pointerup', onUp)
       el.removeEventListener('pointercancel', onUp)
+      el.removeEventListener('wheel', onWheel)
     }
   }, [gl])
 
@@ -94,14 +116,16 @@ export function CameraRig({ target }: { target: RefObject<Object3D | null> }) {
     const aspect = state.size.width / Math.max(1, state.size.height)
     const portrait = aspect >= 1 ? 0 : Math.min(1, (1 - aspect) / 0.5)
     zoom.current = damp(zoom.current, cameraState.zoom * cameraState.baseZoom, 3, dt)
-    let wanted = cfg.distance * (1 + (cfg.portraitDistanceScale - 1) * portrait) * zoom.current
+    // Rooms keep the authored framing; outdoors the player's own zoom applies.
+    const user = cameraState.baseZoom < 1 ? Math.min(cameraState.userZoom, 1.3) : cameraState.userZoom
+    let wanted = cfg.distance * (1 + (cfg.portraitDistanceScale - 1) * portrait) * zoom.current * user
     const fov = cfg.fov + (cfg.portraitFov - cfg.fov) * portrait
     if (camera instanceof PerspectiveCamera && Math.abs(camera.fov - fov) > 0.01) {
       camera.fov = fov
       camera.updateProjectionMatrix()
     }
 
-    const pitch = (cfg.pitchDeg * Math.PI) / 180
+    const pitch = (cameraState.pitchDeg * Math.PI) / 180
     if (cameraState.targetYaw !== null) {
       cameraState.yaw = dampAngle(cameraState.yaw, cameraState.targetYaw, 4, dt)
       if (Math.abs(Math.sin((cameraState.yaw - cameraState.targetYaw) / 2)) < 0.005) cameraState.targetYaw = null

@@ -1,5 +1,6 @@
 import type { Localized } from '../i18n/localized'
 import type { Condition } from './conditions'
+import { SECRETS_ENABLED } from './secrets'
 
 /** Achievements (plan §5.9). Unlocked once their condition holds; shown in the bag. */
 
@@ -45,8 +46,8 @@ export const ACHIEVEMENTS: AchievementDef[] = [
   A('residence', '🏅', 'Định cư rồi!', 'Here to stay!', 'Nhận giấy định cư Niederlassungserlaubnis', 'Receive permanent residence', { flag: 'pr.granted' }),
   A('citizen', '🪪', 'Công dân mới', 'New citizen', 'Nhập quốc tịch Đức', 'Become a German citizen', { flag: 'cz.granted' }),
   A('fashion', '👕', 'Sành điệu', 'Fashionista', 'Mua 3 món đồ hoặc kiểu tóc', 'Buy 3 clothes or hairstyles', { flag: 'stats.clothes', atLeast: 3 }),
-  A('explorer', '🧭', 'Nhà thám hiểm', 'Explorer', 'Khám phá 5 bí mật', 'Discover 5 secrets', { flag: 'stats.secrets', atLeast: 5 }),
-  A('localLegend', '🗝️', 'Thổ địa chính hiệu', 'Local legend', 'Khám phá tất cả bí mật', 'Discover every secret', { flag: 'secret.all' }),
+  ...(SECRETS_ENABLED ? [A('explorer', '🧭', 'Nhà thám hiểm', 'Explorer', 'Khám phá 5 bí mật', 'Discover 5 secrets', { flag: 'stats.secrets', atLeast: 5 }),
+  A('localLegend', '🗝️', 'Thổ địa chính hiệu', 'Local legend', 'Khám phá tất cả bí mật', 'Discover every secret', { flag: 'secret.all' })] : []),
   A('fortune', '🎋', 'Xin quẻ đầu năm', 'Fortune seeker', 'Xin quẻ ở đình làng', 'Draw a fortune stick at the đình', { flag: 'fortune.first' }),
   A('ducks', '🦆', 'Bạn của lũ vịt', 'Friend of the ducks', 'Cho vịt ăn 5 lần', 'Feed the ducks 5 times', { flag: 'stats.ducks', atLeast: 5 }),
   A('bookworm', '📚', 'Mọt sách', 'Bookworm', 'Đọc sách ở hiệu sách cũ 5 ngày', 'Read at the old bookshop on 5 days', { flag: 'stats.booksRead', atLeast: 5 }),

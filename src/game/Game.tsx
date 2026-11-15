@@ -19,6 +19,7 @@ import { SCENES } from './scenes/registry'
 import { DebugBridge } from './systems/debug'
 import { LocalEmote, RemotePlayers } from './components/RemotePlayers'
 import { SecretGlints } from './components/SecretGlints'
+import { SECRETS_ENABLED } from '../data/secrets'
 
 /** Physics steps after the player sets its velocity (-100) and before the camera (0). */
 const PHYSICS_PRIORITY = -50
@@ -62,7 +63,8 @@ export function Game() {
         flat // no tone mapping: keeps pastel colors exactly as authored
         dpr={[1, maxDpr]}
         camera={camera}
-        gl={{ antialias: true, powerPreference: 'high-performance' }}
+        // stencil: characters mark their pixels so the player's see-through silhouette skips them
+        gl={{ antialias: true, powerPreference: 'high-performance', stencil: true }}
       >
         <color attach="background" args={[PALETTE.sky]} />
         <fog attach="fog" args={[PALETTE.fog, 30, 80]} />
@@ -81,7 +83,7 @@ export function Game() {
             <CameraRig target={playerVisual} />
             <RemotePlayers />
             <LocalEmote />
-            <SecretGlints />
+            {SECRETS_ENABLED && <SecretGlints />}
             <GuideSystem />
             <InteractionSystem />
             <TimeSystem />

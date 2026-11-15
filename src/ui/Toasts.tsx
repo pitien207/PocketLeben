@@ -14,7 +14,7 @@ export function Toasts() {
   if (toasts.length === 0) return null
   return (
     <div
-      className="absolute inset-x-0 z-20 flex flex-col items-center gap-2 px-6"
+      className="pointer-events-none absolute inset-x-0 z-40 flex flex-col items-center gap-2 px-6"
       style={{ top: 'max(40%, 16.5rem)' }}
       aria-live="polite"
     >

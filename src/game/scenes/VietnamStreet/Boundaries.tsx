@@ -4,7 +4,7 @@ import { PROP_GROUPS } from '../../systems/collisionGroups'
 import { PALETTE as P } from '../shared/palette'
 import { barrierShapes, coneShapes, place } from '../shared/props'
 import { Shapes, type ShapeItem } from '../shared/Shapes'
-import { PLAY, ROAD, SIDE_ROAD } from './layout'
+import { NGOC_SON, PLAY, ROAD, SIDE_ROAD } from './layout'
 
 const WALL_H = 4
 const T = 0.5 // half thickness of the invisible walls
@@ -69,6 +69,8 @@ export function Boundaries() {
   const cz = (minZ + maxZ) / 2
   const halfW = (maxX - minX) / 2 + 2 * T
   const halfD = (maxZ - minZ) / 2 + 2 * T
+  const gapL = NGOC_SON.bridge.x - NGOC_SON.bridge.width / 2
+  const gapR = NGOC_SON.bridge.x + NGOC_SON.bridge.width / 2
 
   return (
     <>
@@ -77,7 +79,9 @@ export function Boundaries() {
         <CuboidCollider args={[T, WALL_H, halfD]} position={[minX - T, WALL_H, cz]} collisionGroups={PROP_GROUPS} />
         <CuboidCollider args={[T, WALL_H, halfD]} position={[maxX + T, WALL_H, cz]} collisionGroups={PROP_GROUPS} />
         <CuboidCollider args={[halfW, WALL_H, T]} position={[cx, WALL_H, minZ - T]} collisionGroups={PROP_GROUPS} />
-        <CuboidCollider args={[halfW, WALL_H, T]} position={[cx, WALL_H, maxZ + T]} collisionGroups={PROP_GROUPS} />
+        {/* South (lake railing) with a gap for the Thê Húc bridge */}
+        <CuboidCollider args={[(gapL - minX) / 2 + T, WALL_H, T]} position={[(minX + gapL) / 2 - T, WALL_H, maxZ + T]} collisionGroups={PROP_GROUPS} />
+        <CuboidCollider args={[(maxX - gapR) / 2 + T, WALL_H, T]} position={[(gapR + maxX) / 2 + T, WALL_H, maxZ + T]} collisionGroups={PROP_GROUPS} />
       </RigidBody>
     </>
   )

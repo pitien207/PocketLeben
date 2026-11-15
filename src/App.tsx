@@ -4,6 +4,7 @@ import { installDebugHooks } from './game/systems/debug'
 import { bindKeyboard } from './game/systems/input'
 import { useSettings } from './store/settingsStore'
 import { ActionButtons } from './ui/ActionButtons'
+import { CameraButtons } from './ui/CameraButtons'
 import { BagPanel } from './ui/BagPanel'
 import { CarePanel, CareResults } from './ui/CarePanel'
 import { ClothesPanel } from './ui/ClothesPanel'
@@ -11,6 +12,7 @@ import { MinigameHost } from './game/minigames/MinigameHost'
 import { QuestLog } from './ui/QuestLog'
 import { EndingPanel } from './ui/EndingPanel'
 import { MapPanel } from './ui/MapView'
+import { PhonePanel } from './ui/PhonePanel'
 import { SecretCard } from './ui/SecretCard'
 import { ChapterCard } from './ui/ChapterCard'
 import { TransitionOverlay } from './ui/TransitionOverlay'
@@ -53,6 +55,7 @@ export default function App() {
         <CarePanel />
         <Joystick />
         <ActionButtons />
+        <CameraButtons />
         <DialogueBox />
         <Toasts />
         <WorkResults />
@@ -66,6 +69,7 @@ export default function App() {
         <GuideCard />
         <EndingPanel />
         <MapPanel />
+        <PhonePanel />
         <SecretCard />
         <ChapterCard />
         <GuideUiPulse />

@@ -68,6 +68,17 @@ function snapshot(): PlayerSnapshot {
   }
 }
 
+/** Other modules (friends, chat) listen to server messages and send their own. */
+const listeners = new Set<(msg: { t: string; [k: string]: unknown }) => void>()
+export function onNetMessage(fn: (msg: { t: string; [k: string]: unknown }) => void) {
+  listeners.add(fn)
+  return () => listeners.delete(fn)
+}
+export function sendNet(msg: unknown) {
+  send(msg)
+  return ws?.readyState === WebSocket.OPEN
+}
+
 function send(msg: unknown) {
   if (ws?.readyState === WebSocket.OPEN) ws.send(JSON.stringify(msg))
 }
@@ -91,10 +102,11 @@ function onMessage(ev: MessageEvent<string>) {
     return
   }
   const net = useNet.getState()
+  for (const fn of listeners) fn(msg)
   switch (msg.t) {
     case 'welcome':
       retry = 0
-      net.set({ status: 'online', name: msg.name as string })
+      net.set({ status: 'online', name: msg.name as string, key: (msg.key as string) ?? null })
       lastSent = ''
       tick()
       send({ t: 'ping', at: Date.now() })
@@ -119,6 +131,10 @@ function onMessage(ev: MessageEvent<string>) {
       net.set({ emotes: { ...net.emotes, [id]: { e: msg.e as EmoteId, key: Date.now() } } })
       break
     }
+    case 'chat':
+      // A world message from someone in my room also pops up above their head.
+      if (typeof msg.id === 'number') net.set({ chats: { ...net.chats, [msg.id]: { text: msg.text as string, key: Date.now() } } })
+      break
     case 'pong':
       net.set({ online: msg.online as number })
       break

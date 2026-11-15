@@ -57,8 +57,8 @@ In dev builds the browser console has helpers (`window.__vh`):
 | `src/store/` | Zustand stores (player, time, world, guide, inventory, flags, dialogue, minigame, care, pfand, settings, ui, interaction, work, toasts) |
 | `src/data/config.ts` | Every tunable number (prices, fees, pay, energy, timings, weather, graphics) |
 | `src/data/` | Content: `guides` (targets, hints, blockers per step + door map between scenes), `schedule` (opening hours), `npcs`, `dialogues/` (street, story, germany), `chatter`, `quests`, `achievements`, `events`, `vocab`, `interviews`, `visa`, `care`, `clothes`, `items`, `shops`, `tasks` |
-| `src/net/` | Account + cloud save (`auth.ts`, tiny, used by the title screen) and the multiplayer client (`client.ts`) |
-| `server/` | `index.mjs`: accounts, cloud saves, WebSocket rooms (Node + `ws`) |
+| `src/net/` | Account + cloud save (`auth.ts`, tiny, used by the title screen), the multiplayer client (`client.ts`) and friends / messages / world chat (`social.ts`, shown in `ui/PhonePanel.tsx`) |
+| `server/` | `index.mjs`: accounts, cloud saves, WebSocket rooms (Node + `ws`); `social.mjs`: friends, private messages, world chat; `store.mjs`: MongoDB / JSON files |
 | `src/i18n/` | `vi.json` (default), `en.json`, `de.json` |
 | `pwa/` | App icon source and the service-worker template (filled in by `vite.config.ts` at build time) |
 | `public/` | Manifest, icons, `staticwebapp.config.json` (Azure) |

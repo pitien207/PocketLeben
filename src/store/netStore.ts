@@ -11,6 +11,10 @@ interface NetState {
   status: NetStatus
   /** Display name of the signed-in account. */
   name: string | null
+  /** My account key (lower-case name). */
+  key: string | null
+  /** World-chat lines shown above heads, by player id (mine: id -1). */
+  chats: Record<number, { text: string; key: number }>
   /** Players online on the whole server. */
   online: number
   /** Other players in my room (positions live in net/client.ts, not in React state). */
@@ -28,6 +32,8 @@ export type EmoteId = 'wave' | 'heart' | 'laugh' | 'wow' | 'sad' | 'dance' | 'he
 export const useNet = create<NetState>()((set) => ({
   status: 'off',
   name: null,
+  key: null,
+  chats: {},
   online: 0,
   roster: [],
   myEmote: null,

@@ -171,7 +171,7 @@ export function Player({ visualRef }: PlayerProps) {
       />
       <group ref={visualRef}>
         <group ref={facing}>
-          <ChibiModel motion={motion} outfit={outfit} detail="high" />
+          <ChibiModel motion={motion} outfit={outfit} detail="high" silhouette />
         </group>
       </group>
     </RigidBody>

@@ -11,6 +11,7 @@ import { promisify } from 'node:util'
 import { WebSocketServer } from 'ws'
 import { openStore } from './store.mjs'
 import { GOOGLE_CLIENT_ID, verifyGoogleToken } from './google.mjs'
+import { createSocial } from './social.mjs'
 
 const scrypt = promisify(scryptCb)
 const PORT = Number(process.env.PORT ?? 8787)
@@ -284,6 +285,19 @@ const clients = new Map()
 const rooms = new Map()
 let nextId = 1
 
+/** The connected client of an account (one connection per account), if any. */
+const clientOf = (user) => {
+  for (const c of clients.values()) if (c.user === user) return c
+  return null
+}
+const broadcastAll = (msg) => {
+  const text = JSON.stringify(msg)
+  for (const c of clients.values()) if (c.ws.readyState === 1) c.ws.send(text)
+}
+// Friends, private messages, world chat (server/social.mjs)
+const social = createSocial({ store, auth, keyOf, readBody, send, clientOf, broadcastAll })
+Object.assign(routes, social.routes)
+
 http.on('upgrade', (req, socket, head) => {
   if (!req.url.startsWith('/ws')) return socket.destroy()
   wss.handleUpgrade(req, socket, head, (ws) => wss.emit('connection', ws))
@@ -298,10 +312,11 @@ function cleanSnap(s) {
   const m = s.motion ?? {}
   const o = s.outfit ?? {}
   const outfit = {}
-  for (const k of ['skin', 'hair', 'hairStyle', 'shirt', 'shorts', 'shoe', 'bag', 'accessory', 'accent', 'top', 'bottom', 'neck', 'neckColor', 'eye']) {
+  for (const k of ['skin', 'hair', 'hairStyle', 'shirt', 'shorts', 'shoe', 'bag', 'accessory', 'accent', 'top', 'bottom', 'neck', 'neckColor', 'eye', 'expression', 'shoeType', 'pattern', 'patternColor', 'apron', 'socks', 'hairTie']) {
     const v = o[k] === null ? null : str(o[k])
     if (v !== undefined) outfit[k] = v
   }
+  if (typeof o.lashes === 'boolean') outfit.lashes = o.lashes
   return {
     scene: s.scene,
     x: num(s.x, -300, 300),
@@ -379,10 +394,15 @@ wss.on('connection', (ws) => {
       for (const other of clients.values()) if (other.user === user) other.ws.close(4002, 'replaced')
       c = { id: nextId++, user, name: account.name, ws, scene: null, room: null, snap: null, lastSnap: 0, lastEmote: 0 }
       clients.set(c.id, c)
-      ws.send(JSON.stringify({ t: 'welcome', id: c.id, name: c.name }))
+      ws.send(JSON.stringify({ t: 'welcome', id: c.id, name: c.name, key: user }))
+      void social.presence(user, true)
       return
     }
     const now = Date.now()
+    if (msg.t === 'chat' || msg.t === 'dm') {
+      await social.onMessage(c, msg).catch((e) => console.error('chat', e))
+      return
+    }
     if (msg.t === 'snap') {
       if (now - c.lastSnap < 60) return // ~15 Hz max
       c.lastSnap = now
@@ -407,6 +427,7 @@ wss.on('connection', (ws) => {
     if (!c) return
     leaveRoom(c)
     clients.delete(c.id)
+    if (!clientOf(c.user)) void social.presence(c.user, false)
   })
 })
 

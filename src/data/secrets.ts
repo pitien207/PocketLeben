@@ -9,6 +9,14 @@ import type { Condition } from './conditions'
  * Flags: `secret.<id>` = found.
  */
 
+/**
+ * Switched off for now (1.10, the user's request): no discovery, no sparkles, no "Khám phá" tab,
+ * and the side quests / achievements that need secrets are hidden. Set to true to bring it all back.
+ */
+export const SECRETS_ENABLED = false
+/** Condition that holds only while secrets are on (for quests). */
+export const SECRETS_ON = { flag: SECRETS_ENABLED ? 'tut.done' : 'feature.secrets.off' } as const
+
 export interface SecretReward {
   money?: number
   mood?: number
