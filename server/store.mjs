@@ -4,11 +4,14 @@
 import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 
-/** Login tokens stay valid this long (renewed by logging in again). */
-export const TOKEN_DAYS = 180
+/** A login token stays valid this long after its last use ("remember me": using the game renews it). */
+export const TOKEN_DAYS = 365
+/** Renew a token's date at most this often (saves writes). */
+const TOUCH_MS = 86_400_000
 
 /**
- * @typedef {{ name: string, salt: string, hash: string, created: number }} User
+ * @typedef {{ name: string, salt: string | null, hash: string | null, created: number }} User
+ *   (salt/hash null = an account created with Google, no password)
  * @typedef {{
  *   kind: string,
  *   getUser(key: string): Promise<User | null>,
@@ -16,6 +19,9 @@ export const TOKEN_DAYS = 180
  *   createToken(token: string, user: string): Promise<void>,
  *   tokenUser(token: string): Promise<string | null>,
  *   deleteToken(token: string): Promise<void>,
+ *   googleUser(sub: string): Promise<string | null>,
+ *   googleOf(user: string): Promise<string | null>,
+ *   linkGoogle(sub: string, user: string, email: string | null): Promise<boolean>,
  *   getSave(user: string): Promise<{ save: object, savedAt: number } | null>,
  *   putSave(user: string, save: object, savedAt: number): Promise<void>,
  *   close(): Promise<void>,
@@ -38,8 +44,11 @@ async function openMongo(uri, dbName) {
   const users = db.collection('users')
   const tokens = db.collection('tokens')
   const saves = db.collection('saves')
+  const google = db.collection('google')
   // Old tokens disappear by themselves (TTL index on the creation date).
+  // (Cosmos DB's MongoDB API only allows TTL on _ts: then expiry is just checked in code.)
   await tokens.createIndex({ at: 1 }, { expireAfterSeconds: TOKEN_DAYS * 86_400 }).catch(() => {})
+  await google.createIndex({ user: 1 }).catch(() => {})
   return {
     kind: `mongodb (${dbName})`,
     async getUser(key) {
@@ -60,10 +69,28 @@ async function openMongo(uri, dbName) {
     },
     async tokenUser(token) {
       const doc = await tokens.findOne({ _id: token })
-      return doc && !expired(doc.at.getTime()) ? doc.user : null
+      if (!doc || expired(doc.at.getTime())) return null
+      if (Date.now() - doc.at.getTime() > TOUCH_MS) await tokens.updateOne({ _id: token }, { $set: { at: new Date() } }).catch(() => {})
+      return doc.user
     },
     async deleteToken(token) {
       await tokens.deleteOne({ _id: token })
+    },
+    async googleUser(sub) {
+      return (await google.findOne({ _id: sub }))?.user ?? null
+    },
+    async googleOf(user) {
+      const doc = await google.findOne({ user })
+      return doc ? (doc.email ?? '') : null
+    },
+    async linkGoogle(sub, user, email) {
+      try {
+        await google.insertOne({ _id: sub, user, email, at: new Date() })
+        return true
+      } catch (e) {
+        if (e?.code === 11000) return false
+        throw e
+      }
     },
     // Saves are stored as a JSON string: flag names contain dots ("quest.start"), which
     // field names in document databases don't handle well.
@@ -82,8 +109,8 @@ async function openMongo(uri, dbName) {
 function openFiles(dir) {
   mkdirSync(join(dir, 'saves'), { recursive: true })
   const ACCOUNTS = join(dir, 'accounts.json')
-  /** @type {{ users: Record<string, User>, tokens: Record<string, { user: string, at: number }> }} */
-  const db = existsSync(ACCOUNTS) ? JSON.parse(readFileSync(ACCOUNTS, 'utf8')) : { users: {}, tokens: {} }
+  /** @type {{ users: Record<string, User>, tokens: Record<string, { user: string, at: number }>, google: Record<string, { user: string, email: string | null }> }} */
+  const db = { users: {}, tokens: {}, google: {}, ...(existsSync(ACCOUNTS) ? JSON.parse(readFileSync(ACCOUNTS, 'utf8')) : {}) }
   const writeAtomic = (file, text) => {
     const tmp = `${file}.${process.pid}.tmp`
     writeFileSync(tmp, text)
@@ -112,7 +139,25 @@ function openFiles(dir) {
     },
     async tokenUser(token) {
       const t = db.tokens[token]
-      return t && !expired(t.at) && db.users[t.user] ? t.user : null
+      if (!t || expired(t.at) || !db.users[t.user]) return null
+      if (Date.now() - t.at > TOUCH_MS) {
+        t.at = Date.now()
+        persist()
+      }
+      return t.user
+    },
+    async googleUser(sub) {
+      return db.google[sub]?.user ?? null
+    },
+    async googleOf(user) {
+      const link = Object.values(db.google).find((g) => g.user === user)
+      return link ? (link.email ?? '') : null
+    },
+    async linkGoogle(sub, user, email) {
+      if (db.google[sub]) return false
+      db.google[sub] = { user, email }
+      persist()
+      return true
     },
     async deleteToken(token) {
       delete db.tokens[token]

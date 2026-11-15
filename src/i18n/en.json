@@ -451,5 +451,18 @@
   "toast.ducks": "🦆 The ducks paddle over — quack quack!",
   "toast.wordsLearned": "New words with Oma Gerda: +{xp} XP",
   "story.go": "Begin the chapter",
-  "toast.uniVisitor": "You’re on the training path — no need to enrol, but the library and lecture hall are open to visitors."
+  "toast.uniVisitor": "You’re on the training path — no need to enrol, but the library and lecture hall are open to visitors.",
+  "account.or": "or with name + password",
+  "account.pickName": "Choose your name",
+  "account.pickNameHint": "{email} verified. Pick the player name others will see on the street.",
+  "account.back": "Back",
+  "account.errUseGoogle": "This account signs in with Google — use the Google button above.",
+  "account.errGoogle": "Google sign-in didn’t work, please try again.",
+  "account.errGoogleTaken": "This Google account is already linked to another player.",
+  "account.errAlreadyLinked": "Your account is already linked to another Google account.",
+  "account.googleLinked": "Google linked: {email}",
+  "account.linkGoogleHint": "Link Google to sign in with one tap next time, no password:",
+  "settings.offline": "Game data on this device",
+  "settings.offlineReady": "{mb} MB stored · plays offline",
+  "settings.offlineNot": "Not stored yet"
 }

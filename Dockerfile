@@ -25,7 +25,7 @@ WORKDIR /app
 # Without MONGO_URI the server falls back to files in DATA_DIR (temporary: lost on restart).
 # Files stay owned by root (read-only for the app); the process runs as "node".
 COPY --from=server-deps /app/server/node_modules ./server/node_modules
-COPY server/package.json server/index.mjs server/store.mjs ./server/
+COPY server/package.json server/*.mjs ./server/
 COPY --from=game-build /app/dist ./dist
 USER node
 EXPOSE 8080

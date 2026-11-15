@@ -8,8 +8,9 @@ import { useUI } from '../store/uiStore'
 import { CloseIcon } from './icons'
 import { TestTools } from './TestTools'
 import { pushToast } from '../store/toastStore'
-import { LoginPanel, useAccount } from './LoginPanel'
-import { pullCloudSave, pushCloudSave, signOut } from '../net/auth'
+import { AUTH_ERRORS, GoogleButton, LoginPanel, useAccount } from './LoginPanel'
+import { fetchMe, googleLink, pullCloudSave, pushCloudSave, signOut, type AuthError, type Me } from '../net/auth'
+import { googleSignedOut } from '../net/google'
 import { useNet } from '../store/netStore'
 
 function Row({ label, children }: { label: string; children: ReactNode }) {
@@ -154,6 +155,73 @@ function SaveData() {
 }
 
 /** Settings dialog. Esc toggles it on desktop (plan §4) unless something else is open. */
+/** Google linked to this account (sign in either way), or a button to link it. */
+function GoogleLinkRow() {
+  const t = useT()
+  const [me, setMe] = useState<Me | null>(null)
+  const [error, setError] = useState<AuthError | null>(null)
+  useEffect(() => {
+    void fetchMe().then(setMe)
+  }, [])
+  if (!me) return null
+  if (me.google !== null) {
+    return (
+      <p className="mt-2 flex items-center gap-1.5 text-[12px] font-black text-ink/70" data-testid="google-linked">
+        <GoogleG /> {t('account.googleLinked', { email: me.google || 'Google' })}
+      </p>
+    )
+  }
+  return (
+    <div className="mt-2">
+      <p className="mb-1.5 text-[12px] leading-snug font-bold text-ink/60">{t('account.linkGoogleHint')}</p>
+      <GoogleButton
+        text="signin_with"
+        onCredential={(c) =>
+          void googleLink(c).then((r) => {
+            if (typeof r === 'string') setError(r)
+            else setMe({ ...me, google: r.google })
+          })
+        }
+      />
+      {error && <p className="mt-1 text-[12px] font-black text-lacquer">{t(AUTH_ERRORS[error])}</p>}
+    </div>
+  )
+}
+
+function GoogleG() {
+  return (
+    <svg viewBox="0 0 48 48" width="1.1em" height="1.1em" aria-hidden="true">
+      <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z" />
+      <path fill="#FF3D00" d="m6.3 14.7 6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z" />
+      <path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z" />
+      <path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z" />
+    </svg>
+  )
+}
+
+/** How much of the game is stored on this device (plays offline, no re-downloading). */
+function OfflineStatus() {
+  const t = useT()
+  const [info, setInfo] = useState<{ mb: number; ready: boolean } | null>(null)
+  useEffect(() => {
+    if (!('caches' in window)) return
+    void (async () => {
+      const keys = await caches.keys()
+      const ready = keys.some((k) => k.startsWith('visa-hunter-') && k !== 'visa-hunter-runtime')
+      const est = await navigator.storage?.estimate?.().catch(() => undefined)
+      setInfo({ mb: (est?.usage ?? 0) / 1_048_576, ready })
+    })()
+  }, [])
+  if (!info) return null
+  return (
+    <Row label={t('settings.offline')}>
+      <span className={`rounded-full px-3 py-1 text-xs font-black ${info.ready ? 'bg-jade text-white' : 'bg-ink/10 text-ink/70'}`} data-testid="offline-status">
+        {info.ready ? t('settings.offlineReady', { mb: info.mb.toFixed(1) }) : t('settings.offlineNot')}
+      </span>
+    </Row>
+  )
+}
+
 /** Account: sign in for multiplayer + cloud save, the online switch, sign out. */
 function AccountSection() {
   const t = useT()
@@ -181,7 +249,7 @@ function AccountSection() {
           </span>
         </span>
         {account ? (
-          <button type="button" onClick={() => void pushCloudSave().then(signOut)} className="shrink-0 rounded-full bg-ink/10 px-3 py-1.5 text-sm font-black">
+          <button type="button" onClick={() => void pushCloudSave().then(signOut).then(googleSignedOut)} className="shrink-0 rounded-full bg-ink/10 px-3 py-1.5 text-sm font-black">
             {t('account.signOut')}
           </button>
         ) : (
@@ -190,6 +258,7 @@ function AccountSection() {
           </button>
         )}
       </div>
+      {account && <GoogleLinkRow />}
       {account ? (
         <Row label={t('account.online')}>
           <Segmented
@@ -259,6 +328,7 @@ export function SettingsPanel() {
         <div className="max-h-[70dvh] overflow-y-auto overscroll-contain" style={{ touchAction: 'pan-y' }}>
           <TestTools />
           <AccountSection />
+          <OfflineStatus />
           <Row label={t('settings.music')}>
             <Segmented
               value={musicOn ? 'on' : 'off'}

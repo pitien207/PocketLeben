@@ -451,5 +451,18 @@
   "toast.ducks": "🦆 Lũ vịt bơi lại tranh nhau ăn, quạc quạc!",
   "toast.wordsLearned": "Học từ mới với Bà Gerda: +{xp} XP",
   "story.go": "Bắt đầu chương mới",
-  "toast.uniVisitor": "Bạn đang đi học nghề — không cần nhập học, nhưng thư viện và giảng đường vẫn mở cho khách."
+  "toast.uniVisitor": "Bạn đang đi học nghề — không cần nhập học, nhưng thư viện và giảng đường vẫn mở cho khách.",
+  "account.or": "hoặc dùng tên + mật khẩu",
+  "account.pickName": "Chọn tên nhân vật",
+  "account.pickNameHint": "Đã xác minh {email}. Chọn tên người chơi mà người khác sẽ thấy trên phố.",
+  "account.back": "Quay lại",
+  "account.errUseGoogle": "Tài khoản này đăng nhập bằng Google — bấm nút Google ở trên.",
+  "account.errGoogle": "Đăng nhập Google không thành công, thử lại nhé.",
+  "account.errGoogleTaken": "Tài khoản Google này đã gắn với một người chơi khác.",
+  "account.errAlreadyLinked": "Tài khoản của bạn đã liên kết một tài khoản Google khác.",
+  "account.googleLinked": "Đã liên kết Google: {email}",
+  "account.linkGoogleHint": "Liên kết Google để lần sau đăng nhập một chạm, không cần mật khẩu:",
+  "settings.offline": "Dữ liệu game trên máy",
+  "settings.offlineReady": "Đã tải {mb} MB · chơi offline được",
+  "settings.offlineNot": "Chưa tải về máy"
 }

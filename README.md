@@ -13,7 +13,8 @@ npm run dev        # http://localhost:5173 (also prints a Network URL for your p
 
 **Online (accounts, cloud save, multiplayer):** in a second terminal run `npm run server` (port 8787; data in
 `server/data/`). The dev server forwards `/api` and `/ws` to it. Without it the game simply plays offline.
-`npm run build && npm start` serves the built game and the API from one Node process.
+`npm run build && npm start` serves the built game and the API from one Node process. Google sign-in appears when
+the server has `GOOGLE_CLIENT_ID` (e.g. `GOOGLE_CLIENT_ID=… npm run server`; setup in docs/DEPLOY.md).
 
 Other scripts: `npm run typecheck`, `npm run build` (outputs `dist/`, incl. the service worker), `npm run preview`
 (test the production build: title screen, PWA install, offline).

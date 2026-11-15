@@ -1,5 +1,39 @@
 # Changelog
 
+## 1.8.0 — Sign in with Google, stay signed in, much less bandwidth
+
+### Added — accounts
+- **Sign in with Google** (Google Identity Services button on the login panel). First time: Google account verified →
+  choose a player name → done. Next times: one tap. The server verifies Google's ID token itself (signature against
+  Google's public keys, issuer, audience = our client ID, expiry) — `server/google.mjs`, no extra library.
+- **Link Google** to an existing name+password account (Settings → Tài khoản): afterwards both ways work.
+  Google-only accounts have no password ("use the Google button" if someone tries one).
+- **Stay signed in automatically**: the login token renews itself whenever it is used and stays valid 1 year after
+  the last visit — no password again (no checkbox; signing out is in Settings).
+- The browser's password manager can save and fill name + password (Chrome/Edge/Android: Credential Management API).
+- Hidden until the server has `GOOGLE_CLIENT_ID` (see docs/DEPLOY.md → Google sign-in).
+
+### Changed — bandwidth / stored on the device
+- Build writes **brotli + gzip** copies of every text file; the server sends the smallest one the browser accepts
+  (physics engine 2.26 MB → 0.62 MB). First visit: ~1.15 MB over the network instead of ~4.2 MB.
+- **ETag / 304** for index.html, sw.js, icons: an unchanged file costs no body. Hashed files stay cached for a year.
+- **Service worker updates only download what changed**: files already on the device (same hash) are copied from the
+  old cache — a new version no longer re-downloads three.js, the physics engine or React.
+- The game asks the browser to keep its storage (`navigator.storage.persist`) so the downloaded game isn't evicted.
+- Settings → "Dữ liệu game trên máy": how much is stored and whether it plays offline.
+
+### Tests
+- `memdb/google-test.mjs` (fake Google with its own RSA key; MongoDB in memory or files): 27 checks incl. forged,
+  expired, wrong-audience and tampered tokens, linking rules, compression and 304. `ui-google.mjs`: the login UI.
+  `sw-update.mjs`: production PWA first visit / second visit / update / offline through a byte-counting proxy.
+
+### Manual test checklist (phone)
+- [ ] (after GOOGLE_CLIENT_ID is set) Title → Đăng nhập → "Tiếp tục với Google" → pick a name → you're in.
+- [ ] Close the browser, open the game again: still signed in, no password.
+- [ ] Settings → Tài khoản: a password account shows the Google button; after linking it shows the Gmail address.
+- [ ] Settings → "Dữ liệu game trên máy" says "Đã tải … MB · chơi offline được" on the installed/production site.
+- [ ] Airplane mode → open the game from the home screen: it starts.
+
 ## 1.7.0 — Accounts + multiplayer, new districts with secrets, prettier characters, a fuller story
 
 ### Added — accounts, cloud save, multiplayer (phase 1 of docs/MULTIPLAYER_PLAN.md)

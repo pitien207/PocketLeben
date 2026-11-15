@@ -451,5 +451,18 @@
   "toast.ducks": "🦆 Die Enten kommen angepaddelt — quak quak!",
   "toast.wordsLearned": "Neue Wörter mit Oma Gerda: +{xp} XP",
   "story.go": "Kapitel beginnen",
-  "toast.uniVisitor": "Du machst eine Ausbildung — keine Einschreibung nötig, aber Bibliothek und Hörsaal sind offen für Gäste."
+  "toast.uniVisitor": "Du machst eine Ausbildung — keine Einschreibung nötig, aber Bibliothek und Hörsaal sind offen für Gäste.",
+  "account.or": "oder mit Name + Passwort",
+  "account.pickName": "Wähle deinen Namen",
+  "account.pickNameHint": "{email} bestätigt. Wähle den Namen, den andere auf der Straße sehen.",
+  "account.back": "Zurück",
+  "account.errUseGoogle": "Dieses Konto meldet sich mit Google an — nutze den Google-Button oben.",
+  "account.errGoogle": "Google-Anmeldung fehlgeschlagen, bitte nochmal versuchen.",
+  "account.errGoogleTaken": "Dieses Google-Konto ist schon mit einem anderen Spieler verknüpft.",
+  "account.errAlreadyLinked": "Dein Konto ist schon mit einem anderen Google-Konto verknüpft.",
+  "account.googleLinked": "Google verknüpft: {email}",
+  "account.linkGoogleHint": "Verknüpfe Google, um dich künftig ohne Passwort anzumelden:",
+  "settings.offline": "Spieldaten auf dem Gerät",
+  "settings.offlineReady": "{mb} MB gespeichert · offline spielbar",
+  "settings.offlineNot": "Noch nicht gespeichert"
 }

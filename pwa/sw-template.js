@@ -4,13 +4,26 @@ const CACHE = `visa-hunter-${VERSION}`
 const RUNTIME = 'visa-hunter-runtime'
 const PRECACHE = __PRECACHE__
 
-self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches
-      .open(CACHE)
-      .then((cache) => cache.addAll(PRECACHE))
-      .then(() => self.skipWaiting()),
+/**
+ * Download the whole game once so it plays offline. On an update, files in assets/ that are
+ * already on the device (same content hash in the name = same file) are copied from the old
+ * cache instead of downloaded again — only what changed costs bandwidth.
+ */
+async function precache() {
+  const cache = await caches.open(CACHE)
+  await Promise.all(
+    PRECACHE.map(async (url) => {
+      if (url.includes('/assets/')) {
+        const old = await caches.match(url)
+        if (old) return cache.put(url, old)
+      }
+      await cache.add(url)
+    }),
   )
+}
+
+self.addEventListener('install', (event) => {
+  event.waitUntil(precache().then(() => self.skipWaiting()))
 })
 
 self.addEventListener('activate', (event) => {

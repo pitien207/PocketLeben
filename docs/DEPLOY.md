@@ -21,7 +21,7 @@ Azure  visahunter-rg ─ visahunter-env ─ Container App "visa-hunter" (Node 24
 | Resource group | `visahunter-rg` (Germany West Central) |
 | Container Apps environment | `visahunter-env` (Consumption, không gửi log → không tốn Log Analytics) |
 | Container App | `visa-hunter`, 0.25 vCPU / 0.5 GiB, **min 0 – max 1 bản sao** |
-| Địa chỉ | https://visa-hunter.blackisland-f796aa91.germanywestcentral.azurecontainerapps.io |
+| Địa chỉ | **https://visahunter.nghiapham.org** (chứng chỉ managed miễn phí, Azure tự gia hạn; DNS ở Cloudflare, CNAME để *DNS only*) — dự phòng: https://visa-hunter.blackisland-f796aa91.germanywestcentral.azurecontainerapps.io |
 | Database | `visahunter-cosmos` — Azure Cosmos DB for MongoDB (RU), **free tier** (1000 RU/s + 25 GB miễn phí), Germany West Central. Database `visahunter` (1000 RU/s dùng chung), collections `users`, `tokens`, `saves` |
 | GitHub → Azure | app registration `github-visahunter-deploy` (OIDC, chỉ nhánh `main` của `pitien207/visa-hunter`), quyền **Container Apps Contributor** trên `visahunter-rg` |
 | GitHub secrets / variables | `AZURE_CLIENT_ID`, `AZURE_TENANT_ID`, `AZURE_SUBSCRIPTION_ID`, biến `AZURE_RESOURCE_GROUP=visahunter-rg` |
@@ -47,7 +47,32 @@ az containerapp secret set -n visa-hunter -g visahunter-rg --secrets "mongo-uri=
 az containerapp revision restart -n visa-hunter -g visahunter-rg --revision $(az containerapp show -n visa-hunter -g visahunter-rg --query properties.latestRevisionName -o tsv)
 ```
 
-### (Tuỳ chọn) Tên miền `visahunter.nghiapham.org`
+### Đăng nhập bằng Google (1.8.0)
+Nút Google chỉ hiện khi server có `GOOGLE_CLIENT_ID`. Tạo một lần trong Google Cloud (miễn phí):
+
+1. https://console.cloud.google.com → tạo project **Visa Hunter**.
+2. *APIs & Services → OAuth consent screen* (Google Auth Platform → *Branding*): tên app "Visa Hunter", email hỗ trợ,
+   *Audience*: **External**, rồi **Publish app** (chỉ xin `openid email profile` nên không cần Google duyệt).
+3. *Clients → Create client* → loại **Web application** → *Authorized JavaScript origins*:
+   - `https://visahunter.nghiapham.org`
+   - `https://visa-hunter.blackisland-f796aa91.germanywestcentral.azurecontainerapps.io`
+   - `http://localhost:5173` (dev trên máy)
+
+   Không cần *Redirect URI*. Không cần client secret (Client ID không phải bí mật).
+4. Copy **Client ID** (`…apps.googleusercontent.com`) rồi:
+
+```bash
+az containerapp update -n visa-hunter -g visahunter-rg --set-env-vars GOOGLE_CLIENT_ID=<client id>
+```
+
+Chạy local: `GOOGLE_CLIENT_ID=<client id> npm run server`.
+
+### Băng thông (1.8.0)
+- Build tạo sẵn bản nén `.br`/`.gz` cho mọi file chữ; server gửi bản nhỏ nhất (lần đầu ~1,15 MB thay vì ~4,2 MB).
+- `assets/` có hash trong tên → cache 1 năm; file khác có ETag → không đổi thì trả 304, không tốn dữ liệu.
+- Service worker lưu cả game trên máy; bản mới chỉ tải file thay đổi (three.js, physics, React lấy lại từ cache cũ).
+
+### Tên miền (đã gắn 2026-11-15) `visahunter.nghiapham.org`
 Ở nơi quản lý DNS của `nghiapham.org` thêm:
 
 | Loại | Tên | Giá trị |

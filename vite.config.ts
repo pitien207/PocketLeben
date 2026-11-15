@@ -1,5 +1,7 @@
 import { createHash } from 'node:crypto'
-import { readFileSync } from 'node:fs'
+import { readFileSync, statSync, writeFileSync } from 'node:fs'
+import { join } from 'node:path'
+import { brotliCompressSync, constants as zlib, gzipSync } from 'node:zlib'
 import { defineConfig, type Plugin } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
@@ -27,6 +29,29 @@ function serviceWorker(): Plugin {
   }
 }
 
+/**
+ * Bandwidth: write .br and .gz copies of every text file next to it at build time. The Node server
+ * (server/index.mjs) sends the smallest one the browser accepts — e.g. the physics engine goes
+ * from 2.3 MB to ~0.7 MB. Compressing once here costs nothing at request time.
+ */
+function precompress(): Plugin {
+  return {
+    name: 'visa-hunter-precompress',
+    apply: 'build',
+    writeBundle(options, bundle) {
+      const dir = options.dir ?? 'dist'
+      for (const name of Object.keys(bundle)) {
+        if (!/.(js|mjs|css|html|svg|json|webmanifest|wasm|txt)$/.test(name)) continue
+        const file = join(dir, name)
+        if (statSync(file).size < 1024) continue
+        const data = readFileSync(file)
+        writeFileSync(`${file}.br`, brotliCompressSync(data, { params: { [zlib.BROTLI_PARAM_QUALITY]: 11, [zlib.BROTLI_PARAM_SIZE_HINT]: data.length } }))
+        writeFileSync(`${file}.gz`, gzipSync(data, { level: 9 }))
+      }
+    },
+  }
+}
+
 /** Long-lived vendor chunks: game updates don't force re-downloading three.js or the physics engine. */
 const VENDOR_CHUNKS: [string, RegExp][] = [
   // (+ Vite's tiny preload helper, so the title screen never depends on the big chunks)
@@ -40,7 +65,7 @@ const SERVER = process.env.VH_SERVER ?? 'http://localhost:8787'
 const VERSION = (JSON.parse(readFileSync('package.json', 'utf8')) as { version: string }).version
 
 export default defineConfig({
-  plugins: [react(), tailwindcss(), serviceWorker()],
+  plugins: [react(), tailwindcss(), serviceWorker(), precompress()],
   define: { __APP_VERSION__: JSON.stringify(VERSION) },
   // host: true exposes the dev server on your LAN so you can open it on a phone.
   // /api and /ws go to the game server (npm run server). VH_SERVER overrides the address.

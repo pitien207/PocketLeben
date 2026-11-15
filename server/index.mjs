@@ -10,6 +10,7 @@ import { extname, join, normalize, resolve, sep } from 'node:path'
 import { promisify } from 'node:util'
 import { WebSocketServer } from 'ws'
 import { openStore } from './store.mjs'
+import { GOOGLE_CLIENT_ID, verifyGoogleToken } from './google.mjs'
 
 const scrypt = promisify(scryptCb)
 const PORT = Number(process.env.PORT ?? 8787)
@@ -40,6 +41,12 @@ async function newToken(user) {
   await store.createToken(token, user)
   return token
 }
+
+/** Pending Google sign-ups (Google account verified, player name not chosen yet). */
+const tickets = new Map()
+setInterval(() => {
+  for (const [k, t] of tickets) if (t.until < Date.now()) tickets.delete(k)
+}, 60_000).unref()
 
 const bearer = (header) => /^Bearer (.+)$/.exec(header ?? '')?.[1] ?? null
 
@@ -82,15 +89,21 @@ function readBody(req, limit = 4096) {
   })
 }
 
-/** Slow down password guessing: 10 attempts per minute per address. */
+/**
+ * Slow down guessing: per address and minute, 10 password attempts and 30 Google sign-ins
+ * (Google tokens can't be guessed; the limit only stops floods). AUTH_RATE_LIMIT scales both (tests).
+ */
+const RATE = Number(process.env.AUTH_RATE_LIMIT ?? 1)
 const attempts = new Map()
-function limited(ip) {
+setInterval(() => attempts.clear(), 10 * 60_000).unref()
+function limited(ip, kind = 'password') {
+  const key = `${kind}:${ip}`
   const now = Date.now()
-  const a = attempts.get(ip) ?? { n: 0, at: now }
+  const a = attempts.get(key) ?? { n: 0, at: now }
   if (now - a.at > 60_000) Object.assign(a, { n: 0, at: now })
   a.n++
-  attempts.set(ip, a)
-  return a.n > 10
+  attempts.set(key, a)
+  return a.n > (kind === 'google' ? 30 : 10) * RATE
 }
 
 const routes = {
@@ -110,6 +123,7 @@ const routes = {
     const { name, password } = await readBody(req)
     const account = typeof name === 'string' ? await store.getUser(keyOf(name)) : null
     if (!account || typeof password !== 'string') return send(res, 401, { error: 'wrong' })
+    if (!account.hash || !account.salt) return send(res, 401, { error: 'useGoogle' })
     const hash = Buffer.from(await hashPassword(password, account.salt), 'hex')
     if (!timingSafeEqual(hash, Buffer.from(account.hash, 'hex'))) return send(res, 401, { error: 'wrong' })
     send(res, 200, { token: await newToken(keyOf(name)), name: account.name })
@@ -124,7 +138,56 @@ const routes = {
     const account = user && (await store.getUser(user))
     if (!account) return send(res, 401, { error: 'auth' })
     const save = await store.getSave(user)
-    send(res, 200, { name: account.name, savedAt: save?.savedAt ?? null })
+    send(res, 200, { name: account.name, savedAt: save?.savedAt ?? null, google: await store.googleOf(user), password: !!account.hash })
+  },
+  /** Public settings for the client (which sign-in methods exist). */
+  async 'GET /api/config'(_req, res) {
+    send(res, 200, { google: GOOGLE_CLIENT_ID })
+  },
+  /**
+   * Sign in with Google. Linked → logged in. New Google account → a short-lived ticket; the
+   * player then picks a player name (POST /api/google/register).
+   */
+  async 'POST /api/google'(req, res) {
+    if (limited(clientIp(req), 'google')) return send(res, 429, { error: 'tooMany' })
+    const { credential } = await readBody(req, 8192)
+    const g = await verifyGoogleToken(credential)
+    if (!g) return send(res, 401, { error: 'googleInvalid' })
+    const user = await store.googleUser(g.sub)
+    const account = user && (await store.getUser(user))
+    if (account) return send(res, 200, { token: await newToken(user), name: account.name })
+    const ticket = randomBytes(18).toString('base64url')
+    tickets.set(ticket, { ...g, until: Date.now() + 10 * 60_000 })
+    const suggested = (g.name ?? g.email?.split('@')[0] ?? '').replace(/[^\p{L}\p{N}_ .-]/gu, '').slice(0, 16)
+    send(res, 200, { needName: true, ticket, suggested, email: g.email })
+  },
+  async 'POST /api/google/register'(req, res) {
+    if (limited(clientIp(req), 'google')) return send(res, 429, { error: 'tooMany' })
+    const { ticket, name } = await readBody(req)
+    const t = typeof ticket === 'string' ? tickets.get(ticket) : undefined
+    if (!t || t.until < Date.now()) return send(res, 401, { error: 'googleInvalid' })
+    if (typeof name !== 'string' || !NAME_RE.test(name.trim())) return send(res, 400, { error: 'badName' })
+    const user = keyOf(name)
+    // Someone else may have linked this Google account meanwhile (two tabs).
+    if (await store.googleUser(t.sub)) return send(res, 409, { error: 'googleTaken' })
+    const account = { name: name.trim(), salt: null, hash: null, created: Date.now() }
+    if (!(await store.createUser(user, account))) return send(res, 409, { error: 'taken' })
+    await store.linkGoogle(t.sub, user, t.email)
+    tickets.delete(ticket)
+    send(res, 200, { token: await newToken(user), name: account.name })
+  },
+  /** Link Google to the signed-in account (then either way of signing in works). */
+  async 'POST /api/google/link'(req, res) {
+    const user = await auth(req.headers.authorization)
+    if (!user) return send(res, 401, { error: 'auth' })
+    const { credential } = await readBody(req, 8192)
+    const g = await verifyGoogleToken(credential)
+    if (!g) return send(res, 401, { error: 'googleInvalid' })
+    const owner = await store.googleUser(g.sub)
+    if (owner && owner !== user) return send(res, 409, { error: 'googleTaken' })
+    if (!owner && (await store.googleOf(user)) !== null) return send(res, 409, { error: 'alreadyLinked' })
+    if (!owner) await store.linkGoogle(g.sub, user, g.email)
+    send(res, 200, { google: g.email ?? '' })
   },
   async 'GET /api/save'(req, res) {
     const user = await auth(req.headers.authorization)
@@ -154,14 +217,48 @@ const routes = {
 
 const MIME = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.webmanifest': 'application/manifest+json', '.svg': 'image/svg+xml', '.png': 'image/png', '.wasm': 'application/wasm' }
 
+/**
+ * Files of the built game. Bandwidth savers:
+ * - hashed files in assets/ are cached by the browser for a year ("immutable");
+ * - everything else gets an ETag: an unchanged file answers 304 with no body;
+ * - .br / .gz copies made at build time (vite.config.ts) are sent to browsers that accept them.
+ */
 function serveStatic(req, res) {
   if (!existsSync(DIST)) return send(res, 404, { error: 'notFound' })
-  const path = decodeURIComponent(new URL(req.url, 'http://x').pathname)
+  let path
+  try {
+    path = decodeURIComponent(new URL(req.url, 'http://x').pathname)
+  } catch {
+    return send(res, 400, { error: 'badPath' })
+  }
   let file = normalize(join(DIST, path))
   if (!file.startsWith(DIST + sep) || !existsSync(file) || statSync(file).isDirectory()) file = join(DIST, 'index.html')
   const hashed = file.startsWith(join(DIST, 'assets') + sep)
-  res.writeHead(200, { 'content-type': MIME[extname(file)] ?? 'application/octet-stream', 'cache-control': hashed ? 'public, max-age=31536000, immutable' : 'no-cache' })
-  createReadStream(file).pipe(res)
+  const stat = statSync(file)
+  const etag = `"${stat.size.toString(36)}-${Math.floor(stat.mtimeMs).toString(36)}"`
+  const headers = {
+    'content-type': MIME[extname(file)] ?? 'application/octet-stream',
+    'cache-control': hashed ? 'public, max-age=31536000, immutable' : 'no-cache',
+    etag,
+    vary: 'Accept-Encoding',
+  }
+  if (req.headers['if-none-match'] === etag) {
+    res.writeHead(304, headers)
+    return res.end()
+  }
+  const accept = String(req.headers['accept-encoding'] ?? '')
+  let body = file
+  if (/\bbr\b/.test(accept) && existsSync(`${file}.br`)) {
+    body = `${file}.br`
+    headers['content-encoding'] = 'br'
+  } else if (/\bgzip\b/.test(accept) && existsSync(`${file}.gz`)) {
+    body = `${file}.gz`
+    headers['content-encoding'] = 'gzip'
+  }
+  headers['content-length'] = statSync(body).size
+  res.writeHead(200, headers)
+  if (req.method === 'HEAD') return res.end()
+  createReadStream(body).pipe(res)
 }
 
 const http = createServer(async (req, res) => {

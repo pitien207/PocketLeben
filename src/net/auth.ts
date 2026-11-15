@@ -13,11 +13,16 @@ export interface Account {
   name: string
 }
 
-export type AuthError = 'badName' | 'badPassword' | 'taken' | 'wrong' | 'tooMany' | 'offline'
+export type AuthError = 'badName' | 'badPassword' | 'taken' | 'wrong' | 'tooMany' | 'offline' | 'useGoogle' | 'googleInvalid' | 'googleTaken' | 'alreadyLinked'
 
-export function getAccount(): Account | null {
+/**
+ * Where the login token lives: localStorage, so the game signs you in by itself next time (the
+ * server renews the token whenever it is used; valid 1 year after the last visit). sessionStorage
+ * (remember = false) is only read for tokens from older builds.
+ */
+function readAccount(storage: Storage): Account | null {
   try {
-    const raw = localStorage.getItem(AUTH_KEY)
+    const raw = storage.getItem(AUTH_KEY)
     const a = raw ? (JSON.parse(raw) as Partial<Account>) : null
     return a && typeof a.token === 'string' && typeof a.name === 'string' ? { token: a.token, name: a.name } : null
   } catch {
@@ -25,12 +30,17 @@ export function getAccount(): Account | null {
   }
 }
 
-function setAccount(a: Account | null) {
+export function getAccount(): Account | null {
+  return readAccount(localStorage) ?? readAccount(sessionStorage)
+}
+
+function setAccount(a: Account | null, remember = true) {
   try {
-    if (a) localStorage.setItem(AUTH_KEY, JSON.stringify(a))
-    else localStorage.removeItem(AUTH_KEY)
+    localStorage.removeItem(AUTH_KEY)
+    sessionStorage.removeItem(AUTH_KEY)
+    if (a) (remember ? localStorage : sessionStorage).setItem(AUTH_KEY, JSON.stringify(a))
   } catch {
-    // storage blocked: the account lasts for this session only
+    // storage blocked: the account lasts for this page only
   }
   window.dispatchEvent(new Event('vh-account'))
 }
@@ -45,16 +55,80 @@ export async function api<T>(method: string, path: string, body?: unknown, token
   return { ok: res.ok, status: res.status, data }
 }
 
+type TokenReply = { token?: string; name?: string; error?: AuthError }
+
+function accepted(r: { ok: boolean; data: TokenReply }, remember: boolean): Account | AuthError {
+  if (!r.ok || !r.data.token || !r.data.name) return r.data.error ?? 'offline'
+  const account = { token: r.data.token, name: r.data.name }
+  setAccount(account, remember)
+  return account
+}
+
 /** Log in or create an account. Returns the account, or an error code. */
-export async function signIn(mode: 'login' | 'register', name: string, password: string): Promise<Account | AuthError> {
+export async function signIn(mode: 'login' | 'register', name: string, password: string, remember = true): Promise<Account | AuthError> {
   try {
-    const r = await api<{ token?: string; name?: string; error?: AuthError }>('POST', mode, { name, password }, undefined)
-    if (!r.ok || !r.data.token || !r.data.name) return r.data.error ?? 'offline'
-    const account = { token: r.data.token, name: r.data.name }
-    setAccount(account)
-    return account
+    return accepted(await api<TokenReply>('POST', mode, { name, password }, undefined), remember)
   } catch {
     return 'offline'
+  }
+}
+
+// --- Google ------------------------------------------------------------------------------
+
+let config: Promise<{ google: string | null }> | null = null
+/** Server settings: the Google OAuth client ID (null = Google sign-in not set up). */
+export function serverConfig() {
+  config ??= api<{ google?: string | null }>('GET', 'config', undefined, undefined)
+    .then((r) => ({ google: r.ok ? (r.data.google ?? null) : null }))
+    .catch(() => {
+      config = null
+      return { google: null }
+    })
+  return config
+}
+
+export type GoogleResult = Account | AuthError | { needName: true; ticket: string; suggested: string; email: string | null }
+
+/** Google's ID token → logged in, or (first time) a ticket to choose a player name. */
+export async function googleSignIn(credential: string, remember = true): Promise<GoogleResult> {
+  try {
+    const r = await api<TokenReply & { needName?: boolean; ticket?: string; suggested?: string; email?: string | null }>('POST', 'google', { credential }, undefined)
+    if (r.ok && r.data.needName && r.data.ticket) return { needName: true, ticket: r.data.ticket, suggested: r.data.suggested ?? '', email: r.data.email ?? null }
+    return accepted(r, remember)
+  } catch {
+    return 'offline'
+  }
+}
+
+export async function googleRegister(ticket: string, name: string, remember = true): Promise<Account | AuthError> {
+  try {
+    return accepted(await api<TokenReply>('POST', 'google/register', { ticket, name }, undefined), remember)
+  } catch {
+    return 'offline'
+  }
+}
+
+/** Link a Google account to the signed-in account. Returns the Google e-mail or an error. */
+export async function googleLink(credential: string): Promise<{ google: string } | AuthError> {
+  try {
+    const r = await api<{ google?: string; error?: AuthError }>('POST', 'google/link', { credential })
+    return r.ok && typeof r.data.google === 'string' ? { google: r.data.google } : (r.data.error ?? 'offline')
+  } catch {
+    return 'offline'
+  }
+}
+
+export interface Me {
+  name: string
+  google: string | null
+  password: boolean
+}
+export async function fetchMe(): Promise<Me | null> {
+  try {
+    const r = await api<Me>('GET', 'me')
+    return r.ok ? r.data : null
+  } catch {
+    return null
   }
 }
 
