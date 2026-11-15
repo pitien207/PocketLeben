@@ -1,4 +1,4 @@
-# Triển khai Visa Hunter lên Azure (Container Apps + DocumentDB)
+# Triển khai Visa Hunter lên Azure (Container Apps + Cosmos DB)
 
 Từ 1.7.0 game có server (tài khoản, save trên mây, multiplayer qua WebSocket), nên **không** dùng Static Web Apps
 nữa (không chạy được server WebSocket). Cách triển khai giống dự án lofitalk:
@@ -10,7 +10,8 @@ git push main ──► GitHub Actions (.github/workflows/deploy.yml)
                     └─ az containerapp update (đăng nhập Azure bằng OIDC, không có mật khẩu)
                                    │
 Azure  visahunter-rg ─ visahunter-env ─ Container App "visa-hunter" (Node 24, cổng 8080, 0–1 bản sao)
-                                   │  MONGO_URI (secret) ─► lofitalk-db (Azure DocumentDB, gói Free), database "visahunter"
+                     │                  │  MONGO_URI (secret "mongo-uri")
+                     └─ visahunter-cosmos (Cosmos DB, API MongoDB 7.0, gói Free) ─ database "visahunter"
 ```
 
 ## Tài nguyên đã tạo (2026-11-15)
@@ -21,7 +22,7 @@ Azure  visahunter-rg ─ visahunter-env ─ Container App "visa-hunter" (Node 24
 | Container Apps environment | `visahunter-env` (Consumption, không gửi log → không tốn Log Analytics) |
 | Container App | `visa-hunter`, 0.25 vCPU / 0.5 GiB, **min 0 – max 1 bản sao** |
 | Địa chỉ | https://visa-hunter.blackisland-f796aa91.germanywestcentral.azurecontainerapps.io |
-| Database | cụm có sẵn `lofitalk-db` (DocumentDB, MongoDB API) — database riêng `visahunter` (collections `users`, `tokens`, `saves`) |
+| Database | `visahunter-cosmos` — Azure Cosmos DB for MongoDB (RU), **free tier** (1000 RU/s + 25 GB miễn phí), Germany West Central. Database `visahunter` (1000 RU/s dùng chung), collections `users`, `tokens`, `saves` |
 | GitHub → Azure | app registration `github-visahunter-deploy` (OIDC, chỉ nhánh `main` của `pitien207/visa-hunter`), quyền **Container Apps Contributor** trên `visahunter-rg` |
 | GitHub secrets / variables | `AZURE_CLIENT_ID`, `AZURE_TENANT_ID`, `AZURE_SUBSCRIPTION_ID`, biến `AZURE_RESOURCE_GROUP=visahunter-rg` |
 
@@ -30,26 +31,23 @@ scale về 0 (gần như miễn phí); người đầu tiên vào sẽ chờ và
 
 ## Việc bạn cần làm một lần
 
-### 1. Cho image trên ghcr.io ở chế độ Public
-Lần chạy workflow đầu tiên tạo package `visa-hunter` (mặc định **Private**, Azure không kéo về được):
-GitHub → hồ sơ của bạn → *Packages* → **visa-hunter** → *Package settings* → *Change visibility* → **Public**.
-(Giống package `lofitalk`.) Sau đó chạy lại workflow: *Actions* → *Build and deploy…* → **Re-run**.
+Image trên ghcr.io đã public (tải được không cần đăng nhập) và database đã nối sẵn — không còn việc bắt buộc.
+Kiểm tra: `https://…azurecontainerapps.io/api/health` → `{"ok":true,"store":"mongodb",…}`.
 
-### 2. Kết nối database (connection string của DocumentDB)
-Không có bước này game vẫn chạy, nhưng tài khoản và save chỉ nằm tạm trong container (mất khi app khởi động lại).
+### Vì sao Cosmos DB chứ không phải DocumentDB?
+Gói Free của **Azure DocumentDB** (mongoClusters) chỉ cho **một cụm mỗi subscription** — suất đó đang là `lofitalk-db`.
+Gói Free của **Cosmos DB** là suất riêng (một tài khoản free mỗi subscription) và còn trống, nên Visa Hunter có
+database riêng, miễn phí, nằm trong `visahunter-rg`. Cả hai đều nói giao thức MongoDB, server dùng chung code
+(`server/store.mjs`). Lưu ý Cosmos (RU): chỉ index TTL trên `_ts` được phép, nên token hết hạn được kiểm tra trong code.
 
-Lấy connection string: Portal → `lofitalk-db` → *Settings → Connection strings* (thay `<user>`/`<password>` bằng
-tài khoản admin của cụm). Rồi chạy (PowerShell hoặc Git Bash):
+Đổi connection string (vd. sau khi xoay khoá):
 
 ```bash
-az containerapp secret set -n visa-hunter -g visahunter-rg --secrets "mongo-uri=<connection string>"
-az containerapp update   -n visa-hunter -g visahunter-rg --set-env-vars MONGO_URI=secretref:mongo-uri MONGO_DB=visahunter
+az containerapp secret set -n visa-hunter -g visahunter-rg --secrets "mongo-uri=$(az cosmosdb keys list -n visahunter-cosmos -g visahunter-rg --type connection-strings --query 'connectionStrings[0].connectionString' -o tsv)"
+az containerapp revision restart -n visa-hunter -g visahunter-rg --revision $(az containerapp show -n visa-hunter -g visahunter-rg --query properties.latestRevisionName -o tsv)
 ```
 
-Kiểm tra: mở `https://…azurecontainerapps.io/api/health` → `{"ok":true,"store":"mongodb",…}`.
-(Firewall của `lofitalk-db` đã cho phép dịch vụ Azure, nên Container App kết nối được.)
-
-### 3. (Tuỳ chọn) Tên miền `visahunter.nghiapham.org`
+### (Tuỳ chọn) Tên miền `visahunter.nghiapham.org`
 Ở nơi quản lý DNS của `nghiapham.org` thêm:
 
 | Loại | Tên | Giá trị |
@@ -74,5 +72,5 @@ az containerapp hostname bind -n visa-hunter -g visahunter-rg --hostname visahun
 ## Chi phí ước tính
 - Container Apps Consumption: mỗi tháng miễn phí 180.000 vCPU-giây + 360.000 GiB-giây — với 0.25 vCPU, app chạy
   liên tục khoảng 200 giờ/tháng vẫn trong mức miễn phí; scale về 0 khi vắng người.
-- DocumentDB: dùng chung cụm gói Free đang có, không phát sinh thêm.
+- Cosmos DB free tier: 1000 RU/s + 25 GB miễn phí (database đặt đúng 1000 RU/s dùng chung — đừng tăng, phần vượt sẽ tính tiền).
 - ghcr.io: miễn phí cho package public.

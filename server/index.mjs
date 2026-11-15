@@ -1,7 +1,7 @@
 // Visa Hunter server: accounts, cloud saves and multiplayer rooms (docs/MULTIPLAYER_PLAN.md, phase 1).
 // Plain Node + `ws`, no build step. Usage: `npm run server` (PORT=8787, DATA_DIR=server/data).
 // In production (Docker / Azure Container Apps, see docs/DEPLOY.md) it also serves dist/ so the whole
-// game runs from one process, and stores data in Azure DocumentDB (MONGO_URI, MONGO_DB).
+// game runs from one process, and stores data in Azure Cosmos DB for MongoDB (MONGO_URI, MONGO_DB).
 // Rooms live in memory: run exactly ONE instance (Container App max replicas = 1).
 import { createServer } from 'node:http'
 import { randomBytes, scrypt as scryptCb, timingSafeEqual } from 'node:crypto'

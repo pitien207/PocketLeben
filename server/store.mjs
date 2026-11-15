@@ -1,5 +1,5 @@
 // Storage for accounts, login tokens and cloud saves. Two backends with the same async API:
-//   - MongoDB / Azure DocumentDB when MONGO_URI is set (production; database MONGO_DB, default "visahunter")
+//   - MongoDB API when MONGO_URI is set (production: Azure Cosmos DB for MongoDB; database MONGO_DB, default "visahunter")
 //   - JSON files in DATA_DIR otherwise (local development, tests)
 import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -29,7 +29,7 @@ export async function openStore({ mongoUri, mongoDb, dataDir }) {
   return mongoUri ? openMongo(mongoUri, mongoDb) : openFiles(dataDir)
 }
 
-// --- MongoDB / Azure DocumentDB -----------------------------------------------------------
+// --- MongoDB API (Cosmos DB for MongoDB, DocumentDB, plain MongoDB) ----------------------
 async function openMongo(uri, dbName) {
   const { MongoClient } = await import('mongodb')
   const client = new MongoClient(uri, { appName: 'visa-hunter', serverSelectionTimeoutMS: 15_000 })

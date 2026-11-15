@@ -9,13 +9,13 @@ citizenship post-game). Plan: `docs/VISA_HUNTER_PLAN.md` (the user calls it "doc
 - Reply in the user's language (usually Vietnamese, often typed without accents).
 - The user runs their own `npm run dev` on **port 5173 — never kill it**. Run test servers on **5199** (`npx vite --port 5199 --strictPort`), preview on 5197; stop them when done.
 - Game server for tests: `PORT=8798 DATA_DIR=<scratchpad>/mpdata node server/index.mjs` + vite with `VH_SERVER=http://localhost:8798` (the user's own server would be 8787).
-- **Commit / push only when asked.** Repo: github.com/pitien207/visa-hunter (public, branch `main`). **A push to main deploys** (`.github/workflows/deploy.yml`: Docker → ghcr.io/pitien207/visa-hunter → Azure Container App `visa-hunter` in `visahunter-rg`, OIDC app `github-visahunter-deploy`). Data: Azure DocumentDB cluster `lofitalk-db` (shared with the user's lofitalk project — never touch its databases), database `visahunter`, via secret `mongo-uri` → env `MONGO_URI`. Don't read lofitalk's secrets. Other Azure / DNS changes only with explicit OK (`docs/DEPLOY.md`).
+- **Commit / push only when asked.** Repo: github.com/pitien207/visa-hunter (public, branch `main`). **A push to main deploys** (`.github/workflows/deploy.yml`: Docker → ghcr.io/pitien207/visa-hunter → Azure Container App `visa-hunter` in `visahunter-rg`, OIDC app `github-visahunter-deploy`). Data: own Cosmos DB for MongoDB account `visahunter-cosmos` (free tier, API 7.0) in `visahunter-rg`, database `visahunter` (shared 1000 RU/s = the free amount), via secret `mongo-uri` → env `MONGO_URI`. Visa Hunter is a separate project from the user's lofitalk (`lofitalk-rg`): never touch or read lofitalk resources/secrets. Other Azure / DNS changes only with explicit OK (`docs/DEPLOY.md`).
 - Every feature: update `docs/CHANGELOG.md` (with a manual phone test checklist), README if structure changes, and this file.
 - Shell heredocs break on apostrophes (`'` in vi/en text) → write such files with Write/Edit or a `.cjs` script in the scratchpad.
 
 ## Stack
 Vite 8 + React 19 + TS 7 + React Three Fiber 9 + drei 10 + @react-three/rapier 2 + three r187 + Zustand 5 + Tailwind 4.
-Server: plain Node ESM `server/index.mjs` + `server/store.mjs` (MongoDB/DocumentDB when `MONGO_URI` is set, else JSON files in `DATA_DIR`) + `ws`; own `server/package.json` (ws, mongodb) installed alone in the Docker image (`Dockerfile`). Rooms are in memory → exactly one replica. `/api/health`.
+Server: plain Node ESM `server/index.mjs` + `server/store.mjs` (MongoDB API — Cosmos DB in prod — when `MONGO_URI` is set, else JSON files in `DATA_DIR`) + `ws`; own `server/package.json` (ws, mongodb) installed alone in the Docker image (`Dockerfile`). Rooms are in memory → exactly one replica. `/api/health`.
 `npm run build` = typecheck (app + `tsconfig.node.json` for vite.config) + build. No ESLint. No unit-test runner.
 
 ## Architecture (where to look)
