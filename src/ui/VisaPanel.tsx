@@ -1,7 +1,10 @@
 import { CONFIG } from '../data/config'
 import { VISA_PATH_NAMES } from '../data/visa'
 import { runAction } from '../game/systems/actions'
-import { getFlag } from '../game/systems/conditions'
+import { check, getFlag } from '../game/systems/conditions'
+import { formatClock } from '../game/systems/time'
+import { useGuide } from '../store/guideStore'
+import { pushToast } from '../store/toastStore'
 import { docProgress, docsComplete, docsFor, doDocStep, stepCost, terminDay, visaPath, visaReady } from '../game/systems/visa'
 import { formatMoney } from '../i18n/format'
 import { useT } from '../i18n'
@@ -11,6 +14,15 @@ import { usePlayer } from '../store/playerStore'
 import { useTime } from '../store/timeStore'
 import { useUI } from '../store/uiStore'
 import { Sheet } from './Sheet'
+
+/** Quest step that leads to a document done in a real place (for "Chỉ đường"). */
+function stepFor(docId: string): string | null {
+  if (docId === 'photos') return 'visa.photos'
+  if (docId === 'diploma' || docId === 'birth') return check({ test: 'visa.originals' }) ? 'visa.notary' : 'visa.originals'
+  if (docId === 'finance') return 'visa.finance'
+  if (docId === 'aps') return 'visa.aps'
+  return null
+}
 
 /** The visa file (M5): document checklist, finances, Termin, interview, flight. */
 export function VisaPanel() {
@@ -59,11 +71,29 @@ export function VisaPanel() {
                       ? typeof readyAt === 'number'
                         ? t('visa.waitUntil', { day: readyAt })
                         : localize(step.label)
-                      : `${progress + 1}/${doc.steps.length}`}
+                      : step.at
+                        ? localize(step.label)
+                        : `${progress + 1}/${doc.steps.length}`}
                   </span>
                 )}
               </span>
-              {!complete && step && !step.auto && (
+              {!complete && step && step.at && (
+                <button
+                  type="button"
+                  data-testid={`directions-${doc.id}`}
+                  onClick={() => {
+                    const id = stepFor(doc.id)
+                    if (!id) return
+                    useGuide.getState().setFocus(id)
+                    closePanel()
+                    pushToast('toast.guideTo', 'info', { step: localize(step.label) })
+                  }}
+                  className="shrink-0 rounded-xl border-2 border-lacquer bg-white px-2.5 py-1.5 text-[12px] font-black text-lacquer active:translate-y-0.5"
+                >
+                  📍 {t('quests.directions')}
+                </button>
+              )}
+              {!complete && step && !step.auto && !step.at && (
                 <button
                   type="button"
                   onClick={() => doDocStep(doc.id)}
@@ -93,7 +123,10 @@ export function VisaPanel() {
         ) : typeof readyDay === 'number' ? (
           <p className="text-sm font-extrabold">{t('visa.processing', { day: readyDay })}</p>
         ) : termin && termin >= day ? (
-          <p className="text-sm font-extrabold">📅 {t('visa.terminOn', { day: termin })}</p>
+          <p className="text-sm font-extrabold">
+            📅 {t('visa.terminOn', { day: termin })}
+            {typeof getFlag('visa.terminTime') === 'number' ? ` · ${formatClock(getFlag('visa.terminTime') as number)}` : ''}
+          </p>
         ) : (
           <>
             <p className="mb-2 text-[13px] font-bold text-ink/70">{docsComplete() ? t('visa.readyForTermin') : t('visa.terminHint')}</p>

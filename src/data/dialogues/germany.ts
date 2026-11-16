@@ -137,6 +137,7 @@ export const GERMANY_DIALOGUES: Record<string, DialogueDef> = {
         text: L('Willkommen bei der Sparbank! Möchten Sie ein Girokonto eröffnen? (Bạn muốn mở tài khoản không?)', 'Welcome to Sparbank! Would you like to open a current account?'),
         choices: [
           { text: L('Mở tài khoản', 'Open an account'), effect: { type: 'action', id: 'de.openBank' } },
+          { text: L('Đổi hết tiền Việt sang Euro', 'Change all my đồng into euros', 'Alle Dong in Euro tauschen'), if: { test: 'wallet.hasOther' }, effect: { type: 'action', id: 'bank.exchangeBack' } },
           { text: L('Cần giấy tờ gì ạ?', 'What do I need?'), next: 'needs' },
           { text: OK },
         ],
@@ -147,6 +148,10 @@ export const GERMANY_DIALOGUES: Record<string, DialogueDef> = {
       },
       customer: {
         text: L('Ihre Karte kommt per Post, die PIN separat. (Thẻ gửi qua bưu điện, mã PIN gửi riêng.) Typisch deutsch!', 'Your card comes by post, the PIN separately. Typically German!'),
+        choices: [
+          { text: L('Đổi hết tiền Việt sang Euro', 'Change all my đồng into euros', 'Alle Dong in Euro tauschen'), if: { test: 'wallet.hasOther' }, effect: { type: 'action', id: 'bank.exchangeBack' } },
+          { text: OK },
+        ],
       },
     },
   },

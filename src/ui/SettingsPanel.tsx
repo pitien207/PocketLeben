@@ -9,7 +9,7 @@ import { CloseIcon } from './icons'
 import { TestTools } from './TestTools'
 import { pushToast } from '../store/toastStore'
 import { AUTH_ERRORS, GoogleButton, LoginPanel, useAccount } from './LoginPanel'
-import { fetchMe, googleLink, pullCloudSave, pushCloudSave, signOut, type AuthError, type Me } from '../net/auth'
+import { api, fetchMe, getAccount, googleLink, pullCloudSave, pushCloudSave, signOut, type AuthError, type Me } from '../net/auth'
 import { googleSignedOut } from '../net/google'
 import { useNet } from '../store/netStore'
 
@@ -97,13 +97,6 @@ function SaveData() {
       setMessage(t('settings.importError'))
     }
   }
-  const reset = () => {
-    if (!window.confirm(t('settings.resetConfirm'))) return
-    // Don't let the autosave write the old state back while reloading.
-    suspendSaving()
-    resetSave()
-    window.location.reload()
-  }
 
   return (
     <div className="mt-2 border-t-2 border-dashed border-ink/15 pt-3">
@@ -122,9 +115,6 @@ function SaveData() {
           className="rounded-full btn-jade px-3 py-1.5 text-sm font-extrabold"
         >
           {t('settings.import')}
-        </button>
-        <button type="button" onClick={reset} className="rounded-full bg-ink/10 px-3 py-1.5 text-sm font-extrabold text-lacquer">
-          {t('settings.reset')}
         </button>
       </div>
       {mode !== 'none' && (
@@ -148,6 +138,60 @@ function SaveData() {
             </button>
             {message && <span className="text-xs font-bold text-ink/70">{message}</span>}
           </div>
+        </div>
+      )}
+      <DeleteCharacter />
+    </div>
+  )
+}
+
+/**
+ * "Xoá nhân vật": wipes this device's save AND the cloud copy (otherwise the next Play would pull
+ * it back), then reloads into "Chọn nhân vật". Two steps, no browser confirm() (unreliable in PWAs).
+ */
+function DeleteCharacter() {
+  const t = useT()
+  const [step, setStep] = useState<'idle' | 'confirm' | 'busy'>('idle')
+  const [error, setError] = useState(false)
+  const wipe = async () => {
+    setStep('busy')
+    setError(false)
+    if (getAccount()) {
+      const ok = await api('DELETE', 'save').then(
+        (r) => r.ok,
+        () => false,
+      )
+      if (!ok) {
+        setError(true)
+        setStep('confirm')
+        return
+      }
+    }
+    // Don't let the autosave write the old state back while reloading.
+    suspendSaving()
+    resetSave()
+    window.location.reload()
+  }
+  return (
+    <div className="mt-3 rounded-2xl border-2 border-lacquer/30 bg-lacquer/5 p-3" data-testid="delete-character">
+      <div className="font-display text-base font-extrabold text-lacquer">{t('settings.deleteTitle')}</div>
+      <p className="mt-0.5 text-[12px] leading-snug font-bold text-ink/65">{t('settings.deleteText')}</p>
+      {step === 'idle' ? (
+        <button type="button" data-testid="delete-start" onClick={() => setStep('confirm')} className="mt-2 rounded-full border-2 border-lacquer px-3 py-1.5 text-sm font-extrabold text-lacquer active:translate-y-0.5">
+          {t('settings.deleteButton')}
+        </button>
+      ) : (
+        <div className="mt-2">
+          <p className="text-[13px] font-black text-lacquer">{t('settings.deleteSure')}</p>
+          <div className="mt-1.5 flex flex-wrap gap-2">
+            <button type="button" data-testid="delete-confirm" disabled={step === 'busy'} onClick={() => void wipe()} className="rounded-full btn-lacquer px-4 py-1.5 text-sm font-extrabold disabled:opacity-60">
+              {step === 'busy' ? '…' : t('settings.deleteConfirm')}
+            </button>
+            <button type="button" onClick={() => setStep('idle')} className="rounded-full bg-ink/10 px-3 py-1.5 text-sm font-extrabold">
+              {t('phone.cancel')}
+            </button>
+          </div>
+          {error && <p className="mt-1.5 text-[12px] font-bold text-lacquer">{t('settings.deleteOffline')}</p>}
         </div>
       )}
     </div>

@@ -17,6 +17,8 @@ export interface QuestStep {
   done: Condition
   /** Where to go and how (data/guides.ts), for the step-by-step guide. */
   guide?: StepGuide
+  /** Only part of the quest while this holds (e.g. APS only on the Studium path). */
+  when?: Condition
 }
 
 export interface QuestDef {
@@ -37,7 +39,7 @@ const C = CONFIG.career
 const U = CONFIG.uni
 const STUDIUM: Condition = { flag: 'visa.path', is: 'studium' }
 const AUSBILDUNG: Condition = { not: STUDIUM }
-const step = (id: string, vi: string, en: string, done: Condition): QuestStep => ({ id, text: L(vi, en), done, guide: STEP_GUIDES[id] })
+const step = (id: string, vi: string, en: string, done: Condition, when?: Condition): QuestStep => ({ id, text: L(vi, en), done, guide: STEP_GUIDES[id], when })
 
 export const CHAPTER_NAMES: Record<number, Localized> = {
   1: L('Chương 1 · Học tiếng Đức ở Việt Nam', 'Chapter 1 · Learning German in Vietnam'),
@@ -138,7 +140,17 @@ export const QUESTS: QuestDef[] = [
     title: L('Hồ sơ visa', 'The visa application'),
     after: 'path',
     steps: [
-      step('visa.docs', 'Hoàn thành mọi giấy tờ trong Hồ sơ visa', 'Complete every document in the visa file', { test: 'visa.docsComplete' }),
+      // One step per paper, each in its real place (1.13) — tap a step in the quest log for directions.
+      step('visa.passport', 'Làm hộ chiếu (Hồ sơ visa)', 'Get a passport (visa file)', { test: 'visa.passportDone' }),
+      step('visa.photos', 'Chụp ảnh thẻ ở Tiệm ảnh Hùng (cuối phố phía tây)', 'Biometric photos at Hùng’s photo studio (west end)', { test: 'visa.photosDone' }),
+      step('visa.originals', 'Về nhà lấy bằng THPT và giấy khai sinh trong tủ giấy tờ', 'At home: take your diploma and birth certificate from the paper cabinet', { test: 'visa.originals' }),
+      step('visa.notary', 'Dịch thuật & công chứng ở Văn phòng công chứng', 'Translation & notarization at the notary', { test: 'visa.notaryDone' }),
+      step('visa.writing', 'Viết CV, thư động lực, mua bảo hiểm (Hồ sơ visa)', 'Write your CV and motivation letter, buy insurance (visa file)', { test: 'visa.writingDone' }),
+      step('visa.finance', 'Chứng minh tài chính ở Ngân hàng Phố Cổ', 'Prove your funds at the Old Quarter bank', { test: 'visa.financeDone' }),
+      step('visa.aps', 'Nộp hồ sơ và phỏng vấn ở Văn phòng APS', 'Hand in your file and pass the APS interview', { test: 'visa.apsDone' }, STUDIUM),
+      step('visa.admission', 'Nộp đơn vào đại học (Hồ sơ visa)', 'Apply to university (visa file)', { test: 'visa.pathDocDone' }, STUDIUM),
+      step('visa.contract', 'Gửi hồ sơ xin học nghề (Hồ sơ visa)', 'Send training applications (visa file)', { test: 'visa.pathDocDone' }, AUSBILDUNG),
+      step('visa.docs', 'Kiểm tra đủ mọi giấy tờ trong Hồ sơ visa', 'Check every paper in the visa file is complete', { test: 'visa.docsComplete' }),
       step('visa.termin', 'Săn được Termin ở Đại sứ quán', 'Get an embassy Termin', { any: [{ flag: 'visa.terminDay', atLeast: 1 }, { flag: 'visa.readyDay' }] }),
       step('visa.interview', 'Đi xe ôm tới Đại sứ quán đúng ngày và phỏng vấn đậu', 'Ride to the embassy on the day and pass the interview', { flag: 'visa.readyDay' }),
     ],

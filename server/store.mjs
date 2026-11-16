@@ -1,7 +1,7 @@
 // Storage for accounts, login tokens and cloud saves. Two backends with the same async API:
 //   - MongoDB API when MONGO_URI is set (production: Azure Cosmos DB for MongoDB; database MONGO_DB, default "visahunter")
 //   - JSON files in DATA_DIR otherwise (local development, tests)
-import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, readFileSync, renameSync, rmSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 
 /** Messages kept per conversation (older ones drop off). */
@@ -36,6 +36,7 @@ const TOUCH_MS = 86_400_000
  *   linkGoogle(sub: string, user: string, email: string | null): Promise<boolean>,
  *   getSave(user: string): Promise<{ save: object, savedAt: number } | null>,
  *   putSave(user: string, save: object, savedAt: number): Promise<void>,
+ *   deleteSave(user: string): Promise<void>,
  *   close(): Promise<void>,
  * }} Store
  */
@@ -130,6 +131,9 @@ async function openMongo(uri, dbName) {
     async putSave(user, save, savedAt) {
       await saves.replaceOne({ _id: user }, { data: JSON.stringify(save), savedAt, updated: new Date() }, { upsert: true })
     },
+    async deleteSave(user) {
+      await saves.deleteOne({ _id: user })
+    },
     close: () => client.close(),
   }
 }
@@ -214,6 +218,9 @@ function openFiles(dir) {
     },
     async putSave(user, save) {
       writeAtomic(saveFile(user), JSON.stringify(save))
+    },
+    async deleteSave(user) {
+      rmSync(saveFile(user), { force: true })
     },
     async close() {
       clearTimeout(timer)

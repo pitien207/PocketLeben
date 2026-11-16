@@ -6,7 +6,7 @@ import { EXAM_HALL } from '../interiors'
 import { WallClock } from '../shared/Decor'
 import { PALETTE as P } from '../shared/palette'
 import { place, plantShapes } from '../shared/props'
-import { Room } from '../shared/Room'
+import { Room, DOORMAT } from '../shared/Room'
 import type { ShapeItem } from '../shared/Shapes'
 import { SignBoard } from '../shared/SignBoard'
 import type { SignOptions } from '../shared/textures'
@@ -63,7 +63,7 @@ function furniture(): ShapeItem[] {
   s.push({ box: [0.34, 0.06, 0.24], at: [px + 0.3, 0.84, pz], color: '#d8b98a' })
   s.push({ box: [0.34, 0.06, 0.24], at: [px + 0.3, 0.9, pz], color: '#c8322b' })
   s.push(place(plantShapes(P.leafDark, '#c49a6c'), [W / 2 - 0.5, 0, BACK + 0.6], 0, 1.2))
-  s.push({ box: [1.1, 0.02, 0.6], at: [EXAM_HALL.exit.x, 0.03, EXAM_HALL.exit.z], color: '#2f3a4d' })
+  s.push({ box: [1.1, 0.025, 0.6], at: [EXAM_HALL.exit.x, 0.055, EXAM_HALL.exit.z], color: DOORMAT })
   return s
 }
 

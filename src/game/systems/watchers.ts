@@ -1,6 +1,7 @@
 import { ACHIEVEMENTS } from '../../data/achievements'
 import { EVENT_CHANCE, EVENTS } from '../../data/events'
-import { QUESTS, type QuestDef } from '../../data/quests'
+import { QUESTS, type QuestDef, type QuestStep } from '../../data/quests'
+import { useGuide } from '../../store/guideStore'
 import { currentLanguage, localize } from '../../i18n/localized'
 import { useFlags } from '../../store/flagsStore'
 import { usePlayer } from '../../store/playerStore'
@@ -26,8 +27,17 @@ export function stepDone(id: string): boolean {
   return !!getFlag(stepFlag(id))
 }
 
+/** Part of this player's quest (e.g. APS only on the Studium path). */
+export function stepApplies(s: QuestStep): boolean {
+  return !s.when || check(s.when)
+}
+
+export function questSteps(q: QuestDef): QuestStep[] {
+  return q.steps.filter(stepApplies)
+}
+
 export function questComplete(q: QuestDef): boolean {
-  return q.steps.every((s) => stepDone(s.id))
+  return questSteps(q).every((s) => stepDone(s.id))
 }
 
 /** A later main quest is already complete: this one was skipped or done out of order. */
@@ -50,10 +60,18 @@ export function questVisible(q: QuestDef): boolean {
 }
 
 /** The next thing to do: first unfinished step of the first open main quest. */
-export function currentObjective() {
+export function currentObjective(): { quest: QuestDef; step: QuestStep; focused?: boolean } | null {
+  // The step picked in the quest log comes first, while it's open and not done.
+  const focus = useGuide.getState().focus
+  if (focus) {
+    for (const q of QUESTS) {
+      const s = q.steps.find((st) => st.id === focus)
+      if (s && questVisible(q) && stepApplies(s) && !stepDone(s.id)) return { quest: q, step: s, focused: true }
+    }
+  }
   for (const q of QUESTS) {
     if (q.side || !questVisible(q) || questComplete(q) || superseded(q)) continue
-    const s = q.steps.find((st) => !stepDone(st.id))
+    const s = questSteps(q).find((st) => !stepDone(st.id))
     if (s) return { quest: q, step: s }
   }
   return null
@@ -106,6 +124,12 @@ function evaluate() {
   if (mainStepDone) announceNextStep()
 }
 
+/** VND in Vietnam, EUR in Germany: switch wallets whenever the scene's country changes. */
+function syncCurrency() {
+  const country = SCENES[useWorld.getState().scene].country
+  usePlayer.getState().switchCurrency(country === 'de' ? 'EUR' : 'VND')
+}
+
 /** Remember where the day started, for tomorrow's summary card. */
 function snapshotDay(day: number) {
   const p = usePlayer.getState()
@@ -153,6 +177,8 @@ function morningEvent(day: number) {
 }
 
 export function startWatchers(): () => void {
+  syncCurrency()
+  useWorld.subscribe((s, prev) => s.scene !== prev.scene && syncCurrency())
   let timer: number | undefined
   const schedule = () => {
     window.clearTimeout(timer)

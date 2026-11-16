@@ -31,13 +31,18 @@ export type TourStep = 'move' | 'camera' | 'interact' | 'bag' | 'clock' | 'done'
 interface GuideState {
   guide: ActiveGuide | null
   tour: TourStep | null
+  /** A quest step the player tapped in the quest log: the guide shows the way there until it's done. */
+  focus: string | null
   setGuide: (guide: ActiveGuide | null) => void
   setTour: (tour: TourStep | null) => void
+  setFocus: (stepId: string | null) => void
 }
 
 export const useGuide = create<GuideState>()((set) => ({
   guide: null,
   tour: null,
+  focus: null,
   setGuide: (guide) => set({ guide }),
   setTour: (tour) => set({ tour }),
+  setFocus: (focus) => set({ focus }),
 }))

@@ -74,6 +74,7 @@ export function MinigameFrame({
   step,
   total,
   timer,
+  onClose,
   children,
 }: {
   title: string
@@ -81,15 +82,36 @@ export function MinigameFrame({
   total?: number
   /** 0–1 remaining, or undefined for no timer. */
   timer?: number
+  /** Shows a ✕ (and Esc) to leave the mini-game. */
+  onClose?: () => void
   children: ReactNode
 }) {
   const theme = useContext(MinigameThemeContext)
   const t = useT()
   const look = FRAME[theme]
+  const close = useRef(onClose)
+  close.current = onClose
+  useEffect(() => {
+    if (!onClose) return
+    const onKey = (e: KeyboardEvent) => e.code === 'Escape' && close.current?.()
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [onClose])
   return (
     <div className={`pointer-events-auto absolute inset-0 z-40 flex items-center justify-center p-3 ${look.backdrop}`}>
       <section className={`animate-sheet relative flex max-h-[94dvh] w-full max-w-md flex-col p-4 pt-7 ${look.section}`} role="dialog" aria-modal="true" aria-label={title}>
         <h2 className="absolute -top-4 left-1/2 max-w-[90%] -translate-x-1/2 truncate rounded-full ribbon px-5 py-1 text-lg whitespace-nowrap">{title}</h2>
+        {onClose && (
+          <button
+            type="button"
+            aria-label={t('settings.close')}
+            data-testid="minigame-close"
+            onClick={onClose}
+            className="absolute top-2 right-2 z-10 grid h-9 w-9 place-items-center rounded-full border-2 border-outline bg-cream text-lg font-black text-ink shadow-[0_2px_0_var(--color-outline)] active:translate-y-0.5"
+          >
+            ✕
+          </button>
+        )}
         {theme === 'exam' && (
           <p className="mb-2 flex justify-between border-b-2 border-dashed border-ink/25 pb-1 text-[11px] font-black text-ink/70 uppercase">
             <span>{t('mg.examSheet')}</span>

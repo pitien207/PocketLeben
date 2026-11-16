@@ -6,7 +6,7 @@
 export type Vec3 = [number, number, number]
 
 export const CONFIG = {
-  version: '1.9.0',
+  version: __APP_VERSION__,
 
   player: {
     /** Metres per second at full joystick / key press. */
@@ -153,15 +153,21 @@ export const CONFIG = {
 
   /** The visa chapter (plan §6 chapter 2). Amounts are game-balanced, not real-world prices. */
   visa: {
-    /** Simplified in-game exchange rate used when you move to Germany. */
+    /** Simplified in-game exchange rate (bank: đổi tiền VND ⇄ EUR). */
     vndPerEur: 3000,
     financeProof: { studium: 3_000_000, ausbildung: 1_500_000 },
     flightCost: 1_500_000,
     xeOmFare: 30_000,
     xeOmMinutes: 30,
-    /** A booked Termin is this many days later. */
-    terminLeadDays: 2,
+    /** Termin slots: working hours only, every 30 min, at least `terminLeadMinutes` from now (today, else the next weekday). */
+    terminHours: [8, 16.5] as [number, number],
+    terminLeadMinutes: 60,
     terminAttempts: 4,
+    /** Photo studio, notary, bank and APS office (west end of Phố Hàng Gai). */
+    officeHours: [8, 17] as [number, number],
+    /** Waiting for your turn at the APS office before the interview. */
+    apsWaitMinutes: 60,
+    apsPassScore: 0.6,
     interviewPassScore: 0.6,
     /** Days between an approved interview and the visa being ready. */
     approvalWaitDays: 2,

@@ -59,6 +59,26 @@ const SKIPS: Record<string, () => void> = {
     if (!visaPath()) setFlag('visa.path', 'ausbildung')
     for (const d of docsFor(visaPath())) setFlag(docFlag(d.id), d.steps.length)
   },
+  // One step per paper (1.13)
+  'visa.passport': () => setFlag(docFlag('passport'), 1),
+  'visa.photos': () => setFlag(docFlag('photos'), 1),
+  'visa.originals': () => setFlag('visa.originals', true),
+  'visa.notary': () => {
+    setFlag('visa.originals', true)
+    setFlag(docFlag('diploma'), 2)
+    setFlag(docFlag('birth'), 2)
+  },
+  'visa.writing': () => ['cv', 'motivation', 'insurance'].forEach((id) => setFlag(docFlag(id), 1)),
+  'visa.finance': () => setFlag(docFlag('finance'), 1),
+  'visa.aps': () => setFlag(docFlag('aps'), 2),
+  'visa.admission': () => {
+    setFlag(docFlag('admission'), 1)
+    setFlag('doc.admission.ready', today())
+  },
+  'visa.contract': () => {
+    setFlag(docFlag('contract'), 1)
+    setFlag('doc.contract.ready', today())
+  },
   'visa.termin': () => setFlag('visa.terminDay', today()),
   'visa.interview': () => setFlag('visa.readyDay', today()),
   'dep.visa': () => setFlag('visa.readyDay', Math.min(flagNumber('visa.readyDay') || today(), today())),
@@ -67,7 +87,11 @@ const SKIPS: Record<string, () => void> = {
     setFlag('visa.flight', true)
     if (!getFlag('de.arrived')) {
       const p = usePlayer.getState()
-      if (p.currency === 'VND') p.setMoney((p.money + flagNumber('visa.blocked')) / CONFIG.visa.vndPerEur, 'EUR')
+      // Test shortcut: change all đồng into euros, as if done at the bank.
+      if (p.currency === 'VND') {
+        p.addMoney(flagNumber('visa.blocked'))
+        p.exchange(p.money)
+      }
       setFlag('visa.blocked', 0)
       setFlag('de.arrived', today())
     }

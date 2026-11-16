@@ -1,3 +1,4 @@
+import type { Localized } from '../../i18n/localized'
 import type { SceneId } from '../../store/worldStore'
 
 /**
@@ -21,6 +22,15 @@ export interface SceneMap {
   ground: string
   rects: MapRect[]
   circles?: { x: number; z: number; r: number; color: string }[]
+  /** Names of streets, water, areas (drawn on the big map). */
+  labels?: MapLabel[]
+}
+
+export interface MapLabel {
+  x: number
+  z: number
+  text: Localized
+  kind: 'street' | 'water' | 'area'
 }
 
 const ROAD = '#9aa3b2'
@@ -28,7 +38,7 @@ const ROAD_LINE = '#f6f1e7'
 
 export const SCENE_MAPS: Partial<Record<SceneId, SceneMap>> = {
   vietnam: {
-    bounds: { minX: -33, maxX: 35, minZ: -13.5, maxZ: 38 },
+    bounds: { minX: -53, maxX: 35, minZ: -13.5, maxZ: 38 },
     ground: '#efe2c8',
     rects: [
       // Lake (Hồ Gươm) along the bottom, grass strip, main road, side road
@@ -41,6 +51,11 @@ export const SCENE_MAPS: Partial<Record<SceneId, SceneMap>> = {
       { x0: -12.2, z0: -13, x1: -3.25, z1: -4.5, color: '#f2c46d' },
       { x0: 1.0, z0: -13, x1: 8.0, z1: -4.5, color: '#e8a38f' },
       { x0: -3.25, z0: -13, x1: 1.0, z1: -8.5, color: '#e3d3b0' },
+      // Visa offices (1.13): photo studio, notary, bank, APS
+      { x0: -37.2, z0: -13, x1: -32.6, z1: -4.5, color: '#f6d6a8' },
+      { x0: -42.0, z0: -13, x1: -37.4, z1: -4.5, color: '#e9e2d4' },
+      { x0: -46.8, z0: -13, x1: -42.2, z1: -4.5, color: '#cfe4dc' },
+      { x0: -51.6, z0: -13, x1: -47.0, z1: -4.5, color: '#dfe6f2' },
       // East block: đình courtyard + hall, the alley, juice shop, bookshop, night market
       { x0: 16, z0: -9.6, x1: 24, z1: -4.5, color: '#e8dcc0' },
       { x0: 16, z0: -13, x1: 24, z1: -9.6, color: '#c8322b' },
@@ -57,6 +72,20 @@ export const SCENE_MAPS: Partial<Record<SceneId, SceneMap>> = {
       { x: 20, z: -7.1, r: 0.5, color: '#b8863a' },
       { x: 10, z: 31.2, r: 6.6, color: '#9ccc78' },
       { x: 10, z: 28.9, r: 0.6, color: '#b8863a' },
+    ],
+    labels: [
+      { x: -16, z: 5.9, kind: 'street', text: { vi: 'Phố Hàng Gai', en: 'Hàng Gai Street', de: 'Hàng-Gai-Straße' } },
+      { x: -14, z: 17.4, kind: 'water', text: { vi: 'Hồ Hoàn Kiếm (Hồ Gươm)', en: 'Hoàn Kiếm Lake', de: 'Hoàn-Kiếm-See' } },
+      { x: 13.2, z: 19.8, kind: 'area', text: { vi: 'Cầu Thê Húc', en: 'Thê Húc Bridge', de: 'Thê-Húc-Brücke' } },
+      { x: 20, z: -11.3, kind: 'area', text: { vi: 'Đình làng', en: 'Communal house', de: 'Gemeindehaus' } },
+      { x: 25, z: -12.4, kind: 'area', text: { vi: 'Ngõ', en: 'Alley', de: 'Gasse' } },
+      { x: 23.6, z: 12.6, kind: 'area', text: { vi: 'Chợ đêm', en: 'Night market', de: 'Nachtmarkt' } },
+      { x: 11.8, z: -1.5, kind: 'street', text: { vi: 'Ngõ Hàng Gai', en: 'Hàng Gai lane', de: 'Hàng-Gai-Gasse' } },
+      { x: -22, z: -12.4, kind: 'area', text: { vi: 'Phố cổ', en: 'Old Quarter', de: 'Altstadt' } },
+      { x: -34.9, z: -8.5, kind: 'area', text: { vi: 'Tiệm ảnh', en: 'Photo studio', de: 'Fotostudio' } },
+      { x: -39.7, z: -8.5, kind: 'area', text: { vi: 'Công chứng', en: 'Notary', de: 'Notariat' } },
+      { x: -44.5, z: -8.5, kind: 'area', text: { vi: 'Ngân hàng', en: 'Bank', de: 'Bank' } },
+      { x: -49.3, z: -8.5, kind: 'area', text: { vi: 'Văn phòng APS', en: 'APS office', de: 'APS-Büro' } },
     ],
   },
   germany: {
@@ -83,6 +112,12 @@ export const SCENE_MAPS: Partial<Record<SceneId, SceneMap>> = {
       { x: -29.6, z: -1.2, r: 1.4, color: '#8cc2d8' },
       { x: 24.3, z: -9.2, r: 2.0, color: '#8cc2d8' },
       { x: 26.7, z: -9.2, r: 2.0, color: '#8cc2d8' },
+    ],
+    labels: [
+      { x: -14, z: 5.9, kind: 'street', text: { vi: 'Lindenstraße', en: 'Lindenstraße', de: 'Lindenstraße' } },
+      { x: 24, z: -5.4, kind: 'area', text: { vi: 'Công viên thành phố', en: 'City park', de: 'Stadtpark' } },
+      { x: 25.5, z: -11.8, kind: 'water', text: { vi: 'Hồ vịt', en: 'Duck pond', de: 'Ententeich' } },
+      { x: -9, z: 12.4, kind: 'area', text: { vi: 'Bãi cỏ', en: 'Green', de: 'Grünanlage' } },
     ],
   },
 }

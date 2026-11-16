@@ -6,6 +6,7 @@ import { startWatchers } from './game/systems/watchers'
 import { startGuide } from './game/systems/guide'
 import { SCENES } from './game/scenes/registry'
 import { useWorld } from './store/worldStore'
+import { useUI } from './store/uiStore'
 import { startNet } from './net/client'
 import { startSocial } from './net/social'
 import { startSecrets } from './game/systems/secrets'
@@ -18,7 +19,12 @@ import { startStory } from './game/systems/story'
  */
 
 // Restore progress before the first render, then keep saving automatically.
-loadGame()
+// No save yet (first game, or the character was deleted in Settings): pick male / female first.
+// Automated tests skip it unless the URL has ?create.
+const hadSave = loadGame()
+if (!hadSave && !(import.meta.env.DEV && navigator.webdriver && !location.search.includes('create'))) {
+  useUI.getState().openPanel({ type: 'create' })
+}
 startAutosave()
 startWatchers()
 startGuide()

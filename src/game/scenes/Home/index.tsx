@@ -6,7 +6,7 @@ import { HOME_ROOM } from '../interiors'
 import { TearCalendar, WallClock, WallFan } from '../shared/Decor'
 import { PALETTE as P } from '../shared/palette'
 import { motorbikeShapes, place, plantShapes } from '../shared/props'
-import { Room } from '../shared/Room'
+import { Room, DOORMAT } from '../shared/Room'
 import { Shapes, type ShapeItem } from '../shared/Shapes'
 import { useFlags } from '../../../store/flagsStore'
 
@@ -97,9 +97,21 @@ function furniture(): ShapeItem[] {
   s.push({ box: [0.07, 0.52, 0.92], at: [-W / 2 + 0.18, 0.88, -0.9], color: '#4a5a70' })
   s.push(place(motorbikeShapes('#7fb8e8'), [3.0, 0, 1.3], Math.PI / 2 + 0.2))
   s.push(place(plantShapes(P.leafDark, '#c49a6c'), [-W / 2 + 0.45, 0, 2.4], 0, 1.1))
-  s.push({ box: [1.0, 0.02, 0.55], at: [HOME_ROOM.exit.x, 0.03, HOME_ROOM.exit.z], color: '#c8322b' })
+  s.push({ box: [1.0, 0.025, 0.55], at: [HOME_ROOM.exit.x, 0.055, HOME_ROOM.exit.z], color: DOORMAT })
+  // Paper cabinet (tủ giấy tờ): the family keeps the originals here — diploma, birth certificate (1.13)
+  s.push({ box: [0.45, 1.3, 0.7], at: [-W / 2 + 0.25, 0.65, 0.45], color: WOOD_DARK })
+  for (let i = 0; i < 3; i++) {
+    s.push({ box: [0.03, 0.36, 0.62], at: [-W / 2 + 0.49, 0.25 + i * 0.42, 0.45], color: WOOD })
+    s.push({ box: [0.03, 0.05, 0.14], at: [-W / 2 + 0.52, 0.3 + i * 0.42, 0.45], color: '#d4a72c' })
+  }
+  s.push({ box: [0.3, 0.06, 0.4], at: [-W / 2 + 0.25, 1.33, 0.45], color: '#c8322b' })
+  s.push({ box: [0.28, 0.05, 0.38], at: [-W / 2 + 0.25, 1.38, 0.47], color: '#2f6fb0' })
   return s
 }
+
+const PAPERS: SpotAction[] = [
+  { id: 'papers', labelKey: 'action.takePapers', icon: 'passport', action: 'visa.originals', primary: true, if: { all: [{ flag: 'visa.path' }, { noFlag: 'visa.originals' }] } },
+]
 
 const BED: SpotAction[] = [
   { id: 'sleep', labelKey: 'action.sleep', icon: 'sleep', action: 'home.sleep', primary: true },
@@ -158,6 +170,7 @@ const Home = memo(function Home() {
           [desk.x, desk.z, 0.7, 0.3],
           [-2.0, 1.1, 1.25, 0.32],
           [-W / 2 + 0.25, -0.9, 0.25, 0.7],
+          [-W / 2 + 0.25, 0.45, 0.25, 0.38],
           [3.0, 1.3, 0.35, 0.8],
         ]}
       />
@@ -176,6 +189,7 @@ const Home = memo(function Home() {
 
       <ActionSpot id="home-bed" nameKey="interact.bed" zone={{ x: bed.x + 0.2, z: bed.z + 1.55, halfX: 1.1, halfZ: 0.55 }} actions={BED} />
       <ActionSpot id="home-desk" nameKey="interact.studyDesk" zone={{ x: desk.x, z: desk.z + 1.05, halfX: 0.9, halfZ: 0.6 }} actions={DESK} />
+      <ActionSpot id="home-papers" nameKey="interact.papers" zone={{ x: -W / 2 + 0.95, z: 0.45, halfX: 0.5, halfZ: 0.55 }} actions={PAPERS} />
       <ActionSpot id="home-exit" nameKey="interact.exit" zone={{ x: HOME_ROOM.exit.x, z: HOME_ROOM.exit.z, halfX: 0.9, halfZ: 0.6 }} actions={EXIT} />
     </>
   )

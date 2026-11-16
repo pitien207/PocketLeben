@@ -46,6 +46,12 @@ const CAFE: GuideTarget = { scene: 'vietnam', spot: 'cafe-counter' }
 const HOME_BED: GuideTarget = { scene: 'home', spot: 'home-bed' }
 const HOME_DESK: GuideTarget = { scene: 'home', spot: 'home-desk' }
 const PASSPORT: GuideTarget = { ui: 'passport' }
+// Visa offices at the west end of the street (1.13) and the paper cabinet at home
+const PHOTO: GuideTarget = { scene: 'vietnam', npc: 'chuAnh' }
+const NOTARY: GuideTarget = { scene: 'vietnam', npc: 'coCongChung' }
+const BANK: GuideTarget = { scene: 'vietnam', npc: 'anhNganHang' }
+const APS: GuideTarget = { scene: 'vietnam', npc: 'coAps' }
+const PAPERS: GuideTarget = { scene: 'home', spot: 'home-papers' }
 const CLOCK: GuideTarget = { ui: 'clock' }
 
 // --- Reusable blockers -------------------------------------------------------------------
@@ -58,6 +64,17 @@ const needMoney = (amount: number, what: Localized): GuideBlocker => ({
   },
   target: CAFE,
 })
+
+/** Photo studio, notary, bank, APS: office hours. */
+const vnOfficeClosed: GuideBlocker = {
+  when: { all: [{ not: { test: 'office.open' } }, { scene: 'vietnam' }] },
+  hint: L(
+    `Các văn phòng ở cuối phố mở ${CONFIG.visa.officeHours[0]}–${CONFIG.visa.officeHours[1]}h. Bấm đồng hồ để chờ đến giờ làm việc.`,
+    `The offices at the end of the street are open ${CONFIG.visa.officeHours[0]}:00–${CONFIG.visa.officeHours[1]}:00. Tap the clock to wait.`,
+    `Die Büros am Straßenende haben ${CONFIG.visa.officeHours[0]}–${CONFIG.visa.officeHours[1]} Uhr geöffnet. Tippe auf die Uhr zum Warten.`,
+  ),
+  target: CLOCK,
+}
 
 const schoolClosed: GuideBlocker = {
   when: { all: [{ not: { test: 'school.open' } }, { not: { scene: 'classroom' } }] },
@@ -97,6 +114,16 @@ export const GLOBAL_BLOCKERS: GuideBlocker[] = [
       'Du bist erschöpft! Hol dir etwas zu essen oder geh schlafen.',
     ),
     target: { scene: 'wg', spot: 'wg-bed' },
+  },
+  // Two wallets (1.13): almost out of euros in Germany but đồng left → change them at the Sparbank.
+  {
+    when: { all: [{ country: 'de' }, { not: { money: 30 } }, { test: 'wallet.hasOther' }] },
+    hint: L(
+      'Sắp hết Euro rồi! Ra ngân hàng Sparbank trên Lindenstraße → ông Wagner → Đổi hết tiền Việt sang Euro.',
+      'Almost out of euros! Go to the Sparbank on Lindenstraße → Mr Wagner → change all your đồng into euros.',
+      'Fast keine Euro mehr! Zur Sparbank in der Lindenstraße → Herr Wagner → alle Dong in Euro tauschen.',
+    ),
+    target: { scene: 'germany', npc: 'wagner' },
   },
 ]
 
@@ -280,12 +307,105 @@ export const STEP_GUIDES: Record<string, StepGuide> = {
     ),
     blockers: [needMoney(200_000, L('giấy tờ tiếp theo', 'the next document', 'das nächste Dokument'))],
   },
+  'visa.passport': {
+    targets: [{ target: PASSPORT }],
+    hint: L(
+      'Bấm cuốn hộ chiếu trên màn hình → Hồ sơ visa → Làm hộ chiếu.',
+      'Tap the passport on screen → visa file → Apply for passport.',
+      'Tippe auf den Pass → Visa-Mappe → Reisepass beantragen.',
+    ),
+    blockers: [needMoney(200_000, L('hộ chiếu', 'the passport', 'den Pass'))],
+  },
+  'visa.photos': {
+    targets: [{ target: PHOTO }],
+    hint: L(
+      `Đi về cuối phố phía tây (qua cây đa) → Tiệm ảnh Hùng → nói chuyện với chú Hùng → Chụp ảnh thẻ visa (${vnd(50_000)}).`,
+      `Walk to the west end of the street (past the banyan) → Hùng’s photo studio → talk to Mr Hùng → Take visa photos (${vnd(50_000)}).`,
+      `Zum Westende der Straße (hinter dem Banyanbaum) → Fotostudio Hùng → mit Herrn Hùng sprechen → Passbilder (${vnd(50_000)}).`,
+    ),
+    blockers: [vnOfficeClosed, needMoney(50_000, L('ảnh thẻ', 'the photos', 'die Fotos'))],
+  },
+  'visa.originals': {
+    targets: [{ target: PAPERS }],
+    hint: L(
+      'Về nhà → tủ giấy tờ cạnh tivi → Lấy bằng THPT và giấy khai sinh (bản gốc).',
+      'Go home → the paper cabinet next to the TV → take your diploma and birth certificate (originals).',
+      'Nach Hause → Schrank neben dem Fernseher → Abiturzeugnis und Geburtsurkunde (Originale) nehmen.',
+    ),
+  },
+  'visa.notary': {
+    targets: [{ if: { not: { test: 'visa.originals' } }, target: PAPERS }, { target: NOTARY }],
+    hint: L(
+      `Mang bản gốc đến Văn phòng công chứng (cuối phố phía tây) → cô Phương → Dịch thuật & công chứng tất cả (${vnd(380_000)}).`,
+      `Bring the originals to the notary (west end) → Ms Phương → Translate & notarize everything (${vnd(380_000)}).`,
+      `Originale zum Notariat (Westende) → Frau Phương → alles übersetzen & beglaubigen (${vnd(380_000)}).`,
+    ),
+    blockers: [
+      {
+        when: { not: { test: 'visa.originals' } },
+        hint: L('Chưa có bản gốc: về nhà lấy trong tủ giấy tờ trước đã.', 'No originals yet: fetch them from the paper cabinet at home first.', 'Noch keine Originale: erst aus dem Schrank zu Hause holen.'),
+        target: PAPERS,
+      },
+      vnOfficeClosed,
+      needMoney(380_000, L('dịch thuật công chứng', 'translation and notary', 'Übersetzung und Beglaubigung')),
+    ],
+  },
+  'visa.writing': {
+    targets: [{ target: PASSPORT }],
+    hint: L(
+      'Hồ sơ visa → Viết CV, Viết thư động lực (tốn thời gian và sức), Mua bảo hiểm du lịch.',
+      'Visa file → Write CV, Write letter (takes time and energy), Buy insurance.',
+      'Visa-Mappe → Lebenslauf, Motivationsschreiben (kostet Zeit und Kraft), Versicherung kaufen.',
+    ),
+    blockers: [needMoney(300_000, L('bảo hiểm', 'the insurance', 'die Versicherung'))],
+  },
+  'visa.finance': {
+    targets: [{ target: BANK }],
+    hint: L(
+      `Ngân hàng Phố Cổ (cuối phố phía tây) → anh Quân → Chứng minh tài chính. Chỉ cần trong ví có đủ ${vnd(CONFIG.visa.financeProof.studium)} (du học) hoặc ${vnd(CONFIG.visa.financeProof.ausbildung)} (học nghề): không mất tiền, không cần giấy tờ.`,
+      `Old Quarter bank (west end) → Quân → Proof of funds. You just need ${vnd(CONFIG.visa.financeProof.studium)} (university) or ${vnd(CONFIG.visa.financeProof.ausbildung)} (training) in your wallet: nothing is taken, no papers.`,
+      `Bank am Westende → Herr Quân → Finanzierungsnachweis. Du brauchst nur ${vnd(CONFIG.visa.financeProof.studium)} (Studium) bzw. ${vnd(CONFIG.visa.financeProof.ausbildung)} (Ausbildung) im Geldbeutel.`,
+    ),
+    blockers: [
+      {
+        when: { all: [{ not: { test: 'visa.enoughFunds' } }, { country: 'vn' }] },
+        hint: L('Chưa đủ tiền để chứng minh tài chính. Làm ca ở quán Cà phê Phố Cổ để kiếm thêm.', 'Not enough money to prove your funds yet. Work shifts at the Old Quarter café.', 'Noch nicht genug Geld. Arbeite Schichten im Altstadt-Café.'),
+        target: CAFE,
+      },
+      vnOfficeClosed,
+    ],
+  },
+  'visa.aps': {
+    targets: [{ target: APS }],
+    hint: L(
+      `Văn phòng APS (cuối phố phía tây) → Frau Schneider → Nộp hồ sơ & phỏng vấn (${vnd(800_000)}). Phỏng vấn bằng tiếng Đức về các môn lớp 12, điểm tốt nghiệp và ngành muốn học — trả lời thật thà.`,
+      `APS office (west end) → Ms Schneider → Hand in your file & interview (${vnd(800_000)}). The interview is in German about your year-12 subjects, final grade and planned major — answer honestly.`,
+      `APS-Büro (Westende) → Frau Schneider → Unterlagen & Interview (${vnd(800_000)}). Auf Deutsch: Fächer der 12. Klasse, Abschlussnote, Studienwunsch — ehrlich antworten.`,
+    ),
+    blockers: [
+      {
+        when: { test: 'visa.apsTriedToday' },
+        hint: L('Hôm nay phỏng vấn APS chưa đạt. Ôn bài rồi mai quay lại.', 'You didn’t pass the APS interview today. Revise and come back tomorrow.', 'Heute nicht bestanden. Wiederholen und morgen wiederkommen.'),
+        target: HOME_BED,
+      },
+      vnOfficeClosed,
+      { when: { all: [{ not: { test: 'visa.apsPaid' } }, { not: { money: 800_000 } }, { country: 'vn' }] }, hint: L(`Cần ${vnd(800_000)} phí APS. Làm ca ở quán Cà phê Phố Cổ để kiếm thêm.`, `You need ${vnd(800_000)} for the APS fee. Work a shift at the café.`, `Du brauchst ${vnd(800_000)} für APS. Arbeite im Café.`), target: CAFE },
+    ],
+  },
+  'visa.admission': {
+    targets: [{ target: PASSPORT }],
+    hint: L('Hồ sơ visa → Nộp đơn vào đại học; thư mời nhập học về sau 1 ngày.', 'Visa file → Apply to university; the admission letter arrives a day later.', 'Visa-Mappe → an der Uni bewerben; die Zulassung kommt einen Tag später.'),
+  },
+  'visa.contract': {
+    targets: [{ target: PASSPORT }],
+    hint: L('Hồ sơ visa → Gửi hồ sơ xin học nghề; hợp đồng từ Sonnenhof về sau 1 ngày.', 'Visa file → Send applications; the Sonnenhof contract arrives a day later.', 'Visa-Mappe → Bewerbungen senden; der Vertrag kommt einen Tag später.'),
+  },
   'visa.termin': {
     targets: [{ target: PASSPORT }],
     hint: L(
-      'Mở Hồ sơ visa → Săn lịch hẹn: khi một ô trống hiện lên, bấm thật nhanh trước khi người khác lấy mất!',
-      'Open the visa file → Hunt a Termin: when a free slot appears, tap it fast before someone else does!',
-      'Visa-Mappe → Termin jagen: Wenn ein freier Termin erscheint, schnell tippen!',
+      'Mở Hồ sơ visa → Săn lịch hẹn: lịch chỉ có giờ làm việc hôm nay (muộn rồi thì ngày làm việc kế tiếp). Ô trống hiện lên thì bấm thật nhanh!',
+      'Open the visa file → Hunt a Termin: only today’s office hours (or the next working day if it’s late). When a slot appears, tap it fast!',
+      'Visa-Mappe → Termin jagen: nur die heutigen Bürozeiten (oder der nächste Werktag). Freien Termin schnell antippen!',
     ),
   },
   'visa.interview': {

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { useT } from '../i18n'
-import { getAccount, googleRegister, googleSignIn, serverConfig, signIn, signOut, type Account, type AuthError } from '../net/auth'
-import { googleSignedOut, renderGoogleButton } from '../net/google'
+import { getAccount, googleRegister, googleSignIn, serverConfig, signIn, type Account, type AuthError } from '../net/auth'
+import { renderGoogleButton } from '../net/google'
 import { useSettings } from '../store/settingsStore'
 
 /** The signed-in account, kept in sync across the title screen and the settings. */
@@ -17,37 +17,6 @@ export function useAccount(): Account | null {
     }
   }, [])
   return account
-}
-
-/** Account chip under the Play button: who you are, or a button to sign in. */
-export function AccountChip({ onOpen }: { onOpen: () => void }) {
-  const t = useT()
-  const account = useAccount()
-  if (!account) {
-    return (
-      <button type="button" onClick={onOpen} data-testid="login-open" className="mt-4 flex items-center gap-2 rounded-full btn-jade px-5 py-2 text-sm font-black active:translate-y-0.5">
-        <UserIcon /> {t('account.signInOnline')}
-      </button>
-    )
-  }
-  return (
-    <div className="mt-4 flex items-center gap-2 rounded-full border-2 border-outline bg-paper py-1 pr-1 pl-3 text-sm font-black shadow-[0_3px_0_var(--color-outline)]" data-testid="account-chip">
-      <span className="h-2.5 w-2.5 rounded-full bg-[#3fae72] shadow-[0_0_0_2px_#fff]" />
-      <span className="max-w-[10rem] truncate">{account.name}</span>
-      <button type="button" onClick={() => void signOut().then(googleSignedOut)} className="rounded-full bg-ink/10 px-3 py-1 text-xs font-black">
-        {t('account.signOut')}
-      </button>
-    </div>
-  )
-}
-
-function UserIcon() {
-  return (
-    <svg viewBox="0 0 24 24" width="1.2em" height="1.2em" aria-hidden="true">
-      <circle cx="12" cy="8" r="4.2" fill="currentColor" />
-      <path d="M3.5 21c.8-4.4 4.2-7 8.5-7s7.7 2.6 8.5 7z" fill="currentColor" />
-    </svg>
-  )
 }
 
 type ErrorKey =

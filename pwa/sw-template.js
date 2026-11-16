@@ -46,6 +46,19 @@ async function cacheFirst(request, cacheName) {
   return response
 }
 
+/** Music: media players ask for byte ranges; keep one full copy and answer from it. */
+async function audioFromCache(request) {
+  const url = request.url
+  const hit = await caches.match(url)
+  if (hit) return hit
+  const response = await fetch(url)
+  if (response.ok && response.status === 200) {
+    const cache = await caches.open(RUNTIME)
+    await cache.put(url, response.clone())
+  }
+  return response
+}
+
 self.addEventListener('fetch', (event) => {
   const { request } = event
   if (request.method !== 'GET') return
@@ -70,6 +83,11 @@ self.addEventListener('fetch', (event) => {
   // Web fonts: keep a copy once loaded.
   if (url.hostname === 'fonts.googleapis.com' || url.hostname === 'fonts.gstatic.com') {
     event.respondWith(cacheFirst(request, RUNTIME))
+    return
+  }
+
+  if (url.origin === self.location.origin && /\.(ogg|mp3|m4a)$/.test(url.pathname)) {
+    event.respondWith(audioFromCache(request))
     return
   }
 

@@ -11,6 +11,16 @@ Every asset must be CC0 or our own (plan §2, §9). List each one here with its 
 - Pavement tiles, awning stripes and every shop / street sign (Vietnamese and German) are drawn at runtime on `<canvas>` —
   original work, no image files.
 
+## Music
+- "Đi Đức — ngày nắng" (`src/assets/audio/music/di-duc-ngay-nang.ogg`) and "Đi Đức — đêm mưa"
+  (`di-duc-dem-mua.ogg`): background music provided by the user (project owner) for this game.
+- Sound effects and ambience are synthesised in code (`src/game/systems/audio.ts`, `src/title/titleAudio.ts`).
+
+## Title screen
+- The 3D desk scene (`src/title/deskScene.ts`), its painted textures and the synthesised ambience
+  (`src/title/titleAudio.ts`) are built in code from the user's own start-menu design ("Đi Đức · Start Menu"),
+  turned into a daytime version — no external models, images or sound files.
+
 ## Icons
 - Title / loading illustration of Hồ Gươm (Tháp Rùa, Thê Húc bridge) is original inline SVG (`src/ui/HanoiScenery.tsx`).
 - App icon (passport + paper plane) is original artwork: `pwa/icon.svg`, rendered to PNG in `public/icons/`.
@@ -20,6 +30,8 @@ Every asset must be CC0 or our own (plan §2, §9). List each one here with its 
 ## Fonts
 - **Nunito** by Vernon Adams et al. — SIL Open Font License 1.1 — loaded from Google Fonts.
 - **Baloo 2** by Ek Type — SIL Open Font License 1.1 — loaded from Google Fonts (titles, signs).
+- **Be Vietnam Pro** (Lâm Bảo, Tony Le, ViệtAnh Nguyễn), **Patrick Hand** (Patrick Wagesreiter), **Barlow Condensed**
+  (Jeremy Tribby) — SIL Open Font License 1.1 — loaded from Google Fonts (title screen: menu, handwriting, stamp).
 
 ## Emoji
 - Customer reactions (💖 💢) use the device's system emoji font — no bundled images.

@@ -17,11 +17,12 @@ import type { TreeVariant } from '../shared/props'
  *   z=8.6  far sidewalk (trees, bench)
  *   z=14   hedge
  *
- * West of x=-14 the street continues (map extension): phở shop, pharmacy, tailor, banyan.
+ * West of x=-14 the street continues (map extension): phở shop, pharmacy, tailor, banyan,
+ * then (x < -32.5) the visa offices: photo studio, notary, bank, APS.
  * East of the side road (1.7): the communal house (đình), a hidden alley, two shops, the night market.
  */
 
-export const PLAY = { minX: -32, maxX: 34, minZ: -13, maxZ: 14 }
+export const PLAY = { minX: -52, maxX: 34, minZ: -13, maxZ: 14 }
 
 export const BUILDING_FRONT_Z = -4.5
 export const BUILDING_BACK_Z = -13
@@ -43,6 +44,16 @@ export const WEST = {
     { x: -26.8, width: 4.6, floors: 3 },
   ],
   banyan: { x: -30.2, z: -6.5 },
+}
+
+/** The visa offices past the banyan (VisaOffices.tsx, 1.13): photo studio, notary, bank, APS. */
+export const OFFICES = {
+  houses: [
+    { x: -34.9, width: 4.6, floors: 3 },
+    { x: -39.7, width: 4.6, floors: 2 },
+    { x: -44.5, width: 4.6, floors: 3 },
+    { x: -49.3, width: 4.6, floors: 3 },
+  ],
 }
 
 /**

@@ -15,6 +15,9 @@ const _dir = new Vector3()
 
 /** Gap kept between the camera and a wall it was pulled in front of. */
 const WALL_PADDING = 0.35
+/** When a building is in the way, first try looking from higher up (degrees added to the pitch). */
+const LIFT_STEPS = [10, 20, 30]
+const MAX_PITCH = 82
 
 /**
  * Third-person follow camera (plan §2): high angle, smooth follow. Drag to orbit 360° (left/right)
@@ -30,6 +33,8 @@ export function CameraRig({ target }: { target: RefObject<Object3D | null> }) {
   const lookAt = useRef(new Vector3())
   const distance = useRef<number>(CONFIG.camera.distance)
   const zoom = useRef(1)
+  /** Extra pitch (degrees) used to look over a building instead of jumping in front of it. */
+  const lift = useRef(0)
   const initialized = useRef(false)
 
   // One finger / mouse: orbit + tilt. Two fingers: pinch to zoom. Wheel: zoom.
@@ -125,24 +130,46 @@ export function CameraRig({ target }: { target: RefObject<Object3D | null> }) {
       camera.updateProjectionMatrix()
     }
 
-    const pitch = (cameraState.pitchDeg * Math.PI) / 180
     if (cameraState.targetYaw !== null) {
       cameraState.yaw = dampAngle(cameraState.yaw, cameraState.targetYaw, 4, dt)
       if (Math.abs(Math.sin((cameraState.yaw - cameraState.targetYaw) / 2)) < 0.005) cameraState.targetYaw = null
     }
     const yaw = cameraState.yaw
-    _dir.set(Math.sin(yaw) * Math.cos(pitch), Math.sin(pitch), Math.cos(yaw) * Math.cos(pitch))
 
-    // Pull the camera in if a building is between it and the player.
+    // A building between the camera and the player? Rather than jumping in close (jarring in
+    // narrow lanes), first rise to look over it; only what's left is solved by coming closer,
+    // and that happens smoothly. The silhouette shows the player for the moment in between.
     ray.current ??= new rapier.Ray({ x: 0, y: 0, z: 0 }, { x: 0, y: 1, z: 0 })
-    ray.current.origin = { x: _look.x, y: _look.y, z: _look.z }
-    ray.current.dir = { x: _dir.x, y: _dir.y, z: _dir.z }
-    const hit = world.castRay(ray.current, wanted, true, undefined, CAMERA_RAY_GROUPS)
-    if (hit) wanted = Math.min(wanted, Math.max(cfg.minDistance, hit.timeOfImpact - WALL_PADDING))
+    const r = ray.current
+    const clearance = (pitchDeg: number) => {
+      const p = (Math.min(MAX_PITCH, pitchDeg) * Math.PI) / 180
+      _dir.set(Math.sin(yaw) * Math.cos(p), Math.sin(p), Math.cos(yaw) * Math.cos(p))
+      r.origin = { x: _look.x, y: _look.y, z: _look.z }
+      r.dir = { x: _dir.x, y: _dir.y, z: _dir.z }
+      const hit = world.castRay(r, wanted, true, undefined, CAMERA_RAY_GROUPS)
+      return hit ? hit.timeOfImpact - WALL_PADDING : wanted
+    }
+    const basePitch = cameraState.pitchDeg
+    let wantLift = 0
+    if (clearance(basePitch) < wanted * 0.85) {
+      let best = clearance(basePitch)
+      for (const step of LIFT_STEPS) {
+        if (basePitch + step > MAX_PITCH + 0.01 && step !== LIFT_STEPS[0]) break
+        const c = clearance(basePitch + step)
+        if (c > best + 0.4) {
+          best = c
+          wantLift = step
+        }
+        if (c >= wanted * 0.85) break
+      }
+    }
+    // Rise fairly quickly, settle back down slowly (no bobbing at corners).
+    lift.current = damp(lift.current, wantLift, wantLift > lift.current ? 4 : 1.5, dt)
+    const pitchDeg = Math.min(MAX_PITCH, basePitch + lift.current)
+    wanted = Math.min(wanted, Math.max(cfg.minDistance, clearance(pitchDeg))) // also sets _dir
 
-    // Snap in instantly when blocked, ease back out when clear.
-    distance.current =
-      wanted < distance.current ? wanted : distance.current + (wanted - distance.current) * dampFactor(3, dt)
+    // Ease in when blocked (quick but never a jump cut), ease back out when clear.
+    distance.current = damp(distance.current, wanted, wanted < distance.current ? 7 : 2.5, dt)
 
     _desired.copy(_look).addScaledVector(_dir, distance.current)
 
@@ -150,6 +177,7 @@ export function CameraRig({ target }: { target: RefObject<Object3D | null> }) {
       if (cameraState.snap) {
         zoom.current = cameraState.zoom * cameraState.baseZoom
         distance.current = wanted
+        lift.current = 0
         _desired.copy(_look).addScaledVector(_dir, distance.current)
         cameraState.snap = false
       }

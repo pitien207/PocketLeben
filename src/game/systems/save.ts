@@ -29,14 +29,14 @@ export interface SaveData {
 }
 
 function collect(): SaveData {
-  const { money, currency, energy, maxEnergy, mood, skills, german, outfit, wardrobe } = usePlayer.getState()
+  const { money, currency, otherMoney, energy, maxEnergy, mood, skills, german, outfit, wardrobe, gender } = usePlayer.getState()
   const { day, minutes } = useTime.getState()
   const p = playerState.position
   const hasPosition = Number.isFinite(p.x) && Number.isFinite(p.z) && (p.x !== 0 || p.z !== 0)
   return {
     version: VERSION,
     savedAt: Date.now(),
-    player: { money, currency, energy, maxEnergy, mood, skills, german, outfit, wardrobe },
+    player: { money, currency, otherMoney, energy, maxEnergy, mood, skills, german, outfit, wardrobe, gender },
     time: { day, minutes },
     inventory: useInventory.getState().items,
     flags: useFlags.getState().flags,

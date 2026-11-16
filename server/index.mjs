@@ -206,6 +206,13 @@ const routes = {
     await store.putSave(user, save, save.savedAt)
     send(res, 200, { savedAt: save.savedAt })
   },
+  /** "Delete character" in Settings: the cloud copy goes too, so it can't come back on the next Play. */
+  async 'DELETE /api/save'(req, res) {
+    const user = await auth(req.headers.authorization)
+    if (!user) return send(res, 401, { error: 'auth' })
+    await store.deleteSave(user)
+    send(res, 200, {})
+  },
   async 'GET /api/health'(_req, res) {
     send(res, 200, { ok: true, store: store.kind.split(' ')[0], online: clients.size })
   },
@@ -216,7 +223,7 @@ const routes = {
   },
 }
 
-const MIME = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.webmanifest': 'application/manifest+json', '.svg': 'image/svg+xml', '.png': 'image/png', '.wasm': 'application/wasm' }
+const MIME = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.webmanifest': 'application/manifest+json', '.svg': 'image/svg+xml', '.png': 'image/png', '.wasm': 'application/wasm', '.ogg': 'audio/ogg', '.mp3': 'audio/mpeg', '.m4a': 'audio/mp4' }
 
 /**
  * Files of the built game. Bandwidth savers:
@@ -247,6 +254,21 @@ function serveStatic(req, res) {
     res.writeHead(304, headers)
     return res.end()
   }
+  // Music: byte ranges (media players ask for them; Safari insists).
+  const audio = /\.(ogg|mp3|m4a)$/.test(file)
+  const range = /^bytes=(\d*)-(\d*)$/.exec(String(req.headers.range ?? ''))
+  if (range && audio && (range[1] || range[2])) {
+    const start = range[1] ? Number(range[1]) : Math.max(0, stat.size - Number(range[2]))
+    const end = range[1] && range[2] ? Math.min(Number(range[2]), stat.size - 1) : stat.size - 1
+    if (!(start <= end && start < stat.size)) {
+      res.writeHead(416, { 'content-range': `bytes */${stat.size}` })
+      return res.end()
+    }
+    res.writeHead(206, { ...headers, 'accept-ranges': 'bytes', 'content-range': `bytes ${start}-${end}/${stat.size}`, 'content-length': end - start + 1 })
+    if (req.method === 'HEAD') return res.end()
+    return createReadStream(file, { start, end }).pipe(res)
+  }
+  if (audio) headers['accept-ranges'] = 'bytes'
   const accept = String(req.headers['accept-encoding'] ?? '')
   let body = file
   if (/\bbr\b/.test(accept) && existsSync(`${file}.br`)) {

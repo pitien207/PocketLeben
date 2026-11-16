@@ -1,8 +1,11 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { LANGUAGE_NAMES, useT } from '../i18n'
+import { signOut } from '../net/auth'
 import { useSettings, type Language } from '../store/settingsStore'
+import { createTitleAudio } from '../title/titleAudio'
 import { HanoiScenery } from './HanoiScenery'
-import { AccountChip, LoginPanel } from './LoginPanel'
+import { googleSignedOut } from '../net/google'
+import { LoginPanel, useAccount } from './LoginPanel'
 
 /** Day number of the saved game, if there is one (read without loading the game code). */
 function savedDay(): number | null {
@@ -16,50 +19,176 @@ function savedDay(): number | null {
   }
 }
 
-/** The sky above the title: drifting clouds and a little plane flying Hà Nội → Germany. */
-function SkyJourney() {
+// Automated tests (dev + webdriver) skip the 3D desk to stay fast; title.mjs fakes a real browser.
+const SKIP_3D = import.meta.env.DEV && navigator.webdriver
+
+/** One ambience for the title, kept across the quick title → loading-title remount. */
+const audio = createTitleAudio(0.8)
+let audioStopTimer: number | undefined
+
+const HAND = "'Patrick Hand', 'Comic Sans MS', cursive"
+const STAMP = "'Barlow Condensed', 'Baloo 2', sans-serif"
+const VN = "'Be Vietnam Pro', 'Nunito', system-ui, sans-serif"
+
+/** Rough rubber-stamp edge (SVG noise as a mask). */
+const STAMP_MASK =
+  "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' seed='3'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -2.2 1.75'/%3E%3C/filter%3E%3Crect width='220' height='120' filter='url(%23n)'/%3E%3C/svg%3E\")"
+
+/** The visa application form with the red "ĐI ĐỨC" stamp — doubles as the game's logo. */
+function VisaForm({ name }: { name: string | null }) {
   return (
-    <svg className="pointer-events-none absolute inset-x-0 top-0 h-[34%] w-full" viewBox="0 0 400 220" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-      <g className="animate-cloud" fill="#ffffff" opacity="0.85">
-        <ellipse cx="60" cy="60" rx="34" ry="12" />
-        <ellipse cx="80" cy="52" rx="20" ry="13" />
-        <ellipse cx="300" cy="40" rx="28" ry="9" />
-        <ellipse cx="316" cy="33" rx="16" ry="10" />
-      </g>
-      <path id="flight" d="M20 190 C 120 60, 260 40, 380 110" fill="none" stroke="#c8322b" strokeWidth="2.2" strokeDasharray="6 7" strokeLinecap="round" opacity="0.55" />
-      <circle cx="20" cy="190" r="5" fill="#c8322b" />
-      <g transform="translate(380 110)">
-        <rect x="-9" y="-20" width="18" height="4" fill="#2a2330" />
-        <rect x="-9" y="-16" width="18" height="4" fill="#d4473b" />
-        <rect x="-9" y="-12" width="18" height="4" fill="#f4c04e" />
-        <rect x="-10" y="-20" width="1.6" height="24" fill="#5b4636" />
-      </g>
-      <g>
-        <path d="M-12 -3 L10 0 L-12 3 L-8 0 Z M-4 -1 L-8 -10 L-2 -10 L4 -1 Z M-4 1 L-8 10 L-2 10 L4 1 Z" fill="#ffffff" stroke="#4a3226" strokeWidth="1.6" strokeLinejoin="round" />
-        <animateMotion dur="9s" repeatCount="indefinite" rotate="auto" keyPoints="0;1" keyTimes="0;1" calcMode="linear">
-          <mpath href="#flight" />
-        </animateMotion>
+    <div
+      aria-label="Visa Hunter — Đi Đức"
+      role="img"
+      className="relative origin-top -rotate-2 bg-[#fbf4e4] px-5 pt-[18px] pb-5 text-[#2b2a33] shadow-[0_18px_40px_rgba(90,60,30,0.28),0_2px_0_rgba(0,0,0,0.06)] portrait:scale-[0.82] [@media(max-height:520px)]:-mb-[4.5rem] [@media(max-height:520px)]:origin-top-left [@media(max-height:520px)]:scale-[0.6]"
+      style={{ backgroundImage: 'repeating-linear-gradient(0deg, transparent 0 27px, rgba(60,70,110,.12) 27px 28px)', fontFamily: VN }}
+    >
+      {/* tape */}
+      <span className="absolute -top-3 left-1/2 h-[26px] w-[92px] -translate-x-1/2 rotate-3 bg-[rgba(246,226,160,0.85)] shadow-[0_1px_2px_rgba(0,0,0,0.15)]" />
+      <div className="flex justify-between gap-3 border-b-[1.5px] border-[#2b2a33] pb-2 text-[10.5px] leading-[1.35] font-semibold tracking-[0.06em] text-[#5b5a68] uppercase">
+        <span>
+          <b className="font-extrabold text-[#2b2a33]">Antrag</b> auf Erteilung eines nationalen Visums
+        </span>
+        <span>Nr. 0001</span>
+      </div>
+      {[
+        ['Name', name ?? 'Nguyễn Văn ...'],
+        ['Zweck', 'Ausbildung · Pflege'],
+        ['Deutsch', 'A1 → B1 ?'],
+      ].map(([label, value]) => (
+        <div key={label} className="mt-[9px] grid grid-cols-[92px_1fr] items-end text-[10.5px] font-medium tracking-[0.05em] text-[#6a6977] uppercase">
+          {label}
+          <span className="truncate border-b border-dotted border-[#8a8898] pb-0.5 pl-1 text-[22px] leading-none tracking-normal text-[#1f3f8f] normal-case" style={{ fontFamily: HAND }}>
+            {value}
+          </span>
+        </div>
+      ))}
+      <div
+        className="absolute -right-3.5 -bottom-[26px] -rotate-[11deg] rounded-md border-[3.5px] border-current px-3.5 pt-1.5 pb-1 text-center text-[#c42f3c] mix-blend-multiply"
+        style={{ boxShadow: 'inset 0 0 0 3px #fbf4e4, inset 0 0 0 5px currentColor', WebkitMask: STAMP_MASK, mask: STAMP_MASK, fontFamily: STAMP }}
+      >
+        <div className="text-[12px] leading-tight font-semibold tracking-[0.22em]">VISA HUNTER</div>
+        <div className="text-[50px] leading-[0.95] font-extrabold tracking-[0.02em]">ĐI ĐỨC</div>
+        <div className="text-[12px] leading-tight font-semibold tracking-[0.22em]">HÀ NỘI → DEUTSCHLAND</div>
+      </div>
+    </div>
+  )
+}
+
+function MenuButton({ n, primary, onClick, children, hint, testId }: { n: string; primary?: boolean; onClick: () => void; children: ReactNode; hint?: string; testId?: string }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      data-testid={testId}
+      className={`group flex cursor-pointer items-baseline gap-3.5 py-2 text-left transition hover:translate-x-1.5 hover:text-lacquer focus-visible:translate-x-1.5 focus-visible:text-lacquer focus-visible:outline-none portrait:justify-center portrait:text-center ${
+        primary ? 'pb-3 text-[34px] leading-[1.1] font-extrabold text-[#3a2418] portrait:text-[32px] [@media(max-height:520px)]:pb-1 [@media(max-height:520px)]:text-[26px]' : 'text-[21px] leading-[1.1] font-semibold text-[#4a3226] [@media(max-height:520px)]:py-1 [@media(max-height:520px)]:text-[17px]'
+      }`}
+      style={{ fontFamily: VN }}
+    >
+      <small className="w-[22px] text-[11px] font-medium tracking-[0.14em] text-[#4a3226]/45 portrait:hidden">{n}</small>
+      <span className={primary ? 'drop-shadow-[0_2px_0_rgba(244,192,78,0.9)]' : ''}>{children}</span>
+      {hint && <em className="text-[13px] font-medium text-[#4a3226]/55 not-italic transition group-hover:opacity-100 portrait:hidden sm:-translate-x-1.5 sm:opacity-0 sm:group-hover:translate-x-0">{hint}</em>}
+    </button>
+  )
+}
+
+function SpeakerIcon({ on }: { on: boolean }) {
+  return (
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor" stroke="none" />
+      <g className="transition" opacity={on ? 1 : 0.25}>
+        <path d="M16.5 8.5a5 5 0 0 1 0 7" />
+        <path d="M19 6a8.5 8.5 0 0 1 0 12" />
       </g>
     </svg>
   )
 }
 
+/** The 3D desk by the window (lazy: shares the three.js download with the game). */
+function DeskBackdrop() {
+  const host = useRef<HTMLDivElement>(null)
+  const [ready, setReady] = useState(false)
+  useEffect(() => {
+    if (SKIP_3D) return
+    let unmount: (() => void) | undefined
+    let cancelled = false
+    import('../title/deskScene')
+      .then((m) => {
+        if (cancelled || !host.current) return
+        unmount = m.mountDeskScene(
+          host.current,
+          (bike) => audio.bikePass(bike),
+          (w) => audio.setFan(w),
+        )
+        requestAnimationFrame(() => setReady(true))
+      })
+      .catch(() => {
+        // No WebGL / offline chunk: the painted Hà Nội backdrop stays.
+      })
+    return () => {
+      cancelled = true
+      unmount?.()
+    }
+  }, [])
+  return (
+    <>
+      <HanoiScenery className={`absolute inset-x-0 bottom-0 h-[42%] w-full transition-opacity duration-1000 ${ready ? 'opacity-0' : 'opacity-100'}`} />
+      <div ref={host} className={`absolute inset-0 transition-opacity duration-[1200ms] ${ready ? 'opacity-100' : 'opacity-0'}`} />
+    </>
+  )
+}
+
 /**
- * Title screen (M9): shows instantly, unlocks audio with the first tap, and only then
- * loads the 3D game. `loading` = the game code is on its way.
+ * Title screen: a sunny morning at the desk in Hà Nội (3D, from the user's start-menu design),
+ * the visa form as the logo, a text menu. Shows instantly; `loading` = the game is on its way.
  */
 export function TitleScreen({ onPlay, loading = false }: { onPlay?: () => void; loading?: boolean }) {
   const t = useT()
   const language = useSettings((s) => s.language)
   const setLanguage = useSettings((s) => s.setLanguage)
+  const musicOn = useSettings((s) => s.musicOn)
+  const toggleMusic = useSettings((s) => s.toggleMusic)
+  const account = useAccount()
   const day = useMemo(savedDay, [])
   const [loginOpen, setLoginOpen] = useState(false)
+  const [audioStarted, setAudioStarted] = useState(audio.started)
+
+  // Ambience: starts with the first tap / key (browsers need a gesture), follows the music setting.
+  useEffect(() => {
+    window.clearTimeout(audioStopTimer)
+    const first = (e: Event) => {
+      if ((e.target as HTMLElement | null)?.closest?.('[data-sound]')) return
+      if (!useSettings.getState().musicOn || audio.started) return
+      audio.start()
+      setAudioStarted(true)
+    }
+    window.addEventListener('pointerdown', first)
+    window.addEventListener('keydown', first)
+    return () => {
+      window.removeEventListener('pointerdown', first)
+      window.removeEventListener('keydown', first)
+      audioStopTimer = window.setTimeout(() => audio.stop(), 800)
+    }
+  }, [])
+  useEffect(() => audio.setMuted(!musicOn), [musicOn])
+
+  const toggleSound = () => {
+    if (!audio.started) {
+      audio.start()
+      setAudioStarted(true)
+      if (!musicOn) toggleMusic()
+      return
+    }
+    toggleMusic()
+  }
+  const soundOn = audioStarted && musicOn
 
   // Desktop: Enter / Space starts the game.
   useEffect(() => {
     if (loading || !onPlay || loginOpen) return
     const onKey = (e: KeyboardEvent) => {
-      if (e.code === 'Enter' || e.code === 'Space') {
+      if ((e.code === 'Enter' || e.code === 'Space') && !(e.target as HTMLElement | null)?.closest?.('button')) {
         e.preventDefault()
         onPlay()
       }
@@ -69,57 +198,84 @@ export function TitleScreen({ onPlay, loading = false }: { onPlay?: () => void; 
   }, [loading, onPlay, loginOpen])
 
   return (
-    <div className="absolute inset-0 z-50 flex flex-col items-center justify-center overflow-hidden bg-linear-to-b from-[#bfe3ff] via-[#ffe9cc] to-[#ffd9a8] text-ink">
-      <HanoiScenery className="absolute inset-x-0 bottom-0 h-[42%] w-full" />
-      <SkyJourney />
+    <div className="absolute inset-0 z-50 overflow-hidden bg-linear-to-b from-[#bfe3ff] via-[#ffe9cc] to-[#ffd9a8] text-ink">
+      <DeskBackdrop />
+      {/* Light wash behind the menu so the text reads on the sunny scene. */}
+      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(255,247,232,0.88)_0%,rgba(255,247,232,0.45)_30%,transparent_48%)] portrait:bg-[linear-gradient(0deg,rgba(255,247,232,0.92)_0%,rgba(255,247,232,0.5)_30%,transparent_45%),linear-gradient(180deg,rgba(255,247,232,0.55)_0%,transparent_22%)]" />
 
-      <div className="relative -mt-[18vh] flex flex-col items-center">
-        <span className="mb-1 rounded-md px-3 py-0.5 text-xs font-black tracking-widest plaque-hanoi">HÀ NỘI → DEUTSCHLAND</span>
-        <h1 className="font-display text-6xl font-extrabold tracking-tight text-lacquer drop-shadow-[0_4px_0_#f4c04e]">Visa Hunter</h1>
-        <p className="mt-1 px-6 text-center text-sm font-bold text-ink/75">{t('loading.subtitle')}</p>
+      <div className="absolute inset-y-0 left-[clamp(28px,5vw,80px)] flex w-[min(360px,86vw)] flex-col justify-center gap-11 [@media(max-height:520px)]:gap-4 portrait:inset-x-0 portrait:mx-auto portrait:w-[min(340px,86vw)] portrait:justify-between portrait:pt-[max(7vh,env(safe-area-inset-top))] portrait:pb-[max(6vh,calc(env(safe-area-inset-bottom)+2.5rem))]">
+        <VisaForm name={account?.name ?? null} />
 
         {loading ? (
-          <>
-            <div className="mt-8 flex gap-2" aria-hidden="true">
+          <div className="flex flex-col items-start gap-2 portrait:items-center" style={{ fontFamily: VN }}>
+            <div className="flex gap-2" aria-hidden="true">
               {[0, 1, 2].map((i) => (
                 <span key={i} className="h-3 w-3 animate-bounce rounded-full bg-lacquer" style={{ animationDelay: `${i * 120}ms` }} />
               ))}
             </div>
-            <p className="mt-2 font-bold text-ink/70">{t('loading.text')}</p>
-          </>
+            <p className="text-lg font-bold text-[#4a3226]/80">{t('loading.text')}</p>
+          </div>
         ) : (
-          <>
-            <button
-              type="button"
-              onClick={onPlay}
-              className="mt-8 flex flex-col items-center rounded-full btn-lacquer px-12 py-3 font-display text-3xl font-extrabold active:translate-y-1 active:shadow-none"
-            >
-              ▶ {day ? t('title.continue') : t('title.play')}
-              {day && <span className="font-sans text-xs font-black opacity-90">{t('hud.day', { day })}</span>}
-            </button>
-            <AccountChip onOpen={() => setLoginOpen(true)} />
-            <div className="mt-4 flex gap-1 rounded-full bg-ink/10 p-1" role="group" aria-label={t('settings.language')}>
-              {(Object.keys(LANGUAGE_NAMES) as Language[]).map((l) => (
-                <button
-                  key={l}
-                  type="button"
-                  onClick={() => setLanguage(l)}
-                  aria-pressed={language === l}
-                  className={`min-w-11 rounded-full px-3 py-1.5 text-sm font-extrabold ${language === l ? 'bg-[#a8322a] text-white shadow' : 'text-ink/80'}`}
-                >
-                  {l.toUpperCase()}
+          <nav className="flex flex-col gap-0.5 portrait:items-center" aria-label="Menu">
+            <MenuButton n="01" primary onClick={() => onPlay?.()} hint={day ? t('hud.day', { day }) : t('loading.subtitle')} testId="title-play">
+              {day ? t('title.continue') : t('title.play')}
+            </MenuButton>
+            {account ? (
+              <div className="flex items-baseline gap-3.5 py-2 text-[21px] font-semibold [@media(max-height:520px)]:py-1 [@media(max-height:520px)]:text-[17px] text-[#4a3226] portrait:justify-center" style={{ fontFamily: VN }} data-testid="account-chip">
+                <small className="w-[22px] text-[11px] font-medium tracking-[0.14em] text-[#4a3226]/45 portrait:hidden">02</small>
+                <span className="flex min-w-0 items-center gap-2">
+                  <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-[#3fae72] shadow-[0_0_0_2px_#fff]" />
+                  <span className="truncate">{account.name}</span>
+                </span>
+                <button type="button" onClick={() => void signOut().then(googleSignedOut)} className="shrink-0 text-[13px] font-semibold text-[#4a3226]/60 underline-offset-2 hover:text-lacquer hover:underline">
+                  {t('account.signOut')}
                 </button>
-              ))}
+              </div>
+            ) : (
+              <MenuButton n="02" onClick={() => setLoginOpen(true)} hint={t('title.onlineHint')} testId="login-open">
+                {t('account.signInOnline')}
+              </MenuButton>
+            )}
+            <div className="flex items-baseline gap-3.5 py-2 text-[21px] font-semibold [@media(max-height:520px)]:py-1 [@media(max-height:520px)]:text-[17px] text-[#4a3226] portrait:justify-center" style={{ fontFamily: VN }} role="group" aria-label={t('settings.language')}>
+              <small className="w-[22px] text-[11px] font-medium tracking-[0.14em] text-[#4a3226]/45 portrait:hidden">03</small>
+              <span className="flex gap-1">
+                {(Object.keys(LANGUAGE_NAMES) as Language[]).map((l) => (
+                  <button
+                    key={l}
+                    type="button"
+                    onClick={() => setLanguage(l)}
+                    aria-pressed={language === l}
+                    title={LANGUAGE_NAMES[l]}
+                    className={`rounded-full px-2.5 py-0.5 text-[16px] font-bold transition ${language === l ? 'bg-lacquer text-white shadow-[0_2px_0_rgba(90,30,20,0.35)]' : 'text-[#4a3226]/70 hover:text-lacquer'}`}
+                  >
+                    {l.toUpperCase()}
+                  </button>
+                ))}
+              </span>
             </div>
-          </>
+          </nav>
         )}
       </div>
-      <p className="absolute z-10 mx-6 rounded-full bg-paper/85 px-4 py-1 text-center text-xs font-bold text-ink/75" style={{ bottom: 'max(0.75rem, env(safe-area-inset-bottom))' }}>
-        {t('title.hint')}
-      </p>
-      <span className="absolute top-2 right-3 z-10 rounded-full bg-ink/10 px-2 py-0.5 text-[10px] font-black text-ink/60" style={{ top: 'max(0.5rem, env(safe-area-inset-top))' }}>
-        v{__APP_VERSION__}
-      </span>
+
+      <button
+        type="button"
+        data-sound
+        onClick={toggleSound}
+        aria-label={t('title.soundToggle')}
+        className={`absolute right-5 flex items-center gap-2 rounded-full border border-[#4a3226]/15 bg-white/70 py-2 pr-3.5 pl-2.5 text-[13px] font-semibold text-[#4a3226]/85 backdrop-blur-md transition hover:border-lacquer/40 hover:text-lacquer ${soundOn ? '' : 'animate-sound-hint'}`}
+        style={{ top: 'max(18px, env(safe-area-inset-top))', fontFamily: VN }}
+      >
+        <SpeakerIcon on={soundOn} />
+        <span>{!audioStarted ? t('title.soundStart') : musicOn ? t('title.soundOn') : t('title.soundMuted')}</span>
+      </button>
+
+      <div
+        className="absolute right-[22px] rounded-full bg-white/55 px-3 py-1 text-right text-[12px] backdrop-blur-sm portrait:bg-transparent portrait:backdrop-blur-none font-medium tracking-[0.08em] text-[#4a3226]/65 portrait:inset-x-0 portrait:text-center portrait:text-[11px]"
+        style={{ bottom: 'max(14px, env(safe-area-inset-bottom))', fontFamily: VN }}
+      >
+        Hà Nội · <b className="font-bold text-lacquer">07:45</b> · {t('title.weather')}
+        <span className="ml-2 opacity-60">v{__APP_VERSION__}</span>
+      </div>
       {loginOpen && <LoginPanel onClose={() => setLoginOpen(false)} />}
     </div>
   )

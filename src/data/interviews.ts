@@ -112,6 +112,56 @@ export const QA_SETS = {
       ...SHARED_EMBASSY,
     ],
   },
+  /**
+   * APS (Akademische Prüfstelle): checks that your school record is real. Like the real one, the
+   * examiner asks about your school years, the subjects and their content, and your study plans.
+   */
+  aps: {
+    title: { vi: 'Phỏng vấn APS', en: 'APS interview', de: 'APS-Interview' },
+    asker: 'coAps',
+    questions: [
+      q('„Stellen Sie sich bitte kurz vor."', '“Please introduce yourself briefly.”', [
+        a(2, 'Ich heiße …, ich bin 18 und habe dieses Jahr das Abitur in Hà Nội gemacht.', 'Ich heiße …, ich bin 18 und habe dieses Jahr das Abitur in Hà Nội gemacht.', GOOD[0], GOOD[1]),
+        a(1, 'Ich bin Student.', 'Ich bin Student.', 'Schüler oder Student? (Học sinh hay sinh viên?)', 'Pupil or student?'),
+        a(0, 'Em tên là… (nói tiếng Việt)', 'My name is… (in Vietnamese)', 'Auf Deutsch, bitte. (Nói tiếng Đức nhé.)', 'In German, please.'),
+      ]),
+      q('„Welche Fächer hatten Sie in der zwölften Klasse?"', '“Which subjects did you have in year 12?”', [
+        a(2, 'Mathe, Physik, Chemie, Literatur, Englisch, Geschichte und Biologie.', 'Mathe, Physik, Chemie, Literatur, Englisch, Geschichte und Biologie.', GOOD[0], GOOD[1]),
+        a(1, 'Viele Fächer… Mathe und so.', 'Viele Fächer… Mathe und so.', OK[0], OK[1]),
+        a(0, 'Dạ em không nhớ ạ.', 'I don’t remember.', 'Das sollten Sie wissen… (Cái này phải nhớ chứ…)', 'You should know that…'),
+      ]),
+      q('„Was war Ihr Lieblingsfach und warum?"', '“What was your favourite subject, and why?”', [
+        a(2, 'Mathematik, weil ich gern Probleme logisch löse.', 'Mathematik, weil ich gern Probleme logisch löse.', GOOD[0], GOOD[1]),
+        a(1, 'Sport, weil es Spaß macht.', 'Sport, weil es Spaß macht.', OK[0], OK[1]),
+        a(0, 'Giờ ra chơi ạ!', 'Break time!', BAD[0], BAD[1]),
+      ]),
+      q('„Was haben Sie in Physik gelernt? Nennen Sie ein Thema."', '“What did you learn in physics? Name one topic.”', [
+        a(2, 'Elektrizität: das Ohmsche Gesetz, U = R · I.', 'Elektrizität: das Ohmsche Gesetz, U = R · I.', 'Richtig. (Đúng rồi.)', 'Correct.'),
+        a(1, 'Etwas über Kraft…', 'Etwas über Kraft…', OK[0], OK[1]),
+        a(0, 'Em học tủ, quên hết rồi ạ.', 'I crammed and forgot it all.', BAD[0], BAD[1]),
+      ]),
+      q('„Was ist die Ableitung von x²?"', '“What is the derivative of x²?”', [
+        a(2, '2x.', '2x.', 'Sehr gut. (Rất tốt.)', 'Very good.'),
+        a(1, 'x… mal zwei?', 'x… mal zwei?', OK[0], OK[1]),
+        a(0, 'x³ ạ.', 'x³.', 'Leider falsch. (Tiếc là sai rồi.)', 'Unfortunately wrong.'),
+      ]),
+      q('„Wie war Ihr Notendurchschnitt im Abitur?"', '“What was your average grade in the final exams?”', [
+        a(2, '8,2 von 10. Das Zeugnis liegt in meiner Mappe.', '8,2 von 10. Das Zeugnis liegt in meiner Mappe.', GOOD[0], GOOD[1]),
+        a(1, 'Ganz gut, glaube ich.', 'Ganz gut, glaube ich.', OK[0], OK[1]),
+        a(0, 'Dạ điểm em hơi thấp nên em sửa lại chút ạ.', 'My grades were low so I changed them a bit.', 'Das ist Urkundenfälschung! (Đó là làm giả giấy tờ!)', 'That is forgery!'),
+      ]),
+      q('„Welches Fach möchten Sie in Deutschland studieren und warum?"', '“What will you study in Germany, and why?”', [
+        a(2, 'Informatik, weil ich in Mathe gut bin und Software entwickeln möchte.', 'Informatik, weil ich in Mathe gut bin und Software entwickeln möchte.', GOOD[0], GOOD[1]),
+        a(1, 'Irgendwas mit Wirtschaft.', 'Irgendwas mit Wirtschaft.', OK[0], OK[1]),
+        a(0, 'Ngành nào dễ đậu là được ạ.', 'Whatever is easiest to get into.', BAD[0], BAD[1]),
+      ]),
+      q('„Warum haben Sie Deutsch gelernt?"', '“Why did you learn German?”', [
+        a(2, 'Weil ich in Deutschland studieren möchte. Ich habe das B1-Zertifikat.', 'Weil ich in Deutschland studieren möchte. Ich habe das B1-Zertifikat.', GOOD[0], GOOD[1]),
+        a(1, 'Meine Eltern wollten das.', 'Meine Eltern wollten das.', OK[0], OK[1]),
+        a(0, 'Tại bạn em học nên em học theo ạ.', 'My friend did, so I did too.', BAD[0], BAD[1]),
+      ]),
+    ],
+  },
   wgCasting: {
     title: { vi: 'WG-Casting (phỏng vấn ở ghép)', en: 'WG casting (flat-share interview)', de: 'WG-Casting' },
     asker: 'lena',

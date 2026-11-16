@@ -1,5 +1,100 @@
 # Changelog
 
+## 1.13.0 — Visa papers in real places, two wallets, Termin today, directions for every task
+
+### Added
+- **The street goes on past the banyan**: four offices at the west end of Phố Hàng Gai —
+  **Tiệm ảnh Hùng** (biometric visa photos, 50.000 ₫), **Văn phòng công chứng** (translation + notarization of the
+  diploma and birth certificate, 380.000 ₫, needs the originals), **Ngân hàng Phố Cổ** (proof of funds, money exchange)
+  and the **APS office** (Studium only). New people: chú Hùng, cô Phương, anh Quân, Frau Schneider.
+- **Paper cabinet at home** (next to the TV): take the original diploma and birth certificate before the notary.
+- **APS interview** like the real one: hand in your file (800.000 ₫), wait your turn, then 6 questions in German about
+  you, your year-12 subjects, a physics law, a derivative, your final grade, your planned major. Failed → again tomorrow.
+- **Proof of funds at the bank**: talk to anh Quân; with enough money in the wallet it's confirmed on the spot —
+  nothing is taken, no papers (no more blocked-account payment).
+- **Two wallets — VND and EUR at the same time**: Vietnam uses đồng, Germany euros, switching by itself with the
+  country. Change money at the bank (Việt Nam: 300.000 ₫ / 1.500.000 ₫ / all → €; both banks: change the whole other
+  wallet back). The HUD shows the second wallet under the main one. Flying no longer converts everything; if you're
+  almost out of euros in Germany, the guide sends you to the Sparbank.
+- **Every task has directions**: the visa quest is now one step per paper (passport, photos, originals, notary,
+  CV/letter/insurance, funds, APS, university/training, final check). Tap a step in the quest log (or "📍 Chỉ đường"
+  in the visa file) → the arrow, map and hint lead there; 📍 on the tracker, ✕ to go back to the normal order.
+
+### Changed
+- **Termin hunting = office hours only**: half-hour slots of today's working hours (08:00–16:30, at least an hour from
+  now); too late or weekend → the next working day. No more waiting a week. Same for the Bürgeramt in Germany.
+  The calendar has a **✕ close button** (and Esc).
+- University admission and training contract arrive after 1 day (was 3 / 2).
+- **Exit mats** (home, class, exam hall, university) no longer flicker: they sat exactly level with the floor tiles;
+  now raised a little, one calm light red.
+
+### Manual test checklist (phone)
+- [ ] Go into a room: the mat at the door is light red and steady.
+- [ ] Quest log → tap "Chụp ảnh thẻ…": the log closes, the arrow leads west past the banyan to the photo studio.
+- [ ] Photo studio → notary (refuses without originals) → home cabinet → notary again → bank → APS interview.
+- [ ] Bank: change money → a small € line appears under the money; fly to Germany → euros are the main wallet.
+- [ ] Hunt a Termin at 9:00 → slots of today; ✕ closes it; at 16:45 → tomorrow's (or Monday's) slots.
+
+## 1.12.0 — Choose male or female, big map on M, calmer camera, delete character
+
+### Added
+- **"Chọn nhân vật"** at the start of a new game: Nữ (long hair with a bow) or Nam (short hair). Only the look
+  changes — clothes and hair can still be bought later, the story is the same. Saved as `gender`.
+- **Settings → Xoá nhân vật**: two-step confirm, wipes this device's save **and the cloud save** (otherwise the next
+  "Chơi" would pull it back), then the game restarts at "Chọn nhân vật". Signed in but offline: it says so and
+  deletes nothing. Server: `DELETE /api/save`.
+
+### Added — background music
+- Two real tracks (made by the user): **"Đi Đức — ngày nắng"** plays from 6:00 to 18:30 game time, **"Đi Đức — đêm mưa"**
+  at night; they cross-fade (3 s) when day turns to night or after sleeping. The title screen plays the day track under
+  its morning ambience. Files: `src/assets/audio/music/`. Browsers that can't play Ogg keep the old synthesised tune.
+- Bandwidth: not part of the offline install; each track is downloaded the first time it plays, then kept by the
+  service worker (works offline afterwards) and cached by the browser for a year. The server now answers byte-range
+  requests for music (`206`).
+
+### Changed
+- **No more minimap** in the corner. The map opens with **M** (desktop) or the map button (always on the HUD).
+- **The map is big now**: nearly full screen, starts zoomed in on you; drag to move, pinch / mouse wheel / + − to zoom,
+  ◎ back to you. Shows street and area names (Phố Hàng Gai, Hồ Hoàn Kiếm, Cầu Thê Húc, Đình làng, Ngõ, Chợ đêm,
+  Phố cổ · Lindenstraße, Stadtpark, Ententeich…), every place, people's names when zoomed in, other players
+  (blue) and friends (green), the goal star and a 5 m grid. Phones in portrait fill the height.
+- **Camera in narrow places**: when a building gets between the camera and you, the camera first rises to look over
+  it and only then comes closer — smoothly, never a sudden jump cut. (Before: it snapped in at once.)
+- The version in Settings now always matches the real version (it was stuck at 1.9.0).
+
+### Manual test checklist (phone)
+- [ ] Settings → Xoá nhân vật → Xoá vĩnh viễn: the game restarts at "Chọn nhân vật"; pick Nam: short hair.
+- [ ] Signed in on two devices: after deleting on one, "Chơi" on the other doesn't bring the old character back.
+- [ ] No minimap; the map button opens the big map; drag, pinch, + − and ◎ work; names are readable.
+- [ ] Walk into the ngõ and along the house fronts, swing the camera around: no sudden zoom-in.
+- [ ] Music: the day track in the morning; wait (clock panel) until after 18:30 → it fades into the night track;
+      sleep → morning track again. Settings → Âm nhạc off silences both. Title "Bật âm thanh" plays the day track.
+
+## 1.11.0 — New title screen: a sunny morning at the desk in Hà Nội
+
+### Changed
+- The start menu is now the user's "Đi Đức" design, in a **daytime** version: a 3D room with a student's desk by
+  the window — the German textbook open at Lektion 3, a vocabulary notebook ("Ich schaffe das!"), flash cards,
+  cà phê phin with steam, a tear-off calendar showing **today's date**, a postcard from München, sticky notes,
+  the phone with the visa appointment, the standing fan turning and the curtain moving in its wind.
+- Sun shines through the open window: the iron grille's shadow falls on the desk, dust floats in the light;
+  across the street a yellow house with green shutters, flower pots, shop signs (CHO THUÊ PHÒNG, PHÔ TÔ · IN ẢNH THẺ),
+  tangled power lines; birds fly past now and then. (The original was at night in the rain.)
+- Logo = the visa application form with the red **ĐI ĐỨC** stamp (shows your account name once signed in);
+  menu: 01 Chơi / Chơi tiếp (+ day number), 02 sign in (or your name + sign out), 03 language VI / EN / DE.
+- Sound button (top right): street murmur, birds, motorbikes passing in sync with the scene, a far-off horn, the fan
+  humming — all synthesised. It follows the music setting; starts with the first tap.
+- The 3D scene loads lazily with the same three.js file the game needs anyway, so the title still appears at once
+  (the painted Hà Nội backdrop shows until the desk fades in); it is freed when the game starts.
+- Layouts: desktop (menu left, desk right), phone portrait (form on top, menu at the bottom), phone landscape (smaller form).
+
+### Manual test checklist (phone)
+- [ ] Open the game: the painted backdrop, then the sunny desk fades in; the fan turns, the curtain moves.
+- [ ] The calendar and the notebook show today's date.
+- [ ] Tap "Bật âm thanh": birds + street sounds; tap again → "Đã tắt tiếng" (in-game music follows the same setting).
+- [ ] Portrait and landscape: nothing cut off; "Chơi" starts the game, the title goes away cleanly.
+- [ ] Sign in from "Đăng nhập để chơi online": the form's Name line shows your name.
+
 ## 1.10.0 — Phone: friends, messages, world chat · Thê Húc bridge to Đền Ngọc Sơn · natural see-through
 
 ### Added — the phone (📱 button top-left, where the music button was; music stays in Settings)

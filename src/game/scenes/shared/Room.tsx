@@ -27,6 +27,10 @@ export interface RoomProps {
   blockers?: [number, number, number, number][]
 }
 
+/** The mat at every room's way out: one calm light red. It sits above the floor tiles (top 0.04 m):
+ * level with them, the two surfaces fought over the same depth and the mat flickered. */
+export const DOORMAT = '#ef9a94'
+
 /**
  * A "dollhouse" interior: chequered floor, a full back wall with windows, low side walls
  * and an open front so the follow camera can look in from outside.

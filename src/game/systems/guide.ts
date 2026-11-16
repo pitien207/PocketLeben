@@ -12,7 +12,8 @@ import { shortDate } from './calendar'
 import { cameraState } from './cameraState'
 import { check, flagNumber, getFlag, germanXpNeeded, setFlag } from './conditions'
 import { playerState } from './playerState'
-import { currentObjective, questApplies, stepDone } from './watchers'
+import { formatClock } from './time'
+import { currentObjective, questApplies, questSteps, stepDone } from './watchers'
 
 /**
  * The step-by-step guide (data in data/guides.ts): which step is next, what blocks it,
@@ -55,9 +56,9 @@ export function guideVars(): Record<string, string | number> {
   return {
     xp: Math.min(g.xp, germanXpNeeded(g.level)),
     need: germanXpNeeded(g.level),
-    termin: date('visa.terminDay'),
+    termin: date('visa.terminDay') + (flagNumber('visa.terminTime') > 0 ? ` ${formatClock(flagNumber('visa.terminTime'))}` : ''),
     ready: date('visa.readyDay'),
-    amtTermin: date('de.anmeldungTermin'),
+    amtTermin: date('de.anmeldungTermin') + (flagNumber('de.anmeldungTime') > 0 ? ` ${formatClock(flagNumber('de.anmeldungTime'))}` : ''),
   }
 }
 
@@ -73,7 +74,7 @@ function chapterProgress(chapter: number) {
   let total = 0
   for (const q of QUESTS) {
     if (q.side || q.chapter !== chapter || !questApplies(q)) continue
-    for (const s of q.steps) {
+    for (const s of questSteps(q)) {
       total++
       if (stepDone(s.id)) done++
     }
@@ -212,7 +213,7 @@ export function startGuide(): () => void {
     useFlags.subscribe(refresh),
     useWorld.subscribe(refresh),
     useGuide.subscribe((s, prev) => {
-      if (s.tour !== prev.tour) refresh()
+      if (s.tour !== prev.tour || s.focus !== prev.focus) refresh()
     }),
     useUI.subscribe((s, prev) => {
       if (s.sceneReady !== prev.sceneReady) refresh()

@@ -1,10 +1,12 @@
 import { useSettings } from '../../store/settingsStore'
+import { useTime } from '../../store/timeStore'
+import { canPlayMusicFiles, MUSIC, trackForTime, type MusicTrack } from './musicTracks'
 
 /**
- * Procedural audio (plan §3 lists Howler.js; synthesising with WebAudio instead means
- * zero audio downloads and no licensing questions). Music: a small looping tune per
- * country. SFX: short synthesized blips. The AudioContext starts on the first tap/key
- * (browser autoplay rules).
+ * Audio. Music: the user's two tracks (systems/musicTracks.ts) — "ngày nắng" from 6:00 to 18:30 game
+ * time, "đêm mưa" at night — streamed through <audio> elements into the music bus and cross-faded
+ * when day turns to night. Browsers that can't play Ogg keep the small synthesised tune per country.
+ * SFX: short synthesized blips. The AudioContext starts on the first tap/key (browser autoplay rules).
  */
 
 export type SfxName = 'click' | 'right' | 'wrong' | 'coin' | 'pickup' | 'success' | 'fail' | 'honk' | 'door' | 'stamp' | 'sip' | 'bell'
@@ -21,6 +23,9 @@ let scheduler: number | undefined
 
 const MUSIC_VOLUME = 0.16
 const SFX_VOLUME = 0.5
+/** The recorded tracks on top of the music bus (the bus level suits the quieter synth tune). */
+const FILE_MUSIC_GAIN = 2.4
+const CROSSFADE_SEC = 3
 
 function applyVolumes() {
   if (!ctx) return
@@ -51,6 +56,7 @@ export function initAudio() {
     const c = ensureContext()
     if (c?.state === 'suspended') void c.resume()
     startScheduler()
+    startFileMusic()
   }
   window.addEventListener('pointerdown', unlock)
   window.addEventListener('keydown', unlock)
@@ -178,7 +184,7 @@ const BASS: Record<Exclude<MusicTheme, null>, number[]> = {
 const STEP_SEC = 60 / 92 / 2
 
 function scheduleStep(time: number) {
-  if (!theme) return
+  if (!theme || fileMusic) return
   const scale = SCALES[theme]
   const deg = MELODY[theme][step % 32]
   if (deg >= 0) {
@@ -243,9 +249,78 @@ export function setRainAmbience(level: number) {
   g?.gain.setTargetAtTime(level * 0.09, ctx.currentTime, 0.4)
 }
 
+// --- Recorded music: day / night ----------------------------------------------------
+
+/** True while the recorded tracks are in use (false = the synth tune plays instead). */
+let fileMusic = canPlayMusicFiles()
+let current: MusicTrack | null = null
+const players: Partial<Record<MusicTrack, { el: HTMLAudioElement; gain: GainNode; stopTimer?: number }>> = {}
+
+function player(track: MusicTrack) {
+  const existing = players[track]
+  if (existing || !ctx) return existing ?? null
+  const el = new Audio(MUSIC[track])
+  el.loop = true
+  el.preload = 'auto'
+  el.onerror = () => {
+    // Couldn't load (offline before it was ever cached, unsupported…): back to the synth tune.
+    fileMusic = false
+    for (const p of Object.values(players)) p?.el.pause()
+  }
+  const gain = ctx.createGain()
+  gain.gain.value = 0
+  ctx.createMediaElementSource(el).connect(gain).connect(musicBus)
+  players[track] = { el, gain }
+  return players[track]!
+}
+
+/** Fade to `next` (and fade out the other one, pausing it once silent). */
+function playTrack(next: MusicTrack) {
+  if (!ctx || !fileMusic) return
+  if (next === current) return
+  const now = ctx.currentTime
+  for (const [track, p] of Object.entries(players) as [MusicTrack, NonNullable<(typeof players)[MusicTrack]>][]) {
+    if (track === next || !p) continue
+    p.gain.gain.cancelScheduledValues(now)
+    p.gain.gain.setTargetAtTime(0, now, CROSSFADE_SEC / 3)
+    window.clearTimeout(p.stopTimer)
+    p.stopTimer = window.setTimeout(() => p.el.pause(), CROSSFADE_SEC * 1000 + 300)
+  }
+  const p = player(next)
+  if (!p) return
+  window.clearTimeout(p.stopTimer)
+  const first = current === null
+  current = next
+  void p.el.play().catch(() => {
+    // Not allowed yet (no gesture): tried again on the next tap.
+    current = null
+  })
+  p.gain.gain.cancelScheduledValues(now)
+  p.gain.gain.setTargetAtTime(FILE_MUSIC_GAIN, now, first ? 0.4 : CROSSFADE_SEC / 3)
+}
+
+let fileMusicStarted = false
+/** On the first gesture: start the track for the current game time and follow the clock. */
+function startFileMusic() {
+  if (!fileMusic || !ctx) return
+  if (current === null) playTrack(trackForTime(useTime.getState().minutes))
+  if (fileMusicStarted) return
+  fileMusicStarted = true
+  useTime.subscribe((s) => playTrack(trackForTime(s.minutes)))
+}
+
 /** Switch the background tune (null = silence). */
 export function setMusicTheme(next: MusicTheme) {
   if (next === theme) return
   theme = next
   step = 0
+}
+
+/** Dev/tests: which recorded track plays, and its state. */
+export function musicDebug() {
+  const state = (t: MusicTrack) => {
+    const p = players[t]
+    return p ? { paused: p.el.paused, time: Math.round(p.el.currentTime * 10) / 10, gain: Math.round(p.gain.gain.value * 100) / 100 } : null
+  }
+  return { fileMusic, current, day: state('day'), night: state('night'), ctx: ctx?.state ?? null }
 }

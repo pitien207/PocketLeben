@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { CONFIG } from '../data/config'
-import { PLAYER_OUTFIT, type Outfit } from '../data/npcs'
+import { PLAYER_OUTFIT, type Gender, type Outfit } from '../data/npcs'
 import type { SkillId } from '../data/skills'
 import type { Currency } from '../i18n/format'
 
@@ -8,6 +8,8 @@ export interface PlayerStats {
   /** In the current currency (VND in Vietnam, EUR in Germany). */
   money: number
   currency: Currency
+  /** The other wallet (1.13): euros while in Vietnam, đồng while in Germany. Exchanged at a bank. */
+  otherMoney: number
   /** Kept as a float so slow drains add up; shown rounded. */
   energy: number
   maxEnergy: number
@@ -20,6 +22,8 @@ export interface PlayerStats {
   outfit: Outfit
   /** Ids of clothing items owned (data/clothes.ts). */
   wardrobe: string[]
+  /** Chosen when the game starts (only changes the look; the story is the same). */
+  gender: Gender
 }
 
 interface PlayerState extends PlayerStats {
@@ -32,6 +36,10 @@ interface PlayerState extends PlayerStats {
   setGerman: (german: PlayerStats['german']) => void
   /** Switch currency (moving countries); `money` is the converted amount. */
   setMoney: (money: number, currency: Currency) => void
+  /** Use the wallet of this currency (follows the country you're in); the other one waits. */
+  switchCurrency: (currency: Currency) => void
+  /** Exchange `amount` of the current currency into the other wallet. Returns what you got. */
+  exchange: (amount: number) => number
   setOutfit: (outfit: Outfit) => void
   addClothing: (id: string) => void
   /** Replace all stats (loading a save / starting over). */
@@ -45,6 +53,7 @@ export function initialStats(): PlayerStats {
   return {
     money: CONFIG.startingStats.money,
     currency: 'VND',
+    otherMoney: 0,
     energy: CONFIG.startingStats.energy,
     maxEnergy: CONFIG.startingStats.maxEnergy,
     mood: CONFIG.startingStats.mood,
@@ -52,6 +61,7 @@ export function initialStats(): PlayerStats {
     german: { level: 0, xp: 0 },
     outfit: PLAYER_OUTFIT,
     wardrobe: [],
+    gender: 'female',
   }
 }
 
@@ -66,6 +76,17 @@ export const usePlayer = create<PlayerState>()((set) => ({
   addGermanXp: (xp) => set((s) => ({ german: { ...s.german, xp: s.german.xp + xp } })),
   setGerman: (german) => set({ german }),
   setMoney: (money, currency) => set({ money: roundMoney(money, currency), currency }),
+  switchCurrency: (currency) =>
+    set((s) => (s.currency === currency ? s : { currency, money: roundMoney(s.otherMoney, currency), otherMoney: roundMoney(s.money, s.currency) })),
+  exchange: (amount) => {
+    const s = usePlayer.getState()
+    const give = Math.min(Math.max(0, amount), s.money)
+    if (give <= 0) return 0
+    const other: Currency = s.currency === 'VND' ? 'EUR' : 'VND'
+    const got = roundMoney(s.currency === 'VND' ? give / CONFIG.visa.vndPerEur : give * CONFIG.visa.vndPerEur, other)
+    set({ money: roundMoney(s.money - give, s.currency), otherMoney: roundMoney(s.otherMoney + got, other) })
+    return got
+  },
   setOutfit: (outfit) => set({ outfit }),
   addClothing: (id) => set((s) => (s.wardrobe.includes(id) ? s : { wardrobe: [...s.wardrobe, id] })),
   hydrate: (stats) => set({ ...stats }),

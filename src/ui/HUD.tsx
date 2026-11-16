@@ -9,7 +9,6 @@ import { useUI } from '../store/uiStore'
 import { useFlags } from '../store/flagsStore'
 import { ActionIcon } from './ActionIcon'
 import { QuestTracker } from './QuestLog'
-import { MiniMap } from './MapView'
 import { bagCapacity, bagWeight } from '../game/systems/bag'
 import { useInventory } from '../store/inventoryStore'
 import { BagIcon, BoltIcon, CoinIcon, GearIcon, MapIcon, MoodIcon, MoonIcon, RainIcon, SunIcon } from './icons'
@@ -107,6 +106,8 @@ export function HUD() {
   const t = useT()
   const money = usePlayer((s) => s.money)
   const currency = usePlayer((s) => s.currency)
+  const otherMoney = usePlayer((s) => s.otherMoney)
+  const otherCurrency = currency === 'VND' ? 'EUR' : 'VND'
   const energy = usePlayer((s) => Math.round(s.energy))
   const maxEnergy = usePlayer((s) => s.maxEnergy)
   const mood = usePlayer((s) => Math.round(s.mood))
@@ -156,6 +157,18 @@ export function HUD() {
             <CoinIcon className={`-ml-3 shrink-0 text-[30px] drop-shadow-[0_2px_0_var(--color-outline)] ${gain ? 'animate-coin' : ''}`} key={gain?.key} />
             <span className="tabular-nums">{formatMoney(money, currency)}</span>
           </div>
+          {/* The other wallet (euros in Vietnam, đồng in Germany), small under the main one. */}
+          {otherMoney > 0 && (
+            <div
+              role="status"
+              data-testid="other-money"
+              aria-label={`${t('hud.otherMoney')}: ${formatMoney(otherMoney, otherCurrency)}`}
+              title={t('hud.otherMoney')}
+              className="hud-chip absolute top-full right-1 mt-1 px-2 py-0.5 text-[11px] font-black whitespace-nowrap text-ink/70 tabular-nums"
+            >
+              + {formatMoney(otherMoney, otherCurrency)}
+            </div>
+          )}
           {gain && (
             <span
               key={gain.key}
@@ -179,12 +192,10 @@ export function HUD() {
           <OnlineChip />
           <EmoteButton />
         </div>
-        <MiniMap />
-        <span className="sm:hidden">
-          <HudButton label={t('map.title')} onClick={() => openPanel({ type: 'map' })} tour="map">
-            <MapIcon />
-          </HudButton>
-        </span>
+        {/* No minimap: the map opens with M or this button. */}
+        <HudButton label={`${t('map.title')} (M)`} onClick={() => openPanel({ type: 'map' })} tour="map">
+          <MapIcon />
+        </HudButton>
       </div>
     </header>
   )

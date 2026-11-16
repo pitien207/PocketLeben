@@ -6,7 +6,7 @@ import { BENCH_OFFSET, CLASSROOM } from '../interiors'
 import { WallClock, WallFan } from '../shared/Decor'
 import { PALETTE as P } from '../shared/palette'
 import { place, plantShapes } from '../shared/props'
-import { Room } from '../shared/Room'
+import { Room, DOORMAT } from '../shared/Room'
 import type { ShapeItem } from '../shared/Shapes'
 import { SignBoard } from '../shared/SignBoard'
 import type { SignOptions } from '../shared/textures'
@@ -120,7 +120,7 @@ function furniture(): ShapeItem[] {
   }
   s.push(place(plantShapes(P.leafDark, '#c49a6c'), [-W / 2 + 0.5, 0, 2.8], 0, 1.2))
   // Doormat by the way out
-  s.push({ box: [1.1, 0.02, 0.6], at: [CLASSROOM.exit.x, 0.03, CLASSROOM.exit.z], color: '#c8322b' })
+  s.push({ box: [1.1, 0.025, 0.6], at: [CLASSROOM.exit.x, 0.055, CLASSROOM.exit.z], color: DOORMAT })
   return s
 }
 

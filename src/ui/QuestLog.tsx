@@ -3,7 +3,8 @@ import { CHAPTER_NAMES, QUESTS } from '../data/quests'
 import { fillGuide } from '../game/systems/guide'
 import { useGuide } from '../store/guideStore'
 import { useSettings } from '../store/settingsStore'
-import { currentObjective, questComplete, questVisible, stepDone } from '../game/systems/watchers'
+import { currentObjective, questComplete, questSteps, questVisible, stepDone } from '../game/systems/watchers'
+import { pushToast } from '../store/toastStore'
 import { useT } from '../i18n'
 import { useLocalize } from '../i18n/localized'
 import { useFlags } from '../store/flagsStore'
@@ -49,9 +50,11 @@ export function QuestTracker() {
         onClick={() => openPanel({ type: 'quests' })}
         className={`hud-chip relative flex min-w-0 flex-1 items-start gap-1.5 px-2.5 py-1.5 text-left ${flash ? 'step-done-flash' : ''}`}
       >
-        <span className="mt-0.5 shrink-0 text-[18px]">{flash ? <CheckIcon /> : <TargetIcon />}</span>
+        <span className="mt-0.5 shrink-0 text-[18px]">{flash ? <CheckIcon /> : objective.focused ? '📍' : <TargetIcon />}</span>
         <span className="min-w-0">
-          <span className="block text-[12px] leading-snug font-extrabold text-ink">{localize(objective.step.text)}</span>
+          <span className="block text-[12px] leading-snug font-extrabold text-ink" data-testid="tracker-step">
+            {localize(objective.step.text)}
+          </span>
           {guide && guide.stepId === stepId && (
             <span className="block text-[10px] font-black text-ink/60 tabular-nums">
               {t('guide.progress', { done: guide.done, total: guide.total })}
@@ -60,6 +63,17 @@ export function QuestTracker() {
           {blocked && <span className="line-clamp-2 text-[11px] leading-tight font-bold text-lacquer">⚠️ {fillGuide(localize(blocked))}</span>}
         </span>
       </button>
+      {objective.focused && (
+        <button
+          type="button"
+          aria-label={t('quests.unfocus')}
+          title={t('quests.unfocus')}
+          onClick={() => useGuide.getState().setFocus(null)}
+          className="hud-chip grid w-8 shrink-0 place-items-center text-sm font-black text-ink/60"
+        >
+          ✕
+        </button>
+      )}
       <SkipStepButton stepId={objective.step.id} className="hud-chip px-2 text-base" />
       {hints && (
         <button
@@ -81,6 +95,8 @@ export function QuestLog() {
   const panel = useUI((s) => s.panel)
   const closePanel = useUI((s) => s.closePanel)
   useFlags((s) => s.flags)
+  const focus = useGuide((s) => s.focus)
+  const setFocus = useGuide((s) => s.setFocus)
   const [tab, setTab] = useState<'quests' | 'secrets'>('quests')
   if (panel?.type !== 'quests') return null
 
@@ -113,7 +129,8 @@ export function QuestLog() {
               .filter((q) => q.chapter === ch)
               .map((q) => {
                 const done = questComplete(q)
-                const doneSteps = q.steps.filter((s) => stepDone(s.id)).length
+                const steps = questSteps(q)
+                const doneSteps = steps.filter((s) => stepDone(s.id)).length
                 return (
                   <li key={q.id} className={`rounded-2xl bg-white/80 p-2.5 shadow-[inset_0_0_0_2px_#f1dcb6] ${done ? 'opacity-60' : ''}`}>
                     <div className="mb-1 flex items-center gap-1.5 text-[15px] font-black">
@@ -121,18 +138,35 @@ export function QuestLog() {
                         <span className="mr-1 inline-block align-[-3px] text-[20px]">{done ? <CheckIcon /> : q.side ? <StarIcon /> : <ScrollIcon />}</span>
                         {localize(q.title)}
                       </span>
-                      <span className="text-[11px] font-black text-ink/50 tabular-nums">{t('quests.progress', { done: doneSteps, total: q.steps.length })}</span>
+                      <span className="text-[11px] font-black text-ink/50 tabular-nums">{t('quests.progress', { done: doneSteps, total: steps.length })}</span>
                     </div>
                     <div className="mb-1.5 h-1.5 overflow-hidden rounded-full bg-ink/10">
-                      <div className={`h-full rounded-full ${q.side ? 'bg-gold' : 'bg-jade'}`} style={{ width: `${(doneSteps / q.steps.length) * 100}%` }} />
+                      <div className={`h-full rounded-full ${q.side ? 'bg-gold' : 'bg-jade'}`} style={{ width: `${(doneSteps / steps.length) * 100}%` }} />
                     </div>
                     <ul className="flex flex-col gap-0.5">
-                      {q.steps.map((s) => {
+                      {steps.map((s) => {
                         const ok = stepDone(s.id)
+                        const focused = focus === s.id
                         return (
-                          <li key={s.id} className={`flex gap-1.5 text-[13px] font-bold ${ok ? 'text-jade line-through' : 'text-ink'}`}>
-                            <span>{ok ? '✓' : '○'}</span>
-                            <span className="flex-1">{localize(s.text)}</span>
+                          <li key={s.id} className={`flex items-center gap-1.5 text-[13px] font-bold ${ok ? 'text-jade line-through' : 'text-ink'}`}>
+                            <span>{ok ? '✓' : focused ? '📍' : '○'}</span>
+                            {ok ? (
+                              <span className="flex-1">{localize(s.text)}</span>
+                            ) : (
+                              <button
+                                type="button"
+                                data-testid={`quest-step-${s.id}`}
+                                onClick={() => {
+                                  setFocus(s.id)
+                                  closePanel()
+                                  pushToast('toast.guideTo', 'info', { step: localize(s.text) })
+                                }}
+                                className={`flex-1 rounded-lg px-1 py-0.5 text-left underline decoration-dotted underline-offset-2 hover:bg-gold-light/60 ${focused ? 'bg-gold-light/70' : ''}`}
+                              >
+                                {localize(s.text)}
+                              </button>
+                            )}
+                            {!ok && <span className="shrink-0 text-[11px] font-black text-lacquer">{t('quests.directions')}</span>}
                             {!ok && <SkipStepButton stepId={s.id} />}
                           </li>
                         )

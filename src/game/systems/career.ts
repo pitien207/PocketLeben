@@ -114,6 +114,9 @@ function bookTrip() {
     return false
   }
   if (!pay(c.tripCost)) return false
+  // Change a little at Nội Bài so there are đồng for the visit (if the wallet has none).
+  const p = usePlayer.getState()
+  if (p.currency === 'EUR' && p.otherMoney < 200_000 && p.money > 0) p.exchange(Math.min(100, p.money))
   setFlag('trip.away', today())
   setFlag('trip.reunion', false)
   playSfx('coin')
@@ -153,7 +156,7 @@ function returnTrip() {
 /** Lucky money for the little sister. */
 function liXi() {
   if (getFlag('trip.lixiDay') === today()) return false
-  if (!pay(20)) return false
+  if (!pay(usePlayer.getState().currency === 'VND' ? 50_000 : 20)) return false
   setFlag('trip.lixiDay', today())
   usePlayer.getState().changeMood(8)
   playSfx('coin')

@@ -9,6 +9,7 @@ import { useTime } from '../../store/timeStore'
 import { useUI } from '../../store/uiStore'
 import { usePlayer } from '../../store/playerStore'
 import { useWork } from '../../store/workStore'
+import { musicDebug } from './audio'
 import { cameraState } from './cameraState'
 import { chooseOption, openDialogue } from './dialogue'
 import { playerState, teleportPlayer } from './playerState'
@@ -47,6 +48,7 @@ export function installDebugHooks() {
       teleport: teleportPlayer,
       player: playerState,
       camera: cameraState,
+      music: musicDebug,
       stats: usePlayer,
       work: useWork,
       interaction: useInteraction,
@@ -102,6 +104,7 @@ export function DebugBridge() {
   useEffect(() => {
     const vh = (window as unknown as { __vh?: Record<string, unknown> }).__vh
     if (!vh) return
+    vh.cameraPos = () => get().camera.position.toArray()
     vh.renderInfo = () => {
       const { calls, triangles } = get().gl.info.render
       return { calls, triangles }

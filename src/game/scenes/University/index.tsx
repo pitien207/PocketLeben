@@ -6,7 +6,7 @@ import { UNIVERSITY } from '../interiors'
 import { WallClock } from '../shared/Decor'
 import { PALETTE as P } from '../shared/palette'
 import { place, plantShapes } from '../shared/props'
-import { Room } from '../shared/Room'
+import { Room, DOORMAT } from '../shared/Room'
 import type { ShapeItem } from '../shared/Shapes'
 import { SignBoard } from '../shared/SignBoard'
 import type { SignOptions } from '../shared/textures'
@@ -131,7 +131,7 @@ function furniture(): ShapeItem[] {
   const FLYERS = ['#ffe08a', '#ff9fb2', '#a9d6ff', '#c8f0c8', '#ffffff', '#cdb8f0']
   FLYERS.forEach((c, i) => s.push({ box: [0.34, 0.4, 0.01], at: [2.5 + (i % 3) * 0.5, 1.9 - Math.floor(i / 3) * 0.45, BACK + 0.07], rot: [0, 0, (i % 2 ? 1 : -1) * 0.06], color: c }))
   // Doormat
-  s.push({ box: [1.2, 0.02, 0.7], at: [UNIVERSITY.exit.x - 0.3, 0.02, UNIVERSITY.exit.z - 0.1], color: '#244a7a' })
+  s.push({ box: [1.2, 0.025, 0.7], at: [UNIVERSITY.exit.x - 0.3, 0.055, UNIVERSITY.exit.z - 0.1], color: DOORMAT })
   return s
 }
 

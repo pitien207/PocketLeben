@@ -13,6 +13,7 @@ export type Panel =
   | { type: 'ending' }
   | { type: 'map' }
   | { type: 'phone' }
+  | { type: 'create' }
   | { type: 'secret'; id: string }
 
 /** Full-screen fade between scenes, with an optional caption ("✈ Bay sang Đức…"). */

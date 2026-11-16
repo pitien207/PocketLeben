@@ -10,7 +10,8 @@ import { registerActions } from './actions'
 import { playSfx } from './audio'
 import { bumpFlag, flagNumber, getFlag, registerTests, setFlag } from './conditions'
 import { goToSleep, pay } from './effects'
-import { canSleep, spendTime, weekdayIndex } from './time'
+import { canSleep, formatClock, spendTime, weekdayIndex } from './time'
+import { decodeSlot, TERMIN_CANCELLED } from './termin'
 import { travelTo } from './travel'
 
 /**
@@ -119,10 +120,13 @@ function buergeramtTermin() {
   }
   bumpFlag('stats.terminTries')
   useMinigame.getState().start({ kind: 'termin', attempts: 4 }, (r) => {
-    if (r.passed && r.value) {
-      setFlag('de.anmeldungTermin', today() + r.value)
+    if (r.value === TERMIN_CANCELLED) return
+    if (r.passed && r.value !== undefined) {
+      const slot = decodeSlot(r.value)
+      setFlag('de.anmeldungTermin', today() + slot.dayOffset)
+      setFlag('de.anmeldungTime', slot.minutes)
       bumpFlag('stats.termins')
-      pushToast('toast.terminBooked', 'good', { day: today() + r.value })
+      pushToast('toast.terminBookedAt', 'good', { day: today() + slot.dayOffset, time: formatClock(slot.minutes) })
     } else {
       pushToast('toast.terminMissed', 'bad')
     }

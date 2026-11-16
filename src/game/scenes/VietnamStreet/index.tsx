@@ -26,6 +26,7 @@ import { TubeHouse, type HousePalette } from './TubeHouse'
 import { WestBlock } from './WestBlock'
 import { EastBlock } from './EastBlock'
 import { NgocSon } from './NgocSon'
+import { VisaOffices } from './VisaOffices'
 
 /** "Vàng Hà Nội": ochre walls, green wooden shutters, dark green ironwork. */
 const HOME_PALETTE: HousePalette = {
@@ -100,6 +101,7 @@ export const VietnamStreet = memo(function VietnamStreet() {
       <WestBlock />
       <EastBlock />
       <NgocSon />
+      <VisaOffices />
       <Backdrop lake colors={HANOI_BACKDROP} roof="#c8653d" clear={PLAY} />
     </group>
   )

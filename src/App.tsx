@@ -13,6 +13,7 @@ import { QuestLog } from './ui/QuestLog'
 import { EndingPanel } from './ui/EndingPanel'
 import { MapPanel } from './ui/MapView'
 import { PhonePanel } from './ui/PhonePanel'
+import { CharacterCreate } from './ui/CharacterCreate'
 import { SecretCard } from './ui/SecretCard'
 import { ChapterCard } from './ui/ChapterCard'
 import { TransitionOverlay } from './ui/TransitionOverlay'
@@ -70,6 +71,7 @@ export default function App() {
         <EndingPanel />
         <MapPanel />
         <PhonePanel />
+        <CharacterCreate />
         <SecretCard />
         <ChapterCard />
         <GuideUiPulse />

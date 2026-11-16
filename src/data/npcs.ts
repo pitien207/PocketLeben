@@ -60,6 +60,25 @@ export const PLAYER_OUTFIT: Outfit = {
   accessory: null,
 }
 
+export type Gender = 'female' | 'male'
+
+/** Starting looks picked on the "Chọn nhân vật" screen (new game). Clothes can change later. */
+export const PLAYER_OUTFITS: Record<Gender, Outfit> = {
+  female: { ...PLAYER_OUTFIT, hairStyle: 'long', accessory: 'bow', accent: '#ff8fab', lashes: true, expression: 'happy' },
+  male: {
+    skin: '#f6d6bc',
+    hair: '#2a2020',
+    hairStyle: 'short',
+    shirt: '#9fd3b4',
+    shorts: '#4f5d75',
+    shoe: '#ffffff',
+    bag: '#ffc27a',
+    accessory: null,
+    shoeType: 'sneaker',
+    expression: 'happy',
+  },
+}
+
 /** Café customers, picked in turn. */
 export const CUSTOMER_OUTFITS: Outfit[] = [
   { skin: '#f9d4b8', hair: '#2b2222', hairStyle: 'bun', shirt: '#ffb3c7', shorts: '#8e7cc3', shoe: '#ffffff', bag: null, accessory: null },
@@ -227,6 +246,35 @@ export const NPCS = {
     title: { vi: 'Dược sĩ', en: 'Pharmacist', de: 'Apothekerin' },
     outfit: { skin: '#f6d6c0', hair: '#2b2222', hairStyle: 'bun', shirt: '#ffffff', shorts: '#2f8c7f', shoe: '#ffffff', bag: null, accessory: 'glasses', top: 'long', bottom: 'pants' },
     dialogueId: 'coThuoc',
+  },
+  // --- Visa offices at the west end of the street (1.13) ---
+  chuAnh: {
+    id: 'chuAnh',
+    name: { vi: 'Chú Hùng', en: 'Mr Hùng', de: 'Herr Hùng' },
+    title: { vi: 'Tiệm ảnh · Ảnh thẻ visa', en: 'Photo studio · Visa photos', de: 'Fotostudio · Passbilder' },
+    outfit: { skin: '#eec39f', hair: '#2a2020', hairStyle: 'short', shirt: '#5d6b8a', shorts: '#3a3f4e', shoe: '#2a2626', bag: null, accessory: 'glasses', top: 'jacket', bottom: 'pants', shoeType: 'loafer', expression: 'happy' },
+    dialogueId: 'chuAnh',
+  },
+  coCongChung: {
+    id: 'coCongChung',
+    name: { vi: 'Cô Phương', en: 'Ms Phương', de: 'Frau Phương' },
+    title: { vi: 'Văn phòng công chứng', en: 'Notary office', de: 'Notariat' },
+    outfit: { skin: '#f6d6c0', hair: '#1c1818', hairStyle: 'bun', shirt: '#ffffff', shorts: '#2f3a4d', shoe: '#2a2626', bag: null, accessory: 'glasses', top: 'long', bottom: 'skirt', neck: 'scarf', neckColor: '#c8322b', shoeType: 'loafer', lashes: true },
+    dialogueId: 'coCongChung',
+  },
+  anhNganHang: {
+    id: 'anhNganHang',
+    name: { vi: 'Anh Quân', en: 'Quân', de: 'Herr Quân' },
+    title: { vi: 'Nhân viên ngân hàng', en: 'Bank clerk', de: 'Bankangestellter' },
+    outfit: { skin: '#f5cfb0', hair: '#1f1a1a', hairStyle: 'short', shirt: '#ffffff', shorts: '#26324a', shoe: '#1e1e22', bag: null, accessory: null, top: 'long', bottom: 'pants', neck: 'tie', neckColor: '#2f8c7f', shoeType: 'loafer', expression: 'happy' },
+    dialogueId: 'anhNganHang',
+  },
+  coAps: {
+    id: 'coAps',
+    name: { vi: 'Frau Schneider', en: 'Ms Schneider', de: 'Frau Schneider' },
+    title: { vi: 'Cán bộ APS', en: 'APS examiner', de: 'APS-Prüferin' },
+    outfit: { skin: '#f7dccb', hair: '#c9a46a', hairStyle: 'bob', shirt: '#3f5f8f', shorts: '#2f3440', shoe: '#2a2626', bag: null, accessory: 'glasses', top: 'jacket', bottom: 'pants', shoeType: 'loafer', eye: '#4f7fa8', lashes: true },
+    dialogueId: 'coAps',
   },
   coMay: {
     id: 'coMay',

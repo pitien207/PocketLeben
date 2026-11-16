@@ -4,6 +4,7 @@ import { STORY_DIALOGUES } from './dialogues/story'
 import { STREET_DIALOGUES } from './dialogues/street'
 import { UNIVERSITY_DIALOGUES } from './dialogues/university'
 import { EXPLORE_DIALOGUES } from './dialogues/explore'
+import { OFFICE_DIALOGUES } from './dialogues/offices'
 
 export type { DialogueChoice, DialogueDef, DialogueEffect, DialogueNode } from './dialogueTypes'
 
@@ -14,4 +15,5 @@ export const DIALOGUES: Record<string, DialogueDef> = {
   ...GERMANY_DIALOGUES,
   ...UNIVERSITY_DIALOGUES,
   ...EXPLORE_DIALOGUES,
+  ...OFFICE_DIALOGUES,
 }
