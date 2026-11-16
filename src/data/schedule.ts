@@ -18,7 +18,7 @@ export interface PlaceHours {
 const shopHours = (id: keyof typeof SHOPS): [number, number] => ((SHOPS[id] as { hours?: [number, number] }).hours ?? [0, 24])
 
 export const SCHEDULE: PlaceHours[] = [
-  { id: 'cafe', icon: '☕', country: 'vn', name: { vi: 'Cà phê Phố Cổ (làm ca)', en: 'Old Quarter café (shifts)', de: 'Altstadt-Café (Schichten)' }, hours: [CONFIG.jobs.cafeBarista.openHour, CONFIG.jobs.cafeBarista.closeHour] },
+  { id: 'cafe', icon: '🧋', country: 'vn', name: { vi: 'Trà Sữa Phố Cổ (làm ca)', en: 'Old Quarter bubble tea (shifts)', de: 'Bubble-Tea-Laden (Schichten)' }, hours: CONFIG.vnJobs.tea.hours },
   { id: 'school', icon: '🏫', country: 'vn', name: { vi: 'Trung tâm tiếng Đức', en: 'German centre', de: 'Deutschzentrum' }, hours: CONFIG.school.hours },
   { id: 'embassy', icon: '🛂', country: 'vn', name: { vi: 'Đại sứ quán Đức', en: 'German Embassy', de: 'Deutsche Botschaft' }, hours: CONFIG.visa.embassyHours },
   { id: 'buergeramt', icon: '🏛️', country: 'de', name: { vi: 'Bürgeramt', en: 'Bürgeramt', de: 'Bürgeramt' }, hours: CONFIG.germany.officeHours, closedDays: [5, 6] },

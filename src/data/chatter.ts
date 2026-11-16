@@ -67,7 +67,7 @@ export const SOLO_LINES: Record<string, Localized[]> = {
     { vi: 'Der, die, das… sao khó thế không biết!', en: 'Der, die, das… why is it so hard!', de: 'Der, die, das… warum so schwer!' },
   ],
   chiLan: [
-    { vi: 'Hôm nay quán cà phê đông thế.', en: 'The café is so busy today.', de: 'Das Café ist heute so voll.' },
+    { vi: 'Hôm nay tiệm trà sữa đông thế.', en: 'The café is so busy today.', de: 'Das Café ist heute so voll.' },
     { vi: 'Tắc đường kinh khủng!', en: 'Traffic is crazy!', de: 'Der Verkehr ist verrückt!' },
   ],
   kids: [

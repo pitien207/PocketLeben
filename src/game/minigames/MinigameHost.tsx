@@ -8,6 +8,7 @@ import { useWorld } from '../../store/worldStore'
 import { playSfx } from '../systems/audio'
 import { TERMIN_CANCELLED } from '../systems/termin'
 import { MinigameThemeContext, ResultView, type MinigameTheme } from './common'
+import { BubbleTeaGame } from './BubbleTea'
 import { DerDieDas } from './DerDieDas'
 import { B1_MODULE_NAMES, B1_MODULES, Exam } from './Exam'
 import { CircleKGame, GrabGame, TutorGame } from './JobGames'
@@ -111,6 +112,16 @@ export function MinigameHost() {
         break
       case 'tutor':
         game = <TutorGame key={active.id} rank={active.rank} onComplete={complete(localize({ vi: 'Buổi kèm học', en: 'Tutoring', de: 'Nachhilfe' }), 0.5)} />
+        break
+      case 'bubbleTea':
+        game = (
+          <BubbleTeaGame
+            key={active.id}
+            rank={active.rank}
+            strikes={active.strikes}
+            onDone={(tea) => finish({ ...makeResult(tea.served, Math.max(1, tea.served + tea.failed), 0.5), tea })}
+          />
+        )
         break
       case 'listen':
         game = <ListenGame key={active.id} level={active.level} count={active.count} title="Hören" onComplete={complete('Hören', 0.6)} />

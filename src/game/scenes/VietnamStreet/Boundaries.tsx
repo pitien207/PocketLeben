@@ -4,7 +4,7 @@ import { PROP_GROUPS } from '../../systems/collisionGroups'
 import { PALETTE as P } from '../shared/palette'
 import { barrierShapes, coneShapes, place } from '../shared/props'
 import { Shapes, type ShapeItem } from '../shared/Shapes'
-import { NGOC_SON, PLAY, ROAD, SIDE_ROAD } from './layout'
+import { NGOC_SON, NORTH, PLAY, ROAD } from './layout'
 
 const WALL_H = 4
 const T = 0.5 // half thickness of the invisible walls
@@ -32,35 +32,27 @@ function hedge(from: [number, number], to: [number, number]): ShapeItem[] {
 export function Boundaries() {
   const shapes = useMemo<ShapeItem[]>(() => {
     const s: ShapeItem[] = []
-    const { minX, maxX, minZ, maxZ } = PLAY
+    const { minX, maxX, maxZ } = PLAY
 
-    // Back wall behind the buildings (stops at the side road)
-    const wallLen = SIDE_ROAD.minX - minX + 0.4
-    const wallX = minX - 0.4 + wallLen / 2
-    s.push({ box: [wallLen, 1.8, 0.4], at: [wallX, 0.9, minZ - 0.2], color: P.cream })
-    s.push({ box: [wallLen + 0.1, 0.14, 0.5], at: [wallX, 1.85, minZ - 0.2], color: P.peach })
-    // …and continues east of it, behind the đình and the east houses
-    const eastLen = maxX + 0.4 - SIDE_ROAD.maxX
-    const eastX = SIDE_ROAD.maxX + eastLen / 2
-    s.push({ box: [eastLen, 1.8, 0.4], at: [eastX, 0.9, minZ - 0.2], color: P.cream })
-    s.push({ box: [eastLen + 0.1, 0.14, 0.5], at: [eastX, 1.85, minZ - 0.2], color: P.peach })
+    // (1.17: the old back wall is gone — a second row of houses stands behind the Hàng Gai row,
+    // and Phố Hàng Bông and two lanes lead through it to the walking street, see NorthQuarter.tsx)
 
     // Hedges along the west, south and east edges (gaps where the roads pass)
     s.push(...hedge([minX - 0.35, -4.2], [minX - 0.35, ROAD.minZ - 0.4]))
     s.push(...hedge([minX - 0.35, ROAD.maxZ + 0.4], [minX - 0.35, maxZ + 0.35]))
     // (the south edge is Hồ Gươm's railing, see HoGuom.tsx)
     s.push(...hedge([maxX + 0.35, ROAD.maxZ + 0.4], [maxX + 0.35, maxZ + 0.35]))
-    s.push(...hedge([maxX + 0.35, minZ], [maxX + 0.35, ROAD.minZ - 0.4]))
+    s.push(...hedge([maxX + 0.35, -4.2], [maxX + 0.35, ROAD.minZ - 0.4]))
+    // East end of the walking street: planters and a hedge (it goes on, but not for us)
+    s.push(...hedge([maxX + 0.5, NORTH.walk.z1 + 0.6], [maxX + 0.5, NORTH.walk.z0 - 0.6]))
+    for (const z of [NORTH.walk.z1 + 2.5, (NORTH.walk.z0 + NORTH.walk.z1) / 2, NORTH.walk.z0 - 2.5]) s.push(place(barrierShapes(2.4), [maxX - 0.3, 0, z], Math.PI / 2))
 
     // The main road stays open for traffic (invisible walls stop the player);
     // the side road is closed off. Cones mark the sidewalk corners.
-    const sideW = SIDE_ROAD.maxX - SIDE_ROAD.minX
-    s.push(place(barrierShapes(sideW), [(SIDE_ROAD.minX + SIDE_ROAD.maxX) / 2, 0, minZ - 0.2]))
     s.push(place(coneShapes(), [minX + 0.4, 0, ROAD.minZ - 0.5]))
     s.push(place(coneShapes(), [minX + 0.4, 0, ROAD.maxZ + 0.5]))
     s.push(place(coneShapes(), [maxX - 0.4, 0, ROAD.minZ - 0.5]))
     s.push(place(coneShapes(), [maxX - 0.4, 0, ROAD.maxZ + 0.5]))
-    s.push(place(coneShapes(), [SIDE_ROAD.minX + 0.8, 0, minZ + 0.6]))
     return s
   }, [])
 

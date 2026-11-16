@@ -111,7 +111,7 @@ export const SECRETS: SecretDef[] = [
     radius: 1.4,
     icon: '🎨',
     name: L('Bức tranh tường cuối phố', 'The mural at the end of the road', 'Das Wandbild'),
-    hint: L('Đi hết con đường bên cạnh quán cà phê xem sao.', 'Walk all the way up the side road by the café.'),
+    hint: L('Đi hết con đường bên cạnh tiệm trà sữa xem sao.', 'Walk all the way up the side road by the café.'),
     story: L(
       'Ai đó vẽ một chiếc xe đạp chở đầy hoa và dòng chữ "Hà Nội luôn chờ bạn về". Bạn chụp một tấm ảnh để mang theo.',
       'Someone painted a bicycle full of flowers and the words "Hà Nội is always waiting for you". You take a photo to bring along.',

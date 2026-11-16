@@ -16,7 +16,7 @@ import { isRaining } from './weather'
 import { L, say, vnd } from './say'
 
 /**
- * Side jobs in Vietnam (story 2.1 §11.1): café, Circle K, Grab, tutoring. Each at most once a
+ * Side jobs in Vietnam (story 2.1 §11.1): the bubble-tea shop (id `cafe`), Circle K, Grab, tutoring. Each at most once a
  * day; after 8 and 20 times you rank up (+10 % / +20 % pay, a little harder). The phone has a
  * "job board" with today's four jobs.
  */
@@ -51,7 +51,7 @@ export function recordJob(job: VnJob) {
 }
 
 export function jobUnlocked(job: VnJob) {
-  if (job === 'cafe') return true
+  if (job === 'cafe') return teaBanLeft() <= 0
   if (job === 'circleK') return !!getFlag('job.circleK.hired')
   if (job === 'grab') return !!getFlag('job.grab') && houseLevel() < 3
   return !!getFlag('job.tutor.unlocked')
@@ -68,6 +68,72 @@ function finishPay(job: VnJob, base: number, energy: number, minutes: number) {
   recordJob(job)
   playSfx('coin')
   return total
+}
+
+// --- Tiệm trà sữa Phố Cổ ------------------------------------------------------------------------
+
+const TEA = J.tea
+/** Early walk-outs chị Vy still remembers. */
+export const teaStrikes = () => flagNumber('job.cafe.quits')
+/** Days left until you may work at the tea shop again (0 = not fired). */
+export const teaBanLeft = () => Math.max(0, flagNumber('job.cafe.banUntil') - today())
+
+/** Wage of a tea shift: the share worked × satisfaction × rank. */
+export function teaWage(o: { meter: number; fraction: number }, rank: number) {
+  const { min, max } = CONFIG.work.payMultiplier
+  const mult = min + ((max - min) * o.meter) / 100
+  return Math.round((TEA.pay * o.fraction * mult * (1 + J.rankBonus[rank])) / 1000) * 1000
+}
+
+function teaShift() {
+  if (useMinigame.getState().active) return false
+  const ban = teaBanLeft()
+  if (ban > 0) {
+    say(L('Chị Vy: „Em bỏ ca giữa chừng nhiều quá. {n} ngày nữa hãy quay lại xin việc."', 'Vy: “You walked out too often. Come back in {n} days.”'), 'bad', { n: ban })
+    return false
+  }
+  if (hour() < TEA.hours[0] || hour() >= TEA.hours[1]) return pushToast('toast.cafeClosed', 'info', { open: TEA.hours[0], close: TEA.hours[1] }), false
+  if (jobDoneToday('cafe')) return alreadyToday(), false
+  if (usePlayer.getState().energy < TEA.energy) return pushToast('toast.tooTired', 'bad'), false
+  const rank = jobRank('cafe')
+  useMinigame.getState().start({ kind: 'bubbleTea', rank, strikes: teaStrikes() }, (r) => {
+    const o = r.tea
+    if (!o) return
+    const p = usePlayer.getState()
+    const wage = teaWage(o, rank)
+    p.addMoney(wage + o.tips)
+    p.spendEnergy(Math.round(TEA.energy * o.fraction))
+    p.addSkillXp('barista', Math.round(TEA.xp * o.fraction))
+    p.changeMood(Math.round((o.meter - 50) * CONFIG.needs.workMoodFactor * o.fraction))
+    spendTime(Math.round(TEA.minutes * o.fraction))
+    bumpFlag('stats.shifts')
+    bumpFlag('stats.served', o.served)
+    playSfx('coin')
+    if (!o.quit) {
+      recordJob('cafe')
+      say(L('Xong ca trà sữa: +{m}', 'Tea shift done: +{m}'), 'good', { m: vnd(wage + o.tips) })
+      if (teaStrikes() > 0 && o.meter >= 50) {
+        bumpFlag('job.cafe.quits', -1)
+        say(L('Chị Vy: „Hôm nay làm đến nơi đến chốn đấy. Chị ghi nhận."', 'Vy: “A proper shift today. Noted.”'), 'good')
+      }
+      return
+    }
+    // Walked out early: the day is used up, no rank progress, and a strike.
+    setFlag('job.cafe.day', today())
+    p.changeMood(-3)
+    const n = bumpFlag('job.cafe.quits')
+    if (n >= TEA.maxQuits) {
+      setFlag('job.cafe.banUntil', today() + TEA.banDays + 1)
+      setFlag('job.cafe.quits', 0)
+      bumpFlag('job.cafe.fired')
+      say(L('Chị Vy: „Em bỏ ca {n} lần rồi. Chị cho em nghỉ việc {d} ngày, về suy nghĩ lại đi."', 'Vy: “That is {n} walk-outs. You are off for {d} days.”'), 'bad', { n, d: TEA.banDays })
+    } else if (n === TEA.maxQuits - 1) {
+      say(L('Chị Vy: „Lần thứ {n} em bỏ ca rồi đấy. Thêm lần nữa là chị cho nghỉ việc."', 'Vy: “Walk-out number {n}. Once more and you are out.”'), 'bad', { n })
+    } else {
+      say(L('Chị Vy cau mày: „Khách đang đông mà em về à? Lần sau làm cho hết ca nhé."', 'Vy frowns: “Leaving while it is busy? Finish your shift next time.”'), 'bad')
+    }
+  })
+  return true
 }
 
 // --- Circle K ---------------------------------------------------------------------------------
@@ -190,6 +256,7 @@ function tutorShift() {
 }
 
 registerActions({
+  'job.tea': teaShift,
   'job.circleK': circleKShift,
   'job.circleKInterview': circleKInterview,
   'job.grabRegister': grabRegister,
@@ -199,6 +266,8 @@ registerActions({
 
 registerTests({
   'job.cafeToday': () => jobDoneToday('cafe'),
+  'job.teaBanned': () => teaBanLeft() > 0,
+  'job.teaWarned': () => teaStrikes() > 0,
   'job.circleKToday': () => jobDoneToday('circleK'),
   'job.circleKHired': () => !!getFlag('job.circleK.hired'),
   'job.grabReady': () => jobUnlocked('grab'),

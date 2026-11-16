@@ -5,7 +5,7 @@ import { groundMaterial, lambert } from '../shared/materials'
 import { PALETTE as P } from '../shared/palette'
 import { Shapes, type ShapeItem } from '../shared/Shapes'
 import { makeTileTexture } from '../shared/textures'
-import { PLAY, ROAD, SIDE_ROAD } from './layout'
+import { NORTH, PLAY, ROAD, SIDE_ROAD } from './layout'
 
 const FAR = 80 // roads run off into the fog
 const PAVE = { minX: PLAY.minX - 0.6, maxX: PLAY.maxX + 0.6, minZ: PLAY.minZ - 0.4, maxZ: PLAY.maxZ + 0.6 }
@@ -17,7 +17,8 @@ function roadShapes(): ShapeItem[] {
   const roadZ = (ROAD.minZ + ROAD.maxZ) / 2
   const sideW = SIDE_ROAD.maxX - SIDE_ROAD.minX
   const sideX = (SIDE_ROAD.minX + SIDE_ROAD.maxX) / 2
-  const sideLen = FAR + ROAD.minZ
+  // The side road ends at the walking street (1.17); it used to run off into the fog.
+  const sideLen = ROAD.minZ - NORTH.walk.z0
 
   // Asphalt
   s.push({ box: [FAR * 2, 0.02, roadW], at: [0, 0.005, roadZ], color: P.road })
@@ -36,7 +37,7 @@ function roadShapes(): ShapeItem[] {
     if (x > SIDE_ROAD.minX - 1.5 && x < SIDE_ROAD.maxX + 0.5) continue
     s.push({ box: [1.3, 0.01, 0.14], at: [x, 0.02, roadZ], color: P.roadLine })
   }
-  for (let z = ROAD.minZ - 1.5; z > -FAR; z -= 2.4) {
+  for (let z = ROAD.minZ - 1.5; z > NORTH.walk.z0 + 1; z -= 2.4) {
     s.push({ box: [0.14, 0.01, 1.3], at: [sideX, 0.02, z], color: P.roadLine })
   }
 
@@ -62,8 +63,36 @@ function roadShapes(): ShapeItem[] {
   s.push(curb(sideLen, [SIDE_ROAD.minX, 0.06, ROAD.minZ - sideLen / 2], false))
   s.push(curb(sideLen, [SIDE_ROAD.maxX, 0.06, ROAD.minZ - sideLen / 2], false))
 
+  s.push(...northGround())
+
   // Manhole cover
   s.push({ cyl: [0.42, 0.42, 0.02, 14], at: [4.2, 0.022, roadZ + 1.4], color: '#8e98ab' })
+  return s
+}
+
+/** Phố đi bộ Hàng Đào: pale stone setts with darker bands, the lanes, the round pattern of the square. */
+function northGround(): ShapeItem[] {
+  const s: ShapeItem[] = []
+  const { walk, plaza, rowC, lanes, rowB } = NORTH
+  const midZ = (walk.z0 + walk.z1) / 2
+  const depth = walk.z0 - walk.z1
+  const x1 = FAR
+  const len = x1 - (walk.x0 - 1)
+  const cx = (walk.x0 - 1 + x1) / 2
+  s.push({ box: [len, 0.02, depth - 6], at: [cx, 0.006, midZ], color: '#e3d6bf' })
+  s.push({ box: [len, 0.02, 0.5], at: [cx, 0.008, walk.z0 - 3.2], color: '#c9b9a0' })
+  s.push({ box: [len, 0.02, 0.5], at: [cx, 0.008, walk.z1 + 3.2], color: '#c9b9a0' })
+  for (let x = walk.x0 + 2; x < walk.x1 + 4; x += 4.25) s.push({ box: [0.3, 0.02, depth - 7], at: [x, 0.009, midZ], color: '#d3c4aa' })
+  s.push({ box: [len, 0.02, 1.5], at: [cx, 0.011, midZ], color: '#d9c7a6' })
+  // The square: a ring of darker stone around the fountain
+  const { x: fx, z: fz } = plaza.fountain
+  s.push({ box: [plaza.x1 - plaza.x0, 0.02, rowC.front - rowC.back], at: [(plaza.x0 + plaza.x1) / 2, 0.006, (rowC.front + rowC.back) / 2], color: '#e3d6bf' })
+  s.push({ cyl: [3.6, 3.6, 0.02, 28], at: [fx, 0.009, fz], color: '#c9b9a0' })
+  s.push({ cyl: [3.1, 3.1, 0.02, 28], at: [fx, 0.012, fz], color: '#ead9bb' })
+  // Lanes through the back row: worn grey setts
+  for (const lane of lanes) s.push({ box: [lane.x1 - lane.x0, 0.02, rowB.back - rowB.front], at: [(lane.x0 + lane.x1) / 2, 0.006, (rowB.back + rowB.front) / 2], color: '#d3c9b8' })
+  // Hàng Bông's north stretch: kerbs along the widened pavements
+  for (const x of [SIDE_ROAD.minX, SIDE_ROAD.maxX]) s.push({ box: [0.22, 0.12, 0.2], at: [x, 0.06, walk.z0 + 0.1], color: P.curb })
   return s
 }
 

@@ -1,5 +1,5 @@
 import { memo, useMemo } from 'react'
-import { NPCS } from '../../../data/npcs'
+import { NPCS, raggedOutfit } from '../../../data/npcs'
 import { ActionSpot, type SpotAction } from '../../components/ActionSpot'
 import { NPC } from '../../components/npc/NPC'
 import { HOME_ROOM } from '../interiors'
@@ -21,6 +21,13 @@ import { HouseScene } from './HouseScene'
 const { w: W, d: D, h: H } = HOME_ROOM
 const BACK = -D / 2
 const STYLE = { wall: '#f6dfa8', wallLow: '#ecc983', floor: '#e2a77f', floorAlt: '#d69a72', trim: '#fff3d6', window: '#cfe8f6' }
+/** The paint gets dingier with every debt level (story 2.1 §1.8). */
+const STYLES = [
+  STYLE,
+  { wall: '#eed59c', wallLow: '#e0bd7a', floor: '#d99f78', floorAlt: '#cc916b', trim: '#f3e6c6', window: '#c6dfec' },
+  { wall: '#e0c68f', wallLow: '#cfab6e', floor: '#c9926f', floorAlt: '#b98362', trim: '#e3d5b4', window: '#b9d0dc' },
+  { wall: '#cdb486', wallLow: '#b99a66', floor: '#b58566', floorAlt: '#a37558', trim: '#cfc2a2', window: '#a9bfca' },
+]
 
 const WOOD = '#9a6a43'
 const WOOD_DARK = '#74502f'
@@ -173,7 +180,101 @@ function houseShapes(level: number, mortgaged: boolean, clock: boolean): ShapeIt
     s.push({ box: [0.28, 0.05, 0.36], at: [-W / 2 + 0.25, 1.37, 0.45], color: '#c8322b' })
     s.push({ box: [0.2, 0.052, 0.04], at: [-W / 2 + 0.25, 1.371, 0.4], color: '#f4c04e' })
   }
+  s.push(...povertyShapes(level))
   if (!clock) s.push({ cyl: [0.23, 0.23, 0.005, 16], at: [ax, 2.72, BACK + 0.006], rot: [Math.PI / 2, 0, 0], color: '#e9d39a' })
+  return s
+}
+
+/** Deterministic scatter so the stains sit in the same places on every visit. */
+const rnd = (i: number) => {
+  const x = Math.sin(i * 127.1 + 3.7) * 43758.5453
+  return x - Math.floor(x)
+}
+
+/**
+ * What being poor looks like, on top of the sold things: peeling paint and damp from level 1,
+ * newspaper over the holes, mould, a taped window and noodle boxes from level 2, and at level 3
+ * bare bricks, buckets under every leak, patched washing on a line, a candle instead of the lamp.
+ */
+function povertyShapes(level: number): ShapeItem[] {
+  const s: ShapeItem[] = []
+  if (level < 1) return s
+  const wallZ = BACK + 0.011
+  // Peeling paint: pale plaster blotches, more of them every level
+  const peel = [6, 12, 20][level - 1]
+  for (let i = 0; i < peel; i++) {
+    const x = -W / 2 + 0.5 + rnd(i) * (W - 1)
+    const y = 0.35 + rnd(i + 40) * 2.2
+    // keep the altar, window and calendar readable
+    if (Math.abs(x + 0.4) < 0.9 && y > 1.7) continue
+    const w = 0.18 + rnd(i + 80) * 0.3
+    s.push({ box: [w, 0.12 + rnd(i + 120) * 0.22, 0.008], at: [x, y, wallZ], rot: [0, 0, (rnd(i + 7) - 0.5) * 0.5], color: i % 3 === 0 ? '#bfae8e' : '#e8dcc2' })
+    if (i % 2 === 0) s.push({ box: [w * 0.5, 0.07, 0.009], at: [x + 0.05, y - 0.04, wallZ + 0.001], rot: [0, 0, rnd(i) - 0.5], color: '#a89a80' })
+  }
+  // Damp creeping up from the floor
+  for (let i = 0; i < 4 + level * 3; i++) {
+    const x = -W / 2 + 0.3 + rnd(i + 200) * (W - 0.6)
+    s.push({ box: [0.3 + rnd(i + 210) * 0.5, 0.12 + rnd(i + 220) * (0.12 * level), 0.007], at: [x, 0.2 + rnd(i + 230) * 0.1, wallZ], color: level >= 2 && i % 2 ? '#7d8a66' : '#a8946e' })
+  }
+  // Water stain running down from the top of the wall
+  for (let i = 0; i < level + 1; i++) {
+    const x = 2.3 + i * 0.5
+    s.push({ box: [0.34, 0.5 + i * 0.2, 0.007], at: [x, 2.65 - i * 0.1, wallZ], color: '#b9a276' })
+    s.push({ box: [0.05, 0.9, 0.008], at: [x + 0.06, 2.1 - i * 0.1, wallZ], color: '#b9a276' })
+  }
+  // The blanket is patched
+  const { x: bx, z: bz } = HOME_ROOM.bed
+  s.push({ box: [0.3, 0.012, 0.2], at: [bx - 0.3, 0.546, bz + 0.72], rot: [0, 0.2, 0], color: '#c2a98a' })
+  s.push({ box: [0.22, 0.012, 0.16], at: [bx + 0.35, 0.546, bz + 0.68], rot: [0, -0.3, 0], color: '#8f8a80' })
+  if (level < 2) return s
+
+  // Newspaper pasted over holes in the plaster
+  for (const [x, y, r] of [[-1.9, 1.2, 0.08], [1.25, 0.9, -0.12], [3.0, 1.5, 0.05]] as const) {
+    s.push({ box: [0.5, 0.36, 0.009], at: [x, y, wallZ + 0.002], rot: [0, 0, r], color: '#e6e0cf' })
+    for (let l = 0; l < 4; l++) s.push({ box: [0.4, 0.02, 0.01], at: [x, y + 0.12 - l * 0.075, wallZ + 0.003], rot: [0, 0, r], color: '#8d8a84' })
+  }
+  // The cracked window pane, held with tape
+  const { x: dx } = HOME_ROOM.desk
+  s.push({ box: [0.5, 0.04, 0.012], at: [dx - 0.1, 1.8, BACK + 0.02], rot: [0, 0, 0.7], color: '#d9c48a' })
+  s.push({ box: [0.4, 0.04, 0.012], at: [dx + 0.05, 1.7, BACK + 0.02], rot: [0, 0, -0.5], color: '#d9c48a' })
+  // Broken floor tiles
+  for (let i = 0; i < 5 + (level - 2) * 5; i++) {
+    const x = -W / 2 + 0.8 + rnd(i + 300) * (W - 1.6)
+    const z = BACK + 1.2 + rnd(i + 310) * (D - 2)
+    s.push({ box: [0.3 + rnd(i + 320) * 0.3, 0.004, 0.2 + rnd(i + 330) * 0.3], at: [x, 0.043, z], rot: [0, rnd(i + 340) * 3, 0], color: '#8b6a52' })
+  }
+  // Boxes of instant noodles by the kitchen: dinner, most days
+  for (let i = 0; i < 3; i++) s.push({ box: [0.42, 0.26, 0.32], at: [W / 2 - 0.36, 0.17 + i * 0.27, 0.55], rot: [0, i * 0.15, 0], color: i % 2 ? '#d98a45' : '#c9772f' })
+  // A bare bulb on a wire instead of the ceiling lamp
+  s.push({ cyl: [0.006, 0.006, 0.7, 4], at: [0.6, 2.65, 0.2], color: '#3a3a3a' })
+  s.push({ sphere: [0.06, 8, 6], at: [0.6, 2.27, 0.2], color: '#fff2b8' })
+  if (level < 3) return s
+
+  // More bare brick where the plaster fell off
+  for (const [px, py] of [[2.2, 0.75], [-0.9, 0.6]] as const) {
+    s.push({ box: [0.8, 0.55, 0.012], at: [px, py, wallZ + 0.001], color: '#b0623e' })
+    for (let r = 0; r < 3; r++) for (let c = 0; c < 3; c++) s.push({ box: [0.22, 0.08, 0.018], at: [px - 0.27 + c * 0.26 + (r % 2) * 0.1, py - 0.17 + r * 0.17, wallZ + 0.008], color: '#c8653d' })
+    // rubble under it
+    for (let i = 0; i < 4; i++) s.push({ box: [0.12, 0.07, 0.1], at: [px - 0.3 + i * 0.2, 0.075, BACK + 0.2 + (i % 2) * 0.12], rot: [0, i, 0], color: i % 2 ? '#c8653d' : '#d9cdb5' })
+  }
+  // More leaks: a basin and a pot catching drips
+  s.push({ cyl: [0.26, 0.2, 0.14, 12], at: [-1.0, 0.11, -0.4], color: '#d4473b' })
+  s.push({ cyl: [0.23, 0.23, 0.02, 12], at: [-1.0, 0.16, -0.4], color: '#9fd8f0' })
+  s.push({ cyl: [0.14, 0.12, 0.16, 10], at: [1.9, 0.12, 1.9], color: '#b8b8c0' })
+  s.push({ cyl: [0.55, 0.55, 0.008, 14], at: [1.7, 0.045, 1.7], color: '#bcd9e8' })
+  // Patched washing on a line across the room
+  s.push({ box: [W - 1.2, 0.012, 0.012], at: [0, 2.35, 0.3], color: '#6b5a48' })
+  ;['#9a8f7c', '#7f8da3', '#b39a72', '#8f8a80', '#a89a80'].forEach((c, i) => {
+    const x = -W / 2 + 1.4 + i * ((W - 2.8) / 4)
+    s.push({ box: [0.42, 0.5, 0.02], at: [x, 2.08, 0.3], rot: [0, 0, (i % 2 ? 1 : -1) * 0.05], color: c })
+    s.push({ box: [0.14, 0.14, 0.024], at: [x + 0.06, 2.0, 0.3], rot: [0, 0, 0.3], color: i % 2 ? '#c2a98a' : '#6d7c8f' })
+  })
+  // A candle on the tea table: the electricity is cut some evenings
+  s.push({ cyl: [0.07, 0.07, 0.012, 10], at: [-2.35, 0.495, 1.1], color: '#d9cdb5' })
+  s.push({ cyl: [0.022, 0.022, 0.13, 8], at: [-2.35, 0.56, 1.1], color: '#f6efe0' })
+  s.push({ sphere: [0.02, 6, 4], at: [-2.35, 0.65, 1.1], scale: [1, 1.7, 1], color: '#ffb347' })
+  // Cardboard on the floor where the Wave used to stand
+  s.push({ box: [0.9, 0.012, 1.5], at: [3.0, 0.047, 1.3], rot: [0, 0.2, 0], color: '#b98a5a' })
   return s
 }
 
@@ -237,13 +338,16 @@ const Home = memo(function Home() {
   const clock = useFlags((s) => houseLevel() < 2 && !(typeof s.flags['debt.peak'] === 'number' && (s.flags['debt.peak'] as number) >= 2))
   const state = useMemo(() => houseShapes(level, mortgage, clock), [level, mortgage, clock])
   const { bed, desk } = HOME_ROOM
+  // Bố and Mẹ wear what is left: faded, then patched, then ragged.
+  const bo = useMemo(() => ({ ...NPCS.bo, outfit: raggedOutfit(NPCS.bo.outfit, level) }), [level])
+  const me = useMemo(() => ({ ...NPCS.me, outfit: raggedOutfit(NPCS.me.outfit, level) }), [level])
   return (
     <>
       <Room
         w={W}
         d={D}
         h={H}
-        style={STYLE}
+        style={STYLES[Math.min(3, level)]}
         windows={[desk.x]}
         furniture={shapes}
         blockers={[
@@ -263,16 +367,16 @@ const Home = memo(function Home() {
       <WallFan position={[W / 2 - 0.05, 2.2, -1.6]} rotation={[0, -Math.PI / 2, 0]} />
 
       {mortgage && !visiting ? (
-        <NPC def={NPCS.bo} at={{ x: -0.4, z: -2.35 }} yaw={Math.PI} />
+        <NPC def={bo} at={{ x: -0.4, z: -2.35 }} yaw={Math.PI} />
       ) : (
-        <NPC def={NPCS.bo} at={{ x: -2.95, z: 1.1 }} yaw={Math.PI / 2} seatY={0.44} arms={1} />
+        <NPC def={bo} at={{ x: -2.95, z: 1.1 }} yaw={Math.PI / 2} seatY={0.44} arms={1} />
       )}
-      {!visiting && <NPC def={NPCS.me} at={{ x: W / 2 - 1.0, z: -0.6 }} yaw={Math.PI / 2} zone={{ x: W / 2 - 1.4, z: -0.6, halfX: 0.6, halfZ: 0.8 }} />}
+      {!visiting && <NPC def={me} at={{ x: W / 2 - 1.0, z: -0.6 }} yaw={Math.PI / 2} zone={{ x: W / 2 - 1.4, z: -0.6, halfX: 0.6, halfZ: 0.8 }} />}
       <NPC def={NPCS.emGai} at={{ x: -2.0, z: 1.75 }} yaw={Math.PI} seatY={0.3} scale={0.85} />
       {visiting && (
         <>
           <Shapes shapes={tet} />
-          <NPC def={NPCS.me} at={{ x: 0.6, z: 0.6 }} yaw={Math.PI * 0.85} zone={{ x: 0.6, z: 1.2, halfX: 1.0, halfZ: 0.9 }} />
+          <NPC def={me} at={{ x: 0.6, z: 0.6 }} yaw={Math.PI * 0.85} zone={{ x: 0.6, z: 1.2, halfX: 1.0, halfZ: 0.9 }} />
         </>
       )}
 

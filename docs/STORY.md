@@ -52,7 +52,7 @@ Chương 5  Hợp đồng chính thức → Tết về quê → căn hộ riêng
 
 **1.1 Bắt đầu hành trình** `start`
 1. Đến Trung tâm tiếng Đức trong ngõ, gặp Thầy Minh `start.teacher`
-2. 🆕 Xin việc làm thêm đầu tiên (Quán Cà phê Phố Cổ **hoặc** Circle K đầu phố) `start.job`
+2. 🆕 Xin việc làm thêm đầu tiên (Tiệm Trà Sữa Phố Cổ **hoặc** Circle K đầu phố) `start.job`
 3. Đăng ký khóa A1 `start.enroll`
 
 **1.2 Chứng chỉ A1** `a1`
@@ -118,7 +118,7 @@ Mở sau khi đậu A2. Chị Mai giới thiệu: viện dưỡng lão Sonnenhof
 ### Nhiệm vụ phụ
 
 **Sống ở Hà Nội** `saigon` *(mã cũ, nội dung là Hà Nội)*
-- Làm một ca ở quán cà phê
+- Làm một ca ở tiệm trà sữa
 - Uống trà đá ở quán Bà Thu
 - Mua đồ mới ở sạp Chị Hằng
 
@@ -164,9 +164,9 @@ Mở sau khi đậu A2. Chị Mai giới thiệu: viện dưỡng lão Sonnenhof
 | Mức | Tổng nợ | Trong nhà thay đổi | Bố mẹ |
 |---|---|---|---|
 | 0 | 0 ₫ | Bình thường: tivi, hoa tươi trên bàn thờ, đồng hồ treo tường, xe Wave dựng ở sân | Vui vẻ, mẹ hát khi nấu cơm |
-| 1 | ≥ 5 triệu | **Mạng nhện** ở góc trần · lọ hoa trên bàn thờ chỉ còn hoa khô · mâm cơm ít món hơn | Mẹ cười gượng, bố ít nói |
-| 2 | ≥ 15 triệu | **Tivi biến mất** (bán), chỗ để tivi còn vết bụi hình chữ nhật · **tường nứt** một vệt dài · đồng hồ treo tường không còn | Bố ngồi ngoài hiên đến khuya · Mẹ đi rửa bát thuê buổi tối · hội thoại buồn hơn |
-| 3 | ≥ 30 triệu | **Mảng tường vỡ**, lộ gạch · mái dột, có xô hứng nước giữa nhà · **xe Wave của bố bị bán** (không chạy Grab được nữa) · Na không đi học thêm nữa | Mặt bố mẹ buồn rõ, mẹ có quầng thâm mắt · Na: "Nhà mình nghèo đi hả anh/chị?" |
+| 1 | ≥ 5 triệu | **Mạng nhện** ở góc trần · lọ hoa trên bàn thờ chỉ còn hoa khô · mâm cơm ít món hơn · 🆕 sơn tường bong, chân tường ẩm, vệt nước thấm, chăn vá | Mẹ cười gượng, bố ít nói · 🆕 quần áo bố mẹ bạc màu |
+| 2 | ≥ 15 triệu | **Tivi biến mất** (bán), chỗ để tivi còn vết bụi hình chữ nhật · **tường nứt** một vệt dài · đồng hồ treo tường không còn · 🆕 dán báo che lỗ tường, mốc xanh chân tường, cửa sổ nứt dán băng dính, gạch nền vỡ, mấy thùng mì tôm cạnh bếp, bóng đèn trần treo dây | Bố ngồi ngoài hiên đến khuya · Mẹ đi rửa bát thuê buổi tối · hội thoại buồn hơn · 🆕 **quần áo bố mẹ vá chằng vá đụp** (ngực, lưng, khuỷu tay, đầu gối) |
+| 3 | ≥ 30 triệu | **Mảng tường vỡ**, lộ gạch · mái dột, có xô hứng nước giữa nhà · **xe Wave của bố bị bán** (không chạy Grab được nữa) · Na không đi học thêm nữa · 🆕 thêm mảng gạch lộ có gạch vụn dưới chân, thêm chậu và nồi hứng dột, **dây phơi quần áo vá giăng ngang phòng**, nến trên bàn nước (bị cắt điện), tấm bìa các-tông chỗ dựng xe | Mặt bố mẹ buồn rõ, mẹ có quầng thâm mắt · Na: "Nhà mình nghèo đi hả anh/chị?" · 🆕 **quần áo bố mẹ rách rưới**: thêm miếng vá, tay áo và ống quần sờn cụt |
 | Đặc biệt | Thế chấp sổ đỏ (Studium, mục 2.2) | Cuốn sổ đỏ trong tủ kính biến mất, chỉ còn khung trống | Bố ngồi một mình trước bàn thờ |
 
 **Trả nợ thì nhà đẹp lại**, theo đúng thứ tự ngược lại:
@@ -349,13 +349,35 @@ Lương giờ ở Việt Nam bám theo **lương tối thiểu vùng I năm 2026
 
 | Nghề | Ở đâu | Giờ làm | Mở khi | Lương ngoài đời **(ư)** | Mỗi lần trong game | Năng lượng |
 |---|---|---|---|---|---|---|
-| **Phục vụ cà phê** | Quán Cà phê Phố Cổ | 7–22h | Từ đầu | 25–30k/giờ + tip | **450.000 ₫** + tip 0–60k | −15 |
+| **Pha trà sữa** 🆕 | Tiệm Trà Sữa Phố Cổ (chị Vy) | 7–22h | Từ đầu | 25–30k/giờ + tip | **450.000 ₫** + tip | −15 |
 | **Trông quán Circle K** | Circle K đầu phố Hàng Gai | Ca ngày 6–22h · Ca đêm 22–6h | Từ đầu (phỏng vấn 3 câu với chị quản lý) | ~25k/giờ | **400.000 ₫** (ca đêm **520.000 ₫**) | −15 (đêm −30, sáng hôm sau mệt) |
 | **Chạy Grab** | Khắp phố cổ | 6–23h | Đăng ký tài xế (xem dưới) | ~20–35k/cuốc sau chiết khấu | **300.000–700.000 ₫** tùy số cuốc và sao, trừ tiền xăng 40.000 ₫ | −20 |
 | **Gia sư Toán lớp 8** | Nhà phụ huynh phố Hàng Bông | 18–21h, Thứ Hai–Sáu | Xong nhiệm vụ "Kèm em học" (Na giới thiệu học trò) | 150k/buổi 1,5 giờ | **450.000 ₫** | −8 |
 
-#### ☕ Phục vụ cà phê
-Giữ trò pha cà phê cũ. 🆕 Thêm khách quen: anh Tú xe ôm (luôn gọi "nâu đá ít đường, ghi sổ"), chị Mai (cho mẹo hồ sơ nếu pha đúng), khách Tây hỏi đường (trả lời bằng tiếng Anh → tip).
+#### 🧋 Pha trà sữa (1.17 — thay cho quán cà phê)
+Quán cà phê đầu phố đổi thành **Tiệm Trà Sữa Phố Cổ**, chủ tiệm là **chị Vy** (trẻ, vui nhưng nghiêm).
+
+**Trò chơi trong ca (90 giây, toàn màn hình):** khách xếp hàng dưới mái hiên, mỗi người gọi một ly:
+"Làm cho bà 1 ly **trà sữa** size **M** với **trân châu đen** nha!" kèm thanh **kiên nhẫn**.
+1. Lấy ly đúng size (M / L).
+2. Bấm đúng topping.
+3. **Giữ tay** vào bình trà đúng loại tới khi kim vào **vạch xanh** (thả tay là ngừng rót; rót quá là **tràn ly**, phải làm lại).
+4. **Dập nắp & giao.**
+
+- Sai size / sai trà / sai topping / ly vơi: khách phật ý ("Ơ, bà gọi size M mà…"), tụt độ hài lòng. Để khách chờ hết kiên nhẫn: "Lâu quá… thôi không mua nữa!"
+- Rót đúng vạch xanh và giao nhanh: khách khen, **tip 6.000 ₫**.
+- Lương = 450.000 ₫ × độ hài lòng (70–110%) × thưởng hạng.
+- **Mở dần theo hạng:** Mới = trà sữa, matcha, hồng trà + trân châu đen, trân châu trắng, pudding trứng · Quen việc (8 ca) = thêm lục trà, ô long + thạch dừa, sương sáo, đậu đỏ, khách bắt đầu gọi 2 topping hoặc không topping · Giỏi (20 ca) = thêm trà Thái + nha đam, kem cheese.
+- Khách: bà cụ (kiên nhẫn nhất), cô, chị, anh đeo kính, chú (ít kiên nhẫn nhất), em học sinh.
+
+**Nghỉ ca sớm** (bấm ✕ giữa ca):
+- Chỉ được trả phần đã làm, hôm đó không làm lại được, không tính vào hạng.
+- Lần 1: Chị Vy cau mày: „Khách đang đông mà em về à? Lần sau làm cho hết ca nhé."
+- Lần 2: „Lần thứ 2 em bỏ ca rồi đấy. Thêm lần nữa là chị cho nghỉ việc."
+- **Lần 3: bị đuổi** — „Em bỏ ca 3 lần rồi. Chị cho em nghỉ việc 3 ngày, về suy nghĩ lại đi." Trong 3 ngày đó không xin làm ở tiệm được (Bảng việc hiện ổ khóa + số ngày còn lại).
+- Làm trọn một ca tử tế (hài lòng ≥ 50%) thì chị Vy bỏ qua một lần: „Hôm nay làm đến nơi đến chốn đấy. Chị ghi nhận."
+
+*(Chưa làm: khách quen anh Tú xe ôm, chị Mai, khách Tây hỏi đường.)*
 
 #### 🏪 Trông quán Circle K
 Trò chơi 90 giây, 3 việc xen kẽ:
@@ -394,6 +416,7 @@ Trò chơi: Bin làm bài, bạn phải tìm lỗi sai trong lời giải trư�
 | Tên | Ở đâu | Vai trò |
 |---|---|---|
 | **Bố, Mẹ, em Na** | Nhà ống vàng, Hàng Gai | Cho vay tiền, phản ứng theo mức nợ (mục 1.8) |
+| **Chị Vy** 🆕 | Tiệm Trà Sữa Phố Cổ, đầu phố | Chủ tiệm; cho làm ca, ghét bỏ ca giữa chừng (3 lần là đuổi 3 ngày) |
 | **Thầy Minh** | Trung tâm tiếng Đức trong ngõ | Dạy A1–B1, cho hoãn học phí một lần mỗi khóa |
 | **Linh** | Lớp Thầy Minh | Bạn cùng lớp, ký với môi giới Hoàng Kim |
 | **Chị Mai, em Tuấn, cô Thoa** | Văn phòng tư vấn Mai Anh, Hàng Bông | Tư vấn, làm giấy tờ hộ, thu tiền |
@@ -701,6 +724,12 @@ Bật lại bằng `SECRETS_ENABLED = true` trong `src/data/secrets.ts`. Khi b�
 3. **Nhiệm vụ phụ "Sống ở Hà Nội"** có mã `saigon` (mã cũ). Chỉ là mã nội bộ, không hiện ra.
 4. **Thiếu nhánh thất bại:** chưa có kết thúc khác (bỏ về Việt Nam, ở lại Đức nhưng không định cư…).
 5. **Phần Đức của bản 2.1** (Linh ở chương 4, trả nợ qua TapTapSend, Sperrkonto rút 992 €/tháng, về thăm Leipzig, tiệm bánh của em gái Herr Jakob, cảnh Tết theo tiền góp) **chưa làm** — chờ file phần Đức.
+
+### Bản đồ Hà Nội mở rộng (1.17)
+- **Phố Hàng Gai** rộng hơn. Sau dãy nhà Hàng Gai có thêm một dãy nhà quay lưng vào nhau, ba lối đi xuyên qua: **phố Hàng Bông** (bỏ rào chắn), **ngõ Cây Đa** (cạnh cây đa, giữa tiệm may và tiệm ảnh), **ngõ Tạp Hóa** (giữa tạp hóa cô Liên và quán phở).
+- Cả ba lối đổ ra **phố đi bộ Hàng Đào**: rộng 13 m, hàng cây và ghế đá ở giữa, đèn lồng giăng ngang. Đầu phía tây là **Nhà thờ Lớn**; đối diện Hàng Bông là **vườn hoa có đài phun nước**, chú bán bóng bay, phía sau là **Bưu điện** có tháp đồng hồ.
+- Khoảng 28 căn **nhà làm cảnh, không có chức năng**, 6 kiểu: nhà Pháp cổ, nhà ống kính hiện đại, khu tập thể chuồng cọp, nhà cổ mái ngói thấp, nhà ống sơn màu, khách sạn mini. Vài căn có biển hiệu cho vui (karaoke, sửa xe, cắt tóc, photocopy, nhà nghỉ, internet).
+- Người đi dạo mới: cô Đào, anh Phong. *(Các nhà chức năng vẫn ở chỗ cũ trên Hàng Gai / Hàng Bông; nếu bạn muốn dời bớt sang phố mới để xen kẽ thì nói mình.)*
 
 ### Cách bản 2.1 được làm vào game (1.15.0) — chỗ hơi khác file của bạn
 - **Lý lịch tư pháp, khám sức khỏe:** không có toà nhà riêng; bấm trong Hồ sơ visa, chỉ làm được buổi sáng thứ Hai–Sáu trước 11h (xếp hàng), hoặc nhờ văn phòng.

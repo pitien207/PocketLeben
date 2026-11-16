@@ -305,6 +305,8 @@ interface Cover {
   /** Lip at the hem: extra radius and its colour. */
   lip?: number
   cuff?: { h: number; color: string; extra: number }
+  /** Sewn-on patches: bands of another cloth on the cover (ragged clothes). */
+  patches?: Band[]
 }
 interface Band {
   from: number
@@ -326,6 +328,10 @@ function limbRings(table: [number, number][], skin: string, cover: Cover | null,
   }
   if (cover && cover.to > end - 1e-6) ys.add(cover.to)
   if (cover?.cuff) ys.add(+(cover.to + cover.cuff.h).toFixed(4))
+  for (const b of cover?.patches ?? []) {
+    ys.add(b.from)
+    ys.add(b.to)
+  }
   const rings: Ring[] = []
   const sorted = [...ys].filter((y) => y <= top && y >= end).sort((a, b) => b - a)
   for (const y of sorted) {
@@ -341,7 +347,16 @@ function limbRings(table: [number, number][], skin: string, cover: Cover | null,
         rings.push({ y, r, color: cover.color })
         ring = { y: y - 0.0002, r: r + cuff.extra, color: cuff.color, split: true }
       } else if (cuff && y < cuffTop) ring = { y, r: r + cuff.extra, color: cuff.color }
-      else ring = { y, r, color: cover.color }
+      else {
+        const pb = cover.patches?.find((b) => y <= b.from && y >= b.to)
+        if (pb && Math.abs(y - pb.from) < 1e-6) {
+          rings.push({ y, r, color: cover.color })
+          ring = { y: y - 0.0002, r: r + pb.extra, color: pb.color, split: true }
+        } else if (pb && Math.abs(y - pb.to) < 1e-6) {
+          rings.push({ y, r: r + pb.extra, color: pb.color })
+          ring = { y: y - 0.0002, r, color: cover.color, split: true }
+        } else ring = { y, r: r + (pb ? pb.extra : 0), color: pb ? pb.color : cover.color }
+      }
       rings.push(ring)
       if (Math.abs(y - cover.to) < 1e-6) {
         // hem: a lip that turns in to the skin underneath
@@ -422,6 +437,24 @@ export function limbGeometries(o: Outfit, k: number): BufferGeometry[] {
     default: // shorts
       leg = { to: 0.2, color: pants, ease: (y) => 0.013 + 0.012 * smooth(0.27, 0.2, y), lip: 0.004 }
   }
+  // Ragged clothes (the family in debt): patched elbows and knees, frayed short trouser hems.
+  const rag = o.ragged ?? 0
+  if (rag && sleeve && sleeve.to < 0.45) {
+    sleeve.patches = [{ from: 0.5, to: 0.455, color: RAG_COLORS[0], extra: 0.003 }]
+    if (rag >= 2) {
+      sleeve.to = 0.41
+      delete sleeve.cuff
+      sleeve.lip = 0.006
+    }
+  }
+  if (rag && leg && leg.to < 0.1) {
+    leg.patches = [{ from: 0.2, to: 0.15, color: RAG_COLORS[1], extra: 0.003 }]
+    if (rag >= 2) {
+      leg.to = 0.105
+      leg.lip = 0.008
+      leg.patches.push({ from: 0.285, to: 0.25, color: RAG_COLORS[2], extra: 0.003 })
+    }
+  }
   if (o.socks || bottom === 'lederhosen') bands.push({ from: bottom === 'lederhosen' ? 0.165 : 0.13, to: 0.072, color: o.socks ?? '#efe6d8', extra: 0.004 })
   const step = k >= 0.6 ? 0.022 : 0.04
   const armR = limbRings(ARM, skin, sleeve, [], step)
@@ -500,6 +533,9 @@ export function shoeShapes(o: Outfit, k: number): ShapeItem[] {
   }
 }
 
+/** Cloth of the sewn-on patches: sackcloth, faded blue, grey. */
+const RAG_COLORS = ['#b39a72', '#7f8da3', '#8f8a80', '#c2a98a']
+
 // --- The torso -----------------------------------------------------------------------------------
 export function torsoShapes(input: Outfit, k: number): ShapeItem[] {
   const top = input.top ?? 'tee'
@@ -537,6 +573,24 @@ export function torsoShapes(input: Outfit, k: number): ShapeItem[] {
       s.push(onSurface(a, y, [0.02, 0.02, 0.006], o.patternColor ?? '#f4d6e6', 0.004, shirtR))
       s.push(onSurface(a, y, [0.007, 0.007, 0.004], '#ffe08a', 0.009, shirtR))
     }
+  }
+
+  // ---- ragged clothes: sewn-on patches (kept in the low-detail mesh, they tell the story)
+  const rag = o.ragged ?? 0
+  if (rag && k >= 0.4) {
+    const spots: [number, number, number, number][] = [
+      [0.55, 0.06, 0.03, 0.05],
+      [-0.75, -0.06, 0.035, 0.045],
+      [2.6, 0.02, 0.04, 0.06],
+      [-2.3, -0.08, 0.03, 0.04],
+      [0.1, -0.09, 0.028, 0.04],
+    ]
+    spots.slice(0, rag >= 2 ? 5 : 2).forEach(([centre, y, hw, hh], i) => {
+      if (y - hh < cut.hem + 0.01) return
+      P(`rag${i}`, { top: y + hh, bottom: y - hh, left: () => -hw, right: () => hw, centre, surf: shirtR, lift: 0.004, thick: 0.004, nu: 3, nv: 3 }, RAG_COLORS[i % RAG_COLORS.length])
+      // big clumsy stitches
+      for (const sx of [-1, 1]) s.push(onSurface(centre + (sx * hw) / shirtR(y), y, [0.004, hh * 0.7, 0.004], '#4a3a2c', 0.009, shirtR))
+    })
   }
 
   // ---- necklines & fronts

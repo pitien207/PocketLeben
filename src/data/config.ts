@@ -371,6 +371,12 @@ export const CONFIG = {
     rankBonus: [0, 0.1, 0.2],
     circleK: { day: 400_000, night: 520_000, energy: 15, nightEnergy: 30, dayHours: [6, 22] as [number, number], seconds: 90, minutes: 240 },
     grab: { min: 300_000, max: 700_000, fuel: 40_000, energy: 20, hours: [6, 23] as [number, number], uniform: 300_000, rainBonus: 0.3, fine: 200_000, minutes: 240 },
+    /**
+     * Tiệm trà sữa (1.17): a 90-second shift of the bubble-tea mini-game. Walking out early pays only
+     * the share worked and counts as a strike; `maxQuits` strikes = fired for `banDays` days.
+     * A full shift with satisfied customers takes one strike off again.
+     */
+    tea: { pay: 450_000, tip: 6_000, seconds: 90, patienceSec: 15, energy: 15, xp: 20, minutes: 180, hours: [7, 22] as [number, number], maxQuits: 3, banDays: 3 },
     tutor: { pay: 450_000, payUp: 600_000, energy: 8, hours: [18, 21] as [number, number], minutes: 120, midterm: 8, midtermBonus: 500_000 },
   },
 

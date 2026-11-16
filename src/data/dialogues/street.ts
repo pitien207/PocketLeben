@@ -25,10 +25,10 @@ export const STREET_DIALOGUES: Record<string, DialogueDef> = {
       },
       gossip: {
         text: [
-          { vi: 'Ngày xưa phố này toàn nhà ống mái ngói, giờ nhà nào cũng mở quán cà phê.', en: 'This street used to be all tube houses with tiled roofs. Now every house has a café.', de: 'Früher standen hier nur Röhrenhäuser mit Ziegeldach. Jetzt hat jedes Haus ein Café.' },
+          { vi: 'Ngày xưa phố này toàn nhà ống mái ngói, giờ nhà nào cũng mở quán cà phê, trà sữa.', en: 'This street used to be all tube houses with tiled roofs. Now every house has a café.', de: 'Früher standen hier nur Röhrenhäuser mit Ziegeldach. Jetzt hat jedes Haus ein Café.' },
           { vi: 'Thằng Tuấn đầu ngõ sang Đức học điều dưỡng, tháng nào cũng gửi tiền về cho mẹ nó đấy.', en: 'Tuấn from the alley trains as a nurse in Germany and sends his mum money every month.', de: 'Tuấn aus der Gasse lernt in Deutschland Pflege und schickt jeden Monat Geld nach Hause.' },
           { vi: 'Muốn đi Đức thì phải học tiếng Đức trước. Mà tiếng gì mà chữ dài dằng dặc!', en: 'To go to Germany you must learn German first. Such long words!', de: 'Für Deutschland musst du erst Deutsch lernen. So lange Wörter!' },
-          { vi: 'Cháu chịu khó làm thêm ở quán cà phê kia đi, bà chủ dễ tính lắm.', en: 'Work some shifts at that café, dear. The owner is kind.', de: 'Arbeite ein paar Schichten im Café dort, die Chefin ist nett.' },
+          { vi: 'Cháu chịu khó làm thêm ở tiệm trà sữa kia đi. Cô chủ trẻ mà nghiêm lắm, đừng bỏ ca giữa chừng là được.', en: 'Work some shifts at that café, dear. The owner is kind.', de: 'Arbeite ein paar Schichten im Café dort, die Chefin ist nett.' },
         ],
         choices: [
           { text: { vi: 'Hay quá! Kể nữa đi bà', en: 'Tell me more!', de: 'Erzähl mehr!' }, next: 'gossip' },

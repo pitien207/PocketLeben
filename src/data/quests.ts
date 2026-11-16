@@ -56,7 +56,7 @@ export const QUESTS: QuestDef[] = [
     title: L('Bắt đầu hành trình', 'The journey begins'),
     steps: [
       step('start.teacher', 'Đến Trung tâm tiếng Đức trong ngõ, gặp Thầy Minh', 'Visit the German centre in the lane and meet Teacher Minh', { flag: 'talked.thayMinh' }),
-      step('start.job', 'Xin việc làm thêm đầu tiên (Quán Cà phê Phố Cổ hoặc Circle K)', 'Get your first side job (Old Quarter café or Circle K)', { test: 'job.anyJob' }),
+      step('start.job', 'Xin việc làm thêm đầu tiên (Tiệm Trà Sữa Phố Cổ hoặc Circle K)', 'Get your first side job (Old Quarter café or Circle K)', { test: 'job.anyJob' }),
       step('start.enroll', 'Đăng ký khóa A1', 'Enrol in the A1 course', { flag: 'course.0' }),
     ],
   },
@@ -66,7 +66,7 @@ export const QUESTS: QuestDef[] = [
     title: L('Sống ở Hà Nội', 'Life in Hanoi'),
     side: true,
     steps: [
-      step('start.shift', 'Làm một ca ở quán cà phê', 'Work a shift at the café', { flag: 'stats.shifts', atLeast: 1 }),
+      step('start.shift', 'Làm một ca ở tiệm trà sữa', 'Work a shift at the café', { flag: 'stats.shifts', atLeast: 1 }),
       step('sg.traDa', 'Uống trà đá ở quán Bà Thu', 'Have iced tea at Granny Thu’s stall', { flag: 'stats.traDa', atLeast: 1 }),
       step('sg.clothes', 'Mua đồ mới ở sạp Chị Hằng', 'Buy new clothes at Hằng’s stall', { flag: 'stats.clothes', atLeast: 1 }),
     ],

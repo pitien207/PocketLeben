@@ -42,7 +42,7 @@ const lvl = CONFIG.german.levels
 // --- Common targets ------------------------------------------------------------------
 const TEACHER: GuideTarget = { scene: 'classroom', npc: 'thayMinh' }
 const MAI: GuideTarget = { scene: 'maiOffice', npc: 'chiMai' }
-const CAFE: GuideTarget = { scene: 'vietnam', spot: 'cafe-counter' }
+const CAFE: GuideTarget = { scene: 'vietnam', npc: 'chiVy' }
 const HOME_BED: GuideTarget = { scene: 'home', spot: 'home-bed' }
 const HOME_DESK: GuideTarget = { scene: 'home', spot: 'home-desk' }
 const PASSPORT: GuideTarget = { ui: 'passport' }
@@ -65,7 +65,7 @@ const maiClosed: GuideBlocker = {
 const needMoney = (amount: number, what: Localized): GuideBlocker => ({
   when: { all: [{ country: 'vn' }, { not: { money: amount } }] },
   hint: {
-    vi: `Cần ${vnd(amount)} cho ${what.vi}. Đi làm thêm (Bảng việc trên điện thoại: cà phê, Circle K, Grab, gia sư) hoặc vay bố mẹ ở nhà.`,
+    vi: `Cần ${vnd(amount)} cho ${what.vi}. Đi làm thêm (Bảng việc trên điện thoại: trà sữa, Circle K, Grab, gia sư) hoặc vay bố mẹ ở nhà.`,
     en: `You need ${vnd(amount)} for ${what.en}. Work side jobs (job board on your phone: café, Circle K, Grab, tutoring) or borrow from your parents.`,
     de: `Du brauchst ${vnd(amount)} für ${what.de ?? what.en}. Nebenjobs (Jobbörse im Handy) oder bei den Eltern leihen.`,
   },
@@ -219,7 +219,7 @@ export const STEP_GUIDES: Record<string, StepGuide> = {
   'start.teacher': {
     targets: [{ target: TEACHER }],
     hint: L(
-      'Đi vào ngõ giữa nhà mình và quán cà phê, tới Trung tâm Đức ngữ ở cuối ngõ, bấm Vào lớp rồi nói chuyện với Thầy Minh.',
+      'Đi vào ngõ giữa nhà mình và tiệm trà sữa, tới Trung tâm Đức ngữ ở cuối ngõ, bấm Vào lớp rồi nói chuyện với Thầy Minh.',
       'Walk up the lane between your home and the café to the German centre at the end, tap Go to class, then talk to Teacher Minh.',
       'Geh die Gasse zwischen deinem Haus und dem Café hinauf zum Sprachzentrum, tippe „Zum Unterricht“ und sprich mit Lehrer Minh.',
     ),
@@ -292,7 +292,7 @@ export const STEP_GUIDES: Record<string, StepGuide> = {
   'start.job': {
     targets: [{ target: CAFE }],
     hint: L(
-      `Xin việc làm thêm: quầy Quán Cà phê Phố Cổ (đầu phố, ${vnd(450_000)}/ca) hoặc Circle K góc ngõ Hàng Bông (phỏng vấn 3 câu với chị quản lý). Mỗi việc làm được 1 lần/ngày.`,
+      `Xin việc làm thêm: Tiệm Trà Sữa Phố Cổ (đầu phố, nói chuyện với chị Vy → Làm ca, ${vnd(450_000)}/ca) hoặc Circle K góc ngõ Hàng Bông (phỏng vấn 3 câu với chị quản lý). Mỗi việc làm được 1 lần/ngày.`,
       `Get a side job: the Old Quarter café counter (${vnd(450_000)} a shift) or Circle K at the Hàng Bông corner (3-question interview). Each job once a day.`,
       `Such dir einen Nebenjob: Café-Theke (${vnd(450_000)} pro Schicht) oder Circle K an der Ecke Hàng Bông (Vorstellungsgespräch). Jeder Job einmal am Tag.`,
     ),
@@ -305,7 +305,7 @@ export const STEP_GUIDES: Record<string, StepGuide> = {
   'a2.cauNoi': {
     targets: [{ target: MAI }],
     hint: L(
-      'Sang Văn phòng Mai Anh (tầng 2, đầu phố Hàng Bông — ngõ bên cạnh quán cà phê) → nói chuyện với chị Mai về Chương trình Cầu nối Sonnenhof.',
+      'Sang Văn phòng Mai Anh (tầng 2, đầu phố Hàng Bông — ngõ bên cạnh tiệm trà sữa) → nói chuyện với chị Mai về Chương trình Cầu nối Sonnenhof.',
       'Go to the Mai Anh office (upstairs, at the start of Hàng Bông — the lane beside the café) → ask Mai about the Sonnenhof bridge programme.',
       'Zum Büro Mai Anh (1. Stock, Anfang Hàng Bông — Gasse neben dem Café) → Mai nach dem Brückenprogramm Sonnenhof fragen.',
     ),
@@ -357,7 +357,7 @@ export const STEP_GUIDES: Record<string, StepGuide> = {
   'path.mai': {
     targets: [{ target: MAI }],
     hint: L(
-      'Văn phòng Mai Anh: đi vào ngõ Hàng Bông (cạnh quán cà phê), cửa có cầu thang hẹp lên tầng 2. Nói chuyện với chị Mai.',
+      'Văn phòng Mai Anh: đi vào ngõ Hàng Bông (cạnh tiệm trà sữa), cửa có cầu thang hẹp lên tầng 2. Nói chuyện với chị Mai.',
       'Mai Anh office: walk into the Hàng Bông lane (beside the café), the door with the narrow stairs. Talk to Mai.',
       'Büro Mai Anh: in die Hàng-Bông-Gasse (neben dem Café), die Tür mit der schmalen Treppe. Mit Mai reden.',
     ),

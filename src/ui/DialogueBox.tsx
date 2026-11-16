@@ -1,3 +1,5 @@
+import { raggedOutfit } from '../data/npcs'
+import { houseLevel } from '../game/systems/family'
 import { useEffect, useRef, useState } from 'react'
 import { getNpc } from '../data/npcs'
 import { advanceDialogue, chooseOption, closeDialogue, currentNode, dialogueLine, fillDialogueVars, visibleChoices } from '../game/systems/dialogue'
@@ -113,7 +115,7 @@ export function DialogueBox() {
             {npc.title && <span className="ml-1.5 text-xs font-bold opacity-80">· {localize(npc.title)}</span>}
           </span>
           <span className="-mt-8 shrink-0 rounded-full bg-paper p-0.5 shadow-[0_0_0_3px_var(--color-gold),0_3px_0_3px_rgba(91,70,54,0.2)]">
-            <Portrait outfit={npc.outfit} size={60} />
+            <Portrait outfit={npc.id === 'bo' || npc.id === 'me' ? raggedOutfit(npc.outfit, houseLevel()) : npc.outfit} size={60} />
           </span>
           <span className="min-h-14 flex-1 text-[16px] leading-snug font-bold text-ink">
             {text.slice(0, shown)}

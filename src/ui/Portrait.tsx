@@ -20,6 +20,12 @@ export function Portrait({ outfit, size = 64 }: { outfit: Outfit; size?: number 
       {/* Hair behind the head */}
       <HairBack style={hairStyle} hair={hair} dark={dark} tie={tie} />
       <path d="M12 64c2-12 10-17 20-17s18 5 20 17z" fill={shirt} />
+      {outfit.ragged && (
+        <>
+          <rect x="17" y="54" width="8" height="7" rx="1" fill="#b39a72" stroke="#4a3a2c" strokeWidth="0.8" strokeDasharray="1.5 1.2" transform="rotate(-12 21 57)" />
+          <rect x="40" y="52" width="7" height="6" rx="1" fill="#7f8da3" stroke="#4a3a2c" strokeWidth="0.8" strokeDasharray="1.5 1.2" transform="rotate(10 43 55)" />
+        </>
+      )}
       {outfit.top === 'hoodie' && <path d="M20 50c3-4 7-5 12-5s9 1 12 5c-3 3-7 4-12 4s-9-1-12-4z" fill={shirt} stroke="#4a3226" strokeOpacity="0.25" />}
       {outfit.top === 'jacket' && <path d="M28 48l4 16 4-16c-1-1-3-1-4-1s-3 0-4 1z" fill="#fbfaf5" />}
       {outfit.top === 'aoDai' && <rect x="27" y="45" width="10" height="5" rx="2" fill={shirt} stroke="#4a3226" strokeOpacity="0.3" />}

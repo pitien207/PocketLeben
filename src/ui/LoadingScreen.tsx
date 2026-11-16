@@ -10,7 +10,7 @@ const L = (vi: string, en: string, de: string): Localized => ({ vi, en, de })
 const TIPS: { label: 'tip' | 'word'; text: Localized }[] = [
   { label: 'tip', text: L('Có B1 là cửa Ausbildung rộng hơn hẳn.', 'With B1, the door to an Ausbildung opens wide.', 'Mit B1 stehen dir viel mehr Ausbildungen offen.') },
   { label: 'tip', text: L('Săn lịch Đại sứ quán: bấm Tải lại liên tục, ô trống chỉ hiện trong chớp mắt!', 'Embassy Termin: keep pressing Refresh — a free slot only shows for a blink!', 'Botschaftstermin: immer wieder aktualisieren — freie Termine sind blitzschnell weg!') },
-  { label: 'tip', text: L('Đi làm thêm ở quán cà phê kiếm tiền, nhưng đừng bỏ học nha.', 'Shifts at the café pay the bills — just don’t skip class.', 'Schichten im Café bringen Geld — aber schwänz den Kurs nicht.') },
+  { label: 'tip', text: L('Đi làm thêm ở tiệm trà sữa kiếm tiền, nhưng đừng bỏ học nha.', 'Shifts at the café pay the bills — just don’t skip class.', 'Schichten im Café bringen Geld — aber schwänz den Kurs nicht.') },
   { label: 'tip', text: L('Chứng minh tài chính: ra ngân hàng, trong ví đủ tiền là xong.', 'Proof of funds: go to the bank — enough money in your wallet is all it takes.', 'Finanzierungsnachweis: zur Bank — genug Geld im Geldbeutel reicht.') },
   { label: 'tip', text: L('Đổi đủ Euro trước khi bay, sang Đức là tiêu toàn bằng Euro.', 'Change enough euros before you fly — Germany runs on euros.', 'Tausch genug Euro vor dem Flug — in Deutschland zahlst du in Euro.') },
   { label: 'tip', text: L('Ở Đức, chai nhựa Pfand trả lại được 0,25 €.', 'In Germany, a Pfand bottle gets you €0.25 back.', 'In Deutschland bringt eine Pfandflasche 0,25 € zurück.') },

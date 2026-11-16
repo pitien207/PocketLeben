@@ -1,5 +1,6 @@
 import { germanVars } from '../../game/systems/german'
 import { laptopFlightPrice } from '../../game/systems/visa'
+import { teaBanLeft, teaStrikes } from '../../game/systems/jobs'
 import { formatMoney } from '../../i18n/format'
 import type { Localized } from '../../i18n/localized'
 import type { Condition } from '../conditions'
@@ -578,6 +579,36 @@ export const VN21_DIALOGUES: Record<string, DialogueDef> = {
         text: [L('Vào ca không em? Ca ngày 6–22h, ca đêm 22–6h.', 'Starting a shift? Day 6–22, night 22–6.'), L('Hàng sắp hết hạn thì xếp lên trước nhé!', 'Items close to expiry go to the front!')],
         choices: [
           { text: L('Vào ca (90 giây)', 'Start a shift (90 seconds)'), if: { not: { test: 'job.circleKToday' } }, effect: { type: 'action', id: 'job.circleK' } },
+          { text: L('Chào chị', 'Bye') },
+        ],
+      },
+    },
+  },
+
+  // ---------------------------------------------------------------------- Tiệm trà sữa (1.17)
+  chiVy: {
+    vars: () => ({ pay: vnd(CONFIG.vnJobs.tea.pay), ban: teaBanLeft(), n: teaStrikes(), max: CONFIG.vnJobs.tea.maxQuits }),
+    start: [{ if: { test: 'job.teaBanned' }, node: 'banned' }, { if: { test: 'job.teaWarned' }, node: 'warned' }, { node: 'hello' }],
+    nodes: {
+      banned: {
+        text: L('Chị nói rồi: bỏ ca giữa chừng là chị không nhận. {ban} ngày nữa em quay lại, chị xem thái độ thế nào đã.', 'I told you: no walking out mid-shift. Come back in {ban} days.'),
+        choices: [{ text: L('Em xin lỗi chị…', 'I’m sorry…') }],
+      },
+      warned: {
+        text: L('Em bỏ ca giữa chừng {n}/{max} lần rồi đấy. Khách xếp hàng mà nhân viên đi về thì chị biết làm sao? Làm trọn một ca cho tử tế thì chị bỏ qua.', 'You have walked out {n}/{max} times. Work one full, decent shift and I will let it go.'),
+        choices: [
+          { text: L('Vào ca (90 giây)', 'Start a shift (90 seconds)'), if: { not: { test: 'job.cafeToday' } }, effect: { type: 'action', id: 'job.tea' } },
+          { text: L('Vâng, em nhớ rồi ạ', 'Understood') },
+        ],
+      },
+      hello: {
+        text: [
+          L('Vào ca không em? {pay} một ca, khách khen thì có thêm tip.', 'Starting a shift? {pay} a shift, plus tips.'),
+          L('Nhớ nhé: lấy đúng size ly, đúng trà, đúng topping, rót tới vạch xanh rồi mới dập nắp.', 'Remember: right cup, right tea, right toppings, pour to the green mark, then seal.'),
+          L('Đang ca mà bỏ về là chị không thích đâu đấy.', 'I really don’t like people leaving mid-shift.'),
+        ],
+        choices: [
+          { text: L('Vào ca (90 giây)', 'Start a shift (90 seconds)'), if: { not: { test: 'job.cafeToday' } }, effect: { type: 'action', id: 'job.tea' } },
           { text: L('Chào chị', 'Bye') },
         ],
       },

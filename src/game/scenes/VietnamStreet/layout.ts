@@ -22,19 +22,50 @@ import type { TreeVariant } from '../shared/props'
  * East of the side road (1.7): the communal house (đình), a hidden alley, two shops, the night market.
  */
 
-export const PLAY = { minX: -52, maxX: 34, minZ: -13, maxZ: 14 }
+export const PLAY = { minX: -52, maxX: 34, minZ: -42, maxZ: 14 }
 
 export const BUILDING_FRONT_Z = -4.5
 export const BUILDING_BACK_Z = -13
 export const BUILDING_DEPTH = BUILDING_FRONT_Z - BUILDING_BACK_Z
 export const BUILDING_CENTER_Z = (BUILDING_FRONT_Z + BUILDING_BACK_Z) / 2
 
-export const ROAD = { minZ: 3.2, maxZ: 8.6 }
+/** Widened in 1.17 (was 3.2…8.6): the user wanted the streets airier. */
+export const ROAD = { minZ: 2.7, maxZ: 9.5 }
 export const SIDE_ROAD = { minX: 10, maxX: 13.6 }
 
 export const HOME = { x: -5.5, width: 4.5, floors: 3 }
 export const NEIGHBOR = { x: -10, width: 4.4, floors: 2 }
 export const CAFE = { x: 4.5, width: 7, depth: 6, z: BUILDING_FRONT_Z - 3 }
+
+/**
+ * The north quarter (1.17, NorthQuarter.tsx) — houses to look at, no functions:
+ *
+ *   z=-42  ── row C backs ──────────────┐  square  ┌──────────
+ *          [ decor houses (fronts z=-34)]  fountain [ decor … ]
+ *   z=-34  ─────────────────────────────┘          └──────────
+ *   church   Phố đi bộ Hàng Đào: 13 m wide, trees down the middle
+ *   z=-21  ── row B fronts (face north) ──┐ lane ┌──┐ H.Bông ┌──
+ *          [ decor houses, back to back ] │      │  │        │
+ *   z=-13  ── backs of the Hàng Gai row ──┘      └──┘        └──
+ */
+export const NORTH = {
+  rowB: { back: -13, front: -21 },
+  rowC: { front: -34, back: -42 },
+  /** The walking street between the two rows. */
+  walk: { x0: -42, x1: 34, z0: -21, z1: -34 },
+  /** Ways through row B: Ngõ Cây Đa (past the banyan), Ngõ Tạp Hóa (beside the grocery). */
+  lanes: [
+    { x0: -32.6, x1: -29.1 },
+    { x0: -14.7, x1: -12.2 },
+  ],
+  /** Phố Hàng Bông north of the old barrier: the road keeps its width, the pavements get wide. */
+  hangBong: { x0: 7.6, x1: 16 },
+  /** The square cut into row C, opposite Hàng Bông. */
+  plaza: { x0: 6, x1: 18, fountain: { x: 12, z: -38 } },
+  /** The cathedral closing the west end (faces east), the old post office behind the square. */
+  church: { x: -47.6, z: -27.5 },
+  clock: { x0: 7, x1: 17 },
+}
 
 /** The western block: three shop houses and the banyan tree at the end. */
 export const WEST = {
@@ -170,7 +201,7 @@ export const POLES: PoleSpec[] = [
   { x: 2.6, z: POLE_Z, lamp: true },
   { x: 9.4, z: POLE_Z, transformer: true },
   { x: 9.4, z: -6.8, lamp: true },
-  { x: 9.4, z: -16, collider: false },
+  { x: 9.4, z: -16.5, collider: false },
   { x: 17, z: POLE_Z, lamp: true },
   { x: -26.4, z: POLE_Z },
   { x: -36, z: POLE_Z, collider: false },
@@ -241,11 +272,15 @@ export const WALKER_PATHS: Record<'coHoa' | 'anhKhoa' | 'chiLan', PointXZ[]> = {
     { x: 8.8, z: 0.45 },
   ],
   anhKhoa: [
-    { x: -30.5, z: 9.6 },
-    { x: 32.5, z: 9.6 },
+    { x: -30.5, z: 9.95 },
+    { x: 32.5, z: 9.95 },
   ],
+  // Cô Lan comes down Hàng Bông from the walking street (1.17).
   chiLan: [
-    { x: 8.65, z: -12.3 },
+    { x: 9.0, z: -25.5 },
+    { x: 9.0, z: -14.5 },
+    { x: 9.9, z: -12.5 },
+    { x: 9.9, z: -4.6 },
     { x: 8.65, z: 0.4 },
   ],
 }
@@ -255,8 +290,8 @@ export const KIDS = { a: { x: -8.7, z: 12.1 }, b: { x: -5.9, z: 12.1 } }
 
 /** Drive on the right: eastbound on the far side, westbound on the near side. */
 export const TRAFFIC_LANES: Lane[] = [
-  { z: 7.25, dir: 1 },
-  { z: 4.55, dir: -1 },
+  { z: 7.8, dir: 1 },
+  { z: 4.4, dir: -1 },
 ]
 
 /**

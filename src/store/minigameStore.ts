@@ -12,6 +12,20 @@ export interface MinigameResult {
   perfect: boolean
   /** Extra outcome, e.g. how many days ahead the booked Termin is. */
   value?: number
+  /** The bubble-tea shift. */
+  tea?: TeaOutcome
+}
+
+export interface TeaOutcome {
+  served: number
+  failed: number
+  /** Satisfaction 0–100 (scales the wage). */
+  meter: number
+  tips: number
+  /** Share of the shift worked, 0–1. */
+  fraction: number
+  /** Walked out before the end. */
+  quit: boolean
 }
 
 /** What to play. German games draw from vocabulary up to `level` (0 = A1 words). */
@@ -33,6 +47,8 @@ export type MinigameSpec =
   | { kind: 'circleK'; night: boolean; rank: number }
   | { kind: 'grab'; rain: boolean; rank: number; rider?: string }
   | { kind: 'tutor'; rank: number }
+  /** The shift at the bubble-tea shop; `strikes` = early walk-outs so far. */
+  | { kind: 'bubbleTea'; rank: number; strikes: number }
   | { kind: 'listen'; level: number; count: number }
 
 export type B1Module = 'lesen' | 'hoeren' | 'schreiben' | 'sprechen'

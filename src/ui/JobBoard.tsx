@@ -2,7 +2,7 @@ import { CONFIG } from '../data/config'
 import { runAction } from '../game/systems/actions'
 import { getFlag } from '../game/systems/conditions'
 import { debtTotal, houseLevel } from '../game/systems/family'
-import { jobCount, jobDoneToday, jobRank, jobUnlocked, RANK_NAMES, VN_JOBS, type VnJob } from '../game/systems/jobs'
+import { jobCount, jobDoneToday, jobRank, jobUnlocked, RANK_NAMES, teaBanLeft, teaStrikes, VN_JOBS, type VnJob } from '../game/systems/jobs'
 import { formatMoney } from '../i18n/format'
 import { useT } from '../i18n'
 import { useLocalize, type Localized } from '../i18n/localized'
@@ -23,11 +23,11 @@ const J = CONFIG.vnJobs
 
 const JOBS: Record<VnJob, { name: Localized; where: Localized; pay: string; hours: string; lock: Localized }> = {
   cafe: {
-    name: L('Phục vụ cà phê', 'Café waiter', 'Café-Service'),
-    where: L('Quán Cà phê Phố Cổ, đầu phố', 'Old Quarter café, top of the street'),
-    pay: `${vnd(CONFIG.jobs.cafeBarista.pay)} + tip`,
-    hours: `${CONFIG.jobs.cafeBarista.openHour}–${CONFIG.jobs.cafeBarista.closeHour}h`,
-    lock: L('', ''),
+    name: L('Pha trà sữa', 'Bubble-tea maker', 'Bubble-Tea-Service'),
+    where: L('Tiệm Trà Sữa Phố Cổ, đầu phố (gặp chị Vy)', 'Old Quarter bubble tea, top of the street'),
+    pay: `${vnd(J.tea.pay)} + tip`,
+    hours: `${J.tea.hours[0]}–${J.tea.hours[1]}h`,
+    lock: L('Chị Vy cho nghỉ việc vì bỏ ca giữa chừng nhiều quá.', 'Vy fired you for walking out too often.'),
   },
   circleK: {
     name: L('Trông quán Circle K', 'Circle K shop assistant', 'Circle-K-Aushilfe'),
@@ -95,7 +95,11 @@ export function JobBoard() {
             <p className="mt-0.5 text-[12px] font-bold text-ink/65">
               {job.pay} · {job.hours}
             </p>
-            <p className="text-[11px] font-bold text-ink/50">{open ? localize(job.where) : localize(job.lock)}</p>
+            <p className="text-[11px] font-bold text-ink/50">
+              {open ? localize(job.where) : localize(job.lock)}
+              {id === 'cafe' && !open ? ` (còn ${teaBanLeft()} ngày)` : ''}
+              {id === 'cafe' && open && teaStrikes() > 0 ? ` · bỏ ca ${teaStrikes()}/${J.tea.maxQuits}` : ''}
+            </p>
             {open && !done && id === 'grab' && (
               <button type="button" data-testid="job-grab-start" onClick={() => run('job.grab')} className="mt-1.5 w-full rounded-xl btn-jade py-1.5 text-[13px] font-extrabold">
                 {localize(L('Mở app, nhận cuốc', 'Open the app, take rides', 'App öffnen'))}

@@ -38,15 +38,27 @@ const ROAD_LINE = '#f6f1e7'
 
 export const SCENE_MAPS: Partial<Record<SceneId, SceneMap>> = {
   vietnam: {
-    bounds: { minX: -53, maxX: 35, minZ: -13.5, maxZ: 38 },
+    bounds: { minX: -53, maxX: 35, minZ: -46.5, maxZ: 38 },
     ground: '#efe2c8',
     rects: [
       // Lake (Hồ Gươm) along the bottom, grass strip, main road, side road
       { x0: -40, z0: 14.4, x1: 20, z1: 20, color: '#8cc2bb', soft: true },
-      { x0: -40, z0: 3.2, x1: 20, z1: 8.6, color: ROAD },
-      { x0: -40, z0: 5.85, x1: 20, z1: 5.95, color: ROAD_LINE },
-      { x0: 10, z0: -14, x1: 13.6, z1: 3.2, color: ROAD },
-      // Building rows (tube houses, café)
+      { x0: -40, z0: 2.7, x1: 20, z1: 9.5, color: ROAD },
+      { x0: -40, z0: 6.05, x1: 20, z1: 6.15, color: ROAD_LINE },
+      { x0: 10, z0: -21, x1: 13.6, z1: 2.7, color: ROAD },
+      // North quarter (1.17): the walking street, the square, rows of plain houses, cathedral, post office
+      { x0: -42, z0: -34, x1: 35, z1: -21, color: '#e3d6bf' },
+      { x0: -42, z0: -28.2, x1: 35, z1: -26.8, color: '#cfe0b0' },
+      { x0: 6, z0: -42, x1: 18, z1: -34, color: '#e3d6bf' },
+      { x0: -44, z0: -21, x1: -32.6, z1: -13, color: '#e6cfa6' },
+      { x0: -29.1, z0: -21, x1: -14.7, z1: -13, color: '#ecd9b4' },
+      { x0: -12.2, z0: -21, x1: 7.6, z1: -13, color: '#e6cfa6' },
+      { x0: 16, z0: -21, x1: 34, z1: -13, color: '#ecd9b4' },
+      { x0: -44, z0: -42, x1: 6, z1: -34, color: '#e9d2ad' },
+      { x0: 18, z0: -42, x1: 34, z1: -34, color: '#e9d2ad' },
+      { x0: -52, z0: -32, x1: -43.1, z1: -23, color: '#a8a39a' },
+      { x0: 7, z0: -46, x1: 17, z1: -42, color: '#f0c878' },
+      // Building rows (tube houses, the bubble-tea shop)
       { x0: -29.1, z0: -13, x1: -14.7, z1: -4.5, color: '#f2c46d' },
       { x0: -12.2, z0: -13, x1: -3.25, z1: -4.5, color: '#f2c46d' },
       { x0: 1.0, z0: -13, x1: 8.0, z1: -4.5, color: '#e8a38f' },
@@ -72,6 +84,7 @@ export const SCENE_MAPS: Partial<Record<SceneId, SceneMap>> = {
       { x0: 6.5, z0: 31.8, x1: 13.5, z1: 36.2, color: '#c8322b' },
     ],
     circles: [
+      { x: 12, z: -38, r: 1.8, color: '#8cc2d8' },
       { x: -30.2, z: -6.5, r: 1.6, color: '#7cb35d' },
       { x: 20, z: -7.1, r: 0.5, color: '#b8863a' },
       { x: 10, z: 31.2, r: 6.6, color: '#9ccc78' },
@@ -84,11 +97,17 @@ export const SCENE_MAPS: Partial<Record<SceneId, SceneMap>> = {
       { x: 20, z: -11.3, kind: 'area', text: { vi: 'Đình làng', en: 'Communal house', de: 'Gemeindehaus' } },
       { x: 25, z: -12.4, kind: 'area', text: { vi: 'Ngõ', en: 'Alley', de: 'Gasse' } },
       { x: 23.6, z: 12.6, kind: 'area', text: { vi: 'Chợ đêm', en: 'Night market', de: 'Nachtmarkt' } },
-      { x: 11.8, z: -1.5, kind: 'street', text: { vi: 'Phố Hàng Bông', en: 'Hàng Bông street', de: 'Hàng-Bông-Straße' } },
+      { x: 11.8, z: -16.5, kind: 'street', text: { vi: 'Phố Hàng Bông', en: 'Hàng Bông street', de: 'Hàng-Bông-Straße' } },
       { x: 8.9, z: -10.6, kind: 'area', text: { vi: 'VP Mai Anh', en: 'Mai Anh office', de: 'Büro Mai Anh' } },
       { x: 14.9, z: -10.7, kind: 'area', text: { vi: 'Hoàng Kim', en: 'Hoàng Kim', de: 'Hoàng Kim' } },
       { x: 14.9, z: -6.4, kind: 'area', text: { vi: 'Circle K', en: 'Circle K', de: 'Circle K' } },
-      { x: -22, z: -12.4, kind: 'area', text: { vi: 'Phố cổ', en: 'Old Quarter', de: 'Altstadt' } },
+      { x: -22, z: -11.6, kind: 'area', text: { vi: 'Phố cổ', en: 'Old Quarter', de: 'Altstadt' } },
+      { x: -8, z: -24.2, kind: 'street', text: { vi: 'Phố đi bộ Hàng Đào', en: 'Hàng Đào walking street', de: 'Fußgängerstraße Hàng Đào' } },
+      { x: -47.5, z: -27.5, kind: 'area', text: { vi: 'Nhà thờ Lớn', en: 'Cathedral', de: 'Kathedrale' } },
+      { x: 12, z: -40.8, kind: 'area', text: { vi: 'Vườn hoa', en: 'Square', de: 'Platz' } },
+      { x: 12, z: -44, kind: 'area', text: { vi: 'Bưu điện', en: 'Post office', de: 'Post' } },
+      { x: -30.8, z: -17, kind: 'area', text: { vi: 'Ngõ Cây Đa', en: 'Banyan lane', de: 'Banyan-Gasse' } },
+      { x: -13.4, z: -17, kind: 'area', text: { vi: 'Ngõ Tạp Hóa', en: 'Grocery lane', de: 'Laden-Gasse' } },
       { x: -34.9, z: -8.5, kind: 'area', text: { vi: 'Tiệm ảnh', en: 'Photo studio', de: 'Fotostudio' } },
       { x: -39.7, z: -8.5, kind: 'area', text: { vi: 'Công chứng', en: 'Notary', de: 'Notariat' } },
       { x: -44.5, z: -8.5, kind: 'area', text: { vi: 'Ngân hàng', en: 'Bank', de: 'Bank' } },

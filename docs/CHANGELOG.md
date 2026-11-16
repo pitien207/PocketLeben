@@ -1,5 +1,70 @@
 # Changelog
 
+## 1.17.0 — Tiệm trà sữa, a town instead of one street, a house that looks poor
+
+Vietnam only (the user's wish); Germany is untouched.
+
+### Changed — the café is now **Tiệm Trà Sữa Phố Cổ**
+- Same building at the top of the street, new look: pink walls and awning, a row of tea dispensers, a cup-sealing
+  machine and topping jars on the counter, a giant cup of bubble tea on the roof, the sign "TRÀ SỮA PHỐ CỔ".
+- **Chị Vy**, the owner, stands behind the counter: talk to her or press **Làm ca**.
+- **New mini-game for the shift** (`minigames/BubbleTea.tsx`, full screen, made for one thumb, in the style of the
+  user's reference picture): customers queue under the awning and order a cup — *size M/L, tea, toppings*, with a
+  patience bar. **Take the cup → tap the toppings → HOLD a tea tap until the gauge is in the green → Dập nắp & giao.**
+  Wrong size / tea / topping or a half-empty cup = an unhappy customer; pouring over the top ruins the cup;
+  a perfect pour served quickly = tip 6.000 ₫. A hint line always says the next step; the bin throws a cup away.
+  90 seconds a shift; satisfaction scales the wage (450.000 ₫ at 100 %, as before) + rank bonus.
+- Teas and toppings unlock with the job rank (Mới: 3 teas + 3 toppings · Quen việc: 5 + 6 · Giỏi: 6 + 8, and orders
+  with two toppings / none appear).
+- **Leaving early (✕ / Esc → "Nghỉ ca")**: you are paid only for the part worked, the job is used up for the day, no
+  rank progress, and **chị Vy does not like it** — one strike. Strike 2: a warning. **Strike 3: fired for 3 days**
+  (the counter refuses, the phone's job board shows the lock and the days left, chị Vy says so). A full shift with
+  satisfaction ≥ 50 % takes one strike off again.
+- Texts, quests, guide hints, job board, schedule, loading tip: "quán cà phê" → "tiệm trà sữa". The old in-world
+  button game (WorkStation engine) is no longer used by any job.
+
+### Changed — the map: a town, not one straight street
+- **Phố Hàng Gai is wider** (road 5,4 → 6,8 m).
+- The wall behind the houses is gone. **A second row of houses stands back to back with the Hàng Gai row**, and three
+  ways lead through it: **Phố Hàng Bông** (the barrier is gone, wide pavements with trees), **Ngõ Cây Đa** (past the
+  banyan, between the tailor and the photo studio) and **Ngõ Tạp Hóa** (between cô Liên's grocery and the phở shop).
+- They open onto **Phố đi bộ Hàng Đào**: a 13 m wide walking street, 76 m long, trees and benches down the middle,
+  silk lanterns strung across, street lamps, parked bikes, a cyclo. **Nhà thờ Lớn** closes its west end; opposite
+  Hàng Bông a **square with a fountain** (benches, blossom trees, a balloon seller) in front of the old **Bưu điện**
+  with its clock tower.
+- **About 28 houses with no function, in six styles**, mixed and seeded (same town every visit): French colonial
+  (shutters, mansard), modern glass tube house with a roof garden, khu tập thể with iron cages and washing, low
+  wooden Old Quarter house with stepped gables and lanterns, the everyday pastel nhà ống, mini hotel. A few carry
+  shop signs (karaoke, sửa xe, cắt tóc, photocopy, nhà nghỉ, internet) — there is nothing to do in them.
+- Two passers-by walk the new street; cô Lan now comes down Hàng Bông from it. Big map (M) shows everything.
+- All the new houses are one merged mesh (+~20 draw calls for the whole quarter incl. signs and people).
+
+### Changed — the house in debt looks poor
+- On top of the things that get sold: the **walls and floor get dingier every level**; level 1 peeling paint, damp,
+  a water stain, a patched blanket; level 2 newspaper pasted over holes, mould, a taped window, broken floor tiles,
+  boxes of instant noodles, a bare bulb; level 3 more bare brick with rubble, a basin and a pot under more leaks,
+  **patched washing on a line across the room**, a candle on the tea table, cardboard where the Wave stood.
+- **Bố and Mẹ's clothes follow the debt**: faded at level 1, **patched** (chest, back, elbows, knees) at level 2,
+  **ragged** at level 3 (more patches, frayed too-short sleeves and trousers) and they look sad. Their dialogue
+  portraits show the patches too. Repaying turns it all back.
+
+### Manual test checklist (phone)
+- [ ] Top of the street: pink "TRÀ SỮA PHỐ CỔ" with the big cup on the roof; chị Vy behind the counter, buttons
+      **Nói chuyện** / **Làm ca**.
+- [ ] Làm ca: the game fills the screen; make a cup following the hint line (1 ly → 2 topping → 3 giữ bình trà →
+      4 dập nắp). Holding the tap fills the cup; letting go stops it. Everything reachable with one thumb, nothing cut
+      off at the bottom (also on a small phone).
+- [ ] Wrong size / tea / topping → the customer complains; hold too long → "Tràn ly"; wait → the customer leaves.
+- [ ] Let the 90 s run out → "Hết ca!", wage + tips are added, the job is ticked on the phone's Việc tab.
+- [ ] Next day: ✕ → "Nghỉ ca sớm?" shows "Lần 1/3" → Nghỉ ca → little pay, chị Vy frowns. Third time → fired; counter
+      and job board say how many days are left; after 3 days you can work again.
+- [ ] Walk up Phố Hàng Bông (no barrier) to the walking street; walk to the cathedral, the fountain square, the east
+      end; go back through Ngõ Cây Đa and Ngõ Tạp Hóa. The camera behaves in the lanes. Still smooth on your phone?
+- [ ] Hàng Gai: the road is wider, bikes drive in their lanes, nothing stands on the road.
+- [ ] Map (M / map button): the new streets, lanes, cathedral, square, post office are drawn and named.
+- [ ] Borrow from Bố/Mẹ to 5 / 15 / 30 million (test mode helps): every level the room looks poorer and the parents'
+      clothes more worn; repay Mẹ → it all comes back.
+
 ## 1.16.1 — Characters: real hair, clothes that fit
 
 The user found the characters "just shapes stacked together" (e.g. the ponytail). Rebuilt how the chibi is made; the rig, animations and outfit data are unchanged.

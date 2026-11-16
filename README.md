@@ -29,7 +29,7 @@ In dev builds the browser console has helpers (`window.__vh`):
 
 | Helper | What |
 |---|---|
-| `__vh.teleport(5.7, -6.7)` | move the player (here: in front of the café counter) |
+| `__vh.teleport(5.7, -6.7)` | move the player (here: in front of the bubble-tea counter) |
 | `__vh.travel('germany')` | change scene: `vietnam`, `home`, `classroom`, `examHall`, `embassy`, `airport`, `germany`, `buergeramt`, `wg`, `careHome` |
 | `__vh.action('german.lesson')` | run any game action by id (see `registerActions` calls) |
 | `__vh.talk('thayMinh')`, `__vh.choose(0)` | open a conversation, pick a choice |

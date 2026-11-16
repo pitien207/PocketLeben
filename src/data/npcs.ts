@@ -47,6 +47,27 @@ export interface Outfit {
   /** Knee socks (lederhosen), hair tie colour. */
   socks?: string
   hairTie?: string
+  /** Worn-out clothes with sewn-on patches (1) and frayed, too-short hems (2): the family in debt. */
+  ragged?: 1 | 2
+}
+
+function fade(hex: string, amount: number) {
+  const n = parseInt(hex.slice(1), 16)
+  const to = [0x9c, 0x90, 0x7e]
+  const c = [(n >> 16) & 255, (n >> 8) & 255, n & 255].map((v, i) => Math.round(v + (to[i] - v) * amount))
+  return '#' + c.map((v) => v.toString(16).padStart(2, '0')).join('')
+}
+
+/** Bố and Mẹ's clothes by the house level (0–3): washed-out colours, then patches, then rags. */
+export function raggedOutfit(o: Outfit, level: number): Outfit {
+  if (level <= 0) return o
+  const f = [0, 0.25, 0.45, 0.6][Math.min(3, level)]
+  const out: Outfit = { ...o, shirt: fade(o.shirt, f), shorts: fade(o.shorts, f), shoe: fade(o.shoe, f) }
+  if (level >= 2) {
+    out.ragged = level >= 3 ? 2 : 1
+    out.expression = level >= 3 ? 'sad' : 'neutral'
+  }
+  return out
 }
 
 export const PLAYER_OUTFIT: Outfit = {
@@ -248,6 +269,28 @@ export const NPCS = {
     title: { vi: 'Quản lý Circle K', en: 'Circle K manager', de: 'Filialleiterin Circle K' },
     outfit: { skin: '#f5cfb0', hair: '#2b2222', hairStyle: 'ponytail', shirt: '#d4202a', shorts: '#2f3a4d', shoe: '#ffffff', bag: null, accessory: 'cap', accent: '#d4202a', bottom: 'pants' },
     dialogueId: 'circleK',
+  },
+  chuBong: {
+    id: 'chuBong',
+    name: { vi: 'Chú bán bóng bay', en: 'Balloon seller', de: 'Ballonverkäufer' },
+    outfit: { skin: '#e0b08a', hair: '#3a3438', hairStyle: 'short', shirt: '#f4efe4', shorts: '#5d6b8a', shoe: '#5d6170', bag: null, accessory: 'cap', accent: '#d4473b', bottom: 'pants', top: 'long', shoeType: 'sandal', expression: 'happy' },
+  },
+  coDao: {
+    id: 'coDao',
+    name: { vi: 'Cô Đào', en: 'Đào', de: 'Đào' },
+    outfit: { skin: '#f5cfb0', hair: '#2b2222', hairStyle: 'bun', shirt: '#b8e0c8', shorts: '#3f4a5c', shoe: '#ffffff', bag: null, accessory: 'nonLa', top: 'baba', lashes: true, expression: 'happy', shoeType: 'sandal' },
+  },
+  anhPhong: {
+    id: 'anhPhong',
+    name: { vi: 'Anh Phong', en: 'Phong', de: 'Phong' },
+    outfit: { skin: '#f0c8a8', hair: '#2a2020', hairStyle: 'spiky', shirt: '#ffd166', shorts: '#4f5d75', shoe: '#ffffff', bag: '#7fb8e8', accessory: 'headphones', accent: '#3f4a5c', top: 'hoodie', bottom: 'pants' },
+  },
+  chiVy: {
+    id: 'chiVy',
+    name: { vi: 'Chị Vy', en: 'Vy', de: 'Vy' },
+    title: { vi: 'Chủ tiệm trà sữa', en: 'Tea shop owner', de: 'Chefin des Teeladens' },
+    outfit: { skin: '#fbdcc4', hair: '#5b3a2c', hairStyle: 'ponytail', shirt: '#ffffff', shorts: '#3f4a5c', shoe: '#ffffff', bag: null, accessory: null, bottom: 'pants', apron: '#f8a5b4', hairTie: '#f8a5b4', lashes: true, expression: 'happy' },
+    dialogueId: 'chiVy',
   },
   coLan: {
     id: 'coLan',
