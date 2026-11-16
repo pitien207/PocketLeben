@@ -21,7 +21,6 @@ import { VisaPanel } from './ui/VisaPanel'
 import { ClockPanel } from './ui/ClockPanel'
 import { GuideCard, GuideEdgeArrow, GuideUiPulse, Onboarding } from './ui/Guide'
 import { FastForwardOverlay, LocationCard, NewDayCard } from './ui/TimeOverlays'
-import { ControlsHint } from './ui/ControlsHint'
 import { DialogueBox } from './ui/DialogueBox'
 import { HUD } from './ui/HUD'
 import { Joystick } from './ui/Joystick'
@@ -50,7 +49,6 @@ export default function App() {
       <div className="pointer-events-none absolute inset-0">
         <GuideEdgeArrow />
         <HUD />
-        <ControlsHint />
         <LocationCard />
         <WorkPanel />
         <CarePanel />

@@ -270,6 +270,11 @@ export const NPCS = {
     outfit: { skin: '#f5cfb0', hair: '#2b2222', hairStyle: 'ponytail', shirt: '#d4202a', shorts: '#2f3a4d', shoe: '#ffffff', bag: null, accessory: 'cap', accent: '#d4202a', bottom: 'pants' },
     dialogueId: 'circleK',
   },
+  anhXang: {
+    id: 'anhXang',
+    name: { vi: 'Anh bơm xăng', en: 'Pump attendant', de: 'Tankwart' },
+    outfit: { skin: '#e8b994', hair: '#2a2020', hairStyle: 'short', shirt: '#f39a2b', shorts: '#2c3a5a', shoe: '#3a3a3a', bag: null, accessory: 'cap', accent: '#2c5aa0', bottom: 'pants', top: 'long' },
+  },
   chuBong: {
     id: 'chuBong',
     name: { vi: 'Chú bán bóng bay', en: 'Balloon seller', de: 'Ballonverkäufer' },

@@ -217,13 +217,36 @@
 
 /* Slim HUD plate (1.14): the same paper + ink outline, half the bulk — keeps the 3D view open on phones. */
 @utility hud-slim {
-  background-color: var(--color-cream);
-  border: 2px solid var(--color-outline);
-  border-radius: 0.75rem;
+  background-color: rgb(255 249 236 / 0.92);
+  border: 1.5px solid rgb(74 50 38 / 0.75);
+  border-radius: 0.7rem;
   box-shadow:
-    inset 0 1.5px 0 #ffffff,
-    inset 0 -2px 0 #f1dcb6,
-    0 2px 0 var(--color-outline);
+    inset 0 1px 0 #ffffff,
+    0 1.5px 0 rgb(74 50 38 / 0.55),
+    0 4px 10px rgb(60 40 30 / 0.12);
+  backdrop-filter: blur(6px);
+}
+
+/* One icon inside the grouped tool rail (1.18): no plate of its own. */
+@utility rail-btn {
+  pointer-events: auto;
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 2.125rem;
+  height: 2.125rem;
+  border-radius: 0.55rem;
+  font-size: 17px;
+  color: var(--color-ink);
+  transition: background-color 0.12s;
+  &:active {
+    background-color: rgb(74 50 38 / 0.14);
+  }
+  @media (hover: hover) {
+    &:hover {
+      background-color: rgb(74 50 38 / 0.08);
+    }
+  }
 }
 
 /* Hà Nội's blue enamel street-name plaque (white inner border). */

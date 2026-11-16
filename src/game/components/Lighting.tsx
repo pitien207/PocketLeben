@@ -8,7 +8,7 @@ import { useWorld } from '../../store/worldStore'
 import { SCENES } from '../scenes/registry'
 import { createSkyState, skyAt } from '../systems/daylight'
 import { setRainAmbience } from '../systems/audio'
-import { isRaining, petalsWanted, weatherState } from '../systems/weather'
+import { petalAmount, rainStrength, weatherAt, weatherState } from '../systems/weather'
 
 // Indoors: a warm, fixed light and a dark "diorama" backdrop around the room.
 const INDOOR = {
@@ -30,16 +30,18 @@ let lastScene = ''
 function updateWeather(dt: number, indoor: boolean) {
   const { day, minutes } = useTime.getState()
   const country = SCENES[useWorld.getState().scene].country
-  const raining = isRaining(day, minutes, country)
+  const kind = weatherAt(day, minutes, country)
   // A new place (behind the fade): jump straight to its weather, no petals drifting indoors.
   const scene = useWorld.getState().scene
   const k = scene !== lastScene ? 1 : 1 - Math.exp(-dt * 0.8)
   lastScene = scene
-  // Hà Nội's mưa phùn is a fine drizzle; German rain is the real thing.
-  const strength = raining ? (country === 'vn' ? CONFIG.weather.vnRainStrength : 1) : 0
+  const strength = rainStrength(kind)
+  const cloud = kind === 'cloudy' ? 1 : kind === 'fog' ? 0.5 : 0
+  weatherState.cloud += ((indoor ? 0 : cloud) - weatherState.cloud) * k
+  weatherState.fog += ((indoor || kind !== 'fog' ? 0 : 1) - weatherState.fog) * k
   weatherState.rainOutside += (strength - weatherState.rainOutside) * k
   weatherState.rain += ((indoor ? 0 : strength) - weatherState.rain) * k
-  weatherState.petals += ((!indoor && petalsWanted(minutes, country, raining) ? 1 : 0) - weatherState.petals) * k
+  weatherState.petals += ((indoor ? 0 : petalAmount(minutes, country, kind)) - weatherState.petals) * k
   setRainAmbience(weatherState.rainOutside * (indoor ? 0.35 : 1))
 }
 
@@ -77,23 +79,24 @@ export function Lighting() {
     const s = skyAt(useTime.getState().minutes / 60, sky.current)
     const rain = weatherState.rain
     // Darker skies stay dark at night: only blend toward grey as much as the sky is bright.
-    const grey = rain * 0.55 * Math.min(1, s.sunI / 1.5)
+    const { cloud, fog } = weatherState
+    const grey = Math.max(rain * 0.55, cloud * 0.42, fog * 0.6) * Math.min(1, s.sunI / 1.5)
     if (scene.background instanceof Color) scene.background.copy(s.sky).lerp(RAIN_SKY, grey)
     if (scene.fog instanceof Fog) {
       scene.fog.color.copy(s.fog).lerp(RAIN_FOG, grey)
-      scene.fog.near = 30 - rain * 8
-      scene.fog.far = 80 - rain * 22
+      scene.fog.near = 30 - rain * 8 - fog * 22
+      scene.fog.far = 80 - rain * 22 - fog * 46
     }
     if (hemi.current) {
       hemi.current.color.copy(s.hemiSky)
       hemi.current.groundColor.copy(s.hemiGround)
-      hemi.current.intensity = s.hemi * (1 - rain * 0.18)
+      hemi.current.intensity = s.hemi * (1 - rain * 0.18 - cloud * 0.08)
     }
     if (sun.current) {
       sun.current.color.copy(s.sun)
-      sun.current.intensity = s.sunI * (1 - rain * 0.6)
+      sun.current.intensity = s.sunI * (1 - Math.min(0.75, rain * 0.6 + cloud * 0.4))
       sun.current.position.set(...s.lightPos)
-      sun.current.shadow.intensity = 0.55 * (1 - rain * 0.6)
+      sun.current.shadow.intensity = 0.55 * (1 - Math.min(0.8, rain * 0.6 + cloud * 0.5))
     }
   })
 

@@ -7,7 +7,7 @@ import { PALETTE as P } from '../shared/palette'
 import { cafeTableSetShapes, place, stoolShapes, treeShapes } from '../shared/props'
 import { Shapes, type ShapeItem } from '../shared/Shapes'
 import type { SignOptions } from '../shared/textures'
-import { BUILDING_CENTER_Z, BUILDING_DEPTH, BUILDING_FRONT_Z, WEST } from './layout'
+import { BUILDING_DEPTH, BUILDING_FRONT_Z, houseFront, WEST } from './layout'
 import { TubeHouse, type HousePalette } from './TubeHouse'
 
 /**
@@ -32,6 +32,7 @@ function propShapes(): ShapeItem[] {
   const s: ShapeItem[] = []
   const [pho, pharmacy, tailor] = WEST.houses
   const f = BUILDING_FRONT_Z
+  const fph = houseFront(pharmacy)
   // Phở: big simmering pot on a coal stove, a glass cabinet of noodles, low tables outside
   s.push({ cyl: [0.32, 0.36, 0.5, 12], at: [pho.x - 1.4, 0.25, f + 0.75], color: '#5d6170' })
   s.push({ cyl: [0.38, 0.34, 0.55, 14], at: [pho.x - 1.4, 0.78, f + 0.75], color: '#b8bcc8' })
@@ -43,10 +44,10 @@ function propShapes(): ShapeItem[] {
   s.push(place(cafeTableSetShapes([P.coral, P.sky2]), [pho.x - 0.6, 0, f + 2.3], 0.2))
   s.push(place(cafeTableSetShapes([P.butter, P.coral]), [pho.x + 1.3, 0, f + 2.6], -0.3))
   // Pharmacy: green cross lightbox, display shelves
-  s.push({ box: [0.6, 0.18, 0.08], at: [pharmacy.x + 1.6, 2.9, f + 0.45], color: '#3fae72' })
-  s.push({ box: [0.18, 0.6, 0.08], at: [pharmacy.x + 1.6, 2.9, f + 0.45], color: '#3fae72' })
-  s.push({ box: [1.2, 0.9, 0.4], at: [pharmacy.x - 0.6, 0.45, f + 0.45], color: '#ffffff' })
-  for (let i = 0; i < 6; i++) s.push({ box: [0.14, 0.18, 0.12], at: [pharmacy.x - 1.05 + i * 0.18, 1.0, f + 0.45], color: ['#ff9fb2', '#a9d6ff', '#ffe08a', '#a8e6cf'][i % 4] })
+  s.push({ box: [0.6, 0.18, 0.08], at: [pharmacy.x + 1.6, 2.9, fph + 0.45], color: '#3fae72' })
+  s.push({ box: [0.18, 0.6, 0.08], at: [pharmacy.x + 1.6, 2.9, fph + 0.45], color: '#3fae72' })
+  s.push({ box: [1.2, 0.9, 0.4], at: [pharmacy.x - 0.6, 0.45, fph + 0.45], color: '#ffffff' })
+  for (let i = 0; i < 6; i++) s.push({ box: [0.14, 0.18, 0.12], at: [pharmacy.x - 1.05 + i * 0.18, 1.0, fph + 0.45], color: ['#ff9fb2', '#a9d6ff', '#ffe08a', '#a8e6cf'][i % 4] })
   // Tailor: two dress forms with áo dài (long tunic + flowing panels)
   for (const [dx, c] of [[-0.9, '#d4473b'], [0.9, '#f4c04e']] as const) {
     const x = tailor.x + dx
@@ -64,7 +65,7 @@ function propShapes(): ShapeItem[] {
   s.push({ cyl: [0.05, 0.05, 0.3, 4], at: [bx + 0.85, 0.15, bz + 0.2], color: '#5b4a3e' })
   for (let i = 0; i < 3; i++) s.push({ cyl: [0.005, 0.005, 0.18, 3], at: [bx + 0.78 + i * 0.05, 0.96, bz + 0.3], color: '#c8322b' })
   // A row of stools waiting for the evening crowd
-  for (let i = 0; i < 3; i++) s.push(place(stoolShapes([P.coral, P.sky2, P.mint][i]), [WEST.houses[1].x - 1 + i * 0.6, 0, f + 2.4], i))
+  for (let i = 0; i < 3; i++) s.push(place(stoolShapes([P.coral, P.sky2, P.mint][i]), [-22.9 + i * 0.6, 0, f + 2.4], i))
   return s
 }
 
@@ -72,12 +73,13 @@ export const WestBlock = memo(function WestBlock() {
   const shapes = useMemo(propShapes, [])
   const [pho, pharmacy, tailor] = WEST.houses
   const f = BUILDING_FRONT_Z
+  const fph = houseFront(pharmacy)
   return (
     <>
       {WEST.houses.map((h, i) => (
         <TubeHouse
           key={h.x}
-          position={[h.x, 0, BUILDING_CENTER_Z]}
+          position={[h.x, 0, houseFront(h) - BUILDING_DEPTH / 2]}
           width={h.width}
           depth={BUILDING_DEPTH}
           floors={h.floors}
@@ -94,10 +96,10 @@ export const WestBlock = memo(function WestBlock() {
       <RigidBody type="fixed" colliders={false}>
         <CylinderCollider args={[0.8, 0.8]} position={[WEST.banyan.x, 0.8, WEST.banyan.z]} collisionGroups={PROP_GROUPS} />
         <CuboidCollider args={[0.85, 0.5, 0.35]} position={[pho.x - 0.8, 0.5, f + 0.7]} collisionGroups={PROP_GROUPS} />
-        <CuboidCollider args={[0.65, 0.5, 0.25]} position={[pharmacy.x - 0.6, 0.5, f + 0.45]} collisionGroups={PROP_GROUPS} />
+        <CuboidCollider args={[0.65, 0.5, 0.25]} position={[pharmacy.x - 0.6, 0.5, fph + 0.45]} collisionGroups={PROP_GROUPS} />
       </RigidBody>
       <NPC def={NPCS.bacPho} at={{ x: pho.x - 0.8, z: f + 1.35 }} yaw={0} zone={{ x: pho.x - 0.2, z: f + 2.0, halfX: 2.0, halfZ: 1.2 }} />
-      <NPC def={NPCS.coThuoc} at={{ x: pharmacy.x - 0.6, z: f + 1.05 }} yaw={0} zone={{ x: pharmacy.x - 0.4, z: f + 1.7, halfX: 1.4, halfZ: 0.9 }} />
+      <NPC def={NPCS.coThuoc} at={{ x: pharmacy.x - 0.6, z: fph + 1.05 }} yaw={0} zone={{ x: pharmacy.x - 0.4, z: fph + 1.7, halfX: 1.4, halfZ: 0.9 }} />
       <NPC def={NPCS.coMay} at={{ x: tailor.x, z: f + 1.0 }} yaw={0} zone={{ x: tailor.x, z: f + 1.6, halfX: 1.4, halfZ: 0.9 }} />
     </>
   )

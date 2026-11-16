@@ -295,12 +295,18 @@ export const CONFIG = {
   },
 
   weather: {
-    /** Chance that a given day is rainy (decided per day, the same on every device). */
-    rainChance: { vn: 0.3, de: 0.45 },
-    /** Hà Nội gets a morning drizzle (mưa phùn, hours); German rain lasts all day. */
-    vnShowerHours: [6, 10] as [number, number],
-    /** Mưa phùn is fine and light compared with German rain. */
-    vnRainStrength: 0.55,
+    /** 1.20: the weather changes every block of this many game minutes. */
+    blockMinutes: 150,
+    /** How often each kind comes up (relative weights). */
+    kinds: {
+      vn: { clear: 34, cloudy: 18, breeze: 16, drizzle: 14, rain: 9, fog: 9 },
+      de: { clear: 24, cloudy: 26, breeze: 12, drizzle: 16, rain: 14, fog: 8 },
+    },
+    /** Mist only before this hour; later the same roll is an overcast sky. */
+    fogUntilHour: 9,
+    /** Rain on screen and in the (soft) sound, 0–1. */
+    drizzleStrength: 0.4,
+    rainStrength: 0.85,
     /** Particle counts per quality level. */
     particles: { high: { rain: 1800, petals: 110 }, low: { rain: 800, petals: 45 } },
     /** Phượng/bằng lăng petals drift down in Vietnam during these hours when it's dry. */

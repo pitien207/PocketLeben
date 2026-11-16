@@ -13,7 +13,7 @@ import { Shapes, type ShapeItem } from '../shared/Shapes'
 import { SignBoard } from '../shared/SignBoard'
 import type { SignOptions } from '../shared/textures'
 import { bicycleShapes, motorbikeShapes } from '../shared/vehicles'
-import { BUILDING_CENTER_Z, BUILDING_DEPTH, BUILDING_FRONT_Z, EAST } from './layout'
+import { BUILDING_CENTER_Z, BUILDING_DEPTH, BUILDING_FRONT_Z, EAST, SOUTH } from './layout'
 import { TubeHouse, type HousePalette } from './TubeHouse'
 
 /**
@@ -196,7 +196,7 @@ function marketShapes(): { s: ShapeItem[]; glow: ShapeItem[] } {
   for (const px of [x0, x1]) s.push({ cyl: [0.05, 0.06, 2.8, 6], at: [px, 1.4, z], color: P.darkSteel })
   // A plastic-stool corner for eating chè
   for (let i = 0; i < 4; i++) s.push(place(stoolShapes([P.coral, P.mint, P.sky2, P.butter][i]), [stalls[1] + 1.2 + (i % 2) * 0.6, 0, z - 1.9 + Math.floor(i / 2) * 0.6], i))
-  s.push(place(treeShapes('green'), [33.0, 0, 10.4], 0.5, 1.0))
+  s.push(place(treeShapes('green'), [33.0, 0, 10.4 + SOUTH], 0.5, 1.0))
   return { s, glow }
 }
 
@@ -260,7 +260,7 @@ export const EastBlock = memo(function EastBlock() {
         {EAST.market.stalls.map((x) => (
           <CuboidCollider key={x} args={[1.1, 0.5, 0.45]} position={[x, 0.5, EAST.market.z]} collisionGroups={PROP_GROUPS} />
         ))}
-        <CylinderCollider args={[0.8, 0.25]} position={[33.0, 0.8, 10.4]} collisionGroups={PROP_GROUPS} />
+        <CylinderCollider args={[0.8, 0.25]} position={[33.0, 0.8, 10.4 + SOUTH]} collisionGroups={PROP_GROUPS} />
       </RigidBody>
 
       <ActionSpot id="vn-dinh" name={{ vi: 'Đình Hàng Gai', en: 'Hàng Gai communal house', de: 'Gemeindehaus Hàng Gai' }} zone={{ x: cx, z: D.hallZ + 1.1, halfX: 1.6, halfZ: 1.0 }} actions={FORTUNE} marker={{ at: at(cx, 2.6, D.hallZ + 0.6), when: { noFlag: 'fortune.first' } }} />

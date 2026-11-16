@@ -76,7 +76,7 @@ const needMoney = (amount: number, what: Localized): GuideBlocker => ({
 const vnOfficeClosed: GuideBlocker = {
   when: { all: [{ not: { test: 'office.open' } }, { scene: 'vietnam' }] },
   hint: L(
-    `Các văn phòng ở cuối phố mở ${CONFIG.visa.officeHours[0]}–${CONFIG.visa.officeHours[1]}h. Bấm đồng hồ để chờ đến giờ làm việc.`,
+    `Các văn phòng mở ${CONFIG.visa.officeHours[0]}–${CONFIG.visa.officeHours[1]}h. Bấm đồng hồ để chờ đến giờ làm việc.`,
     `The offices at the end of the street are open ${CONFIG.visa.officeHours[0]}:00–${CONFIG.visa.officeHours[1]}:00. Tap the clock to wait.`,
     `Die Büros am Straßenende haben ${CONFIG.visa.officeHours[0]}–${CONFIG.visa.officeHours[1]} Uhr geöffnet. Tippe auf die Uhr zum Warten.`,
   ),
@@ -415,7 +415,7 @@ export const STEP_GUIDES: Record<string, StepGuide> = {
   'visa.notary': {
     targets: [{ if: { not: { test: 'visa.originals' } }, target: PAPERS }, { target: NOTARY }],
     hint: L(
-      `Tự làm: cô Phương (công chứng, cuối phố phía tây) → 10 trang, ${vnd(1_500_000)}, mất ~4 giờ. Hoặc 💼 văn phòng chị Mai: ${vnd(2_000_000)}, mai có.`,
+      `Tự làm: cô Phương (công chứng, trên phố đi bộ Hàng Đào) → 10 trang, ${vnd(1_500_000)}, mất ~4 giờ. Hoặc 💼 văn phòng chị Mai: ${vnd(2_000_000)}, mai có.`,
       `Yourself: Ms Phương (notary, west end) → 10 pages, ${vnd(1_500_000)}, ~4 hours. Or 💼 Mai’s office: ${vnd(2_000_000)}, ready tomorrow.`,
       `Selbst: Frau Phương (Notariat) → 10 Seiten, ${vnd(1_500_000)}, ~4 Std. Oder 💼 Mais Büro: ${vnd(2_000_000)}, morgen fertig.`,
     ),
@@ -457,7 +457,7 @@ export const STEP_GUIDES: Record<string, StepGuide> = {
   'visa.aps': {
     targets: [{ target: APS }],
     hint: L(
-      `Văn phòng APS (cuối phố phía tây) → Frau Schneider → Nộp hồ sơ (${vnd(3_600_000)}). Phỏng vấn chỉ có vào ngày có đợt (2 tuần một đợt) — trả lời bằng tiếng Đức về các môn lớp 12.`,
+      `Văn phòng APS (phố Tràng Tiền, đại lộ phía bắc, gần Bưu điện) → Frau Schneider → Nộp hồ sơ (${vnd(3_600_000)}). Phỏng vấn chỉ có vào ngày có đợt (2 tuần một đợt) — trả lời bằng tiếng Đức về các môn lớp 12.`,
       `APS office (west end) → Ms Schneider → Hand in the file (${vnd(3_600_000)}). Interviews only on round days (every 2 weeks) — in German, about your year-12 subjects.`,
       `APS-Büro → Frau Schneider → Unterlagen (${vnd(3_600_000)}). Interviews nur an Rundentagen (alle 2 Wochen).`,
     ),

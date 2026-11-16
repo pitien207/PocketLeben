@@ -8,7 +8,7 @@ import { useSettings } from '../../store/settingsStore'
 import { useTime } from '../../store/timeStore'
 import { useUI } from '../../store/uiStore'
 import { useWorld, type SceneId } from '../../store/worldStore'
-import { shortDate } from './calendar'
+import { dateLabel } from './say'
 import { cameraState } from './cameraState'
 import { check, flagNumber, getFlag, germanXpNeeded, setFlag } from './conditions'
 import { playerState } from './playerState'
@@ -47,11 +47,10 @@ const toRef = (p: GuidePoint): GuidePointRef => ('npc' in p ? { kind: 'npc', id:
 // --- Placeholder values for hint texts --------------------------------------------------
 
 export function guideVars(): Record<string, string | number> {
-  const language = useSettings.getState().language
   const g = usePlayer.getState().german
   const date = (key: string) => {
     const d = flagNumber(key)
-    return d > 0 ? shortDate(d, language) : '—'
+    return d > 0 ? dateLabel(d) : '—'
   }
   return {
     xp: Math.min(g.xp, germanXpNeeded(g.level)),
@@ -192,9 +191,9 @@ function tourTick() {
 
 /** New players (no lessons yet, tour never finished or skipped) get the tour on the street. */
 function maybeStartTour() {
-  if (useGuide.getState().tour || getFlag(TOUR_FLAG) || getFlag('course.0')) return
-  if (useWorld.getState().scene !== 'vietnam' || !useUI.getState().sceneReady) return
-  setTour('move')
+  // 1.18: the user removed the tutorial at the start. The flag is still set, because the story
+  // (chapter cards, secrets) waits for it.
+  if (!getFlag(TOUR_FLAG)) setFlag(TOUR_FLAG, true)
 }
 
 // --- Keep the guide up to date ---------------------------------------------------------

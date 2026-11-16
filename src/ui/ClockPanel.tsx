@@ -1,18 +1,15 @@
-import { CONFIG } from '../data/config'
 import { isOpen, SCHEDULE } from '../data/schedule'
-import { longDate, minutesUntil, waitableMinutes, waitFor } from '../game/systems/calendar'
+import { minutesUntil, waitableMinutes, waitFor } from '../game/systems/calendar'
+import { weekdayName } from '../game/systems/say'
 import { formatClock, formatDuration, weekdayIndex } from '../game/systems/time'
-import { isRainyDay } from '../game/systems/weather'
+import { WEATHER_LABELS, weatherAt, weatherNext } from '../game/systems/weather'
 import { SCENES } from '../game/scenes/registry'
-import { useT, type I18nKey } from '../i18n'
+import { useT } from '../i18n'
 import { useLocalize } from '../i18n/localized'
-import { useSettings, type TimeSpeed } from '../store/settingsStore'
 import { useTime } from '../store/timeStore'
 import { useUI } from '../store/uiStore'
 import { useWorld } from '../store/worldStore'
 import { Sheet } from './Sheet'
-
-const SPEEDS: TimeSpeed[] = ['slow', 'normal', 'fast']
 
 /** Hand positions for a little analogue clock face. */
 function ClockFace({ minutes }: { minutes: number }) {
@@ -43,18 +40,14 @@ export function ClockPanel() {
   const minutes = useTime((s) => s.minutes)
   const day = useTime((s) => s.day)
   const scene = useWorld((s) => s.scene)
-  const language = useSettings((s) => s.language)
-  const timeSpeed = useSettings((s) => s.timeSpeed)
-  const setTimeSpeed = useSettings((s) => s.setTimeSpeed)
   if (panel?.type !== 'clock') return null
 
   const country = SCENES[scene].country
   const hour = minutes / 60
   const weekday = weekdayIndex(day)
   const waitable = waitableMinutes()
-  const rainToday = isRainyDay(day, country)
-  const rainTomorrow = isRainyDay(day + 1, country)
-  const weatherKey = (rain: boolean): I18nKey => (rain ? (country === 'vn' ? 'clock.drizzle' : 'clock.rain') : 'clock.dry')
+  const now = WEATHER_LABELS[weatherAt(day, minutes, country)]
+  const next = WEATHER_LABELS[weatherNext(day, minutes, country)]
 
   const waits: { key: string; label: string; minutes: number }[] = [
     { key: '30', label: t('clock.wait', { time: formatDuration(30) }), minutes: 30 },
@@ -69,21 +62,19 @@ export function ClockPanel() {
         <ClockFace minutes={minutes} />
         <div className="min-w-0 flex-1">
           <p className="font-display text-3xl leading-none font-extrabold tabular-nums">{formatClock(minutes)}</p>
-          <p className="mt-1 text-sm font-extrabold">{longDate(day, language)}</p>
-          <p className="text-xs font-bold text-ink/70">
-            {t('clock.journeyDay', { day })} · {localize(SCENES[scene].name)}
-          </p>
+          <p className="mt-1 text-sm font-extrabold first-letter:uppercase">{weekdayName(day)}</p>
+          <p className="text-xs font-bold text-ink/70">{localize(SCENES[scene].name)}</p>
         </div>
       </div>
 
       <div className="mb-3 grid grid-cols-2 gap-2 text-sm font-extrabold">
         <div className="rounded-2xl bg-white/70 p-2 text-center shadow-[inset_0_0_0_2px_#f1dcb6]">
-          <div className="text-xs text-ink/70">{t('clock.today')}</div>
-          {rainToday ? '🌧' : '☀️'} {t(weatherKey(rainToday))}
+          <div className="text-xs text-ink/70">Bây giờ</div>
+          {now.icon} {now.vi}
         </div>
         <div className="rounded-2xl bg-white/70 p-2 text-center shadow-[inset_0_0_0_2px_#f1dcb6]">
-          <div className="text-xs text-ink/70">{t('clock.tomorrow')}</div>
-          {rainTomorrow ? '🌧' : '☀️'} {t(weatherKey(rainTomorrow))}
+          <div className="text-xs text-ink/70">Lát nữa</div>
+          {next.icon} {next.vi}
         </div>
       </div>
 
@@ -105,22 +96,6 @@ export function ClockPanel() {
           ))}
         </div>
       )}
-
-      <h3 className="mb-1.5 font-display text-base font-extrabold text-lacquer">{t('clock.speed')}</h3>
-      <div className="mb-3 flex rounded-full bg-ink/10 p-1" role="group" aria-label={t('clock.speed')}>
-        {SPEEDS.map((sp) => (
-          <button
-            key={sp}
-            type="button"
-            aria-pressed={timeSpeed === sp}
-            onClick={() => setTimeSpeed(sp)}
-            className={`flex-1 rounded-full px-2 py-1.5 text-[13px] font-extrabold ${timeSpeed === sp ? 'bg-jade text-white shadow' : 'text-ink/75'}`}
-          >
-            {t(`clock.speed.${sp}` as I18nKey)}
-            <span className="ml-1 text-[11px] opacity-80">×{CONFIG.time.speeds[sp]}</span>
-          </button>
-        ))}
-      </div>
 
       <h3 className="mb-1.5 font-display text-base font-extrabold text-lacquer">{t('clock.hours')}</h3>
       <ul className="flex flex-col gap-1">

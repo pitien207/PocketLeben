@@ -1,5 +1,81 @@
 # Changelog
 
+## 1.20.0 — Time only, no speed setting, weather that changes
+
+### Removed
+- **Time speed** (Chậm / Vừa / Nhanh in the clock panel): time always runs at the normal pace.
+  The "Chờ 30 phút / 1 giờ / …" buttons stay — offices and classes still need them.
+- **Calendar dates**: the HUD clock shows only the time. Nothing says "02/09" any more; an appointment is
+  "mai" or "thứ Năm (3 ngày nữa)". The weekday is still named in the clock panel and on the new-day card,
+  because opening hours depend on it.
+
+### Changed — weather
+- The weather **changes every 2½ game hours** instead of once a day: **trời đẹp, nhiều mây, gió nhẹ, mưa phùn,
+  mưa, sương mù** (mist only early in the morning). Clouds dim the sun and soften the shadows, mist pulls the
+  fog in close, a breeze fills the Hà Nội air with petals, calm sunny hours have just a few.
+- The clock panel shows the weather **now** and **a little later**.
+- **Rain sounds soft**: a low, quiet patter (about a third of the old loudness, slower fade in and out).
+
+### Manual test checklist (phone)
+- [ ] HUD clock: only "07:02". Clock panel: weekday, weather now / later, wait buttons, opening hours — no speed row.
+- [ ] Wait a few times by 3 hours: sky, light, petals, rain and mist change now and then.
+- [ ] In the rain with sound on: quiet and gentle, not a hiss; indoors even quieter.
+- [ ] Visa file with a Termin / APS round / papers at the office: days read "mai", "thứ … (N ngày nữa)".
+
+## 1.19.0 — Hà Nội much bigger: four-lane Hàng Gai, an avenue, a petrol station, shops spread out
+
+### Changed — the map (Vietnam)
+- **Phố Hàng Gai has four lanes** (road 6,8 → 10 m, double yellow line) and a **wider far pavement** with a second
+  row of trees and more benches. The lake, Thê Húc bridge, Jade Island, night market, barber, flower bike and
+  clothes stall all moved 5 m south with it.
+- **Phố đi bộ Hàng Đào is 17 m wide** (was 13 m).
+- **New: Phố Tràng Tiền**, a 12 m four-lane avenue with cars and motorbikes, trees and tall lamps on wide pavements,
+  north of everything. Two more rows of houses (row C2 back to back with row C, row D across the avenue) — about
+  30 more plain houses. The map is now ≈ 86 × 103 m (was 86 × 56 m).
+- The fountain square is now a **passage** from the walking street to the avenue (zebra crossing, the **Bưu điện**
+  moved across the avenue and still closes the view up Hàng Bông). Two more lanes cross rows C/C2
+  (x ≈ −29 by the cathedral, x ≈ 32 at the east end).
+- **Cây xăng Phố Cổ** on the avenue: canopy, two pump islands, a shop, a price pylon, an attendant. "Đổ xăng" only
+  says there is no vehicle yet — it is the place for the driving feature to come.
+
+### Changed — shops are no longer all in one row
+- **Công chứng (cô Phương)** → the walking street (x −20). **Nhà thuốc** → the walking street, east end (x 28).
+  **Văn phòng APS** → the avenue, between the petrol station and the post office (x −4).
+- Their old plots on Hàng Gai now hold plain houses, so the row reads shop · house · shop.
+  Guide arrows follow the people, so quests still point to the right door; hint texts and the big map are updated.
+
+### Manual test checklist (phone)
+- [ ] Hàng Gai: four lanes of traffic, crossing still works (bikes stop for you); lake railing, bridge gate and
+      Ngọc Sơn temple reachable as before; night market / barber / flower bike on the far pavement.
+- [ ] Walk Hàng Bông → walking street → through the fountain square → across the avenue to the post office.
+- [ ] Avenue: cars + bikes in four lanes; petrol station → "Đổ xăng" shows the note.
+- [ ] Find the notary and the pharmacy on the walking street and the APS office on the avenue; talk to each.
+- [ ] Visa quest steps "dịch công chứng" and "APS": the yellow arrow leads to the new places.
+- [ ] Map (M): everything drawn and named. Still smooth on your phone?
+
+## 1.18.0 — No energy / mood, three currencies, a tidy HUD, no tutorial
+
+### Removed
+- **Energy and mood** are gone: not shown anywhere on the HUD, nothing drains or needs them (you are never "too
+  tired"; jobs, lessons and food just work). Food no longer shows ⚡ / ☺ chips in shops.
+  *Left over on purpose (text only): some toasts, dialogue lines and result screens still mention energy / mood.*
+- **The tutorial at the start** (move → camera → talk → bag → clock) and the "WASD để đi…" controls hint.
+  The quest line, the yellow guide arrow and the **?** button are still there.
+
+### Changed — HUD
+- **Three currencies, each on its own** with its own coin: **đồng** (gold ₫ coin), **euro** (silver-blue € coin),
+  **diamonds** (blue gem, starts at 0 — nothing gives them yet). Both wallets are always visible, in any country.
+- The clock is a small green pill; quest line and **?** are lighter plates.
+- **The tools are one narrow rail** (bag, phone, map, visa file, online, emotes, settings) instead of separate
+  chunky buttons: smaller icons, one thin frame, less of the screen covered.
+
+### Manual test checklist (phone)
+- [ ] New game: no tutorial card, you can walk straight away; chapter card still appears.
+- [ ] Top line: clock · ₫ · € · 💎 all fit on a narrow phone; earning money shows "+…" under the right coin.
+- [ ] Bank: exchange đồng ↔ euro → both numbers change.
+- [ ] Rail on the right: every icon opens its panel; online list / emote picker still open to the left.
+- [ ] Work a tea shift, a Circle K shift, study, sleep: nothing complains about being tired.
+
 ## 1.17.0 — Tiệm trà sữa, a town instead of one street, a house that looks poor
 
 Vietnam only (the user's wish); Germany is untouched.

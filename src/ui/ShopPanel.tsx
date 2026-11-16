@@ -13,15 +13,10 @@ import { CoinIcon } from './icons'
 import { ItemIcon } from './ItemIcon'
 import { Sheet } from './Sheet'
 
-const sign = (n: number) => (n > 0 ? `+${n}` : n < 0 ? `−${-n}` : '0')
 
-export function EffectChips({ item }: { item: ItemDef }) {
-  return (
-    <span className="flex gap-1 text-[11px] font-black">
-      <span className="rounded-full bg-gold-light px-1.5 py-0.5">⚡{sign(item.energy)}</span>
-      {item.mood !== 0 && <span className={`rounded-full px-1.5 py-0.5 ${item.mood > 0 ? 'bg-rose/40' : 'bg-ink/10'}`}>☺{sign(item.mood)}</span>}
-    </span>
-  )
+/** 1.18: energy and mood are gone, so an item has no effect chips to show. */
+export function EffectChips(_props: { item: ItemDef }) {
+  return null
 }
 
 /** Simple shop (plan §5.5): buy food & drinks into the bag. */

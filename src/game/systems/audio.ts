@@ -230,9 +230,10 @@ function ensureRain() {
   src.buffer = buffer
   src.loop = true
   const band = ctx.createBiquadFilter()
+  // 1.20: a soft, low patter (the user asked for gentle rain), not a hiss
   band.type = 'bandpass'
-  band.frequency.value = 1400
-  band.Q.value = 0.6
+  band.frequency.value = 760
+  band.Q.value = 0.45
   rainGain = ctx.createGain()
   rainGain.gain.value = 0
   src.connect(band).connect(rainGain).connect(sfxBus)
@@ -246,7 +247,7 @@ export function setRainAmbience(level: number) {
   rainLevel = level
   if (!ctx || (level <= 0 && !rainGain)) return
   const g = ensureRain()
-  g?.gain.setTargetAtTime(level * 0.09, ctx.currentTime, 0.4)
+  g?.gain.setTargetAtTime(level * 0.032, ctx.currentTime, 1.2)
 }
 
 // --- Recorded music: day / night ----------------------------------------------------

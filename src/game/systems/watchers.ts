@@ -12,7 +12,7 @@ import { playSfx } from './audio'
 import { bumpFlag, check, flagNumber, getFlag, setFlag } from './conditions'
 import { useUI } from '../../store/uiStore'
 import { useSettings } from '../../store/settingsStore'
-import { shortDate } from './calendar'
+import { weekdayName } from './say'
 import { chargeRent } from './germany'
 import { SCENES } from '../scenes/registry'
 import { runAction } from './actions'
@@ -155,7 +155,7 @@ function closeDay(day: number) {
   })
   snapshotDay(day)
   // Still up at midnight: a quiet note instead of the full card.
-  if (!useUI.getState().sleeping) pushToast('toast.midnight', 'info', { date: shortDate(day, useSettings.getState().language) })
+  if (!useUI.getState().sleeping) pushToast('toast.midnight', 'info', { date: weekdayName(day) })
 }
 
 /** A random morning event, at most once per day. */

@@ -1,15 +1,14 @@
 import { useEffect, useState } from 'react'
 import { currentObjective } from '../game/systems/watchers'
-import { longDate } from '../game/systems/calendar'
+import { weekdayName } from '../game/systems/say'
 import { formatClock } from '../game/systems/time'
-import { isRainyDay } from '../game/systems/weather'
+import { isRaining } from '../game/systems/weather'
 import { SCENES } from '../game/scenes/registry'
 import { check } from '../game/systems/conditions'
 import { formatMoney } from '../i18n/format'
 import { useT } from '../i18n'
 import { useLocalize } from '../i18n/localized'
 import { usePlayer } from '../store/playerStore'
-import { useSettings } from '../store/settingsStore'
 import { useTime } from '../store/timeStore'
 import { useUI } from '../store/uiStore'
 import { useWorld } from '../store/worldStore'
@@ -46,7 +45,6 @@ export function NewDayCard() {
   const summary = useUI((s) => s.daySummary)
   const setOpen = useUI((s) => s.setNewDayOpen)
   const day = useTime((s) => s.day)
-  const language = useSettings((s) => s.language)
   const scene = useWorld((s) => s.scene)
   const currency = usePlayer((s) => s.currency)
   const [, rerender] = useState(0)
@@ -70,7 +68,7 @@ export function NewDayCard() {
 
   if (!open) return null
   const country = SCENES[scene].country
-  const rainy = isRainyDay(day, country)
+  const rainy = isRaining(day, 7 * 60, country)
   const objective = currentObjective()
   const s = summary && summary.day === day ? summary : null
   const moneyText = s && s.money !== 0 ? `${s.money > 0 ? '+' : '−'}${formatMoney(Math.abs(s.money), currency)}` : '±0'
@@ -82,7 +80,7 @@ export function NewDayCard() {
           {rainy ? '🌧' : '🌅'}
         </span>
         <p className="text-xs font-black tracking-wide text-lacquer uppercase">{t('newDay.title', { day })}</p>
-        <p className="font-display text-2xl leading-tight font-extrabold">{longDate(day, language)}</p>
+        <p className="font-display text-2xl leading-tight font-extrabold">{weekdayName(day).replace(/^./, (c) => c.toUpperCase())}</p>
         <p className="mt-1 text-sm font-bold text-ink/75">
           {rainy ? (country === 'vn' ? t('newDay.drizzle') : t('newDay.rain')) : t('newDay.sunny')}
         </p>

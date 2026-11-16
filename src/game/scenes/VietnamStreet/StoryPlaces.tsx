@@ -6,7 +6,7 @@ import { PALETTE as P } from '../shared/palette'
 import { bicycleShapes, cycloShapes, flowerBikeShapes, motorbikeShapes, place, plantShapes, RIDES, stoolShapes } from '../shared/props'
 import { ActionSpot, type SpotAction } from '../../components/ActionSpot'
 import { PROP_GROUPS } from '../../systems/collisionGroups'
-import { BUILDING_BACK_Z, HOME } from './layout'
+import { BUILDING_BACK_Z, HOME, SOUTH } from './layout'
 import { Shapes, type ShapeItem } from '../shared/Shapes'
 import { SignBoard } from '../shared/SignBoard'
 import type { SignOptions } from '../shared/textures'
@@ -17,12 +17,12 @@ const STOOL = 0.33
 
 /** Trung tâm Đức ngữ: a little colonial-yellow building closing off the lane. */
 export const CENTER = { x: -1.1, front: BUILDING_BACK_Z + 0.1, width: 4.2 }
-const LUA = { bike: { x: -2.6, z: 12.75 }, seller: { x: -1.85, z: 12.2 }, zone: { x: -2.2, z: 11.8, halfX: 1.4, halfZ: 1.1 } }
+const LUA = { bike: { x: -2.6, z: 12.75 + SOUTH }, seller: { x: -1.85, z: 12.2 + SOUTH }, zone: { x: -2.2, z: 11.8 + SOUTH, halfX: 1.4, halfZ: 1.1 } }
 const CYCLO = { x: -13.0, z: -1.2 }
 
 const XE_OM = { bike: { x: 9.3, z: 1.3 }, rider: { x: 9.3, z: 1.3 - RIDES.motorbike.riderZ }, zone: { x: 9.0, z: 1.0, halfX: 1.3, halfZ: 1.3 } }
-const STALL = { seller: { x: 2.4, z: 11.6 }, zone: { x: 2.9, z: 11.5, halfX: 1.7, halfZ: 1.3 } }
-const BARBER = { chair: { x: -11.8, z: 11.7 }, barber: { x: -12.5, z: 11.3 }, zone: { x: -11.9, z: 11.3, halfX: 1.4, halfZ: 1.2 } }
+const STALL = { seller: { x: 2.4, z: 11.6 + SOUTH }, zone: { x: 2.9, z: 11.5 + SOUTH, halfX: 1.7, halfZ: 1.3 } }
+const BARBER = { chair: { x: -11.8, z: 11.7 + SOUTH }, barber: { x: -12.5, z: 11.3 + SOUTH }, zone: { x: -11.9, z: 11.3 + SOUTH, halfX: 1.4, halfZ: 1.2 } }
 
 const CENTER_SIGN: SignOptions = {
   title: 'TRUNG TÂM ĐỨC NGỮ',
@@ -109,7 +109,7 @@ function placesShapes(): ShapeItem[] {
 
   // Clothes stall: a rack of shirts, a table of folded clothes, a parasol
   const rx = 3.0
-  const rz = 12.9
+  const rz = 12.9 + SOUTH
   s.push({ box: [0.06, 1.7, 0.06], at: [rx - 1.1, 0.85, rz], color: P.darkSteel })
   s.push({ box: [0.06, 1.7, 0.06], at: [rx + 1.1, 0.85, rz], color: P.darkSteel })
   s.push({ box: [2.3, 0.05, 0.05], at: [rx, 1.68, rz], color: P.darkSteel })
@@ -133,9 +133,9 @@ function placesShapes(): ShapeItem[] {
   s.push({ box: [0.55, 0.08, 0.55], at: [c.x, 0.5, c.z], color: '#d4473b' })
   s.push({ box: [0.55, 0.6, 0.08], at: [c.x, 0.82, c.z + 0.26], color: '#d4473b' })
   s.push({ cyl: [0.06, 0.18, 0.46, 8], at: [c.x, 0.23, c.z], color: P.steel })
-  s.push({ box: [0.7, 0.9, 0.05], at: [-11.0, 1.45, 10.62], color: '#b98a64' })
-  s.push({ box: [0.6, 0.8, 0.06], at: [-11.0, 1.45, 10.63], color: '#dff0f8' })
-  s.push({ box: [0.5, 0.35, 0.4], at: [-12.6, 0.18, 12.2], color: P.white })
+  s.push({ box: [0.7, 0.9, 0.05], at: [-11.0, 1.45, 10.62 + SOUTH], color: '#b98a64' })
+  s.push({ box: [0.6, 0.8, 0.06], at: [-11.0, 1.45, 10.63 + SOUTH], color: '#dff0f8' })
+  s.push({ box: [0.5, 0.35, 0.4], at: [-12.6, 0.18, 12.2 + SOUTH], color: P.white })
   return s
 }
 
@@ -163,8 +163,8 @@ export function StoryPlaces() {
 
       <RigidBody type="fixed" colliders={false}>
         <CuboidCollider args={[0.3, 0.6, 0.85]} position={[XE_OM.bike.x, 0.6, XE_OM.bike.z]} collisionGroups={PROP_GROUPS} />
-        <CuboidCollider args={[1.2, 0.9, 0.2]} position={[3.0, 0.9, 12.9]} collisionGroups={PROP_GROUPS} />
-        <CuboidCollider args={[0.7, 0.4, 0.38]} position={[3.4, 0.4, 12.0]} collisionGroups={PROP_GROUPS} />
+        <CuboidCollider args={[1.2, 0.9, 0.2]} position={[3.0, 0.9, 12.9 + SOUTH]} collisionGroups={PROP_GROUPS} />
+        <CuboidCollider args={[0.7, 0.4, 0.38]} position={[3.4, 0.4, 12.0 + SOUTH]} collisionGroups={PROP_GROUPS} />
         <CylinderCollider args={[0.5, 0.35]} position={[BARBER.chair.x, 0.5, BARBER.chair.z]} collisionGroups={PROP_GROUPS} />
         <CuboidCollider args={[0.9, 0.6, 0.3]} position={[LUA.bike.x, 0.6, LUA.bike.z]} collisionGroups={PROP_GROUPS} />
         <CuboidCollider args={[0.6, 0.6, 0.9]} position={[CYCLO.x, 0.6, CYCLO.z]} collisionGroups={PROP_GROUPS} />

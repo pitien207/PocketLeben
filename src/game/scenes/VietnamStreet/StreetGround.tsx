@@ -32,10 +32,11 @@ function roadShapes(): ShapeItem[] {
     s.push({ box: [len, 0.02, 3.2], at: [x, 0.0, ROAD.maxZ + 1.6], color: P.pavement })
   }
 
-  // Dashed centre lines (skip the junction)
+  // Four lanes (1.19): a double line in the middle, dashes between the lanes (skip the junction)
+  for (const dz of [-0.14, 0.14]) s.push({ box: [FAR * 2, 0.01, 0.1], at: [0, 0.02, roadZ + dz], color: '#ffd76a' })
   for (let x = -FAR; x < FAR; x += 2.4) {
     if (x > SIDE_ROAD.minX - 1.5 && x < SIDE_ROAD.maxX + 0.5) continue
-    s.push({ box: [1.3, 0.01, 0.14], at: [x, 0.02, roadZ], color: P.roadLine })
+    for (const dz of [-roadW / 4, roadW / 4]) s.push({ box: [1.3, 0.01, 0.12], at: [x, 0.02, roadZ + dz], color: P.roadLine })
   }
   for (let z = ROAD.minZ - 1.5; z > NORTH.walk.z0 + 1; z -= 2.4) {
     s.push({ box: [0.14, 0.01, 1.3], at: [sideX, 0.02, z], color: P.roadLine })
@@ -73,7 +74,7 @@ function roadShapes(): ShapeItem[] {
 /** Phố đi bộ Hàng Đào: pale stone setts with darker bands, the lanes, the round pattern of the square. */
 function northGround(): ShapeItem[] {
   const s: ShapeItem[] = []
-  const { walk, plaza, rowC, lanes, rowB } = NORTH
+  const { walk, plaza, lanes, rowB, ave, cross, gas, rowD, rowC, rowC2 } = NORTH
   const midZ = (walk.z0 + walk.z1) / 2
   const depth = walk.z0 - walk.z1
   const x1 = FAR
@@ -86,7 +87,20 @@ function northGround(): ShapeItem[] {
   s.push({ box: [len, 0.02, 1.5], at: [cx, 0.011, midZ], color: '#d9c7a6' })
   // The square: a ring of darker stone around the fountain
   const { x: fx, z: fz } = plaza.fountain
-  s.push({ box: [plaza.x1 - plaza.x0, 0.02, rowC.front - rowC.back], at: [(plaza.x0 + plaza.x1) / 2, 0.006, (rowC.front + rowC.back) / 2], color: '#e3d6bf' })
+  s.push({ box: [plaza.x1 - plaza.x0, 0.02, plaza.z0 - plaza.z1], at: [(plaza.x0 + plaza.x1) / 2, 0.006, (plaza.z0 + plaza.z1) / 2], color: '#e3d6bf' })
+  // Đại lộ Tràng Tiền: asphalt, a planted double line, lane dashes, kerbs, zebra at the square
+  const aw = ave.z0 - ave.z1
+  const az = (ave.z0 + ave.z1) / 2
+  s.push({ box: [FAR * 2, 0.02, aw], at: [0, 0.005, az], color: P.road })
+  for (const dz of [-0.14, 0.14]) s.push({ box: [FAR * 2, 0.01, 0.1], at: [0, 0.02, az + dz], color: '#ffd76a' })
+  for (let x = -FAR; x < FAR; x += 2.4) for (const dz of [-aw / 4, aw / 4]) s.push({ box: [1.3, 0.01, 0.12], at: [x, 0.02, az + dz], color: P.roadLine })
+  for (const z of [ave.z0, ave.z1]) s.push({ box: [FAR * 2, 0.12, 0.22], at: [0, 0.06, z], color: P.curb })
+  for (let z = ave.z1 + 0.5; z < ave.z0 - 0.2; z += 0.8) s.push({ box: [3, 0.012, 0.42], at: [plaza.fountain.x, 0.021, z], color: P.roadLine })
+  // Petrol station forecourt (drive-in gap in the kerb)
+  s.push({ box: [gas.x1 - gas.x0, 0.02, ave.z1 - rowD.back], at: [(gas.x0 + gas.x1) / 2, 0.012, (ave.z1 + rowD.back) / 2], color: '#b9bfca' })
+  s.push({ box: [gas.x1 - gas.x0 - 0.6, 0.13, 0.26], at: [(gas.x0 + gas.x1) / 2, 0.06, ave.z1], color: '#b9bfca' })
+  // Cross lanes through rows C and C2
+  for (const lane of cross) s.push({ box: [lane.x1 - lane.x0, 0.02, rowC.front - rowC2.front], at: [(lane.x0 + lane.x1) / 2, 0.006, (rowC.front + rowC2.front) / 2], color: '#d3c9b8' })
   s.push({ cyl: [3.6, 3.6, 0.02, 28], at: [fx, 0.009, fz], color: '#c9b9a0' })
   s.push({ cyl: [3.1, 3.1, 0.02, 28], at: [fx, 0.012, fz], color: '#ead9bb' })
   // Lanes through the back row: worn grey setts
@@ -118,7 +132,7 @@ export function StreetGround() {
     <>
       {/* Grass under everything */}
       <mesh rotation-x={-Math.PI / 2} position={[0, -0.02, 0]} material={lambert(P.grass)} receiveShadow>
-        <planeGeometry args={[220, 220]} />
+        <planeGeometry args={[340, 340]} />
       </mesh>
 
       {/* Tiled sidewalk covering the play area */}
@@ -135,7 +149,7 @@ export function StreetGround() {
 
       {/* Physical floor */}
       <RigidBody type="fixed" colliders={false}>
-        <CuboidCollider args={[60, 0.5, 60]} position={[0, -0.5, 0]} />
+        <CuboidCollider args={[130, 0.5, 130]} position={[0, -0.5, 0]} />
       </RigidBody>
     </>
   )

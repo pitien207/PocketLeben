@@ -1,9 +1,7 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
-import { formatClock, weekdayIndex } from '../game/systems/time'
-import { formatMoney } from '../i18n/format'
-import { useT, type I18nKey } from '../i18n'
+import { formatClock } from '../game/systems/time'
+import { useT } from '../i18n'
 import { usePlayer } from '../store/playerStore'
-import { useSettings } from '../store/settingsStore'
 import { useTime } from '../store/timeStore'
 import { useUI } from '../store/uiStore'
 import { useFlags } from '../store/flagsStore'
@@ -11,18 +9,17 @@ import { ActionIcon } from './ActionIcon'
 import { QuestTracker } from './QuestLog'
 import { bagCapacity, bagWeight } from '../game/systems/bag'
 import { useInventory } from '../store/inventoryStore'
-import { BagIcon, BoltIcon, CoinIcon, GearIcon, MapIcon, MoodIcon, MoonIcon, RainIcon, SunIcon } from './icons'
+import { BagIcon, GearIcon, MapIcon, MoonIcon, RainIcon, SunIcon } from './icons'
 import { PhoneBadge, PhoneIcon } from './PhonePanel'
 import { isRaining } from '../game/systems/weather'
-import { longDate, shortDate } from '../game/systems/calendar'
 import { SCENES } from '../game/scenes/registry'
 import { useWorld } from '../store/worldStore'
 import { EmoteButton, OnlineChip } from './OnlineUI'
 
 /**
- * Top HUD (1.14, slimmed down for phones): one thin status line — clock, energy, mood on the
- * left, money on the right — the objective under it, and the buttons as a narrow icon rail
- * along the right edge. Everything else stays out of the way of the street.
+ * Top HUD (1.18): one thin line — the clock pill on the left, the three currencies (đồng, euro,
+ * diamonds) on the right — the objective under it, and the tools grouped in ONE narrow rail
+ * along the right edge. No energy, no mood. Everything else stays out of the way of the street.
  */
 
 /** Red dot on the bag button when the backpack is (almost) full. */
@@ -43,7 +40,7 @@ export function RailButton({ label, onClick, children, tour, testId }: { label: 
       aria-label={label}
       title={label}
       onClick={onClick}
-      className="hud-slim pointer-events-auto relative grid h-9 w-9 place-items-center text-[18px] text-ink transition active:translate-y-[2px] active:shadow-none sm:h-10 sm:w-10 sm:text-[20px]"
+      className="rail-btn"
     >
       {children}
     </button>
@@ -68,7 +65,6 @@ function useMoneyGain(money: number) {
 /** Clock + date; tap for the clock panel (wait, schedule, time speed). */
 function Clock() {
   const t = useT()
-  const language = useSettings((s) => s.language)
   const openPanel = useUI((s) => s.openPanel)
   const minutes = useTime((s) => Math.floor(s.minutes))
   const day = useTime((s) => s.day)
@@ -81,79 +77,105 @@ function Clock() {
       type="button"
       onClick={() => openPanel({ type: 'clock' })}
       data-tour="clock"
-      aria-label={`${formatClock(minutes)}, ${longDate(day, language)} — ${t('clock.title')}`}
-      className="pointer-events-auto flex h-9 shrink-0 items-center gap-1.5 rounded-xl border-2 border-outline bg-jade pr-2 pl-1.5 text-left text-white shadow-[inset_0_1.5px_0_rgba(255,255,255,0.3),0_2px_0_var(--color-outline)] [text-shadow:0_1px_0_rgba(20,50,34,0.5)] transition active:translate-y-[2px] active:shadow-none sm:h-10"
+      aria-label={`${formatClock(minutes)} — ${t('clock.title')}`}
+      className="pointer-events-auto flex h-7 shrink-0 items-center gap-1 rounded-full border border-white/25 bg-[#2f6b52]/90 pr-2.5 pl-1.5 text-left text-white shadow-[0_2px_6px_rgba(40,25,15,0.25)] backdrop-blur-sm transition active:scale-95"
     >
-      <span className="text-[16px] text-gold-light">{raining ? <RainIcon /> : daytime ? <SunIcon /> : <MoonIcon />}</span>
-      <span className="font-display text-[17px] leading-none font-extrabold tabular-nums sm:text-lg">{formatClock(minutes)}</span>
-      <span className="hidden text-[9.5px] leading-[1.1] font-black opacity-90 min-[380px]:inline">
-        {t(`weekdayShort.${weekdayIndex(day)}` as I18nKey)}
-        <br />
-        <span className="tabular-nums">{shortDate(day, language)}</span>
-      </span>
+      <span className="text-[14px] text-gold-light">{raining ? <RainIcon /> : daytime ? <SunIcon /> : <MoonIcon />}</span>
+      <span className="font-display text-[14px] leading-none font-extrabold tabular-nums">{formatClock(minutes)}</span>
     </button>
   )
 }
 
-function Meter({ label, icon, value, max, barClass }: { label: string; icon: ReactNode; value: number; max: number; barClass: string }) {
-  const pct = Math.max(0, Math.min(100, Math.round((value / max) * 100)))
+/** A gold đồng coin. */
+function DongIcon() {
   return (
-    <span role="status" aria-label={`${label}: ${Math.round(value)}/${max}`} title={label} className="flex items-center gap-1">
-      <span className="text-[15px]">{icon}</span>
-      <span className="hidden h-1.5 w-10 overflow-hidden rounded-full bg-ink/15 sm:block">
-        <span className={`block h-full rounded-full transition-[width] duration-500 ${barClass}`} style={{ width: `${pct}%` }} />
-      </span>
-      <span className="min-w-[1.4em] text-right font-display text-[14px] leading-none font-extrabold tabular-nums">{Math.round(value)}</span>
-    </span>
+    <svg viewBox="0 0 24 24" className="h-full w-full" aria-hidden="true">
+      <defs>
+        <linearGradient id="w-dong" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#ffe58a" />
+          <stop offset="1" stopColor="#f2a81d" />
+        </linearGradient>
+      </defs>
+      <circle cx="12" cy="12.6" r="10" fill="#a8650f" />
+      <circle cx="12" cy="11.4" r="10" fill="url(#w-dong)" stroke="#8a5210" strokeWidth="1.2" />
+      <circle cx="12" cy="11.4" r="7.2" fill="none" stroke="#fff6c9" strokeWidth="1" opacity="0.85" />
+      <path d="M9 7.6h4.6M12 6v9.2M12.1 9.4c-1.9-.9-3.9.3-3.9 2.5s2 3.4 3.9 2.5M8.6 17h6" fill="none" stroke="#8a5210" strokeWidth="1.5" strokeLinecap="round" />
+    </svg>
   )
 }
 
-/** Energy and mood side by side in one plate. */
-function Stats() {
-  const t = useT()
-  const energy = usePlayer((s) => Math.round(s.energy))
-  const maxEnergy = usePlayer((s) => s.maxEnergy)
-  const mood = usePlayer((s) => Math.round(s.mood))
+/** A silver-blue euro coin with a gold rim. */
+function EuroIcon() {
   return (
-    <div className="hud-slim flex h-9 shrink-0 items-center gap-2 px-2 text-ink sm:h-10">
-      <Meter label={t('hud.energy')} icon={<BoltIcon />} value={energy} max={maxEnergy} barClass={energy < 20 ? 'animate-pulse bg-lacquer' : 'bg-gold'} />
-      <span className="h-4 w-px bg-outline/20" />
-      <Meter label={t('hud.mood')} icon={<MoodIcon value={mood} />} value={mood} max={100} barClass="bg-rose" />
+    <svg viewBox="0 0 24 24" className="h-full w-full" aria-hidden="true">
+      <defs>
+        <linearGradient id="w-euro" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#eef4ff" />
+          <stop offset="1" stopColor="#9db4d8" />
+        </linearGradient>
+      </defs>
+      <circle cx="12" cy="12.6" r="10" fill="#8a6a1c" />
+      <circle cx="12" cy="11.4" r="10" fill="#f4c64a" stroke="#8a6a1c" strokeWidth="1.2" />
+      <circle cx="12" cy="11.4" r="7" fill="url(#w-euro)" stroke="#5f7396" strokeWidth="1" />
+      <path d="M14.8 8.6a3.6 3.6 0 1 0 0 5.6M8 10.5h4.6M8 12.4h4.2" fill="none" stroke="#2f4a7a" strokeWidth="1.5" strokeLinecap="round" />
+    </svg>
+  )
+}
+
+/** A cut diamond. */
+function GemIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="h-full w-full" aria-hidden="true">
+      <defs>
+        <linearGradient id="w-gem" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stopColor="#b9f3ff" />
+          <stop offset="0.5" stopColor="#4cc9f0" />
+          <stop offset="1" stopColor="#4361ee" />
+        </linearGradient>
+      </defs>
+      <path d="M7 3.5h10l5 6-10 11.5L2 9.5z" fill="url(#w-gem)" stroke="#1d3a8a" strokeWidth="1.2" strokeLinejoin="round" />
+      <path d="M2 9.5h20M7 3.5l2.5 6L12 21l2.5-11.5 2.5-6M9.5 9.5 12 3.5l2.5 6" fill="none" stroke="#e8fbff" strokeWidth="0.9" strokeLinejoin="round" opacity="0.9" />
+      <path d="M7.4 4.6 4.3 8.6h4.2z" fill="#ffffff" opacity="0.55" />
+    </svg>
+  )
+}
+
+const whole = (n: number) => Math.round(n).toLocaleString('vi-VN')
+const euros = (n: number) => n.toLocaleString('vi-VN', { minimumFractionDigits: Number.isInteger(n) ? 0 : 2, maximumFractionDigits: 2 })
+
+/** One currency: its coin overlapping a slim dark pill with the amount; "+…" floats up when it grows. */
+function Wallet({ id, label, value, text, icon }: { id: string; label: string; value: number; text: string; icon: ReactNode }) {
+  const gain = useMoneyGain(value)
+  return (
+    <div role="status" aria-label={`${label}: ${text}`} title={label} data-testid={`wallet-${id}`} className="relative flex h-7 items-center">
+      <span className={`relative z-10 -mr-3 h-7 w-7 shrink-0 drop-shadow-[0_1px_0_rgba(40,25,15,0.35)] ${gain ? 'animate-coin' : ''}`} key={gain?.key}>
+        {icon}
+      </span>
+      <span className="flex h-[1.4rem] items-center rounded-full border border-white/25 bg-[#3a2a22]/80 pr-2 pl-4 font-display text-[13px] leading-none font-extrabold text-[#fff6dc] tabular-nums shadow-[0_2px_6px_rgba(40,25,15,0.25)] backdrop-blur-sm">
+        {text}
+      </span>
+      {gain && (
+        <span key={gain.key} className="animate-float-up absolute top-full right-0 mt-0.5 rounded-full bg-jade px-1.5 py-0.5 text-[11px] font-black whitespace-nowrap text-white shadow">
+          +{id === 'eur' ? euros(gain.amount) : whole(gain.amount)}
+        </span>
+      )}
     </div>
   )
 }
 
-/** Money of the country you're in, and the other wallet small underneath. */
-function Money() {
-  const t = useT()
+/** Đồng, euros and diamonds, each on its own (1.18). */
+function Wallets() {
   const money = usePlayer((s) => s.money)
   const currency = usePlayer((s) => s.currency)
   const otherMoney = usePlayer((s) => s.otherMoney)
-  const otherCurrency = currency === 'VND' ? 'EUR' : 'VND'
-  const gain = useMoneyGain(money)
+  const gems = usePlayer((s) => s.gems)
+  const vnd = currency === 'VND' ? money : otherMoney
+  const eur = currency === 'EUR' ? money : otherMoney
   return (
-    <div className="relative">
-      <div role="status" aria-label={`${t('hud.money')}: ${formatMoney(money, currency)}`} className="hud-slim flex h-9 items-center gap-1 pr-2.5 pl-1 text-ink sm:h-10">
-        <CoinIcon className={`shrink-0 text-[20px] ${gain ? 'animate-coin' : ''}`} key={gain?.key} />
-        <span className="flex flex-col items-end leading-none">
-          <span className="font-display text-[15px] font-extrabold tabular-nums sm:text-base">{formatMoney(money, currency)}</span>
-          {otherMoney > 0 && (
-            <span
-              data-testid="other-money"
-              aria-label={`${t('hud.otherMoney')}: ${formatMoney(otherMoney, otherCurrency)}`}
-              title={t('hud.otherMoney')}
-              className="mt-px text-[9.5px] font-black text-ink/55 tabular-nums"
-            >
-              + {formatMoney(otherMoney, otherCurrency)}
-            </span>
-          )}
-        </span>
-      </div>
-      {gain && (
-        <span key={gain.key} className="animate-float-up absolute top-1 right-full mr-1.5 rounded-full bg-jade px-2 py-0.5 text-[12px] font-black whitespace-nowrap text-white shadow">
-          +{formatMoney(gain.amount, currency)}
-        </span>
-      )}
+    <div className="pointer-events-auto flex shrink-0 items-center gap-1.5">
+      <Wallet id="vnd" label="Việt Nam đồng" value={vnd} text={whole(vnd)} icon={<DongIcon />} />
+      <Wallet id="eur" label="Euro" value={eur} text={euros(eur)} icon={<EuroIcon />} />
+      <Wallet id="gem" label="Kim cương" value={gems} text={whole(gems)} icon={<GemIcon />} />
     </div>
   )
 }
@@ -167,12 +189,9 @@ export function HUD() {
   return (
     <header className="pointer-events-none absolute inset-x-0 top-0 z-10 flex flex-col gap-1.5 px-safe pt-safe">
       {/* Row 1: status line */}
-      <div className="flex items-start justify-between gap-2">
-        <div className="flex min-w-0 items-center gap-1.5">
-          <Clock />
-          <Stats />
-        </div>
-        <Money />
+      <div className="flex items-center justify-between gap-1.5">
+        <Clock />
+        <Wallets />
       </div>
 
       {/* Row 2: the objective (as wide as it can be) and the icon rail on the right */}
@@ -180,7 +199,7 @@ export function HUD() {
         <div className="min-w-0 flex-1">
           <QuestTracker />
         </div>
-        <nav className="flex shrink-0 flex-col items-end gap-1.5" aria-label={t('hud.menu')}>
+        <nav className="hud-slim pointer-events-auto flex shrink-0 flex-col items-center gap-px p-0.5" aria-label={t('hud.menu')}>
           <RailButton label={t('hud.bag')} onClick={() => openPanel({ type: 'bag' })} tour="bag">
             <BagIcon />
             <BagFullBadge />

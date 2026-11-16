@@ -1,7 +1,6 @@
 import { useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { CONFIG } from '../../data/config'
-import { useSettings } from '../../store/settingsStore'
 import { useTime } from '../../store/timeStore'
 import { useUI } from '../../store/uiStore'
 import { passOut } from '../systems/effects'
@@ -33,7 +32,7 @@ export function TimeSystem() {
       return
     }
     if (isTimePaused()) return
-    acc.current += dt * CONFIG.time.minutesPerSecond * CONFIG.time.speeds[useSettings.getState().timeSpeed]
+    acc.current += dt * CONFIG.time.minutesPerSecond
     if (acc.current < 1) return
     const minutes = Math.floor(acc.current)
     acc.current -= minutes

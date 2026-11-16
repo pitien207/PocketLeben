@@ -36,7 +36,7 @@ export function EmoteButton() {
         aria-expanded={open}
         data-testid="emote-button"
         onClick={() => setOpen((o) => !o)}
-        className="hud-slim pointer-events-auto relative grid h-9 w-9 place-items-center text-[18px] transition active:translate-y-[2px] active:shadow-none sm:h-10 sm:w-10 sm:text-[20px]"
+        className="rail-btn"
       >
         <ChatIcon />
       </button>
@@ -130,10 +130,10 @@ export function OnlineChip() {
         data-testid="online-chip"
         aria-label={live ? t('online.count', { n: Math.max(online, 1) }) : t('online.connecting')}
         title={live ? t('online.count', { n: Math.max(online, 1) }) : t('online.connecting')}
-        className="hud-slim pointer-events-auto flex h-9 w-9 flex-col items-center justify-center gap-0.5 text-ink sm:h-10 sm:w-10"
+        className="rail-btn !flex flex-col items-center justify-center gap-0.5"
       >
         <span className={`h-2 w-2 rounded-full ${live ? 'bg-[#3fae72]' : 'animate-pulse bg-ink/40'}`} />
-        <span className="text-[11px] leading-none font-black tabular-nums">{live ? Math.max(online, 1) : '…'}</span>
+        <span className="text-[10px] leading-none font-black tabular-nums">{live ? Math.max(online, 1) : '…'}</span>
       </button>
       {open && live && (
         <div className="panel pointer-events-auto absolute top-0 right-full z-30 mr-2 w-56 p-3 text-sm" data-testid="online-list">

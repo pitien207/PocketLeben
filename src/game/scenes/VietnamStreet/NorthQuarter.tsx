@@ -10,7 +10,9 @@ import { Shapes, type ShapeItem } from '../shared/Shapes'
 import { SignBoard } from '../shared/SignBoard'
 import type { SignOptions } from '../shared/textures'
 import { decorHouse, planRow, seeded, type DecorLot } from './decorHouses'
-import { NORTH, PLAY } from './layout'
+import { ActionSpot, type SpotAction } from '../../components/ActionSpot'
+import { Traffic } from '../../components/npc/Traffic'
+import { AVENUE_LANES, BUILDING_CENTER_Z, BUILDING_DEPTH, NORTH, OFFICES, PLAY, VACATED, WEST, type Lot } from './layout'
 
 /**
  * The north quarter (1.17): the map is no longer one straight street. Behind the Hàng Gai row a
@@ -20,7 +22,7 @@ import { NORTH, PLAY } from './layout'
  * None of these houses does anything: they are there to make the town a town.
  */
 
-const { rowB, rowC, walk, plaza, church, clock, lanes, hangBong } = NORTH
+const { rowB, rowC, rowC2, rowD, ave, cross, gas, walk, plaza, church, clock, lanes, hangBong } = NORTH
 const DEPTH_B = rowB.back - rowB.front // 8
 const DEPTH_C = rowC.front - rowC.back
 
@@ -39,11 +41,34 @@ const ROWS_B: Row[] = [
   { x0: lanes[1].x1, x1: hangBong.x0, seed: 37 },
   { x0: hangBong.x1, x1: PLAY.maxX, seed: 41 },
 ]
-/** Row C, north of the walking street, with the square in it; its fronts face south. */
+/** Where a shop house that moved north stands in its row (see layout: OFFICES, WEST). */
+const hole = (h: Lot): [number, number] => [h.x - h.width / 2, h.x + h.width / 2]
+const [NOTARY0, NOTARY1] = hole(OFFICES.houses[1])
+const [APS0, APS1] = hole(OFFICES.houses[3])
+const [PHARM0, PHARM1] = hole(WEST.houses[1])
+
+/** Row C, north of the walking street; its fronts face south. Gaps: the cross lanes, the square, the notary, the pharmacy. */
 const ROWS_C: Row[] = [
-  { x0: PLAY.minX, x1: plaza.x0, from: -44, seed: 53 },
-  { x0: plaza.x1, x1: PLAY.maxX, seed: 67 },
+  { x0: PLAY.minX, x1: cross[0].x0, from: -44, seed: 53 },
+  { x0: cross[0].x1, x1: NOTARY0, seed: 54 },
+  { x0: NOTARY1, x1: plaza.x0, seed: 55 },
+  { x0: plaza.x1, x1: PHARM0, seed: 67 },
 ]
+void PHARM1
+/** Row C2, back to back with row C; its fronts face north onto the avenue. */
+const ROWS_C2: Row[] = [
+  { x0: PLAY.minX, x1: cross[0].x0, seed: 71 },
+  { x0: cross[0].x1, x1: plaza.x0, seed: 73 },
+  { x0: plaza.x1, x1: cross[1].x0, seed: 79 },
+]
+/** Row D, north of the avenue; fronts face south. Gaps: the petrol station, the APS office, the post office. */
+const ROWS_D: Row[] = [
+  { x0: PLAY.minX, x1: gas.x0, seed: 83 },
+  { x0: gas.x1, x1: APS0, seed: 89 },
+  { x0: APS1, x1: clock.x0, seed: 97 },
+  { x0: clock.x1, x1: PLAY.maxX, seed: 101 },
+]
+const VACATED_STYLES = ['oldLow', 'pastel', 'modern'] as const
 
 const lotsOf = (r: Row) => planRow(r.from ?? r.x0, r.x1, r.seed)
 
@@ -55,6 +80,14 @@ function houseShapes(): ShapeItem[] {
   ROWS_C.forEach((row) =>
     lotsOf(row).forEach((lot, i) => s.push(place(decorHouse(lot.style, lot.width, DEPTH_C, row.seed * 100 + i), [lot.x, 0, (rowC.back + rowC.front) / 2], 0))),
   )
+  ROWS_C2.forEach((row) =>
+    lotsOf(row).forEach((lot, i) => s.push(place(decorHouse(lot.style, lot.width, 8, row.seed * 100 + i), [lot.x, 0, (rowC2.back + rowC2.front) / 2], Math.PI))),
+  )
+  ROWS_D.forEach((row) =>
+    lotsOf(row).forEach((lot, i) => s.push(place(decorHouse(lot.style, lot.width, 8, row.seed * 100 + i), [lot.x, 0, (rowD.back + rowD.front) / 2], 0))),
+  )
+  // Plain houses on the Hàng Gai plots whose shops moved north
+  VACATED.forEach((x, i) => s.push(place(decorHouse(VACATED_STYLES[i % 3], 4.5, BUILDING_DEPTH, 500 + i), [x, 0, BUILDING_CENTER_Z], 0)))
   return s
 }
 
@@ -204,17 +237,17 @@ const BENCHES: [number, number, number][] = [
   ...TREE_XS.filter((_, i) => i % 2 === 0).map((x): [number, number, number] => [x + 4.25, MID_Z, 0]),
   [plaza.fountain.x - 4.2, plaza.fountain.z, Math.PI / 2],
   [plaza.fountain.x + 4.2, plaza.fountain.z, -Math.PI / 2],
-  [plaza.fountain.x - 2.6, rowC.back + 1.0, 0],
-  [plaza.fountain.x + 2.6, rowC.back + 1.0, 0],
+  [plaza.x0 + 1.0, plaza.fountain.z + 4.5, Math.PI / 2],
+  [plaza.x1 - 1.0, plaza.fountain.z + 4.5, -Math.PI / 2],
 ]
 const PLAZA_TREES: [number, number][] = [
-  [plaza.x0 + 1.3, rowC.front - 1.6],
-  [plaza.x1 - 1.3, rowC.front - 1.6],
-  [plaza.x0 + 1.3, rowC.back + 1.4],
-  [plaza.x1 - 1.3, rowC.back + 1.4],
+  [plaza.x0 + 1.3, plaza.z0 - 1.6],
+  [plaza.x1 - 1.3, plaza.z0 - 1.6],
+  [plaza.x0 + 1.3, plaza.z1 + 1.6],
+  [plaza.x1 - 1.3, plaza.z1 + 1.6],
 ]
 const CHURCH_AT: [number, number, number] = [church.x, 0, church.z]
-const BALLOONS = { x: plaza.fountain.x + 3.3, z: rowC.front - 0.9 }
+const BALLOONS = { x: plaza.fountain.x + 3.3, z: plaza.z0 - 0.9 }
 
 function propShapes(): { solid: ShapeItem[]; glow: ShapeItem[] } {
   const s: ShapeItem[] = []
@@ -323,6 +356,85 @@ function propShapes(): { solid: ShapeItem[]; glow: ShapeItem[] } {
   return { solid: s, glow }
 }
 
+const GAS_X = (gas.x0 + gas.x1) / 2
+const GAS_PUMPS = [GAS_X - 3.2, GAS_X + 3.2]
+const GAS_SIGN: SignOptions = { title: 'XĂNG DẦU PHỐ CỔ', subtitle: 'RON 95 · E5 · Dầu DO · Mở 24/24', background: '#f39a2b', border: '#ffffff', color: '#ffffff', accent: '#2c5aa0', aspect: 7 }
+const AVE_SIGN: SignOptions = { title: 'PHỐ TRÀNG TIỀN', subtitle: 'Q. Hoàn Kiếm', background: '#2c5aa0', border: '#ffffff', color: '#ffffff', accent: '#ffffff', aspect: 2.6 }
+const REFUEL: SpotAction[] = [{ id: 'refuel', labelKey: 'action.refuel', icon: 'wheel', action: 'place.gas', primary: true }]
+
+/** Trees on both pavements of the avenue. */
+const AVE_TREES: [number, number][] = (() => {
+  const out: [number, number][] = []
+  for (let x = PLAY.minX + 4; x < PLAY.maxX; x += 9) {
+    if (!(x > plaza.x0 - 1.5 && x < plaza.x1 + 1.5) && !(x > cross[0].x0 - 1 && x < cross[0].x1 + 1) && !(x > cross[1].x0 - 1)) out.push([x, ave.z0 + 1.2])
+    if (!(x + 4.5 > gas.x0 - 1 && x + 4.5 < gas.x1 + 1)) out.push([x + 4.5, ave.z1 - 1.2])
+  }
+  return out
+})()
+
+/** The petrol station (1.19; driving comes later): canopy, two pump islands, a little shop, a price pylon. World space. */
+function gasShapes(): ShapeItem[] {
+  const s: ShapeItem[] = []
+  const f = rowD.front
+  const w = gas.x1 - gas.x0
+  const cz = f - 3.6
+  // Shop at the back, side walls of the plot
+  s.push({ box: [11, 3.4, 2.4], at: [GAS_X, 1.7, rowD.back + 1.2], color: '#f4f1ea' })
+  s.push({ box: [9.6, 2.2, 0.06], at: [GAS_X, 1.4, rowD.back + 2.42], color: '#bfe6f2' })
+  s.push({ box: [11.2, 0.5, 2.6], at: [GAS_X, 3.5, rowD.back + 1.2], color: '#2c5aa0' })
+  for (let i = 0; i < 5; i++) s.push({ box: [1.4, 0.05, 0.35], at: [GAS_X - 3.6 + i * 1.8, 0.9 + (i % 2) * 0.6, rowD.back + 2.2], color: ['#ffd23f', '#ff9fb2', '#a9d6ff'][i % 3] })
+  for (const side of [-1, 1]) s.push({ box: [0.3, 2.2, 8], at: [GAS_X + side * (w / 2 - 0.15), 1.1, (f + rowD.back) / 2], color: '#e9e2d4' })
+  // Canopy on four pillars, orange fascia
+  s.push({ box: [13, 0.5, 5.6], at: [GAS_X, 5.3, cz + 0.4], color: '#fdfaf2' })
+  s.push({ box: [13.2, 0.7, 5.8], at: [GAS_X, 5.55, cz + 0.4], color: '#f39a2b' })
+  s.push({ box: [13.2, 0.14, 5.8], at: [GAS_X, 5.14, cz + 0.4], color: '#2c5aa0' })
+  for (const x of GAS_PUMPS) {
+    for (const dz of [-1.7, 1.7]) s.push({ cyl: [0.16, 0.16, 5.1, 8], at: [x, 2.55, cz + dz], color: '#dfe2e8' })
+    // island + two pumps back to back
+    s.push({ box: [1.1, 0.18, 3.6], at: [x, 0.09, cz], color: '#c9c3b8' })
+    for (const dz of [-0.7, 0.7]) {
+      s.push({ box: [0.7, 1.6, 0.5], at: [x, 0.98, cz + dz], color: '#f4f1ea' })
+      s.push({ box: [0.72, 0.4, 0.52], at: [x, 1.55, cz + dz], color: '#f39a2b' })
+      for (const side of [-1, 1]) {
+        s.push({ box: [0.02, 0.26, 0.34], at: [x + side * 0.36, 1.2, cz + dz], color: '#22303a' })
+        s.push({ box: [0.03, 0.3, 0.1], at: [x + side * 0.38, 0.75, cz + dz + 0.15], color: '#2a2a30' })
+        s.push({ torus: [0.22, 0.02, 4, 10, Math.PI], at: [x + side * 0.38, 0.75, cz + dz], rot: [0, Math.PI / 2, Math.PI], color: '#2a2a30' })
+      }
+    }
+    for (const dz of [-1.75, 1.75]) s.push({ cyl: [0.09, 0.09, 0.8, 8], at: [x, 0.4, cz + dz * 1.02], color: '#ffd23f' })
+  }
+  // Price pylon by the road
+  const px = gas.x1 - 1.2
+  s.push({ box: [0.3, 5.2, 0.3], at: [px, 2.6, f - 0.5], color: '#dfe2e8' })
+  s.push({ box: [1.6, 2.6, 0.36], at: [px, 4.2, f - 0.5], color: '#2c5aa0' })
+  ;['#ffd23f', '#ffffff', '#ffd23f', '#ffffff'].forEach((c, i) => s.push({ box: [1.2, 0.36, 0.4], at: [px, 5.1 - i * 0.56, f - 0.5], color: c }))
+  s.push({ cyl: [0.5, 0.5, 0.4, 16], at: [px, 6.0, f - 0.5], rot: [Math.PI / 2, 0, 0], color: '#f39a2b' })
+  // Fire buckets, an air pump, flower tubs
+  for (let i = 0; i < 3; i++) s.push({ cyl: [0.16, 0.12, 0.3, 8], at: [gas.x0 + 1.0 + i * 0.4, 0.15, rowD.back + 2.9], color: '#d4473b' })
+  s.push({ box: [0.4, 1.1, 0.3], at: [gas.x0 + 0.8, 0.55, f - 2.0], color: '#3fae72' })
+  s.push(place(plantShapes(P.leafDark, '#ffffff'), [gas.x0 + 0.9, 0, f - 0.5], 0, 1.2))
+  // Avenue: trees and tall lamps
+  AVE_TREES.forEach(([x, z], i) => s.push(place(treeShapes(i % 4 === 1 ? 'blossom' : 'green'), [x, 0, z], i * 1.3, 1.25)))
+  for (let x = PLAY.minX + 8.5; x < PLAY.maxX; x += 18) {
+    for (const [z, dir] of [[ave.z0 + 0.5, -1], [ave.z1 - 0.5, 1]] as const) {
+      s.push({ cyl: [0.07, 0.11, 6.4, 6], at: [x, 3.2, z], color: '#5d6170' })
+      s.push({ box: [0.07, 0.07, 1.6], at: [x, 6.35, z + dir * 0.8], color: '#5d6170' })
+      s.push({ box: [0.3, 0.1, 0.6], at: [x, 6.28, z + dir * 1.5], color: '#fff2b3' })
+    }
+  }
+  // Cross lanes: plants and washing like every ngõ
+  cross.forEach((lane, i) => {
+    const mid = (lane.x0 + lane.x1) / 2
+    for (const z of [-42, -50]) {
+      s.push({ box: [lane.x1 - lane.x0, 0.015, 0.015], at: [mid, 2.9, z], color: P.wire })
+      ;['#ffe08a', '#ffffff', '#a9d6ff', '#ff9fb2'].forEach((c, k) => s.push({ box: [0.3, 0.42, 0.03], at: [lane.x0 + 0.5 + k * ((lane.x1 - lane.x0 - 1) / 3), 2.67, z], color: c }))
+    }
+    s.push(place(plantShapes(P.leaf, '#c97b63'), [lane.x0 + 0.35, 0, -40 - i], i, 0.9))
+    s.push(place(plantShapes(P.leafDark, '#d9b878'), [lane.x1 - 0.35, 0, -48 - i], i + 1, 0.8))
+  })
+  return s
+}
+
 const HANG_DAO: SignOptions = { title: 'PHỐ HÀNG ĐÀO', subtitle: 'Phố đi bộ', background: '#2c5aa0', border: '#ffffff', color: '#ffffff', accent: '#ffffff', aspect: 2.6 }
 const NGO_1: SignOptions = { title: 'NGÕ CÂY ĐA', subtitle: 'Thông sang Hàng Đào', background: '#2c5aa0', border: '#ffffff', color: '#ffffff', accent: '#ffffff', aspect: 2.6 }
 const NGO_2: SignOptions = { title: 'NGÕ TẠP HÓA', subtitle: 'Thông sang Hàng Đào', background: '#2c5aa0', border: '#ffffff', color: '#ffffff', accent: '#ffffff', aspect: 2.6 }
@@ -358,7 +470,7 @@ export const NorthQuarter = memo(function NorthQuarter() {
   const props = useMemo(propShapes, [])
   const placed = useMemo(signs, [])
   const landmarks = useMemo<ShapeItem[]>(
-    () => [place(churchS, CHURCH_AT, Math.PI / 2), place(clockS, [(clock.x0 + clock.x1) / 2, 0, rowC.back - 3], 0)],
+    () => [place(churchS, CHURCH_AT, Math.PI / 2), place(clockS, [(clock.x0 + clock.x1) / 2, 0, rowD.front - 3], 0), place(gasShapes(), [0, 0, 0])],
     [churchS, clockS],
   )
   const zB = (rowB.back + rowB.front) / 2
@@ -376,7 +488,12 @@ export const NorthQuarter = memo(function NorthQuarter() {
         <SignBoard key={p.options.title} options={p.options} width={0.95} position={[p.x, 2.95, p.z + 0.05]} />
       ))}
       <SignBoard options={CHURCH_SIGN} width={2.2} position={[church.x + 4.72, 4.4, church.z]} rotation={[0, Math.PI / 2, 0]} />
-      <SignBoard options={POST_SIGN} width={2.6} position={[(clock.x0 + clock.x1) / 2, 4.6, rowC.back + 0.22]} />
+      <SignBoard options={POST_SIGN} width={2.6} position={[(clock.x0 + clock.x1) / 2, 4.6, rowD.front + 0.22]} />
+      <SignBoard options={GAS_SIGN} width={7} position={[GAS_X, 5.55, rowD.front - 0.9]} />
+      <SignBoard options={AVE_SIGN} width={0.95} position={[plaza.x0 + 0.4, 2.95, plaza.z1 - 0.45]} rotation={[0, Math.PI, 0]} />
+      <ActionSpot id="vn-gas" name={{ vi: 'Cây xăng Phố Cổ', en: 'Petrol station' }} zone={{ x: GAS_X, z: rowD.front - 2.6, halfX: 5, halfZ: 2.2 }} actions={REFUEL} />
+      <NPC def={NPCS.anhXang} at={{ x: GAS_X, z: rowD.front - 1.3 }} yaw={0} />
+      <Traffic lanes={AVENUE_LANES} perLane={1} kinds={['car', 'motorbike', 'motorbike', 'car']} />
 
       <RigidBody type="fixed" colliders={false}>
         {/* One block per row segment: nobody walks between these houses, and the camera stays out. */}
@@ -387,7 +504,24 @@ export const NorthQuarter = memo(function NorthQuarter() {
           <CuboidCollider key={`c${r.seed}`} args={[(r.x1 - r.x0) / 2, 6, DEPTH_C / 2]} position={[(r.x0 + r.x1) / 2, 6, zC]} collisionGroups={BUILDING_GROUPS} />
         ))}
         <CuboidCollider args={[5.2, 8, 5.2]} position={[church.x, 8, church.z]} collisionGroups={BUILDING_GROUPS} />
-        <CuboidCollider args={[(clock.x1 - clock.x0) / 2, 5, 3]} position={[(clock.x0 + clock.x1) / 2, 5, rowC.back - 3]} collisionGroups={BUILDING_GROUPS} />
+        <CuboidCollider args={[(clock.x1 - clock.x0) / 2, 5, 3]} position={[(clock.x0 + clock.x1) / 2, 5, rowD.front - 3]} collisionGroups={BUILDING_GROUPS} />
+        {ROWS_C2.map((r) => (
+          <CuboidCollider key={`c2${r.seed}`} args={[(r.x1 - r.x0) / 2, 6, 4]} position={[(r.x0 + r.x1) / 2, 6, (rowC2.back + rowC2.front) / 2]} collisionGroups={BUILDING_GROUPS} />
+        ))}
+        {ROWS_D.map((r) => (
+          <CuboidCollider key={`d${r.seed}`} args={[(r.x1 - r.x0) / 2, 6, 4]} position={[(r.x0 + r.x1) / 2, 6, (rowD.back + rowD.front) / 2]} collisionGroups={BUILDING_GROUPS} />
+        ))}
+        {VACATED.map((x) => (
+          <CuboidCollider key={`v${x}`} args={[2.3, 6, BUILDING_DEPTH / 2]} position={[x, 6, BUILDING_CENTER_Z]} collisionGroups={BUILDING_GROUPS} />
+        ))}
+        {/* Petrol station: shop at the back, the two pump islands, the price sign */}
+        <CuboidCollider args={[5.5, 2, 1.2]} position={[GAS_X, 2, rowD.back + 1.2]} collisionGroups={BUILDING_GROUPS} />
+        {GAS_PUMPS.map((x) => (
+          <CuboidCollider key={`g${x}`} args={[0.5, 0.9, 1.5]} position={[x, 0.9, rowD.front - 3.6]} collisionGroups={PROP_GROUPS} />
+        ))}
+        {AVE_TREES.map(([x, z]) => (
+          <CylinderCollider key={`a${x}${z}`} args={[0.8, 0.25]} position={[x, 0.8, z]} collisionGroups={PROP_GROUPS} />
+        ))}
         {/* The west end of the walking street stops at the cathedral steps. */}
         <CuboidCollider args={[0.5, 4, (walk.z0 - walk.z1) / 2]} position={[walk.x0 - 0.5, 4, MID_Z]} collisionGroups={PROP_GROUPS} />
         {TREE_XS.map((x) => (
