@@ -13,14 +13,17 @@ const REACTION_MS = 1500
  * Interview-style mini-game (embassy interview, WG casting, Anmeldung form):
  * questions with answers worth 0–2 points; the impression meter shows how it's going.
  */
-export function QaGame({ set, count, onComplete }: { set: QaSetId; count: number; onComplete: (points: number, max: number) => void }) {
+export function QaGame({ set, count, add, onComplete }: { set: QaSetId; count: number; add?: QaSetId; onComplete: (points: number, max: number) => void }) {
   const t = useT()
   const localize = useLocalize()
   const def = QA_SETS[set]
-  const questions = useMemo(
-    () => sample(def.questions, count, (q) => q.q.vi).map((q) => ({ ...q, answers: shuffle(q.answers) })),
-    [def, count],
-  )
+  const questions = useMemo(() => {
+    // Questions of `add` are always asked (after the first one), the rest is a random sample.
+    const extra = add ? QA_SETS[add].questions : []
+    const list = sample(def.questions, Math.max(1, count - extra.length), (q) => q.q.vi)
+    list.splice(1, 0, ...extra)
+    return list.map((q) => ({ ...q, answers: shuffle(q.answers) }))
+  }, [def, count, add])
   const [index, setIndex] = useState(0)
   const [picked, setPicked] = useState<number | null>(null)
   const [points, setPoints] = useState(0)

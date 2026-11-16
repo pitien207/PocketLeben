@@ -54,35 +54,68 @@ function satisfy(c: Condition | undefined) {
 
 /** Steps whose condition is a named test, or that need travel, get a hand-written skip. */
 const SKIPS: Record<string, () => void> = {
+  // Story 2.1 (chapter 1)
+  'start.job': () => setFlag('stats.shifts', Math.max(1, flagNumber('stats.shifts'))),
   'path.choose': () => setFlag('visa.path', visaPath() ?? 'ausbildung'),
   'visa.docs': () => {
     if (!visaPath()) setFlag('visa.path', 'ausbildung')
-    for (const d of docsFor(visaPath())) setFlag(docFlag(d.id), d.steps.length)
+    setFlag('visa.originals', true)
+    setFlag('sperr.done', true)
+    for (const d of docsFor(visaPath())) {
+      setFlag(docFlag(d.id), d.steps.length)
+      if (d.steps.some((st) => st.waitDays)) setFlag(`doc.${d.id}.ready`, today())
+    }
+    setFlag('doc.ba.ready', today())
+    setFlag('portal.errors', 0)
   },
-  // One step per paper (1.13)
-  'visa.passport': () => setFlag(docFlag('passport'), 1),
+  // One step per paper (story 2.1)
+  'visa.passport': () => {
+    setFlag(docFlag('passport'), 1)
+    setFlag('doc.passport.ready', today())
+  },
   'visa.photos': () => setFlag(docFlag('photos'), 1),
   'visa.originals': () => setFlag('visa.originals', true),
   'visa.notary': () => {
     setFlag('visa.originals', true)
-    setFlag(docFlag('diploma'), 2)
-    setFlag(docFlag('birth'), 2)
+    setFlag(docFlag('diploma'), 1)
   },
-  'visa.writing': () => ['cv', 'motivation', 'insurance'].forEach((id) => setFlag(docFlag(id), 1)),
-  'visa.finance': () => setFlag(docFlag('finance'), 1),
+  'visa.criminal': () => setFlag(docFlag('criminal'), 1),
+  'visa.health': () => setFlag(docFlag('health'), 1),
+  'visa.writing': () => setFlag(docFlag('cv'), 1),
+  'visa.insurance': () => setFlag(docFlag('insurance'), 1),
   'visa.aps': () => setFlag(docFlag('aps'), 2),
   'visa.admission': () => {
     setFlag(docFlag('admission'), 1)
     setFlag('doc.admission.ready', today())
   },
+  'visa.sperr': () => {
+    setFlag('sperr.done', true)
+    setFlag('sperr.via', 'mortgage')
+  },
+  'sperr.meeting': () => setFlag('sperr.done', true),
+  'sperr.email': () => setFlag('sperr.done', true),
+  'sperr.call': () => setFlag('sperr.done', true),
   'visa.contract': () => {
     setFlag(docFlag('contract'), 1)
     setFlag('doc.contract.ready', today())
   },
+  'visa.ba': () => setFlag('doc.ba.ready', today()),
+  'visa.portal': () => {
+    setFlag(docFlag('portal'), 1)
+    setFlag('portal.errors', 0)
+  },
   'visa.termin': () => setFlag('visa.terminDay', today()),
+  'visa.submit': () => {
+    if (!flagNumber('visa.terminDay')) setFlag('visa.terminDay', today())
+    setFlag('visa.submitted', today())
+  },
   'visa.interview': () => setFlag('visa.readyDay', today()),
   'dep.visa': () => setFlag('visa.readyDay', Math.min(flagNumber('visa.readyDay') || today(), today())),
-  'dep.flight': () => setFlag('visa.flight', true),
+  'dep.flight': () => setFlag('visa.flight', 'test'),
+  'dep.exchange': () => {
+    const p = usePlayer.getState()
+    if (p.currency === 'VND' && p.otherMoney < CONFIG.visa.exchangeGoal) usePlayer.setState({ otherMoney: CONFIG.visa.exchangeGoal })
+  },
   'dep.airport': () => {
     setFlag('visa.flight', true)
     if (!getFlag('de.arrived')) {

@@ -585,5 +585,13 @@
   "loading.assets": "Đang tải tài nguyên…",
   "loading.ready": "Lên đường thôi!",
   "loading.tip": "Mẹo",
-  "loading.word": "Từ vựng"
+  "loading.word": "Từ vựng",
+  "action.enterOffice": "Lên văn phòng",
+  "action.writeCv": "Viết CV + thư động lực",
+  "action.portal": "Điền đơn Auslandsportal",
+  "action.lanEmail": "Viết email cho cô Lan",
+  "action.lanCall": "Gọi video cô Lan",
+  "action.flightLaptop": "Đặt vé máy bay",
+  "interact.maiOffice": "Văn phòng Mai Anh",
+  "phone.jobs": "Việc"
 }

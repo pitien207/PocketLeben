@@ -11,7 +11,7 @@ import { usePlayer } from '../../store/playerStore'
 import { useWork } from '../../store/workStore'
 import { musicDebug } from './audio'
 import { cameraState } from './cameraState'
-import { chooseOption, openDialogue } from './dialogue'
+import { advanceDialogue, chooseOption, closeDialogue, openDialogue } from './dialogue'
 import { playerState, teleportPlayer } from './playerState'
 import { npcPositions } from './registry'
 import { exportSave, saveGame } from './save'
@@ -60,6 +60,8 @@ export function installDebugHooks() {
       npcs: npcPositions,
       talk: openDialogue,
       choose: chooseOption,
+      advance: advanceDialogue,
+      closeTalk: closeDialogue,
       save: saveGame,
       exportSave,
       world: useWorld,

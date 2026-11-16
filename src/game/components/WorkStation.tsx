@@ -12,6 +12,8 @@ import { useWork } from '../../store/workStore'
 import { focusCamera, resetCameraFocus } from '../systems/cameraState'
 import { playerState, releasePlayer, walkTo, type PointXZ, type ZoneXZ } from '../systems/playerState'
 import { useInteractable } from './Interactable'
+import { jobDoneToday } from '../systems/jobs'
+import { L, say } from '../systems/say'
 
 export interface WorkStationProps {
   task: TaskDef
@@ -49,6 +51,10 @@ export function WorkStation({ task, id, nameKey, zone, spot, approach, faceYaw, 
     }
     if (usePlayer.getState().energy < task.energyCost) {
       pushToast('toast.tooTired', 'bad')
+      return
+    }
+    if (task.id === 'cafeBarista' && jobDoneToday('cafe')) {
+      say(L('Hôm nay làm ca rồi. Mai quay lại nhé!', 'You already worked a shift today. Come back tomorrow!', 'Heute schon gearbeitet. Morgen wieder!'), 'info')
       return
     }
     holdsPlayer.current = true

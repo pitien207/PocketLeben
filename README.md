@@ -43,6 +43,14 @@ In dev builds the browser console has helpers (`window.__vh`):
 | `__vh.renderInfo()` | draw calls / triangles |
 | `import('/src/net/client.ts')` → `remotes` | other players' latest snapshots (multiplayer) |
 
+## Load test
+
+```bash
+AUTH_RATE_LIMIT=20 npm run server          # terminal 1 (game server, port 8787)
+node tools/loadtest.mjs --bots 50 --seconds 60   # terminal 2
+node tools/loadtest.mjs --bots 49 --stay         # keep bots online, then open the game and look
+```
+
 ## Where things live
 
 | Folder | What |
@@ -51,8 +59,8 @@ In dev builds the browser console has helpers (`window.__vh`):
 | `src/game/scenes/` | One folder per scene + `registry.ts` (spawns, plaques, lazy loading) and `interiors.ts` (seats/positions used by game logic). `shared/` has merged low-poly shapes, props, materials, `Room` (interiors), `Decor` (wall clock, fan, tear-off calendar) |
 | `src/game/components/` | Player, ChibiModel, CameraRig, Lighting (day/night/rain), Weather (particles), GuideSystem (guide arrow/ring + edge arrow), ActionSpot, Interactable, WorkStation… |
 | `src/game/components/npc/` | NPC (walk/sit/talk), Traffic (motorbikes, cars, bikes), ChatterDirector, SpeechBubble, NpcMarker |
-| `src/game/minigames/` | Vocabulary, der/die/das, sentence builder, exam, Termin hunt, Q&A interview |
-| `src/game/systems/` | Input, camera/player state, travel, guide (step-by-step guide, routing, first-time tour), time, calendar (dates, waiting), seats, places (doors of home/school), daylight, weather, dialogue, actions + conditions, quests/achievements watchers, german / visa / germany / pfand / wardrobe rules, audio, save/load, dev helpers |
+| `src/game/minigames/` | Vocabulary, der/die/das, sentence builder, exam (B1 in four modules), listening (browser voice), Termin hunt, Q&A interview, paperwork (German letters, Auslandsportal form, contract clauses), side jobs (Circle K, Grab map, tutoring) |
+| `src/game/systems/` | Input, camera/player state, travel, guide (step-by-step guide, routing, first-time tour), time, calendar (dates, waiting), seats, places (doors of home/school), daylight, weather, dialogue, actions + conditions, quests/achievements watchers, german / visa / germany / pfand / wardrobe rules, family + debts (house levels), Vietnamese side jobs, story 2.1 Vietnam (Mai Anh office, Cầu nối, Linh, scam texts), audio, save/load, dev helpers |
 | `src/ui/` | DOM overlay: HUD, TitleScreen (3D desk), LoadingScreen (+ LoaderArt rooftop SVG), Guide ("?" card, edge arrow, button glow, onboarding), ClockPanel, TimeOverlays (wait, new-day card, place plaque), Joystick, ActionButtons, DialogueBox, panels (shop, bag, clothes, quests, visa, care, work), Toasts, Settings |
 | `src/store/` | Zustand stores (player, time, world, guide, inventory, flags, dialogue, minigame, care, pfand, settings, ui, interaction, work, toasts) |
 | `src/data/config.ts` | Every tunable number (prices, fees, pay, energy, timings, weather, graphics) |

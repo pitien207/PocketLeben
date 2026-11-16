@@ -15,6 +15,7 @@ import { usePlayer } from './playerStore'
 import { useTime } from './timeStore'
 import { useFlags } from './flagsStore'
 import { pushToast } from './toastStore'
+import { rankMultiplier, recordJob } from '../game/systems/jobs'
 
 interface WorkState {
   task: TaskDef | null
@@ -90,7 +91,10 @@ export const useWork = create<WorkState>()((set, get) => {
       const { reward, task } = get()
       if (reward && task) {
         const player = usePlayer.getState()
-        player.addMoney(reward.total)
+        // Story 2.1: once a day, and a rank bonus after 8 / 20 shifts.
+        const bonus = task.id === 'cafeBarista' ? Math.round((reward.wage * (rankMultiplier('cafe') - 1)) / 1000) * 1000 : 0
+        player.addMoney(reward.total + bonus)
+        if (task.id === 'cafeBarista' && reward.fraction > 0.3) recordJob('cafe')
         player.spendEnergy(reward.energy)
         player.addSkillXp(task.skill, reward.xp)
         player.changeMood(reward.mood)

@@ -20,16 +20,16 @@ export const CHAPTER_INTROS: Record<number, ChapterIntro> = {
   1: {
     icon: '🏮',
     text: L(
-      'Bạn 20 tuổi, sống cùng bố mẹ và em gái trong căn nhà ống vàng ở phố Hàng Gai. Từ hồi xem phóng sự về các điều dưỡng Việt Nam ở Đức, bạn mơ một ngày được đi. Bố mẹ không giàu, nhưng tin bạn. Bước đầu tiên: học tiếng Đức ở trung tâm của Thầy Minh trong ngõ.',
-      'You are 20, living with your parents and little sister in the yellow tube house on Hàng Gai street. Ever since a documentary about Vietnamese nurses in Germany, you’ve dreamed of going. Your parents aren’t rich, but they believe in you. Step one: learn German at Teacher Minh’s centre in the lane.',
+      'Bạn 20 tuổi, sống cùng bố mẹ và em gái Na trong căn nhà ống vàng ở phố Hàng Gai. Trên tường phòng bạn dán một tấm bản đồ nước Đức cắt từ tạp chí cũ, chi chít những chấm bút đỏ: Berlin, München, Hamburg, Leipzig… Bạn muốn sang đó đi làm, gửi tiền về sửa lại mái nhà dột, và một ngày được tự mình đứng ở những chấm đỏ ấy. Bố mẹ không giàu, nhưng tin bạn. Trong ví có ba triệu, trong đầu có một chữ "Guten Tag". Bước đầu tiên: học tiếng Đức ở trung tâm của Thầy Minh trong ngõ, và kiếm đủ tiền để học tiếp.',
+      'You are 20, living with your parents and your little sister Na in the yellow tube house on Hàng Gai street. On your wall hangs a map of Germany cut from an old magazine, covered in red dots: Berlin, Munich, Hamburg, Leipzig… You want to work there, send money home to fix the leaking roof, and one day stand on those red dots yourself. Your parents aren’t rich, but they believe in you. Three million đồng in your wallet, one “Guten Tag” in your head. Step one: learn German at Teacher Minh’s centre in the lane — and earn enough to keep going.',
     ),
     quote: L('"Đi một ngày đàng, học một sàng khôn."', '"Travel a day, gain a basket of wisdom."'),
   },
   2: {
     icon: '🛂',
     text: L(
-      'Tờ chứng chỉ B1 vẫn còn thơm mùi mực. Giờ là chặng khó nhất: chọn con đường — học nghề hay đại học — rồi gom từng tờ giấy, săn từng cái Termin. Chị Mai bảo: "Hồ sơ đẹp thì visa mới đẹp."',
-      'Your B1 certificate still smells of fresh ink. Now comes the hardest part: choose your path — vocational training or university — then gather every paper and hunt for a Termin. Mai says: "A neat file makes a happy visa."',
+      'Tờ chứng chỉ B1 vẫn còn thơm mùi mực. Giờ là chặng khó nhất: chọn con đường, gom từng tờ giấy, điền từng ô trên Auslandsportal, săn từng cái Termin. Chị Mai bảo: "Hồ sơ đẹp thì visa mới đẹp." Bố thì bảo: "Cần bao nhiêu, nói bố."',
+      'Your B1 certificate still smells of fresh ink. Now comes the hardest part: choose your path, gather every paper, fill in every box on the Auslandsportal, hunt every Termin. Mai says: "A neat file makes a happy visa." Dad says: "If you need money, tell me."',
     ),
     quote: L('"Kiến tha lâu cũng đầy tổ."', '"Little by little, the ant fills its nest."'),
   },
@@ -68,6 +68,19 @@ export const EPILOGUE: { if: Condition; text: Localized }[] = [
   {
     if: { not: { flag: 'visa.path', is: 'studium' } },
     text: L('🩺 Bạn đã đi con đường học nghề: ba năm Ausbildung ở Sonnenhof, từ học viên thành Pflegefachkraft.', '🩺 You took the training path: three years of Ausbildung at Sonnenhof, from trainee to qualified nurse.'),
+  },
+  // Story 2.1: the yellow house and the people from Hà Nội
+  {
+    if: { all: [{ flag: 'debt.everLevel3' }, { not: { test: 'family.inDebt' } }] },
+    text: L('🏠 Có lúc căn nhà vàng ở Hàng Gai mất cả tivi lẫn chiếc xe Wave của bố. Bạn đã trả hết từng đồng — giờ đồng hồ lại tích tắc trên tường.', '🏠 There was a time the yellow house lost its TV and Dad’s Wave. You paid back every đồng — the clock ticks on the wall again.'),
+  },
+  {
+    if: { flag: 'cauNoi.signed' },
+    text: L('🤝 Chương trình Cầu nối Sonnenhof đã đưa bạn sang Đức; hai năm làm việc ở Sonnenhof hóa ra là hai năm đẹp nhất.', '🤝 The Sonnenhof bridge programme brought you to Germany; your two years at Sonnenhof turned out to be the best ones.'),
+  },
+  {
+    if: { flag: 'lan.sponsor' },
+    text: L('📮 Cô Lan ở Leipzig đã bảo lãnh cho bạn. Bạn gửi chú Hưng tấm bưu thiếp từ đúng thành phố năm 1989 ấy.', '📮 Cô Lan in Leipzig vouched for you. You sent chú Hưng a postcard from that very city of 1989.'),
   },
   {
     if: { flag: 'gerda.friend' },

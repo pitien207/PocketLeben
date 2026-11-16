@@ -131,7 +131,7 @@ export const NPCS = {
   },
   chuNam: {
     id: 'chuNam',
-    name: { vi: 'Bác Hùng', en: 'Uncle Hùng', de: 'Onkel Hùng' },
+    name: { vi: 'Bác Tư', en: 'Uncle Tư', de: 'Onkel Tư' },
     // The classic white tank top (áo ba lỗ).
     outfit: { skin: '#e8b994', hair: '#4a4448', hairStyle: 'short', shirt: '#ffffff', shorts: '#6b7a8f', shoe: '#5d6170', bag: null, accessory: null, top: 'sleeveless', pattern: 'stripes', patternColor: '#ffffff', shoeType: 'sandal' },
   },
@@ -147,7 +147,7 @@ export const NPCS = {
   },
   beNa: {
     id: 'beNa',
-    name: { vi: 'Bé Na', en: 'Little Na', de: 'Klein Na' },
+    name: { vi: 'Bé Ngân', en: 'Little Ngân', de: 'Klein Ngân' },
     outfit: { skin: '#fbdcc4', hair: '#3d2c2c', hairStyle: 'bun', shirt: '#ffb3c7', shorts: '#9fd8c8', shoe: '#ffffff', bag: null, accessory: null },
   },
   coHoa: {
@@ -162,7 +162,7 @@ export const NPCS = {
   },
   chiLan: {
     id: 'chiLan',
-    name: { vi: 'Chị Lan', en: 'Lan', de: 'Lan' },
+    name: { vi: 'Chị Loan', en: 'Loan', de: 'Loan' },
     outfit: { skin: '#fbdcc4', hair: '#3d2c2c', hairStyle: 'bun', shirt: '#ffd3a0', shorts: '#c97b63', shoe: '#ff9b8f', bag: null, accessory: null },
   },
 
@@ -184,6 +184,7 @@ export const NPCS = {
     id: 'hvLinh',
     name: { vi: 'Linh', en: 'Linh', de: 'Linh' },
     outfit: { skin: '#f9d4b8', hair: '#2b2222', hairStyle: 'bun', shirt: '#ffffff', shorts: '#2f3a4d', shoe: '#ffffff', bag: '#a8e6cf', accessory: null, top: 'long', bottom: 'skirt' },
+    dialogueId: 'linh',
   },
   hvQuang: {
     id: 'hvQuang',
@@ -218,6 +219,62 @@ export const NPCS = {
     title: { vi: 'Tư vấn du học', en: 'Study-abroad advisor', de: 'Auslandsberaterin' },
     outfit: { skin: '#f5cfb0', hair: '#3d2c2c', hairStyle: 'bun', shirt: '#cdb8f0', shorts: '#2f3a4d', shoe: '#d4473b', bag: null, accessory: 'glasses',  bottom: 'skirt', top: 'jacket', shoeType: 'loafer', lashes: true, expression: 'happy' },
     dialogueId: 'chiMai',
+  },
+  // --- Story 2.1: Văn phòng Mai Anh, Hoàng Kim, Circle K, video calls ---
+  tuan: {
+    id: 'tuan',
+    name: { vi: 'Em Tuấn', en: 'Tuấn', de: 'Tuấn' },
+    title: { vi: 'Làm giấy tờ · VP Mai Anh', en: 'Paperwork · Mai Anh office', de: 'Unterlagen · Büro Mai Anh' },
+    outfit: { skin: '#eec39f', hair: '#1f1a1a', hairStyle: 'spiky', shirt: '#ffffff', shorts: '#2f3a4d', shoe: '#2f2f38', bag: null, accessory: null, top: 'long', bottom: 'pants', neck: 'tie', neckColor: '#2f6fb0' },
+    dialogueId: 'tuan',
+  },
+  coThoa: {
+    id: 'coThoa',
+    name: { vi: 'Cô Thoa', en: 'Ms Thoa', de: 'Frau Thoa' },
+    title: { vi: 'Kế toán · VP Mai Anh', en: 'Accountant · Mai Anh office', de: 'Buchhaltung · Büro Mai Anh' },
+    outfit: { skin: '#f0c8a8', hair: '#3d2c2c', hairStyle: 'bob', shirt: '#f4c04e', shorts: '#5d4a3a', shoe: '#5b4038', bag: null, accessory: 'glasses', top: 'long', bottom: 'skirt', lashes: true },
+    dialogueId: 'coThoa',
+  },
+  anhKhai: {
+    id: 'anhKhai',
+    name: { vi: 'Anh Khải', en: 'Khải', de: 'Khải' },
+    title: { vi: 'Công ty Hoàng Kim', en: 'Hoàng Kim agency', de: 'Agentur Hoàng Kim' },
+    outfit: { skin: '#e8b994', hair: '#141010', hairStyle: 'short', shirt: '#1f2433', shorts: '#1f2433', shoe: '#c9a64a', bag: null, accessory: 'sunglasses', top: 'jacket', bottom: 'pants', shoeType: 'loafer', expression: 'happy' },
+    dialogueId: 'anhKhai',
+  },
+  chiQuanLy: {
+    id: 'chiQuanLy',
+    name: { vi: 'Chị Hạnh', en: 'Hạnh', de: 'Hạnh' },
+    title: { vi: 'Quản lý Circle K', en: 'Circle K manager', de: 'Filialleiterin Circle K' },
+    outfit: { skin: '#f5cfb0', hair: '#2b2222', hairStyle: 'ponytail', shirt: '#d4202a', shorts: '#2f3a4d', shoe: '#ffffff', bag: null, accessory: 'cap', accent: '#d4202a', bottom: 'pants' },
+    dialogueId: 'circleK',
+  },
+  coLan: {
+    id: 'coLan',
+    name: { vi: 'Cô Lan', en: 'Cô Lan', de: 'Frau Lan' },
+    title: { vi: 'Dược sĩ ở Leipzig', en: 'Pharmacist in Leipzig', de: 'Apothekerin in Leipzig' },
+    outfit: { skin: '#f6d6bc', hair: '#3d2c2c', hairStyle: 'bob', shirt: '#9fd8c8', shorts: '#2f3a4d', shoe: '#ffffff', bag: null, accessory: 'glasses', top: 'long', bottom: 'pants', lashes: true, expression: 'happy' },
+  },
+  vfsClerk: {
+    id: 'vfsClerk',
+    name: { vi: 'Chị Hà', en: 'Hà', de: 'Hà' },
+    title: { vi: 'Quầy VFS Global', en: 'VFS Global desk', de: 'VFS-Global-Schalter' },
+    outfit: { skin: '#fbdcc4', hair: '#2b2222', hairStyle: 'bun', shirt: '#2f6fb0', shorts: '#2f3a4d', shoe: '#2f2f38', bag: null, accessory: null, top: 'long', bottom: 'skirt', neck: 'scarf', neckColor: '#ffffff', lashes: true },
+    dialogueId: 'vfs',
+  },
+  /** Text messages on your phone (scams, invitations). */
+  tinNhan: {
+    id: 'tinNhan',
+    name: { vi: 'Tin nhắn', en: 'Message', de: 'Nachricht' },
+    outfit: { skin: '#f6d6bc', hair: '#2b2222', hairStyle: 'short', shirt: '#a9d6ff', shorts: '#4f5d75', shoe: '#ffffff', bag: null, accessory: null },
+    dialogueId: 'sms',
+  },
+  /** "Bố mẹ" in the little scene when the house changed (debt levels, story 2.1 §1.8). */
+  giaDinh: {
+    id: 'giaDinh',
+    name: { vi: 'Bố mẹ', en: 'Mum and Dad', de: 'Mama und Papa' },
+    outfit: { skin: '#e8b994', hair: '#4a4448', hairStyle: 'short', shirt: '#7fb8e8', shorts: '#3f4a5c', shoe: '#5d6170', bag: null, accessory: null, bottom: 'pants', top: 'long', shoeType: 'sandal' },
+    dialogueId: 'house',
   },
   anhTu: {
     id: 'anhTu',
@@ -311,7 +368,9 @@ export const NPCS = {
   },
   emGai: {
     id: 'emGai',
-    name: { vi: 'Em gái', en: 'Little sister', de: 'Kleine Schwester' },
+    name: { vi: 'Na', en: 'Na', de: 'Na' },
+    title: { vi: 'Em gái · lớp 11', en: 'Little sister · year 11', de: 'Kleine Schwester · 11. Klasse' },
+    dialogueId: 'na',
     outfit: { skin: '#fbdcc4', hair: '#2b2222',  shirt: '#ffe08a', shorts: '#ff9fb2', shoe: '#ffffff', bag: null, accessory: null, hairStyle: 'twinBuns', hairTie: '#f4c542', expression: 'happy', lashes: true },
   },
 

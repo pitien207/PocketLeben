@@ -1,117 +1,16 @@
 import type { Localized } from '../../i18n/localized'
 import { formatMoney } from '../../i18n/format'
-import { germanVars } from '../../game/systems/german'
 import { CONFIG } from '../config'
 import type { DialogueDef } from '../dialogueTypes'
 
-/** Main-story characters in Vietnam: German class, visa advisor, xe ôm, embassy, airport. */
+/**
+ * Street characters of the Vietnam story (xe ôm, phở, pharmacy, tailor, clothes stall, barber).
+ * Thầy Minh, chị Mai, the embassy officer and the family moved to vn21.ts (story 2.1).
+ */
 
 const L = (vi: string, en: string, de?: string): Localized => ({ vi, en, de })
-const BYE = L('Dạ em chào thầy ạ.', 'Goodbye, teacher.', 'Auf Wiedersehen!')
 
 export const STORY_DIALOGUES: Record<string, DialogueDef> = {
-  thayMinh: {
-    vars: germanVars,
-    start: [{ if: { germanLevel: 3 }, node: 'graduated' }, { node: 'hello' }],
-    nodes: {
-      hello: {
-        text: [
-          L('Chào em! Lớp tiếng Đức của thầy đây. Mục tiêu tiếp theo: {target} ({xp}/{need} XP).', 'Hello! This is my German class. Next goal: {target} ({xp}/{need} XP).'),
-          L('Guten Tag! Hôm nay học gì nào? Mục tiêu: {target}, em có {xp}/{need} XP rồi.', 'Guten Tag! What shall we learn today? Goal: {target}, you have {xp}/{need} XP.'),
-        ],
-        choices: [
-          { text: L('Đăng ký khóa {target} ({courseFee})', 'Enrol in the {target} course ({courseFee})'), if: { test: 'german.notEnrolled' }, effect: { type: 'action', id: 'german.enroll' }, next: 'enrolled' },
-          { text: L('Học một buổi (1 tiếng)', 'Take a lesson (1 hour)'), if: { test: 'german.enrolled' }, effect: { type: 'action', id: 'german.lesson' } },
-          { text: L('Thi chứng chỉ {target} ({examFee})', 'Take the {target} exam ({examFee})'), if: { test: 'german.examReady' }, effect: { type: 'action', id: 'german.exam' } },
-          { text: L('Thầy ơi, học tiếng Đức có khó không?', 'Is German hard, teacher?'), next: 'tips' },
-          { text: BYE },
-        ],
-      },
-      enrolled: {
-        text: L('Tốt lắm! Mỗi buổi học là một trò chơi nhỏ: từ vựng, der/die/das, ghép câu. Đủ XP thì thi nhé.', 'Great! Each lesson is a little game: vocabulary, der/die/das, sentences. Get enough XP, then take the exam.'),
-        next: 'hello',
-      },
-      tips: {
-        text: [
-          L('Mẹo đây: danh từ giống cái hay có đuôi -ung, -heit, -keit: die Wohnung, die Freiheit.', 'Tip: feminine nouns often end in -ung, -heit, -keit: die Wohnung, die Freiheit.'),
-          L('Ở Đức đúng giờ là số một. Trễ 5 phút là… thôi khỏi nói!', 'In Germany punctuality is everything. Five minutes late is… let’s not talk about it!'),
-          L('Từ quan trọng nhất ở Đức là „Termin". Không có Termin thì không làm gì được hết!', 'The most important German word is “Termin”. Without one, nothing happens!'),
-          L('Về nhà tự học cũng được, nhưng đi học với thầy thì nhanh hơn gấp đôi đó.', 'Self-study at home works too, but class is twice as fast.'),
-          L('Das Mädchen là „das" đó em. Đừng hỏi thầy tại sao!', 'It’s “das Mädchen” (the girl). Don’t ask me why!'),
-        ],
-        next: 'hello',
-      },
-      graduated: {
-        text: L('Em có B1 rồi! Thầy tự hào lắm. Giờ sang quán cà phê gặp chị Mai tư vấn làm hồ sơ nhé.', 'You have B1! I’m so proud. Now go see Mai at the café about your visa papers.'),
-        choices: [{ text: L('Dạ em cảm ơn thầy ạ!', 'Thank you, teacher!'), effect: { type: 'mood', amount: 5 } }],
-      },
-    },
-  },
-
-  chiMai: {
-    vars: () => ({ ...germanVars() }),
-    start: [
-      { if: { not: { germanLevel: 3 } }, node: 'early' },
-      { if: { noFlag: 'visa.path' }, node: 'choose' },
-      { node: 'helping' },
-    ],
-    nodes: {
-      early: {
-        text: L('Chào em! Chị là tư vấn du học Đức đây. Muốn đi Đức thì trước hết phải có tiếng Đức B1 nhé. Em đang học tới đâu rồi?', 'Hi! I advise on studying in Germany. First you need German at B1. How far along are you?'),
-        choices: [
-          { text: L('Studium khác Ausbildung thế nào ạ?', 'How is Studium different from Ausbildung?'), next: 'explain' },
-          { text: L('Dạ em đi học tiếp đây ạ.', 'I’ll keep studying.') },
-        ],
-      },
-      explain: {
-        text: L(
-          'Studium là học đại học: cần chứng chỉ APS, thư mời nhập học và Sperrkonto nhiều tiền hơn. Ausbildung là học nghề có lương, như điều dưỡng: cần hợp đồng học nghề, chứng minh tài chính ít hơn.',
-          'Studium is university: you need an APS certificate, an admission letter and more money in a blocked account. Ausbildung is paid vocational training, like nursing: you need a training contract and less proof of funds.',
-        ),
-        next: 'afterExplain',
-      },
-      afterExplain: {
-        text: L('Cả hai đều cần hộ chiếu, giấy tờ dịch thuật công chứng, CV, thư động lực, bảo hiểm… và một cái Termin ở Đại sứ quán!', 'Both need a passport, translated and notarized papers, CV, motivation letter, insurance… and a Termin at the embassy!'),
-        choices: [
-          { text: L('Em chọn đường luôn!', 'Let me choose now!'), if: { all: [{ germanLevel: 3 }, { noFlag: 'visa.path' }] }, next: 'choose' },
-          { text: L('Dạ em hiểu rồi.', 'Got it.') },
-        ],
-      },
-      choose: {
-        text: L('Em có B1 rồi, giỏi quá! Giờ chọn con đường nào đây?', 'You have B1, well done! Which path will you take?'),
-        choices: [
-          { text: L('Du học (Studium)', 'University (Studium)'), effect: { type: 'action', id: 'visa.choosePath', arg: 'studium' }, next: 'chosen' },
-          { text: L('Học nghề điều dưỡng (Ausbildung)', 'Nursing training (Ausbildung)'), effect: { type: 'action', id: 'visa.choosePath', arg: 'ausbildung' }, next: 'chosen' },
-          { text: L('Chị giải thích lại giúp em', 'Explain again, please'), next: 'explain' },
-        ],
-      },
-      chosen: {
-        text: L('Quyết định đúng đắn! Chị mở „Hồ sơ visa" cho em rồi — bấm vào cuốn hộ chiếu trên màn hình nhé. Đủ giấy tờ thì săn Termin!', 'Good choice! I opened your “Visa file” — tap the passport icon on screen. Once your papers are ready, hunt for a Termin!'),
-        choices: [{ text: L('Mở hồ sơ visa', 'Open the visa file'), effect: { type: 'action', id: 'visa.openPanel' } }],
-      },
-      helping: {
-        text: [
-          L('Hồ sơ tới đâu rồi em? Thiếu gì chị chỉ cho.', 'How are your papers going? I can help.'),
-          L('Nhớ nhé: đi phỏng vấn mà thiếu một tờ giấy thôi là bị từ chối đó!', 'Remember: one missing paper at the interview and you’re rejected!'),
-        ],
-        choices: [
-          { text: L('Mở hồ sơ visa', 'Open the visa file'), effect: { type: 'action', id: 'visa.openPanel' } },
-          { text: L('Săn Termin ở Đại sứ quán', 'Hunt for an embassy Termin'), if: { test: 'visa.canHunt' }, effect: { type: 'action', id: 'visa.termin' } },
-          { text: L('Mua vé máy bay', 'Buy a plane ticket'), if: { all: [{ test: 'visa.ready' }, { noFlag: 'visa.flight' }] }, cost: CONFIG.visa.flightCost, effect: { type: 'action', id: 'visa.buyFlight' } },
-          { text: L('Mẹo phỏng vấn visa?', 'Interview tips?'), next: 'interviewTips' },
-          { text: L('Dạ em cảm ơn chị.', 'Thanks!') },
-        ],
-      },
-      interviewTips: {
-        text: [
-          L('Trả lời thật, ngắn gọn, bằng tiếng Đức càng tốt. Nói rõ em sẽ học gì, ở đâu, sống bằng tiền gì.', 'Answer honestly and briefly, in German if you can. Say what you’ll study, where, and how you’ll pay for it.'),
-          L('Đừng nói đi Đức để du lịch hay chưa biết làm gì — họ không thích đâu!', 'Don’t say you’re going to sightsee or that you don’t know your plans!'),
-        ],
-        next: 'helping',
-      },
-    },
-  },
-
   xeOm: {
     vars: () => ({ fare: formatMoney(CONFIG.visa.xeOmFare) }),
     start: 'hello',
@@ -139,99 +38,6 @@ export const STORY_DIALOGUES: Record<string, DialogueDef> = {
     },
   },
 
-  officer: {
-    start: [{ if: { test: 'visa.terminToday' }, node: 'ready' }, { node: 'noTermin' }],
-    nodes: {
-      ready: {
-        text: L('Guten Tag. Ihr Termin ist heute. Bitte setzen Sie sich. (Chào bạn, hôm nay là lịch hẹn của bạn. Mời ngồi.)', 'Guten Tag. Your appointment is today. Please take a seat.'),
-        choices: [
-          { text: L('Bắt đầu phỏng vấn', 'Start the interview'), effect: { type: 'action', id: 'visa.interview' } },
-          { text: L('Chờ em chút ạ', 'One moment, please') },
-        ],
-      },
-      noTermin: {
-        text: [
-          L('Ohne Termin geht hier gar nichts. (Không có lịch hẹn thì không làm gì được.)', 'Ohne Termin geht hier gar nichts. (Nothing happens without an appointment.)'),
-          L('Ihr Visum wird bearbeitet. Bitte warten Sie. (Visa đang được xử lý, vui lòng chờ.)', 'Your visa is being processed. Please wait.'),
-        ],
-      },
-    },
-  },
-
-  me: {
-    start: [{ if: { flag: 'trip.away' }, node: 'tet' }, { node: 'hello' }],
-    nodes: {
-      tet: {
-        text: [
-          L('Con gầy đi rồi! Ăn đi con, mẹ nấu toàn món con thích: nem rán, canh măng, thịt đông.', 'You’ve got thinner! Eat — I cooked all your favourites: spring rolls, bamboo soup, jellied pork.'),
-          L('Bên đó lạnh không con? Mẹ đan cho con cái khăn len rồi đấy, mang theo nhé.', 'Is it cold over there? I knitted you a scarf — take it with you.'),
-        ],
-        choices: [{ text: L('Con nhớ cơm mẹ nấu lắm!', 'I missed your cooking so much!'), effect: { type: 'mood', amount: 10 } }],
-      },
-      hello: {
-        text: L('Con đi đường bình an nhé. Nhớ ăn uống đầy đủ, mặc ấm, rảnh thì gọi video về cho mẹ.', 'Take care, my child. Eat well, dress warmly, and video-call me when you can.'),
-        next: 'bag',
-      },
-      bag: {
-        text: L('Mẹ có nhét mấy gói mì với chai nước mắm trong vali rồi đó. Bên đó chắc không có đâu!', 'I packed some instant noodles and a bottle of fish sauce in your suitcase. They surely don’t have that there!'),
-        choices: [
-          { text: L('Con thương mẹ!', 'I love you, Mum!'), effect: { type: 'mood', amount: 10 } },
-          { text: L('Mẹ ơi, nước mắm bị cấm mang lên máy bay đó…', 'Mum, fish sauce isn’t allowed on the plane…'), next: 'fishSauce' },
-        ],
-      },
-      fishSauce: {
-        text: L('Kệ, mẹ gói kỹ lắm rồi! Đi đi con, đi bình an.', 'Never mind, I wrapped it very well! Go now, travel safely.'),
-        choices: [{ text: L('Dạ, con đi đây!', 'Okay, I’m off!'), effect: { type: 'mood', amount: 10 } }],
-      },
-    },
-  },
-
-  bo: {
-    start: [
-      { if: { all: [{ flag: 'trip.away' }, { noFlag: 'trip.reunion' }] }, node: 'tet' },
-      { if: { flag: 'trip.away' }, node: 'stay' },
-      { node: 'hello' },
-    ],
-    nodes: {
-      hello: {
-        text: [
-          L('Học hành chăm chỉ vào con. Bố tin con làm được!', 'Study hard. I believe in you!'),
-          L('Tiếng Đức khó lắm hả con? Hồi xưa bố học tiếng Nga cũng vất vả lắm.', 'Is German hard? Back in my day Russian was tough too.'),
-        ],
-      },
-      tet: {
-        text: L('Con về rồi! Cả nhà chờ con mãi. Bánh chưng mẹ gói từ hôm qua, hoa đào bố mua sáng nay đấy!', 'You’re home! We’ve been waiting. Mum wrapped bánh chưng yesterday and I bought peach blossoms this morning!'),
-        choices: [
-          {
-            text: L('Chúc bố mẹ năm mới an khang thịnh vượng!', 'Happy New Year — health and prosperity!'),
-            effect: { type: 'setFlag', key: 'trip.reunion', value: true },
-            next: 'proud',
-          },
-        ],
-      },
-      proud: {
-        text: L(
-          'Con bây giờ là điều dưỡng ở Đức rồi. Hàng xóm ai cũng hỏi thăm, bố mẹ tự hào lắm. Nhớ lì xì em gái nhé!',
-          'You’re a nurse in Germany now. All the neighbours ask about you — we’re so proud. Don’t forget lucky money for your sister!',
-        ),
-        choices: [
-          { text: L('Lì xì cho em gái', 'Lucky money for my sister'), cost: 20, effect: { type: 'action', id: 'trip.lixi' } },
-          { text: L('Con thương bố mẹ!', 'I love you both!'), effect: { type: 'mood', amount: 10 } },
-        ],
-      },
-      stay: {
-        text: [
-          L('Ở chơi thêm đi con. Khi nào bay thì ra cửa, bố chở ra sân bay.', 'Stay a little longer. When it’s time to fly, head for the door and I’ll drive you to the airport.'),
-          L('Ăn thêm miếng bánh chưng nữa đi. Sang đó làm gì có!', 'Have another piece of bánh chưng. You won’t find that over there!'),
-        ],
-        choices: [
-          { text: L('Lì xì cho em gái', 'Lucky money for my sister'), cost: 20, effect: { type: 'action', id: 'trip.lixi' } },
-          { text: L('Dạ.', 'Okay.') },
-        ],
-      },
-    },
-  },
-
   bacPho: {
     start: 'hello',
     nodes: {
@@ -241,8 +47,8 @@ export const STORY_DIALOGUES: Record<string, DialogueDef> = {
           { vi: 'Sáng ăn bát phở là cả ngày có sức học tiếng Đức!', en: 'A bowl of phở in the morning and you can study German all day!', de: 'Eine Schüssel Phở am Morgen, und du lernst den ganzen Tag Deutsch!' },
         ],
         choices: [
-          { text: { vi: 'Một bát phở bò, ăn tại chỗ', en: 'One beef phở, to eat here', de: 'Eine Rinder-Phở, hier essen' }, cost: 45_000, effect: { type: 'buy', itemId: 'pho', use: true } },
-          { text: { vi: 'Gói mang đi', en: 'To take away', de: 'Zum Mitnehmen' }, cost: 45_000, effect: { type: 'buy', itemId: 'pho', use: false } },
+          { text: { vi: 'Một bát phở bò, ăn tại chỗ', en: 'One beef phở, to eat here', de: 'Eine Rinder-Phở, hier essen' }, cost: 55_000, effect: { type: 'buy', itemId: 'pho', use: true } },
+          { text: { vi: 'Gói mang đi', en: 'To take away', de: 'Zum Mitnehmen' }, cost: 55_000, effect: { type: 'buy', itemId: 'pho', use: false } },
           { text: { vi: 'Dạ thôi bác.', en: 'No thanks.', de: 'Nein, danke.' } },
         ],
       },
@@ -255,7 +61,7 @@ export const STORY_DIALOGUES: Record<string, DialogueDef> = {
       hello: {
         text: { vi: 'Học khuya mỏi cổ hả cháu? Lọ dầu gió này xoa vào là tỉnh ngay. Sang Đức nhớ mang theo vài lọ!', en: 'Stiff neck from studying late? Rub on some medicated oil and you’re wide awake. Take a few bottles to Germany!', de: 'Nacken steif vom Lernen? Ein bisschen Heilöl, und du bist wach!' },
         choices: [
-          { text: { vi: 'Mua một lọ dầu gió', en: 'Buy a bottle of medicated oil', de: 'Ein Fläschchen Heilöl' }, cost: 25_000, effect: { type: 'buy', itemId: 'dauGio', use: false } },
+          { text: { vi: 'Mua một lọ dầu gió', en: 'Buy a bottle of medicated oil', de: 'Ein Fläschchen Heilöl' }, cost: 30_000, effect: { type: 'buy', itemId: 'dauGio', use: false } },
           { text: { vi: 'Dạ cháu cảm ơn cô.', en: 'Thank you.', de: 'Danke.' } },
         ],
       },

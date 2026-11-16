@@ -585,5 +585,13 @@
   "loading.assets": "Loading…",
   "loading.ready": "Let’s go!",
   "loading.tip": "Tip",
-  "loading.word": "Word"
+  "loading.word": "Word",
+  "action.enterOffice": "Go up to the office",
+  "action.writeCv": "Write CV + letter",
+  "action.portal": "Fill in the Auslandsportal",
+  "action.lanEmail": "Email cô Lan",
+  "action.lanCall": "Video-call cô Lan",
+  "action.flightLaptop": "Book a flight",
+  "interact.maiOffice": "Mai Anh office",
+  "phone.jobs": "Jobs"
 }

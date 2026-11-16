@@ -118,8 +118,23 @@ export const EXPLORE_DIALOGUES: Record<string, DialogueDef> = {
   },
 
   chuSach: {
-    start: 'hello',
+    // Story 2.1 §1 (part 4): after B1, chú Hưng remembers his friend Toàn in Leipzig and the 1989 letter.
+    start: [{ if: { all: [{ flag: 'story.leipzig' }, { germanLevel: 3 }, { noFlag: 'lan.letter' }] }, node: 'letter1' }, { node: 'hello' }],
     nodes: {
+      letter1: {
+        text: L(
+          'Cháu có B1 rồi à? Giỏi quá! Chú nhớ ra một chuyện… Bạn thân của chú hồi ấy, ông Toàn, ở lại Leipzig. Con gái ông ấy là cô Lan, giờ làm dược sĩ ở đó.',
+          'You have B1? Wonderful! That reminds me… My best friend back then, Mr Toàn, stayed in Leipzig. His daughter Lan is a pharmacist there now.',
+        ),
+        next: 'letter2',
+      },
+      letter2: {
+        text: L(
+          'Chú còn giữ lá thư ông ấy gửi năm 1989, kẹp trong cuốn từ điển kia kìa. Trong thư có địa chỉ nhà cô Lan. Cháu cầm lấy — biết đâu một ngày cần đến.',
+          'I still have the letter he sent in 1989, tucked into that dictionary. It has Lan’s family address. Take it — you never know when you’ll need it.',
+        ),
+        choices: [{ text: L('Cháu cảm ơn chú, cháu giữ cẩn thận ạ.', 'Thank you, I’ll keep it safe.'), effect: { type: 'setFlag', key: 'lan.letter', value: true } }],
+      },
       hello: {
         text: [
           L('Sách cũ đây cháu, toàn sách quý. Ngày trước chú cũng là "dân Đức" đấy — Leipzig, năm 1987.', 'Second-hand books, all treasures. I was a "German" once too — Leipzig, 1987.'),
@@ -172,7 +187,7 @@ export const EXPLORE_DIALOGUES: Record<string, DialogueDef> = {
           L('Bánh tráng nướng giòn rụm, kem Tràng Tiền mát lạnh — chợ đêm có đủ cả!', 'Crispy grilled rice paper, icy Tràng Tiền ice cream — the night market has it all!'),
         ],
         choices: [
-          { text: L('Cho cháu một cốc chè ba màu', 'A three-colour chè, please'), cost: 20_000, effect: { type: 'buy', itemId: 'che', use: true } },
+          { text: L('Cho cháu một cốc chè ba màu', 'A three-colour chè, please'), cost: 30_000, effect: { type: 'buy', itemId: 'che', use: true } },
           { text: L('Xem cả quầy', 'Show me everything'), effect: { type: 'openShop', shopId: 'choDem' } },
           { text: L('Chợ mở mấy giờ hả bà?', 'When does the market open?'), next: 'hours' },
           { text: L('Thôi ạ', 'Not now') },

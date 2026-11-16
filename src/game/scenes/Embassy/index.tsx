@@ -25,6 +25,8 @@ const SIGN: SignOptions = {
   aspect: 4.5,
 }
 
+const VFS_SIGN: SignOptions = { title: 'VFS GLOBAL', subtitle: 'Nộp hồ sơ · Antragsannahme', background: '#2f6fb0', border: '#ffffff', color: '#ffffff', accent: '#ffe08a', aspect: 3.4 }
+
 function chair(x: number, z: number): ShapeItem[] {
   return [
     { box: [0.5, 0.06, 0.5], at: [x, 0.45, z], color: '#5b7cc4' },
@@ -74,7 +76,10 @@ const Embassy = memo(function Embassy() {
     <>
       <Room w={W} d={D} style={STYLE} windows={[-2.5, 2.5]} furniture={shapes} blockers={[[0.8, -2.3, 3.3, 0.45], [-3.2, 0.85, 1.2, 0.9], [4.2, 0.6, 0.45, 0.2]]} />
       <SignBoard options={SIGN} width={3.4} position={[0.8, 2.75, -3.48]} />
-      <NPC def={NPCS.officer} at={{ x: 0.75, z: -3.0 }} yaw={0} zone={{ x: 0.8, z: -1.6, halfX: 2.6, halfZ: 0.9 }} />
+      {/* Story 2.1: hand in at the VFS window first (left), then the interview (middle). */}
+      <SignBoard options={VFS_SIGN} width={1.5} position={[-1.35, 2.15, -2.26]} />
+      <NPC def={NPCS.vfsClerk} at={{ x: -1.35, z: -3.0 }} yaw={0} zone={{ x: -1.35, z: -1.6, halfX: 0.95, halfZ: 0.9 }} />
+      <NPC def={NPCS.officer} at={{ x: 0.75, z: -3.0 }} yaw={0} zone={{ x: 1.2, z: -1.6, halfX: 1.1, halfZ: 0.9 }} />
       <NPC def={NPCS.chiLan} at={{ x: -2.9, z: 0.3 }} yaw={Math.PI} seatY={0.48} />
       <ActionSpot id="embassy-exit" nameKey="interact.exit" zone={{ x: -4.0, z: 2.6, halfX: 1.0, halfZ: 0.9 }} actions={EXIT} />
     </>

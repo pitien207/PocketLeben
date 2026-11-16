@@ -9,6 +9,8 @@ import { motorbikeShapes, place, plantShapes } from '../shared/props'
 import { Room, DOORMAT } from '../shared/Room'
 import { Shapes, type ShapeItem } from '../shared/Shapes'
 import { useFlags } from '../../../store/flagsStore'
+import { houseLevel } from '../../systems/family'
+import { HouseScene } from './HouseScene'
 
 /**
  * Home, the ground floor of the family's tube house in the lane: a wooden bed with a
@@ -91,11 +93,14 @@ function furniture(): ShapeItem[] {
     for (const sz of [-1, 1]) s.push({ box: [0.5, 0.06, 0.05], at: [cx, 0.62, tz + sz * 0.24], color: WOOD_DARK })
   }
 
-  // TV cabinet on the left wall, the motorbike parked inside by the door
+  // TV cabinet on the left wall (the TV itself and Bố's Wave depend on the family's debt: houseShapes)
   s.push({ box: [0.45, 0.55, 1.4], at: [-W / 2 + 0.25, 0.28, -0.9], color: WOOD_DARK })
-  s.push({ box: [0.06, 0.6, 1.0], at: [-W / 2 + 0.16, 0.88, -0.9], color: '#2f2f38' })
-  s.push({ box: [0.07, 0.52, 0.92], at: [-W / 2 + 0.18, 0.88, -0.9], color: '#4a5a70' })
-  s.push(place(motorbikeShapes('#7fb8e8'), [3.0, 0, 1.3], Math.PI / 2 + 0.2))
+  // Mẹ's kitchen corner on the right wall: counter, gas stove, a pot, a rice jar (hũ gạo)
+  s.push({ box: [0.6, 0.9, 1.4], at: [W / 2 - 0.35, 0.45, -0.6], color: '#e8dcc4' })
+  s.push({ box: [0.66, 0.05, 1.46], at: [W / 2 - 0.35, 0.92, -0.6], color: '#9a9a9a' })
+  s.push({ box: [0.4, 0.08, 0.5], at: [W / 2 - 0.35, 0.99, -0.9], color: '#2f2f38' })
+  s.push({ cyl: [0.16, 0.14, 0.18, 12], at: [W / 2 - 0.35, 1.12, -0.9], color: '#b8b8c0' })
+  s.push({ cyl: [0.12, 0.14, 0.3, 10], at: [W / 2 - 0.35, 1.1, -0.2], color: '#c49a6c' })
   s.push(place(plantShapes(P.leafDark, '#c49a6c'), [-W / 2 + 0.45, 0, 2.4], 0, 1.1))
   s.push({ box: [1.0, 0.025, 0.55], at: [HOME_ROOM.exit.x, 0.055, HOME_ROOM.exit.z], color: DOORMAT })
   // Paper cabinet (tủ giấy tờ): the family keeps the originals here — diploma, birth certificate (1.13)
@@ -104,8 +109,71 @@ function furniture(): ShapeItem[] {
     s.push({ box: [0.03, 0.36, 0.62], at: [-W / 2 + 0.49, 0.25 + i * 0.42, 0.45], color: WOOD })
     s.push({ box: [0.03, 0.05, 0.14], at: [-W / 2 + 0.52, 0.3 + i * 0.42, 0.45], color: '#d4a72c' })
   }
-  s.push({ box: [0.3, 0.06, 0.4], at: [-W / 2 + 0.25, 1.33, 0.45], color: '#c8322b' })
-  s.push({ box: [0.28, 0.05, 0.38], at: [-W / 2 + 0.25, 1.38, 0.47], color: '#2f6fb0' })
+  // A small glass case on top of the cabinet for the house's land certificate (sổ đỏ)
+  s.push({ box: [0.4, 0.04, 0.5], at: [-W / 2 + 0.25, 1.32, 0.45], color: WOOD })
+  for (const dz of [-0.24, 0.24]) s.push({ box: [0.38, 0.32, 0.02], at: [-W / 2 + 0.25, 1.5, 0.45 + dz], color: '#d9eef6' })
+  s.push({ box: [0.4, 0.03, 0.5], at: [-W / 2 + 0.25, 1.67, 0.45], color: WOOD })
+  // Laptop on the study desk (CV, Auslandsportal, emails, flights)
+  const { x: lx, z: lz } = HOME_ROOM.desk
+  s.push({ box: [0.36, 0.02, 0.25], at: [lx - 0.05, 0.8, lz + 0.12], color: '#3f4a5c' })
+  s.push({ box: [0.36, 0.23, 0.015], at: [lx - 0.05, 0.92, lz + 0.0], rot: [-0.2, 0, 0], color: '#2f2f38' })
+  return s
+}
+
+/**
+ * The yellow house follows the family's debt (story 2.1 §1.8): 0 normal, 1 cobwebs + dried flowers,
+ * 2 TV sold, a crack, the clock gone, 3 broken wall, a leak bucket, Bố's Wave sold. Mortgage: the
+ * glass case of the sổ đỏ is empty.
+ */
+function houseShapes(level: number, mortgaged: boolean, clock: boolean): ShapeItem[] {
+  const s: ShapeItem[] = []
+  const ax = -0.4
+  // Flowers on the altar: fresh at level 0, dried from level 1
+  s.push({ cyl: [0.05, 0.07, 0.18, 8], at: [ax - 0.3, 2.08, BACK + 0.22], color: '#e8f4f8' })
+  const petals = level === 0 ? ['#ff9fb2', '#ffe066', '#ff6b5e'] : ['#a8865a', '#8e6e4a', '#b89a6a']
+  petals.forEach((c, i) => s.push({ sphere: [0.05, 6, 4], at: [ax - 0.33 + i * 0.03, 2.24 + (i % 2) * 0.05, BACK + 0.2 + i * 0.02], color: c }))
+  if (level < 2) {
+    s.push({ box: [0.06, 0.6, 1.0], at: [-W / 2 + 0.16, 0.88, -0.9], color: '#2f2f38' })
+    s.push({ box: [0.07, 0.52, 0.92], at: [-W / 2 + 0.18, 0.88, -0.9], color: '#4a5a70' })
+  } else {
+    // Where the TV stood: a dusty rectangle on the wall
+    s.push({ box: [0.012, 0.6, 1.0], at: [-W / 2 + 0.03, 0.9, -0.9], color: '#e9d39a' })
+  }
+  if (level >= 1) {
+    // Cobwebs in the ceiling corners
+    for (const [x, z] of [[-W / 2 + 0.2, BACK + 0.2], [W / 2 - 0.2, BACK + 0.2]] as [number, number][]) {
+      for (let i = 0; i < 4; i++) s.push({ box: [0.6 - i * 0.12, 0.01, 0.01], at: [x, 2.9 - i * 0.08, z], rot: [0, Math.PI / 4, 0.6], color: '#f4f4f4' })
+      s.push({ torus: [0.16, 0.006, 3, 10, Math.PI / 2], at: [x, 2.85, z], rot: [Math.PI / 2, 0, Math.PI / 4], color: '#f4f4f4' })
+    }
+  }
+  if (level >= 2) {
+    // A long crack down the back wall
+    let y = 2.8
+    let x = 1.6
+    for (let i = 0; i < 7; i++) {
+      const nx = x + (i % 2 ? 0.12 : -0.1)
+      s.push({ box: [0.03, 0.34, 0.01], at: [(x + nx) / 2, y - 0.17, BACK + 0.012], rot: [0, 0, i % 2 ? -0.35 : 0.3], color: '#6b5236' })
+      x = nx
+      y -= 0.32
+    }
+  }
+  if (level >= 3) {
+    // Broken wall patch showing bricks, the leak bucket, a puddle
+    s.push({ box: [0.9, 0.7, 0.012], at: [-2.6, 1.0, BACK + 0.012], color: '#b0623e' })
+    for (let r = 0; r < 3; r++) for (let c = 0; c < 3; c++) s.push({ box: [0.26, 0.1, 0.02], at: [-2.9 + c * 0.3 + (r % 2) * 0.12, 0.8 + r * 0.2, BACK + 0.02], color: '#c8653d' })
+    s.push({ cyl: [0.2, 0.16, 0.3, 12], at: [0.4, 0.15, 0.9], color: '#4f86d9' })
+    s.push({ cyl: [0.17, 0.17, 0.02, 12], at: [0.4, 0.27, 0.9], color: '#9fd8f0' })
+    s.push({ sphere: [0.03, 6, 4], at: [0.4, 1.9, 0.9], scale: [1, 1.6, 1], color: '#9fd8f0' })
+    s.push({ cyl: [0.45, 0.45, 0.01, 14], at: [0.4, 0.01, 0.9], color: '#bcd9e8' })
+  } else {
+    s.push(place(motorbikeShapes('#7fb8e8'), [3.0, 0, 1.3], Math.PI / 2 + 0.2))
+  }
+  // The sổ đỏ in its case, unless mortgaged
+  if (!mortgaged) {
+    s.push({ box: [0.28, 0.05, 0.36], at: [-W / 2 + 0.25, 1.37, 0.45], color: '#c8322b' })
+    s.push({ box: [0.2, 0.052, 0.04], at: [-W / 2 + 0.25, 1.371, 0.4], color: '#f4c04e' })
+  }
+  if (!clock) s.push({ cyl: [0.23, 0.23, 0.005, 16], at: [ax, 2.72, BACK + 0.006], rot: [Math.PI / 2, 0, 0], color: '#e9d39a' })
   return s
 }
 
@@ -118,7 +186,15 @@ const BED: SpotAction[] = [
   { id: 'nap', labelKey: 'action.nap', icon: 'sleep', action: 'home.nap' },
   { id: 'save', labelKey: 'action.save', icon: 'save', action: 'home.save' },
 ]
-const DESK: SpotAction[] = [{ id: 'study', labelKey: 'action.selfStudy', icon: 'book', action: 'german.selfStudy', primary: true }]
+const DESK: SpotAction[] = [
+  { id: 'study', labelKey: 'action.selfStudy', icon: 'book', action: 'german.selfStudy', primary: true },
+  // Story 2.1: the laptop on the desk
+  { id: 'cv', labelKey: 'action.writeCv', icon: 'laptop', action: 'visa.writeCv', if: { test: 'visa.cvToWrite' } },
+  { id: 'portal', labelKey: 'action.portal', icon: 'laptop', action: 'visa.portal', if: { all: [{ test: 'visa.portalToFill' }, { test: 'visa.passportDone' }] } },
+  { id: 'lanEmail', labelKey: 'action.lanEmail', icon: 'laptop', action: 'family.lanEmail', if: { test: 'family.lanEmail' } },
+  { id: 'lanCall', labelKey: 'action.lanCall', icon: 'laptop', action: 'family.lanCall', if: { test: 'family.lanCall' } },
+  { id: 'flight', labelKey: 'action.flightLaptop', icon: 'ticket', action: 'visa.flightLaptop', if: { all: [{ test: 'visa.ready' }, { noFlag: 'visa.flight' }] } },
+]
 const EXIT: SpotAction[] = [
   { id: 'exit', labelKey: 'action.toStreet', icon: 'door', action: 'home.leave', primary: true, if: { noFlag: 'trip.away' } },
   { id: 'flyBack', labelKey: 'action.flyBack', icon: 'passport', action: 'trip.return', primary: true, if: { flag: 'trip.away' } },
@@ -155,6 +231,11 @@ const Home = memo(function Home() {
   const shapes = useMemo(furniture, [])
   const tet = useMemo(tetDecor, [])
   const visiting = useFlags((s) => !!s.flags['trip.away'])
+  const level = useFlags(() => houseLevel())
+  const mortgage = useFlags((s) => !!s.flags['debt.mortgage'])
+  // The wall clock is sold at level 2 and only comes back once everything is repaid.
+  const clock = useFlags((s) => houseLevel() < 2 && !(typeof s.flags['debt.peak'] === 'number' && (s.flags['debt.peak'] as number) >= 2))
+  const state = useMemo(() => houseShapes(level, mortgage, clock), [level, mortgage, clock])
   const { bed, desk } = HOME_ROOM
   return (
     <>
@@ -172,13 +253,21 @@ const Home = memo(function Home() {
           [-W / 2 + 0.25, -0.9, 0.25, 0.7],
           [-W / 2 + 0.25, 0.45, 0.25, 0.38],
           [3.0, 1.3, 0.35, 0.8],
+          [W / 2 - 0.35, -0.6, 0.32, 0.72],
         ]}
       />
-      <WallClock position={[-0.4, 2.72, BACK + 0.04]} radius={0.22} />
+      <Shapes shapes={state} />
+      <HouseScene />
+      {clock && <WallClock position={[-0.4, 2.72, BACK + 0.04]} radius={0.22} />}
       <TearCalendar position={[0.75, 1.55, BACK + 0.03]} />
       <WallFan position={[W / 2 - 0.05, 2.2, -1.6]} rotation={[0, -Math.PI / 2, 0]} />
 
-      <NPC def={NPCS.bo} at={{ x: -2.95, z: 1.1 }} yaw={Math.PI / 2} seatY={0.44} arms={1} />
+      {mortgage && !visiting ? (
+        <NPC def={NPCS.bo} at={{ x: -0.4, z: -2.35 }} yaw={Math.PI} />
+      ) : (
+        <NPC def={NPCS.bo} at={{ x: -2.95, z: 1.1 }} yaw={Math.PI / 2} seatY={0.44} arms={1} />
+      )}
+      {!visiting && <NPC def={NPCS.me} at={{ x: W / 2 - 1.0, z: -0.6 }} yaw={Math.PI / 2} zone={{ x: W / 2 - 1.4, z: -0.6, halfX: 0.6, halfZ: 0.8 }} />}
       <NPC def={NPCS.emGai} at={{ x: -2.0, z: 1.75 }} yaw={Math.PI} seatY={0.3} scale={0.85} />
       {visiting && (
         <>

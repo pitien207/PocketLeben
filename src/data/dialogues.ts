@@ -5,6 +5,7 @@ import { STREET_DIALOGUES } from './dialogues/street'
 import { UNIVERSITY_DIALOGUES } from './dialogues/university'
 import { EXPLORE_DIALOGUES } from './dialogues/explore'
 import { OFFICE_DIALOGUES } from './dialogues/offices'
+import { VN21_DIALOGUES } from './dialogues/vn21'
 
 export type { DialogueChoice, DialogueDef, DialogueEffect, DialogueNode } from './dialogueTypes'
 
@@ -16,4 +17,6 @@ export const DIALOGUES: Record<string, DialogueDef> = {
   ...UNIVERSITY_DIALOGUES,
   ...EXPLORE_DIALOGUES,
   ...OFFICE_DIALOGUES,
+  // Story 2.1 (Vietnam): overrides the older family / teacher / Mai / embassy lines.
+  ...VN21_DIALOGUES,
 }

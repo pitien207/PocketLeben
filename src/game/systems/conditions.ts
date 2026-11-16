@@ -28,7 +28,9 @@ export function setFlag(key: string, value: number | boolean | string) {
 
 /** Add to a counter flag (e.g. "stats.traDa"). */
 export function bumpFlag(key: string, by = 1) {
-  setFlag(key, flagNumber(key) + by)
+  const n = flagNumber(key) + by
+  setFlag(key, n)
+  return n
 }
 
 /** XP needed for the next German exam, or Infinity when all levels are done. */

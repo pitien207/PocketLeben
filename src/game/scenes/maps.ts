@@ -56,6 +56,10 @@ export const SCENE_MAPS: Partial<Record<SceneId, SceneMap>> = {
       { x0: -42.0, z0: -13, x1: -37.4, z1: -4.5, color: '#e9e2d4' },
       { x0: -46.8, z0: -13, x1: -42.2, z1: -4.5, color: '#cfe4dc' },
       { x0: -51.6, z0: -13, x1: -47.0, z1: -4.5, color: '#dfe6f2' },
+      // Phố Hàng Bông (story 2.1): Mai Anh office, Hoàng Kim, Circle K
+      { x0: 8.05, z0: -12.9, x1: 9.75, z1: -8.3, color: '#f3d9c4' },
+      { x0: 13.85, z0: -12.9, x1: 15.95, z1: -8.6, color: '#d9dde6' },
+      { x0: 13.85, z0: -8.3, x1: 15.95, z1: -4.6, color: '#f39a8f' },
       // East block: đình courtyard + hall, the alley, juice shop, bookshop, night market
       { x0: 16, z0: -9.6, x1: 24, z1: -4.5, color: '#e8dcc0' },
       { x0: 16, z0: -13, x1: 24, z1: -9.6, color: '#c8322b' },
@@ -80,7 +84,10 @@ export const SCENE_MAPS: Partial<Record<SceneId, SceneMap>> = {
       { x: 20, z: -11.3, kind: 'area', text: { vi: 'Đình làng', en: 'Communal house', de: 'Gemeindehaus' } },
       { x: 25, z: -12.4, kind: 'area', text: { vi: 'Ngõ', en: 'Alley', de: 'Gasse' } },
       { x: 23.6, z: 12.6, kind: 'area', text: { vi: 'Chợ đêm', en: 'Night market', de: 'Nachtmarkt' } },
-      { x: 11.8, z: -1.5, kind: 'street', text: { vi: 'Ngõ Hàng Gai', en: 'Hàng Gai lane', de: 'Hàng-Gai-Gasse' } },
+      { x: 11.8, z: -1.5, kind: 'street', text: { vi: 'Phố Hàng Bông', en: 'Hàng Bông street', de: 'Hàng-Bông-Straße' } },
+      { x: 8.9, z: -10.6, kind: 'area', text: { vi: 'VP Mai Anh', en: 'Mai Anh office', de: 'Büro Mai Anh' } },
+      { x: 14.9, z: -10.7, kind: 'area', text: { vi: 'Hoàng Kim', en: 'Hoàng Kim', de: 'Hoàng Kim' } },
+      { x: 14.9, z: -6.4, kind: 'area', text: { vi: 'Circle K', en: 'Circle K', de: 'Circle K' } },
       { x: -22, z: -12.4, kind: 'area', text: { vi: 'Phố cổ', en: 'Old Quarter', de: 'Altstadt' } },
       { x: -34.9, z: -8.5, kind: 'area', text: { vi: 'Tiệm ảnh', en: 'Photo studio', de: 'Fotostudio' } },
       { x: -39.7, z: -8.5, kind: 'area', text: { vi: 'Công chứng', en: 'Notary', de: 'Notariat' } },

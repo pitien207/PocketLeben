@@ -585,5 +585,13 @@
   "loading.assets": "Wird geladen…",
   "loading.ready": "Los geht’s!",
   "loading.tip": "Tipp",
-  "loading.word": "Vokabel"
+  "loading.word": "Vokabel",
+  "action.enterOffice": "Zum Büro hoch",
+  "action.writeCv": "Lebenslauf schreiben",
+  "action.portal": "Auslandsportal ausfüllen",
+  "action.lanEmail": "E-Mail an Frau Lan",
+  "action.lanCall": "Frau Lan anrufen",
+  "action.flightLaptop": "Flug buchen",
+  "interact.maiOffice": "Büro Mai Anh",
+  "phone.jobs": "Jobs"
 }

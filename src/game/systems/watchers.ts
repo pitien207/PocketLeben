@@ -15,6 +15,7 @@ import { useSettings } from '../../store/settingsStore'
 import { shortDate } from './calendar'
 import { chargeRent } from './germany'
 import { SCENES } from '../scenes/registry'
+import { runAction } from './actions'
 
 /**
  * Background game logic that reacts to state changes: quest progress, achievements,
@@ -161,6 +162,8 @@ function closeDay(day: number) {
 function morningEvent(day: number) {
   if (getFlag('event.day') === day) return
   setFlag('event.day', day)
+  // Automated tests can switch random events off (dev only).
+  if (import.meta.env.DEV && (window as unknown as { __noEvents?: boolean }).__noEvents) return
   if (Math.random() > EVENT_CHANCE) return
   // Money events are in the local currency: skip them while visiting home with euros.
   const wrongCurrency = (SCENES[useWorld.getState().scene].country === 'vn') !== (usePlayer.getState().currency === 'VND')
@@ -174,6 +177,8 @@ function morningEvent(day: number) {
   if (event.energy) (event.energy > 0 ? p.restoreEnergy : p.spendEnergy)(Math.abs(event.energy))
   if (event.mood) p.changeMood(event.mood)
   window.setTimeout(() => pushToast('toast.event', event.mood && event.mood < 0 ? 'bad' : 'info', { text: localize(event.text, currentLanguage()) }), 2600)
+  if (event.id === 'gioOngNoi') setFlag('event.gio', day)
+  if (event.action) runAction(event.action.id, event.action.arg)
 }
 
 export function startWatchers(): () => void {

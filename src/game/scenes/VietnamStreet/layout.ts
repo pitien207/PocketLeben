@@ -258,3 +258,13 @@ export const TRAFFIC_LANES: Lane[] = [
   { z: 7.25, dir: 1 },
   { z: 4.55, dir: -1 },
 ]
+
+/**
+ * Phố Hàng Bông, the side road (story 2.1, HangBong.tsx): Văn phòng Mai Anh on the west side
+ * (front faces the road, +X), Hoàng Kim opposite (front faces -X), Circle K on the Hàng Gai corner.
+ */
+export const HANG_BONG = {
+  mai: { x0: 8.05, x1: 9.75, z0: -12.9, z1: -8.3, door: -10.6 },
+  hoangKim: { x0: 13.85, x1: 15.95, z0: -12.9, z1: -8.6, desk: { x: 14.75, z: -11.6 }, khai: { x: 13.3, z: -9.7 } },
+  circleK: { x0: 13.85, x1: 15.95, z0: -8.3, z1: -4.6, manager: { x: 14.35, z: -3.95 } },
+}

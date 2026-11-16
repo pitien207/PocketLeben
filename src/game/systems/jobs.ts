@@ -1,0 +1,206 @@
+import { CONFIG } from '../../data/config'
+import type { Localized } from '../../i18n/localized'
+import { useMinigame } from '../../store/minigameStore'
+import { usePlayer } from '../../store/playerStore'
+import { useTime } from '../../store/timeStore'
+import { pushToast } from '../../store/toastStore'
+import { useUI } from '../../store/uiStore'
+import { useWorld } from '../../store/worldStore'
+import { registerActions } from './actions'
+import { playSfx } from './audio'
+import { bumpFlag, flagNumber, getFlag, registerTests, setFlag } from './conditions'
+import { pay } from './effects'
+import { houseLevel } from './family'
+import { spendTime, weekdayIndex } from './time'
+import { isRaining } from './weather'
+import { L, say, vnd } from './say'
+
+/**
+ * Side jobs in Vietnam (story 2.1 §11.1): café, Circle K, Grab, tutoring. Each at most once a
+ * day; after 8 and 20 times you rank up (+10 % / +20 % pay, a little harder). The phone has a
+ * "job board" with today's four jobs.
+ */
+
+export type VnJob = 'cafe' | 'circleK' | 'grab' | 'tutor'
+export const VN_JOBS: VnJob[] = ['cafe', 'circleK', 'grab', 'tutor']
+const J = CONFIG.vnJobs
+const today = () => useTime.getState().day
+const hour = () => useTime.getState().minutes / 60
+
+export const jobCount = (job: VnJob) => flagNumber(`job.${job}.count`)
+export const jobDoneToday = (job: VnJob) => getFlag(`job.${job}.day`) === today()
+/** 0 = Mới, 1 = Quen việc, 2 = Giỏi. */
+export function jobRank(job: VnJob) {
+  const n = jobCount(job)
+  return n >= J.rankAt[1] ? 2 : n >= J.rankAt[0] ? 1 : 0
+}
+export const rankMultiplier = (job: VnJob) => 1 + J.rankBonus[jobRank(job)]
+
+export const RANK_NAMES: Localized[] = [L('Mới', 'New', 'Neu'), L('Quen việc', 'Skilled', 'Geübt'), L('Giỏi', 'Expert', 'Profi')]
+
+/** Mark a job as done today; announce a rank-up. */
+export function recordJob(job: VnJob) {
+  const before = jobRank(job)
+  setFlag(`job.${job}.day`, today())
+  bumpFlag(`job.${job}.count`)
+  bumpFlag('stats.jobsVn')
+  if (jobRank(job) > before) {
+    playSfx('success')
+    say(L('Lên hạng „{r}"! +{p}% tiền mỗi lần.', 'Rank up: “{r}”! +{p}% pay.', 'Aufstieg: „{r}“! +{p} % Lohn.'), 'good', { r: RANK_NAMES[jobRank(job)].vi, p: Math.round(J.rankBonus[jobRank(job)] * 100) })
+  }
+}
+
+export function jobUnlocked(job: VnJob) {
+  if (job === 'cafe') return true
+  if (job === 'circleK') return !!getFlag('job.circleK.hired')
+  if (job === 'grab') return !!getFlag('job.grab') && houseLevel() < 3
+  return !!getFlag('job.tutor.unlocked')
+}
+
+const alreadyToday = () => say(L('Hôm nay làm việc này rồi. Mai quay lại nhé!', 'You already did this job today. Come back tomorrow!', 'Heute schon erledigt. Morgen wieder!'), 'info')
+
+function finishPay(job: VnJob, base: number, energy: number, minutes: number) {
+  const p = usePlayer.getState()
+  const total = Math.max(0, Math.round((base * rankMultiplier(job)) / 1000) * 1000)
+  p.addMoney(total)
+  p.spendEnergy(energy)
+  spendTime(minutes)
+  recordJob(job)
+  playSfx('coin')
+  return total
+}
+
+// --- Circle K ---------------------------------------------------------------------------------
+
+/** The manager's interview (3 questions) before the first shift. */
+function circleKInterview() {
+  if (getFlag('job.circleK.hired')) return false
+  if (getFlag('job.circleK.triedDay') === today()) {
+    say(L('Chị quản lý: „Mai em quay lại phỏng vấn lại nhé."', 'Manager: “Come back tomorrow and try again.”'), 'info')
+    return false
+  }
+  useMinigame.getState().start({ kind: 'qa', set: 'circleK', count: 3, passScore: 0.6 }, (r) => {
+    setFlag('job.circleK.triedDay', today())
+    if (r.passed) {
+      setFlag('job.circleK.hired', true)
+      say(L('Chị quản lý: „Được, em bắt đầu được rồi. Ca ngày 6–22h, ca đêm 22–6h."', 'Manager: “Okay, you can start. Day shift 6–22, night shift 22–6.”'), 'good')
+    } else {
+      say(L('Chị quản lý: „Em còn lúng túng quá. Mai thử lại nhé."', 'Manager: “You’re still unsure. Try again tomorrow.”'), 'bad')
+    }
+  })
+  return true
+}
+
+const isNight = () => hour() >= 22 || hour() < 6
+
+function circleKShift() {
+  if (!getFlag('job.circleK.hired')) return circleKInterview()
+  if (jobDoneToday('circleK')) return alreadyToday(), false
+  const night = isNight()
+  const C = J.circleK
+  const energy = night ? C.nightEnergy : C.energy
+  if (usePlayer.getState().energy < energy) {
+    pushToast('toast.tooTired', 'bad')
+    return false
+  }
+  useMinigame.getState().start({ kind: 'circleK', night, rank: jobRank('circleK') }, (r) => {
+    const base = (night ? C.night : C.day) * (0.6 + 0.4 * r.score) - (r.value ?? 0)
+    const got = finishPay('circleK', base, energy, C.minutes)
+    if (night) setFlag('job.nightTired', today() + 1)
+    say(L('Xong ca Circle K: +{m}', 'Circle K shift done: +{m}', 'Circle-K-Schicht: +{m}'), 'good', { m: vnd(got) })
+    if (r.value) say(L('Thối sai tiền: trừ {d} vào lương.', 'Wrong change: {d} taken off your pay.'), 'bad', { d: vnd(r.value) })
+  })
+  return true
+}
+
+// --- Grab -------------------------------------------------------------------------------------
+
+/** Register as a driver: Bố's Wave, licence A1, uniform + helmet. Once. */
+function grabRegister() {
+  if (getFlag('job.grab')) return false
+  if (houseLevel() >= 3) {
+    say(L('Bố bán xe Wave rồi… không còn xe để chạy Grab.', 'Dad sold the Wave… there’s no bike to drive for Grab.'), 'bad')
+    return false
+  }
+  if (!pay(J.grab.uniform)) return false
+  setFlag('job.grab', true)
+  say(L('Đăng ký tài xế xong: xe Wave của bố, bằng A1, áo + mũ đồng phục ({m}). Mở app trên điện thoại để nhận cuốc!', 'Driver registered: Dad’s Wave, A1 licence, uniform + helmet ({m}). Open the app on your phone to take rides!'), 'good', { m: vnd(J.grab.uniform) })
+  return true
+}
+
+function grabShift() {
+  if (!getFlag('job.grab')) return say(L('Chưa đăng ký tài xế. Hỏi mượn xe Wave của bố trước đã.', 'Not registered yet. Ask Dad to lend you his Wave first.'), 'info'), false
+  if (houseLevel() >= 3) return say(L('Bố bán xe Wave rồi… phải trả bớt nợ thì bố mới chuộc lại xe.', 'Dad sold the Wave… repay some debt so he can buy it back.'), 'bad'), false
+  if (jobDoneToday('grab')) return alreadyToday(), false
+  if (useWorld.getState().scene !== 'vietnam' && useWorld.getState().scene !== 'home') return false
+  const [open, close] = J.grab.hours
+  if (hour() < open || hour() >= close) return say(L('App Grab: giờ này ít khách lắm (6–23h).', 'Grab app: hardly any rides at this hour (6–23).'), 'info'), false
+  if (usePlayer.getState().energy < J.grab.energy) return pushToast('toast.tooTired', 'bad'), false
+  const rain = isRaining(today(), useTime.getState().minutes, 'vn')
+  useMinigame.getState().start({ kind: 'grab', rain, rank: jobRank('grab') }, (r) => {
+    // r.value = fares + tips earned in the game (VND); fuel is paid out of it.
+    const earned = r.value ?? 0
+    const got = finishPay('grab', earned, J.grab.energy + (rain ? 10 : 0), J.grab.minutes)
+    usePlayer.getState().addMoney(-J.grab.fuel)
+    say(L('Chạy Grab xong: +{m} (đã trừ xăng {f})', 'Grab done: +{m} (fuel {f} paid)', 'Grab fertig: +{m} (Benzin {f})'), 'good', { m: vnd(got - J.grab.fuel), f: vnd(J.grab.fuel) })
+  })
+  return true
+}
+
+// --- Tutoring Bin -----------------------------------------------------------------------------
+
+function tutorShift() {
+  if (!getFlag('job.tutor.unlocked')) return false
+  if (jobDoneToday('tutor')) return alreadyToday(), false
+  const T = J.tutor
+  if (weekdayIndex(today()) >= 5 || hour() < T.hours[0] || hour() >= T.hours[1]) {
+    return say(L('Dạy Bin: thứ Hai–Sáu, 18–21h.', 'Tutoring Bin: Mon–Fri, 18:00–21:00.', 'Nachhilfe: Mo–Fr, 18–21 Uhr.'), 'info'), false
+  }
+  if (usePlayer.getState().energy < T.energy) return pushToast('toast.tooTired', 'bad'), false
+  const ui = useUI.getState()
+  ui.setTransition({ label: L('Sang nhà bé Bin · phố Hàng Bông', 'Off to Bin’s · Hàng Bông street', 'Zu Bin · Hàng-Bông-Straße'), long: false, icon: '📚', tone: 'paper' })
+  window.setTimeout(() => {
+    useUI.getState().setTransition(null)
+    useMinigame.getState().start({ kind: 'tutor', rank: jobRank('tutor') }, (r) => {
+      const pay = getFlag('job.tutor.up') ? T.payUp : T.pay
+      const got = finishPay('tutor', pay, T.energy, T.minutes)
+      bumpFlag('tutor.scoreSum', Math.round(r.score * 100))
+      say(L('Dạy Bin xong: +{m}', 'Tutoring done: +{m}', 'Nachhilfe: +{m}'), 'good', { m: vnd(got) })
+      if (getFlag('visa.path') && Math.random() < 0.5) window.setTimeout(() => say(L('Bin: „Anh/chị đi Đức rồi ai dạy em?"', 'Bin: “Who will teach me when you’re in Germany?”'), 'info'), 1200)
+      // After 8 lessons: Bin's mid-term. Good average → bonus and a second pupil.
+      if (jobCount('tutor') === T.midterm && !getFlag('job.tutor.midterm')) {
+        setFlag('job.tutor.midterm', true)
+        const avg = flagNumber('tutor.scoreSum') / T.midterm
+        window.setTimeout(() => {
+          if (avg >= 70) {
+            setFlag('job.tutor.up', true)
+            usePlayer.getState().addMoney(T.midtermBonus)
+            say(L('Bin được 8,5 điểm giữa kỳ! Mẹ Bin thưởng {b} và giới thiệu thêm một học trò (→ {p}/buổi).', 'Bin scored 8.5 in the mid-term! His mum gives you {b} and finds a second pupil (→ {p} a lesson).'), 'good', {
+              b: vnd(T.midtermBonus),
+              p: vnd(T.payUp),
+            })
+          } else {
+            say(L('Bin được 6 điểm giữa kỳ. Cố thêm nhé!', 'Bin scored 6 in the mid-term. Keep going!'), 'info')
+          }
+        }, 1500)
+      }
+    })
+  }, 900)
+  return true
+}
+
+registerActions({
+  'job.circleK': circleKShift,
+  'job.circleKInterview': circleKInterview,
+  'job.grabRegister': grabRegister,
+  'job.grab': grabShift,
+  'job.tutor': tutorShift,
+})
+
+registerTests({
+  'job.cafeToday': () => jobDoneToday('cafe'),
+  'job.circleKToday': () => jobDoneToday('circleK'),
+  'job.circleKHired': () => !!getFlag('job.circleK.hired'),
+  'job.grabReady': () => jobUnlocked('grab'),
+  'job.anyJob': () => !!getFlag('job.circleK.hired') || flagNumber('stats.shifts') > 0,
+})

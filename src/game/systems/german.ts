@@ -1,6 +1,6 @@
 import { CONFIG } from '../../data/config'
 import { usePlayer } from '../../store/playerStore'
-import { useMinigame, type MinigameSpec } from '../../store/minigameStore'
+import { useMinigame, type B1Module, type MinigameSpec } from '../../store/minigameStore'
 import { pushToast } from '../../store/toastStore'
 import { registerActions } from './actions'
 import { bumpFlag, flagNumber, germanXpNeeded, getFlag, registerTests, setFlag } from './conditions'
@@ -15,6 +15,7 @@ import { CLASSROOM, EXAM_HALL, HOME_ROOM, type Seat } from '../scenes/interiors'
 import { playSfx } from './audio'
 import { sitAt, standUp } from './seat'
 import { travelTo } from './travel'
+import { say } from './say'
 
 /**
  * Learning German (plan §6 chapter 1, milestone M4): enrol in a course, practise with
@@ -50,11 +51,59 @@ function enroll() {
   const course = CONFIG.german.levels[level]
   if (!course) return false
   if (getFlag(courseFlag(level))) return true
-  if (!pay(course.courseFee)) return false
+  // Cầu nối Sonnenhof pays the B1 course (story 2.1 §1.5).
+  if (!(level === 2 && getFlag('cauNoi.signed')) && !pay(course.courseFee)) return false
   setFlag(courseFlag(level), useTime.getState().day)
   pushToast('toast.enrolled', 'good', { level: course.name })
   return true
 }
+
+/** Thầy Minh lets you pay half now, half later — once per course (story 2.1). */
+function enrollHalf() {
+  const { level } = usePlayer.getState().german
+  const course = CONFIG.german.levels[level]
+  if (!course || getFlag(courseFlag(level)) || getFlag(`german.defer.${level}`)) return false
+  const half = Math.round(course.courseFee / 2 / 1000) * 1000
+  if (!pay(half)) return false
+  setFlag(`german.defer.${level}`, true)
+  setFlag('german.owe', flagNumber('german.owe') + (course.courseFee - half))
+  setFlag(courseFlag(level), useTime.getState().day)
+  pushToast('toast.enrolled', 'good', { level: course.name })
+  return true
+}
+
+/** Pay back what you owe Thầy Minh. */
+function payTeacher() {
+  const owe = flagNumber('german.owe')
+  if (owe <= 0 || !pay(owe)) return false
+  setFlag('german.owe', 0)
+  playSfx('coin')
+  return true
+}
+
+/** Nicos Weg on the phone (Deutsche Welle, free): 20 minutes anywhere, ¼ XP. */
+function nicos() {
+  const g = CONFIG.german
+  const player = usePlayer.getState()
+  if (player.german.level >= g.levels.length) {
+    pushToast('toast.germanMaxed', 'info')
+    return false
+  }
+  if (player.energy < g.nicosEnergy) {
+    pushToast('toast.tooTired', 'bad')
+    return false
+  }
+  player.spendEnergy(g.nicosEnergy)
+  spendTime(g.nicosMinutes)
+  useMinigame.getState().start({ kind: 'vocab', level: player.german.level, count: 4 }, (r) => gainXp(r.correct, r.total, g.nicosXpFactor))
+  bumpFlag('stats.nicos')
+  return true
+}
+
+/** B1 modules passed so far (bitmask: Lesen, Hören, Schreiben, Sprechen). */
+export const b1Mask = () => flagNumber('b1.mask')
+const ALL_B1 = 0b1111
+export const b1Missing = (): B1Module[] => (['lesen', 'hoeren', 'schreiben', 'sprechen'] as B1Module[]).filter((_, i) => !((b1Mask() >> i) & 1))
 
 const L = (vi: string, en: string, de: string): Localized => ({ vi, en, de })
 
@@ -128,9 +177,13 @@ function lesson() {
   return practise(1, g.lessonMinutes, g.lessonEnergy)
 }
 
-/** Studying alone at home: free, but half the XP. */
+/** Studying alone at home: free, but half the XP. Not on a power-cut evening. */
 function selfStudy() {
   const g = CONFIG.german
+  if (getFlag('event.powerCut') === useTime.getState().day && useTime.getState().minutes >= 17 * 60) {
+    say(L('Mất điện cả khu phố, tối nay không học được rồi…', 'A power cut in the whole street — no studying tonight…', 'Stromausfall — heute Abend kein Lernen…'), 'info')
+    return false
+  }
   return practise(g.selfStudyXpFactor, g.selfStudyMinutes, g.selfStudyEnergy)
 }
 
@@ -139,11 +192,16 @@ function exam() {
   const { level, xp } = player.german
   const course = CONFIG.german.levels[level]
   if (!course) return false
-  if (xp < course.xpToExam) {
+  // B1 retake: only the modules still missing, a fee per module, no XP needed again.
+  const retake = level === 2 && b1Mask() > 0 ? b1Missing() : undefined
+  if (!retake && xp < course.xpToExam) {
     pushToast('toast.notReadyForExam', 'info', { have: xp, need: course.xpToExam })
     return false
   }
-  if (!pay(course.examFee)) return false
+  const free = level === 2 && !retake && getFlag('cauNoi.signed') && !getFlag('cauNoi.examUsed')
+  const fee = retake ? retake.length * CONFIG.german.b1ModuleRetakeFee : course.examFee
+  if (!free && !pay(fee)) return false
+  if (free) setFlag('cauNoi.examUsed', true)
   // Off to the exam room: sit at your numbered desk, then the paper is handed out.
   travelTo('examHall', 'default', {
     icon: '📝',
@@ -152,13 +210,23 @@ function exam() {
     tone: 'paper',
     onDone: () => {
       sitAt(EXAM_HALL.seat, 0, 0.7)
-      window.setTimeout(() => useMinigame.getState().start({ kind: 'exam', level }, (r) => finishExam(r.passed, level, xp)), 500)
+      window.setTimeout(
+        () =>
+          useMinigame.getState().start({ kind: 'exam', level, modules: retake }, (r) => {
+            if (level === 2) {
+              // Modules passed now are kept; the exam is passed once all four are.
+              setFlag('b1.mask', b1Mask() | (r.value ?? 0))
+              finishExam(b1Mask() === ALL_B1, level, xp, true)
+            } else finishExam(r.passed, level, xp)
+          }),
+        500,
+      )
     },
   })
   return true
 }
 
-function finishExam(passed: boolean, level: number, xpBefore: number) {
+function finishExam(passed: boolean, level: number, xpBefore: number, modular = false) {
   const course = CONFIG.german.levels[level]
   const p = usePlayer.getState()
   spendTime(CONFIG.german.examMinutes)
@@ -169,8 +237,16 @@ function finishExam(passed: boolean, level: number, xpBefore: number) {
     pushToast('toast.examPassed', 'good', { level: course.name })
   } else {
     p.changeMood(CONFIG.german.examFailMood)
-    p.setGerman({ level, xp: Math.round(xpBefore * 0.6) })
-    pushToast('toast.examFailed', 'bad', { level: course.name })
+    if (modular) {
+      const missing = b1Missing().map((m) => ({ lesen: 'Lesen', hoeren: 'Hören', schreiben: 'Schreiben', sprechen: 'Sprechen' })[m])
+      say(L('Còn thiếu: {m}. Chỉ cần thi lại phần đó ({fee}/kỹ năng) với Thầy Minh.', 'Still missing: {m}. Retake only that part ({fee} each) with Teacher Minh.', 'Es fehlt: {m}. Nur diesen Teil wiederholen ({fee} pro Modul).'), 'bad', {
+        m: missing.join(', '),
+        fee: formatMoney(CONFIG.german.b1ModuleRetakeFee),
+      })
+    } else {
+      p.setGerman({ level, xp: Math.round(xpBefore * 0.6) })
+      pushToast('toast.examFailed', 'bad', { level: course.name })
+    }
   }
   standUp()
   // Back to class, where Thầy Minh is waiting for the news.
@@ -193,6 +269,14 @@ registerTests({
     return !maxed() && enrolled() && g.xp >= germanXpNeeded(g.level)
   },
   'german.maxed': maxed,
+  'german.b1Retake': () => !maxed() && usePlayer.getState().german.level === 2 && b1Mask() > 0 && b1Mask() !== ALL_B1,
+  'german.canDefer': () => {
+    const level = usePlayer.getState().german.level
+    const course = CONFIG.german.levels[level]
+    return !!course && !enrolled() && !getFlag(`german.defer.${level}`) && usePlayer.getState().money < course.courseFee && !(level === 2 && getFlag('cauNoi.signed'))
+  },
+  'german.owesTeacher': () => flagNumber('german.owe') > 0,
+  'german.b1Free': () => usePlayer.getState().german.level === 2 && !!getFlag('cauNoi.signed'),
 })
 
 /** Values for {placeholders} in the teacher's dialogue. */
@@ -205,7 +289,11 @@ export function germanVars() {
     xp: Math.min(g.xp, course?.xpToExam ?? g.xp),
     need: course?.xpToExam ?? 0,
     courseFee: course ? formatMoney(course.courseFee) : '',
+    halfFee: course ? formatMoney(Math.round(course.courseFee / 2 / 1000) * 1000) : '',
     examFee: course ? formatMoney(course.examFee) : '',
+    retakeFee: formatMoney(b1Missing().length * CONFIG.german.b1ModuleRetakeFee),
+    retakeModules: b1Missing().map((m) => ({ lesen: 'Lesen', hoeren: 'Hören', schreiben: 'Schreiben', sprechen: 'Sprechen' })[m]).join(', '),
+    owe: formatMoney(flagNumber('german.owe')),
   }
 }
 
@@ -214,4 +302,7 @@ registerActions({
   'german.lesson': lesson,
   'german.selfStudy': selfStudy,
   'german.exam': exam,
+  'german.enrollHalf': enrollHalf,
+  'german.payTeacher': payTeacher,
+  'german.nicos': nicos,
 })

@@ -27,6 +27,7 @@ import { WestBlock } from './WestBlock'
 import { EastBlock } from './EastBlock'
 import { NgocSon } from './NgocSon'
 import { VisaOffices } from './VisaOffices'
+import { HangBong } from './HangBong'
 
 /** "Vàng Hà Nội": ochre walls, green wooden shutters, dark green ironwork. */
 const HOME_PALETTE: HousePalette = {
@@ -102,6 +103,7 @@ export const VietnamStreet = memo(function VietnamStreet() {
       <EastBlock />
       <NgocSon />
       <VisaOffices />
+      <HangBong />
       <Backdrop lake colors={HANOI_BACKDROP} roof="#c8653d" clear={PLAY} />
     </group>
   )

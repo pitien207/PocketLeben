@@ -23,8 +23,10 @@ import { useSettings } from '../store/settingsStore'
 import { useTime } from '../store/timeStore'
 import { useUI } from '../store/uiStore'
 import { ChatIcon } from './OnlineUI'
+import { JobBoard } from './JobBoard'
+import { CoinIcon } from './icons'
 
-type Tab = 'messages' | 'world' | 'friends'
+type Tab = 'messages' | 'world' | 'friends' | 'jobs'
 
 /** Phone outline for the HUD button. */
 export function PhoneIcon(props: { className?: string }) {
@@ -462,7 +464,7 @@ export function PhonePanel() {
 
   useEffect(() => {
     if (!open) return
-    markRead(tab, tab === 'messages' ? chat : null)
+    if (tab !== 'jobs') markRead(tab, tab === 'messages' ? chat : null)
     return () => useSocial.getState().set({ viewing: null })
   }, [open, tab, chat])
 
@@ -512,11 +514,13 @@ export function PhonePanel() {
             </span>
           </div>
           <div className="bg-linear-to-b from-lacquer to-[#b83a3a] px-4 py-2 font-display text-lg font-extrabold text-white [text-shadow:0_2px_0_rgba(0,0,0,0.25)]">
-            {tab === 'messages' ? t('phone.messages') : tab === 'world' ? t('phone.world') : t('phone.friends')}
+            {tab === 'messages' ? t('phone.messages') : tab === 'world' ? t('phone.world') : tab === 'jobs' ? t('phone.jobs') : t('phone.friends')}
           </div>
 
           <div className="flex min-h-0 flex-1 flex-col">
-            {!usable ? (
+            {tab === 'jobs' ? (
+              <JobBoard />
+            ) : !usable ? (
               <Unavailable signedIn={signedIn} />
             ) : (
               <>
@@ -536,6 +540,9 @@ export function PhonePanel() {
           </div>
 
           <nav className="flex border-t-2 border-outline/15 bg-white/80">
+            <TabButton testId="tab-jobs" active={tab === 'jobs'} label={t('phone.jobs')} badge={0} onClick={() => setTab('jobs')}>
+              <CoinIcon />
+            </TabButton>
             <TabButton testId="tab-messages" active={tab === 'messages'} label={t('phone.messages')} badge={unread} onClick={() => setTab('messages')}>
               <ChatIcon />
             </TabButton>

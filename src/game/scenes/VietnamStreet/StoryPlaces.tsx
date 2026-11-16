@@ -20,7 +20,6 @@ export const CENTER = { x: -1.1, front: BUILDING_BACK_Z + 0.1, width: 4.2 }
 const LUA = { bike: { x: -2.6, z: 12.75 }, seller: { x: -1.85, z: 12.2 }, zone: { x: -2.2, z: 11.8, halfX: 1.4, halfZ: 1.1 } }
 const CYCLO = { x: -13.0, z: -1.2 }
 
-const MAI = { at: { x: 7.8, z: -1.88 }, yaw: -2.06, zone: { x: 7.6, z: -1.5, halfX: 1.3, halfZ: 1.2 } }
 const XE_OM = { bike: { x: 9.3, z: 1.3 }, rider: { x: 9.3, z: 1.3 - RIDES.motorbike.riderZ }, zone: { x: 9.0, z: 1.0, halfX: 1.3, halfZ: 1.3 } }
 const STALL = { seller: { x: 2.4, z: 11.6 }, zone: { x: 2.9, z: 11.5, halfX: 1.7, halfZ: 1.3 } }
 const BARBER = { chair: { x: -11.8, z: 11.7 }, barber: { x: -12.5, z: 11.3 }, zone: { x: -11.9, z: 11.3, halfX: 1.4, halfZ: 1.2 } }
@@ -157,7 +156,7 @@ export function StoryPlaces() {
         priority={2}
       />
       <NPC def={NPCS.chiLua} at={LUA.seller} yaw={Math.PI + 0.3} zone={LUA.zone} />
-      <NPC def={NPCS.chiMai} at={MAI.at} yaw={MAI.yaw} seatY={STOOL} activity="sip" zone={MAI.zone} />
+      {/* Story 2.1: chị Mai now works in her office on Hàng Bông (HangBong.tsx / scenes/MaiOffice). */}
       <NPC def={NPCS.anhTu} at={XE_OM.rider} yaw={Math.PI} ride="motorbike" zone={XE_OM.zone} />
       <NPC def={NPCS.chiHang} at={STALL.seller} yaw={Math.PI} seatY={STOOL} activity="fan" zone={STALL.zone} />
       <NPC def={NPCS.chuSau} at={BARBER.barber} yaw={0.7} zone={BARBER.zone} />

@@ -1,5 +1,83 @@
 # Changelog
 
+## 1.15.0 — Story 2.1: Vietnam part (chapters 1–2)
+
+The whole Vietnam part follows the user's story file v2.1 (`visa-hunter-phan-viet-nam.md`, now in `docs/STORY.md`).
+
+### Changed — money (2026 prices)
+- Start with **3.000.000 ₫**. Courses A1/A2/B1 **4,5 / 5 / 6,5 million**, Goethe exams **3 / 3,5 / 4,8 million**,
+  B1 needs **120 XP**. Phở 55k, bánh mì 25k, trà đá 5k, nước mía 15k, chè 30k, dầu gió 30k, barber 70k, áo dài 1,2 million.
+- Bank: **buy € at 31.500 ₫, sell at 30.000 ₫** (changing back and forth loses money). Mum's transfer +500.000 ₫.
+- Café shift **450.000 ₫ + tips**; every Vietnamese side job **once a day**, rank up after 8 and 20 times (+10 % / +20 %).
+
+### Added — chapter 1
+- **Four side jobs** with their own mini-games, listed on the phone's new **"Việc" tab** (job board, works offline):
+  café (old game), **Circle K** on the Hàng Gai / Hàng Bông corner (3-question interview with chị Hạnh, then 90 s:
+  change, shelves, microwave; night shift 22–6 pays 520k with night events, tired next morning), **Grab** (register with
+  Bố's Wave + uniform 300k; top-down Old Quarter map, jams, one-way streets, walking street fine on weekends, rain +30 %;
+  Herr Jakob, tourist quiz from Ông Từ's stories, anh Khải on the phone, the xôi seller), **tutoring bé Bin**
+  (find the wrong step in a fraction exercise; after 8 lessons the mid-term: bonus 500k and 600k a lesson).
+- **Family**: Bố doubts until A1, then "Được. Bố không nói nữa."; **Mẹ** is home in her kitchen corner (xôi before 8:00
+  = +10 energy, weekly household contribution 500k / 1 million); **Na** (sister, year 11): "Kèm em học" 3 times →
+  unlocks tutoring.
+- **Borrowing from Bố / Mẹ** (1 / 3 / 5 million, once a day, −5 mood). The yellow house changes at **5 / 15 / 30 million**
+  of debt: cobwebs and dried flowers → TV sold, a crack, clock gone → broken wall with bricks, a leak bucket,
+  **Bố's Wave sold (no Grab)**. Walking in after a change plays a short camera pan + a line. Level ≥ 2: −3 mood each
+  morning at home. Repay Mẹ → the house comes back step by step, Na texts you; all repaid = clock back, fresh flowers, +20.
+- **Thầy Minh** lets you pay half the course fee once per course; new tips. **Nicos Weg** on the phone (20 min, ¼ XP).
+- **B1 = four modules** (Lesen, Hören with the browser's German voice, Schreiben, Sprechen); a failed module is
+  retaken alone for 1.200.000 ₫ each.
+- **Chương trình Cầu nối Sonnenhof** (after A2, at chị Mai's office): online interview with Anna (4 questions, 50 %),
+  read the contract (find salary / binding period / repayment), then sign (free B1 course + exam + flight, Ausbildung
+  only) or go alone.
+- **Linh**: study together (+XP); after A2 she has signed with the **Hoàng Kim** agency (250 million, "no B1 needed");
+  warn her or not (`linh.warned`).
+- **Chú Hưng part 4** (after B1): the 1989 letter → **cô Lan** in Leipzig.
+- New morning events: fake Goethe text (pay 3 million or call Goethe), VFS slot seller (scam), a wedding (500k),
+  broken phone screen (1,2 million or −2 mood a day), power cut (no studying tonight), grandfather's death anniversary
+  (the day is gone, +10).
+
+### Added — chapter 2 (visa)
+- **Phố Hàng Bông** (the side road): **Văn phòng tư vấn Mai Anh** (2nd floor, own room: chị Mai, em Tuấn with three
+  phones, cô Thoa with red invoices, photo wall, fish tank), opposite **Hoàng Kim** with a blinking LED sign
+  ("BAO VISA 100% · KHÔNG CẦN B1 · LƯƠNG 100 TRIỆU", anh Khải, Linh signing papers; find the 3 scam signs),
+  **Circle K** on the corner. The map calls the side road Phố Hàng Bông.
+- Chị Mai's new lines (Ausbildung ~1.490 € gross, no blocked account; Studium = Studienkolleg + APS + Sperrkonto
+  11.904 €) and the "I want to work and travel" talk.
+- **Studium family meeting** (evening, Bố): A mortgage the sổ đỏ (the glass case at home stays empty), B ask cô Lan
+  (German email at the desk + video call, 3 questions), C switch to Ausbildung.
+- **New visa file**: passport (200k, next day), photos 100k, certified translations 1,5 million (~4 h), criminal record
+  and health certificate (Ausbildung, morning queues), CV + motivation letter (sentence game at the desk, +XP),
+  insurance 700k / 3 million, APS 3,6 million (interviews only on round days, every 2 weeks), uni-assist 75 € (2 days),
+  Sperrkonto, Sonnenhof contract, **BA approval** (2 days after the contract), **Auslandsportal** (8-field form on the
+  laptop — a swapped surname/given name is only noticed at VFS and costs the appointment).
+- **💼 Office option** for most papers (Tuấn, ready the next day) and the **package 5,5 million**; office-written
+  letters bring the question "Haben Sie diesen Brief selbst geschrieben?".
+- **VFS**: own window in the embassy (chị Hà): hand in, fingerprints, visa fee 75 € (2,4 million) + 700k, then the
+  interview. Tuấn can hunt the slot (500k, 2–4 days). Visa ready **3 days** after the interview. Rejected →
+  **Remonstration letter** within 7 days (free if well written) or apply again.
+- New interview questions: training salary, Studienkolleg, Pflegewissenschaft.
+- **Departure**: flight via chị Mai 17 million, or on the home laptop (15–20 million, changes daily), or free with
+  Cầu nối; new step **change euros** (at least 200 €; the first week needs ~600 €); at Nội Bài **Mẹ +300 €, Bố +100 €**,
+  Na's goodbye.
+
+### Changed
+- "Bác Hùng" (passer-by) is now **Bác Tư**; the street kid Bé Na is Bé Ngân, the woman at the embassy Chị Loan (so Na
+  and cô Lan are unique). Proof of funds at the bank is gone.
+
+### Manual test checklist (phone) — the user's scenarios
+- [ ] **Cầu nối → Ausbildung, no loans**: A2 → chị Mai (Hàng Bông, upstairs) → interview, contract (3 clauses), sign →
+      B1 course and exam free → Ausbildung only → contract already there, BA 2 days later → flight arrives by email.
+- [ ] **Alone → Ausbildung, borrow up to level 3**: borrow from Bố/Mẹ (1/3/5 million) → walk in: the pan shows cobwebs,
+      then no TV + crack + no clock, then bricks + bucket + no Wave; Grab is locked; repay Mẹ → Na's texts, house restored.
+- [ ] **Studium → mortgage**: evening, Bố → A → the sổ đỏ case at home is empty, Bố stands at the altar.
+- [ ] **Studium → cô Lan**: chú Hưng (after B1) gives the letter → meeting B → desk: email → next evening: video call.
+- [ ] **Office package vs. everything yourself**: 💼 buttons in the visa file / Tuấn; office CV → extra interview question.
+- [ ] **Scam texts**: pay the fake Goethe / VFS seller → −3 million; refuse → safe.
+- [ ] **Fail the visa interview** → Remonstration (letter game) or hunt a new slot and pay again.
+- [ ] Phone → "Việc": four jobs with ✓ for today, rank, locks; Nicos Weg; debts.
+- [ ] Circle K (90 s), Grab (arrow pad), tutoring (tap the wrong line) are playable on a 360 px phone.
+
 ## 1.14.0 — Slim HUD, new loading screen
 
 ### Changed — HUD (phones first)

@@ -41,7 +41,7 @@ const lvl = CONFIG.german.levels
 
 // --- Common targets ------------------------------------------------------------------
 const TEACHER: GuideTarget = { scene: 'classroom', npc: 'thayMinh' }
-const MAI: GuideTarget = { scene: 'vietnam', npc: 'chiMai' }
+const MAI: GuideTarget = { scene: 'maiOffice', npc: 'chiMai' }
 const CAFE: GuideTarget = { scene: 'vietnam', spot: 'cafe-counter' }
 const HOME_BED: GuideTarget = { scene: 'home', spot: 'home-bed' }
 const HOME_DESK: GuideTarget = { scene: 'home', spot: 'home-desk' }
@@ -54,13 +54,20 @@ const APS: GuideTarget = { scene: 'vietnam', npc: 'coAps' }
 const PAPERS: GuideTarget = { scene: 'home', spot: 'home-papers' }
 const CLOCK: GuideTarget = { ui: 'clock' }
 
+/** Văn phòng Mai Anh: Mon–Sat 8–18. */
+const maiClosed: GuideBlocker = {
+  when: { all: [{ not: { test: 'mai.open' } }, { not: { scene: 'maiOffice' } }] },
+  hint: L('Văn phòng Mai Anh mở 8–18h, thứ Hai–Bảy. Bấm đồng hồ để chờ.', 'The Mai Anh office is open Mon–Sat, 8:00–18:00. Tap the clock to wait.', 'Büro Mai Anh: Mo–Sa 8–18 Uhr. Tippe auf die Uhr.'),
+  target: { ui: 'clock' },
+}
+
 // --- Reusable blockers -------------------------------------------------------------------
 const needMoney = (amount: number, what: Localized): GuideBlocker => ({
   when: { all: [{ country: 'vn' }, { not: { money: amount } }] },
   hint: {
-    vi: `Cần ${vnd(amount)} cho ${what.vi}. Làm ca ở quán Cà phê Phố Cổ (đầu phố) để kiếm thêm tiền.`,
-    en: `You need ${vnd(amount)} for ${what.en}. Work a shift at the Old Quarter café (top of the street) to earn more.`,
-    de: `Du brauchst ${vnd(amount)} für ${what.de ?? what.en}. Arbeite eine Schicht im Altstadt-Café (Straßenanfang).`,
+    vi: `Cần ${vnd(amount)} cho ${what.vi}. Đi làm thêm (Bảng việc trên điện thoại: cà phê, Circle K, Grab, gia sư) hoặc vay bố mẹ ở nhà.`,
+    en: `You need ${vnd(amount)} for ${what.en}. Work side jobs (job board on your phone: café, Circle K, Grab, tutoring) or borrow from your parents.`,
+    de: `Du brauchst ${vnd(amount)} für ${what.de ?? what.en}. Nebenjobs (Jobbörse im Handy) oder bei den Eltern leihen.`,
   },
   target: CAFE,
 })
@@ -119,9 +126,9 @@ export const GLOBAL_BLOCKERS: GuideBlocker[] = [
   {
     when: { all: [{ country: 'de' }, { not: { money: 30 } }, { test: 'wallet.hasOther' }] },
     hint: L(
-      'Sắp hết Euro rồi! Ra ngân hàng Sparbank trên Lindenstraße → ông Wagner → Đổi hết tiền Việt sang Euro.',
-      'Almost out of euros! Go to the Sparbank on Lindenstraße → Mr Wagner → change all your đồng into euros.',
-      'Fast keine Euro mehr! Zur Sparbank in der Lindenstraße → Herr Wagner → alle Dong in Euro tauschen.',
+      'Sắp hết Euro rồi! Ra ngân hàng Sparbank trên Lindenstraße → bà Wagner → Đổi hết tiền Việt sang Euro.',
+      'Almost out of euros! Go to the Sparbank on Lindenstraße → Ms Wagner → change all your đồng into euros.',
+      'Fast keine Euro mehr! Zur Sparbank in der Lindenstraße → Frau Wagner → alle Dong in Euro tauschen.',
     ),
     target: { scene: 'germany', npc: 'wagner' },
   },
@@ -281,193 +288,275 @@ export const STEP_GUIDES: Record<string, StepGuide> = {
     blockers: [needXp, needMoney(lvl[2].examFee, L('lệ phí thi B1', 'the B1 exam fee', 'die B1-Gebühr')), schoolClosed],
   },
 
-  // Chapter 2 — the visa
+  // Chapter 1 additions (story 2.1)
+  'start.job': {
+    targets: [{ target: CAFE }],
+    hint: L(
+      `Xin việc làm thêm: quầy Quán Cà phê Phố Cổ (đầu phố, ${vnd(450_000)}/ca) hoặc Circle K góc ngõ Hàng Bông (phỏng vấn 3 câu với chị quản lý). Mỗi việc làm được 1 lần/ngày.`,
+      `Get a side job: the Old Quarter café counter (${vnd(450_000)} a shift) or Circle K at the Hàng Bông corner (3-question interview). Each job once a day.`,
+      `Such dir einen Nebenjob: Café-Theke (${vnd(450_000)} pro Schicht) oder Circle K an der Ecke Hàng Bông (Vorstellungsgespräch). Jeder Job einmal am Tag.`,
+    ),
+  },
+  'na.tutor': {
+    targets: [{ target: { scene: 'home', npc: 'emGai' } }],
+    hint: L('Về nhà, nói chuyện với Na → Kèm em học Toán (mỗi ngày một buổi, 3 buổi).', 'Go home, talk to Na → help her with maths (one session a day, 3 in total).', 'Zu Hause mit Na reden → Mathe-Nachhilfe (eine Sitzung pro Tag, 3 insgesamt).'),
+    blockers: [{ when: { test: 'family.naTutorToday' }, hint: L('Hôm nay kèm Na rồi, mai tiếp nhé.', 'You already helped Na today — tomorrow again.', 'Heute schon geholfen — morgen wieder.'), target: HOME_BED }],
+  },
+  'a2.cauNoi': {
+    targets: [{ target: MAI }],
+    hint: L(
+      'Sang Văn phòng Mai Anh (tầng 2, đầu phố Hàng Bông — ngõ bên cạnh quán cà phê) → nói chuyện với chị Mai về Chương trình Cầu nối Sonnenhof.',
+      'Go to the Mai Anh office (upstairs, at the start of Hàng Bông — the lane beside the café) → ask Mai about the Sonnenhof bridge programme.',
+      'Zum Büro Mai Anh (1. Stock, Anfang Hàng Bông — Gasse neben dem Café) → Mai nach dem Brückenprogramm Sonnenhof fragen.',
+    ),
+    blockers: [maiClosed],
+  },
+  'cn.interview': {
+    targets: [{ target: MAI }],
+    hint: L('Chị Mai → Phỏng vấn online với chị Anna (Sonnenhof): 4 câu tiếng Đức A2, cần 50%.', 'Mai → online interview with Anna (Sonnenhof): 4 questions in A2 German, 50% to pass.', 'Mai → Online-Interview mit Anna (Sonnenhof): 4 Fragen, 50 % zum Bestehen.'),
+    blockers: [maiClosed],
+  },
+  'cn.read': {
+    targets: [{ target: MAI }],
+    hint: L('Chị Mai → Đọc kỹ hợp đồng: tìm 3 điều khoản quan trọng (lương, thời hạn ràng buộc, tiền hoàn lại).', 'Mai → Read the contract: find the 3 key clauses (salary, binding period, repayment).', 'Mai → Vertrag lesen: die 3 wichtigen Klauseln finden.'),
+    blockers: [maiClosed],
+  },
+  'cn.choose': {
+    targets: [{ target: MAI }],
+    hint: L(
+      'Chị Mai → Ký Cầu nối (B1 + thi B1 + vé máy bay miễn phí, nhưng chỉ còn đường Ausbildung) hoặc Tự đi (giữ cả hai đường, tự trả hết).',
+      'Mai → Sign (free B1 course + exam + flight, but Ausbildung only) or Go alone (both paths open, you pay everything).',
+      'Mai → Unterschreiben (B1, Prüfung, Flug gratis — nur Ausbildung) oder allein gehen (beide Wege, alles selbst zahlen).',
+    ),
+    blockers: [maiClosed],
+  },
+  'linh.study': {
+    targets: [{ target: { scene: 'classroom', npc: 'hvLinh' } }],
+    hint: L('Vào lớp Thầy Minh, nói chuyện với Linh → Học nhóm.', 'Go to Teacher Minh’s class, talk to Linh → Study together.', 'Im Kurs mit Linh reden → zusammen lernen.'),
+    blockers: [schoolClosed],
+  },
+  'linh.talk': {
+    targets: [{ target: { scene: 'classroom', npc: 'hvLinh' } }],
+    hint: L('Sau khi đậu A2: nói chuyện với Linh trong lớp. Linh có chuyện muốn khoe.', 'After A2: talk to Linh in class. She has news.', 'Nach A2: mit Linh im Kurs reden. Sie hat Neuigkeiten.'),
+    blockers: [schoolClosed],
+  },
+  'hk.visit': {
+    targets: [{ target: { scene: 'vietnam', npc: 'anhKhai' } }],
+    hint: L('Văn phòng Hoàng Kim (biển LED nhấp nháy, bên kia ngõ Hàng Bông, đối diện văn phòng chị Mai) → nói chuyện với anh Khải.', 'Hoàng Kim office (blinking LED sign, across the Hàng Bông lane from Mai’s office) → talk to Khải.', 'Büro Hoàng Kim (LED-Schild, gegenüber von Mais Büro) → mit Khải reden.'),
+  },
+  'hk.spot': {
+    targets: [{ target: { scene: 'vietnam', npc: 'anhKhai' } }],
+    hint: L('Anh Khải → Xem hợp đồng: tìm 3 dấu hiệu lừa đảo.', 'Khải → Look at the contract: find 3 signs of a scam.', 'Khải → Vertrag ansehen: 3 Betrugszeichen finden.'),
+  },
+  'hk.warn': {
+    targets: [{ if: { scene: 'vietnam' }, target: { scene: 'vietnam', npc: 'anhKhai' } }, { target: { scene: 'classroom', npc: 'hvLinh' } }],
+    hint: L('Nói với Linh những gì bạn biết về Hoàng Kim (trong lớp, hoặc khi Linh ngồi ở văn phòng Hoàng Kim).', 'Tell Linh what you know about Hoàng Kim (in class, or when she sits in the Hoàng Kim office).', 'Erzähl Linh, was du über Hoàng Kim weißt.'),
+  },
+
+  // Chapter 2 — the visa (story 2.1)
   'path.mai': {
     targets: [{ target: MAI }],
     hint: L(
-      'Chị Mai ngồi ở bàn ngoài hiên quán cà phê đầu phố. Lại gần và bấm Nói chuyện.',
-      'Mai sits at a terrace table outside the café. Walk up and tap Talk.',
-      'Mai sitzt an einem Tisch vor dem Café. Geh hin und tippe „Reden“.',
+      'Văn phòng Mai Anh: đi vào ngõ Hàng Bông (cạnh quán cà phê), cửa có cầu thang hẹp lên tầng 2. Nói chuyện với chị Mai.',
+      'Mai Anh office: walk into the Hàng Bông lane (beside the café), the door with the narrow stairs. Talk to Mai.',
+      'Büro Mai Anh: in die Hàng-Bông-Gasse (neben dem Café), die Tür mit der schmalen Treppe. Mit Mai reden.',
     ),
+    blockers: [maiClosed],
   },
   'path.choose': {
     targets: [{ target: MAI }],
     hint: L(
-      'Nói chuyện với chị Mai → chọn Du học (Studium) hoặc Học nghề điều dưỡng (Ausbildung). Ausbildung cần ít tiền chứng minh hơn và có lương.',
-      'Talk to Mai → choose Studium or nursing Ausbildung. Ausbildung needs less proof of funds and is paid.',
-      'Sprich mit Mai → Studium oder Pflege-Ausbildung. Die Ausbildung braucht weniger Geldnachweis und ist bezahlt.',
+      'Chị Mai → chọn Studium (cần Studienkolleg, APS, Sperrkonto 11.904 €) hoặc Ausbildung điều dưỡng (có lương ~1.490 €, không cần Sperrkonto).',
+      'Mai → choose Studium (Studienkolleg, APS, €11,904 blocked account) or nursing Ausbildung (paid ~€1,490, no blocked account).',
+      'Mai → Studium (Studienkolleg, APS, Sperrkonto 11.904 €) oder Pflege-Ausbildung (~1.490 €, kein Sperrkonto).',
     ),
+    blockers: [maiClosed],
+  },
+  'sperr.meeting': {
+    targets: [{ target: { scene: 'home', npc: 'bo' } }],
+    hint: L('Buổi tối (sau 18h) về nhà nói chuyện với Bố: họp gia đình về tiền Sperrkonto.', 'In the evening (after 18:00) go home and talk to Dad: the family meeting about the blocked account.', 'Abends (ab 18 Uhr) zu Hause mit Papa reden: Familienrat zum Sperrkonto.'),
+    blockers: [{ when: { not: { test: 'family.evening' } }, hint: L('Cả nhà chỉ họp buổi tối, sau 18h. Bấm đồng hồ để chờ.', 'The family meets in the evening, after 18:00. Tap the clock to wait.', 'Familienrat erst abends ab 18 Uhr.'), target: CLOCK }],
+  },
+  'sperr.email': {
+    targets: [{ target: HOME_DESK }],
+    hint: L('Bàn học ở nhà → Viết email cho cô Lan (tiếng Đức B1).', 'Home desk → Write cô Lan an email (B1 German).', 'Schreibtisch → E-Mail an Frau Lan (B1).'),
+  },
+  'sperr.call': {
+    targets: [{ target: HOME_DESK }],
+    hint: L('Tối hôm sau (sau 18h): bàn học ở nhà → Gọi video cho cô Lan. 3 câu hỏi, cần 2 câu tốt.', 'The next evening (after 18:00): home desk → video-call cô Lan. 3 questions, 2 good answers.', 'Am nächsten Abend: Schreibtisch → Videoanruf mit Frau Lan.'),
+    blockers: [{ when: { not: { test: 'family.lanCallReady' } }, hint: L('Cô Lan hẹn gọi tối mai (sau 18h). Bấm đồng hồ để chờ.', 'Cô Lan calls tomorrow evening (after 18:00). Wait with the clock.', 'Frau Lan ruft morgen Abend an.'), target: CLOCK }],
   },
   'visa.docs': {
     targets: [{ target: PASSPORT }],
     hint: L(
-      'Bấm cuốn hộ chiếu trên màn hình → Hồ sơ visa → làm từng giấy tờ (tốn tiền và thời gian; vài giấy phải chờ vài ngày).',
-      'Tap the passport on screen → visa file → do each document (costs money and time; some take a few days).',
-      'Tippe auf den Pass → Visa-Mappe → erledige jedes Dokument (kostet Geld und Zeit; manche dauern Tage).',
+      'Bấm cuốn hộ chiếu → Hồ sơ visa → làm từng giấy tờ: tự làm (rẻ, tốn thời gian) hoặc 💼 nhờ văn phòng chị Mai (mai có).',
+      'Tap the passport → visa file → each document: do it yourself (cheaper, slower) or 💼 leave it to Mai’s office (ready tomorrow).',
+      'Pass → Visa-Mappe → jedes Dokument selbst (günstig, langsam) oder 💼 von Mais Büro (morgen fertig).',
     ),
-    blockers: [needMoney(200_000, L('giấy tờ tiếp theo', 'the next document', 'das nächste Dokument'))],
   },
   'visa.passport': {
     targets: [{ target: PASSPORT }],
-    hint: L(
-      'Bấm cuốn hộ chiếu trên màn hình → Hồ sơ visa → Làm hộ chiếu.',
-      'Tap the passport on screen → visa file → Apply for passport.',
-      'Tippe auf den Pass → Visa-Mappe → Reisepass beantragen.',
-    ),
-    blockers: [needMoney(200_000, L('hộ chiếu', 'the passport', 'den Pass'))],
+    hint: L(`Hồ sơ visa → Làm hộ chiếu (${vnd(200_000)}), hôm sau nhận.`, `Visa file → Apply for a passport (${vnd(200_000)}), ready the next day.`, `Visa-Mappe → Pass beantragen (${vnd(200_000)}), am nächsten Tag fertig.`),
+    blockers: [{ when: { test: 'visa.passportApplied' }, hint: L('Hộ chiếu đang làm, mai có. Ngủ một giấc hoặc làm giấy tờ khác.', 'The passport is being made — ready tomorrow.', 'Der Pass wird gemacht — morgen fertig.'), target: HOME_BED }, needMoney(200_000, L('hộ chiếu', 'the passport', 'den Pass'))],
   },
   'visa.photos': {
     targets: [{ target: PHOTO }],
     hint: L(
-      `Đi về cuối phố phía tây (qua cây đa) → Tiệm ảnh Hùng → nói chuyện với chú Hùng → Chụp ảnh thẻ visa (${vnd(50_000)}).`,
-      `Walk to the west end of the street (past the banyan) → Hùng’s photo studio → talk to Mr Hùng → Take visa photos (${vnd(50_000)}).`,
-      `Zum Westende der Straße (hinter dem Banyanbaum) → Fotostudio Hùng → mit Herrn Hùng sprechen → Passbilder (${vnd(50_000)}).`,
+      `Cuối phố phía tây (qua cây đa) → Tiệm ảnh Hùng → Chụp ảnh sinh trắc 35×45 (${vnd(100_000)}).`,
+      `West end of the street (past the banyan) → Hùng’s photo studio → biometric photos 35×45 (${vnd(100_000)}).`,
+      `Westende → Fotostudio Hùng → biometrische Fotos (${vnd(100_000)}).`,
     ),
-    blockers: [vnOfficeClosed, needMoney(50_000, L('ảnh thẻ', 'the photos', 'die Fotos'))],
+    blockers: [vnOfficeClosed, needMoney(100_000, L('ảnh', 'the photos', 'die Fotos'))],
   },
   'visa.originals': {
     targets: [{ target: PAPERS }],
-    hint: L(
-      'Về nhà → tủ giấy tờ cạnh tivi → Lấy bằng THPT và giấy khai sinh (bản gốc).',
-      'Go home → the paper cabinet next to the TV → take your diploma and birth certificate (originals).',
-      'Nach Hause → Schrank neben dem Fernseher → Abiturzeugnis und Geburtsurkunde (Originale) nehmen.',
-    ),
+    hint: L('Về nhà → tủ giấy tờ cạnh tivi → Lấy bằng THPT, học bạ và giấy khai sinh (bản gốc).', 'Go home → the paper cabinet by the TV → take the diploma, school records and birth certificate (originals).', 'Nach Hause → Dokumentenschrank → Originale nehmen.'),
   },
   'visa.notary': {
     targets: [{ if: { not: { test: 'visa.originals' } }, target: PAPERS }, { target: NOTARY }],
     hint: L(
-      `Mang bản gốc đến Văn phòng công chứng (cuối phố phía tây) → cô Phương → Dịch thuật & công chứng tất cả (${vnd(380_000)}).`,
-      `Bring the originals to the notary (west end) → Ms Phương → Translate & notarize everything (${vnd(380_000)}).`,
-      `Originale zum Notariat (Westende) → Frau Phương → alles übersetzen & beglaubigen (${vnd(380_000)}).`,
+      `Tự làm: cô Phương (công chứng, cuối phố phía tây) → 10 trang, ${vnd(1_500_000)}, mất ~4 giờ. Hoặc 💼 văn phòng chị Mai: ${vnd(2_000_000)}, mai có.`,
+      `Yourself: Ms Phương (notary, west end) → 10 pages, ${vnd(1_500_000)}, ~4 hours. Or 💼 Mai’s office: ${vnd(2_000_000)}, ready tomorrow.`,
+      `Selbst: Frau Phương (Notariat) → 10 Seiten, ${vnd(1_500_000)}, ~4 Std. Oder 💼 Mais Büro: ${vnd(2_000_000)}, morgen fertig.`,
     ),
     blockers: [
-      {
-        when: { not: { test: 'visa.originals' } },
-        hint: L('Chưa có bản gốc: về nhà lấy trong tủ giấy tờ trước đã.', 'No originals yet: fetch them from the paper cabinet at home first.', 'Noch keine Originale: erst aus dem Schrank zu Hause holen.'),
-        target: PAPERS,
-      },
+      { when: { not: { test: 'visa.originals' } }, hint: L('Chưa có bản gốc: về nhà lấy trong tủ giấy tờ trước đã.', 'No originals yet: fetch them from the paper cabinet at home first.', 'Erst die Originale von zu Hause holen.'), target: PAPERS },
+      { when: { test: 'visa.notaryOffice' }, hint: L('Văn phòng chị Mai đang dịch, mai có.', 'Mai’s office is translating — ready tomorrow.', 'Mais Büro übersetzt — morgen fertig.'), target: HOME_BED },
       vnOfficeClosed,
-      needMoney(380_000, L('dịch thuật công chứng', 'translation and notary', 'Übersetzung und Beglaubigung')),
+      needMoney(1_500_000, L('dịch thuật công chứng', 'translation and notary', 'Übersetzung und Beglaubigung')),
     ],
   },
-  'visa.writing': {
+  'visa.criminal': {
     targets: [{ target: PASSPORT }],
     hint: L(
-      'Hồ sơ visa → Viết CV, Viết thư động lực (tốn thời gian và sức), Mua bảo hiểm du lịch.',
-      'Visa file → Write CV, Write letter (takes time and energy), Buy insurance.',
-      'Visa-Mappe → Lebenslauf, Motivationsschreiben (kostet Zeit und Kraft), Versicherung kaufen.',
+      `Hồ sơ visa → Lý lịch tư pháp: tự xếp hàng ở Sở Tư pháp buổi sáng (thứ Hai–Sáu, trước 11h, ${vnd(200_000)}) hoặc 💼 văn phòng chị Mai (${vnd(500_000)}).`,
+      `Visa file → Criminal record: queue at the Justice Department in the morning (Mon–Fri, before 11:00, ${vnd(200_000)}) or 💼 Mai’s office (${vnd(500_000)}).`,
+      `Visa-Mappe → Führungszeugnis: morgens anstehen (Mo–Fr vor 11 Uhr) oder 💼 Mais Büro.`,
     ),
-    blockers: [needMoney(300_000, L('bảo hiểm', 'the insurance', 'die Versicherung'))],
   },
-  'visa.finance': {
-    targets: [{ target: BANK }],
+  'visa.health': {
+    targets: [{ target: PASSPORT }],
     hint: L(
-      `Ngân hàng Phố Cổ (cuối phố phía tây) → anh Quân → Chứng minh tài chính. Chỉ cần trong ví có đủ ${vnd(CONFIG.visa.financeProof.studium)} (du học) hoặc ${vnd(CONFIG.visa.financeProof.ausbildung)} (học nghề): không mất tiền, không cần giấy tờ.`,
-      `Old Quarter bank (west end) → Quân → Proof of funds. You just need ${vnd(CONFIG.visa.financeProof.studium)} (university) or ${vnd(CONFIG.visa.financeProof.ausbildung)} (training) in your wallet: nothing is taken, no papers.`,
-      `Bank am Westende → Herr Quân → Finanzierungsnachweis. Du brauchst nur ${vnd(CONFIG.visa.financeProof.studium)} (Studium) bzw. ${vnd(CONFIG.visa.financeProof.ausbildung)} (Ausbildung) im Geldbeutel.`,
+      `Hồ sơ visa → Khám sức khỏe ở phòng khám Hàng Bông buổi sáng (thứ Hai–Sáu, trước 11h, ${vnd(600_000)}) hoặc 💼 văn phòng chị Mai (${vnd(800_000)}).`,
+      `Visa file → Health check at the Hàng Bông clinic in the morning (Mon–Fri, before 11:00, ${vnd(600_000)}) or 💼 Mai’s office (${vnd(800_000)}).`,
+      `Visa-Mappe → Gesundheitszeugnis morgens (Mo–Fr vor 11 Uhr) oder 💼 Mais Büro.`,
     ),
-    blockers: [
-      {
-        when: { all: [{ not: { test: 'visa.enoughFunds' } }, { country: 'vn' }] },
-        hint: L('Chưa đủ tiền để chứng minh tài chính. Làm ca ở quán Cà phê Phố Cổ để kiếm thêm.', 'Not enough money to prove your funds yet. Work shifts at the Old Quarter café.', 'Noch nicht genug Geld. Arbeite Schichten im Altstadt-Café.'),
-        target: CAFE,
-      },
-      vnOfficeClosed,
-    ],
+  },
+  'visa.writing': {
+    targets: [{ if: { test: 'visa.cvToWrite' }, target: HOME_DESK }, { target: PASSPORT }],
+    hint: L(
+      `Bàn học ở nhà → Viết CV + thư động lực (ghép câu tiếng Đức, +XP). Hoặc 💼 nhờ văn phòng viết (${vnd(800_000)}) — nhưng lãnh sự sẽ hỏi „Haben Sie diesen Brief selbst geschrieben?"`,
+      `Home desk → Write CV + motivation letter (German sentences, +XP). Or 💼 the office writes it (${vnd(800_000)}) — but the consul will ask whether you wrote it yourself.`,
+      `Schreibtisch → Lebenslauf + Motivationsschreiben (+XP). Oder 💼 vom Büro (${vnd(800_000)}) — dann fragt die Botschaft nach.`,
+    ),
+  },
+  'visa.insurance': {
+    targets: [{ target: PASSPORT }],
+    hint: L(`Hồ sơ visa → Mua bảo hiểm (Ausbildung ${vnd(700_000)}, Studium ${vnd(3_000_000)}).`, `Visa file → Buy insurance (Ausbildung ${vnd(700_000)}, Studium ${vnd(3_000_000)}).`, `Visa-Mappe → Versicherung kaufen.`),
   },
   'visa.aps': {
     targets: [{ target: APS }],
     hint: L(
-      `Văn phòng APS (cuối phố phía tây) → Frau Schneider → Nộp hồ sơ & phỏng vấn (${vnd(800_000)}). Phỏng vấn bằng tiếng Đức về các môn lớp 12, điểm tốt nghiệp và ngành muốn học — trả lời thật thà.`,
-      `APS office (west end) → Ms Schneider → Hand in your file & interview (${vnd(800_000)}). The interview is in German about your year-12 subjects, final grade and planned major — answer honestly.`,
-      `APS-Büro (Westende) → Frau Schneider → Unterlagen & Interview (${vnd(800_000)}). Auf Deutsch: Fächer der 12. Klasse, Abschlussnote, Studienwunsch — ehrlich antworten.`,
+      `Văn phòng APS (cuối phố phía tây) → Frau Schneider → Nộp hồ sơ (${vnd(3_600_000)}). Phỏng vấn chỉ có vào ngày có đợt (2 tuần một đợt) — trả lời bằng tiếng Đức về các môn lớp 12.`,
+      `APS office (west end) → Ms Schneider → Hand in the file (${vnd(3_600_000)}). Interviews only on round days (every 2 weeks) — in German, about your year-12 subjects.`,
+      `APS-Büro → Frau Schneider → Unterlagen (${vnd(3_600_000)}). Interviews nur an Rundentagen (alle 2 Wochen).`,
     ),
     blockers: [
-      {
-        when: { test: 'visa.apsTriedToday' },
-        hint: L('Hôm nay phỏng vấn APS chưa đạt. Ôn bài rồi mai quay lại.', 'You didn’t pass the APS interview today. Revise and come back tomorrow.', 'Heute nicht bestanden. Wiederholen und morgen wiederkommen.'),
-        target: HOME_BED,
-      },
+      { when: { all: [{ test: 'visa.apsPaid' }, { not: { test: 'visa.apsRoundToday' } }] }, hint: L('Hồ sơ APS đã nộp. Chờ đến ngày có đợt phỏng vấn (hỏi Frau Schneider), trong lúc đó làm giấy tờ khác.', 'APS file handed in. Wait for the interview round (ask Ms Schneider) — do other papers meanwhile.', 'APS abgegeben. Auf die Interviewrunde warten.'), target: PASSPORT },
       vnOfficeClosed,
-      { when: { all: [{ not: { test: 'visa.apsPaid' } }, { not: { money: 800_000 } }, { country: 'vn' }] }, hint: L(`Cần ${vnd(800_000)} phí APS. Làm ca ở quán Cà phê Phố Cổ để kiếm thêm.`, `You need ${vnd(800_000)} for the APS fee. Work a shift at the café.`, `Du brauchst ${vnd(800_000)} für APS. Arbeite im Café.`), target: CAFE },
+      { when: { all: [{ not: { test: 'visa.apsPaid' } }, { not: { money: 3_600_000 } }, { country: 'vn' }] }, hint: L(`Cần ${vnd(3_600_000)} phí APS. Đi làm thêm hoặc vay bố mẹ.`, `You need ${vnd(3_600_000)} for APS. Work or borrow from your parents.`, `Du brauchst ${vnd(3_600_000)} für APS.`), target: CAFE },
     ],
   },
   'visa.admission': {
     targets: [{ target: PASSPORT }],
-    hint: L('Hồ sơ visa → Nộp đơn vào đại học; thư mời nhập học về sau 1 ngày.', 'Visa file → Apply to university; the admission letter arrives a day later.', 'Visa-Mappe → an der Uni bewerben; die Zulassung kommt einen Tag später.'),
+    hint: L(`Hồ sơ visa → Nộp đơn Studienkolleg qua uni-assist (75 € ≈ ${vnd(2_400_000)}), thư mời về sau 2 ngày.`, `Visa file → Apply to a Studienkolleg via uni-assist (€75 ≈ ${vnd(2_400_000)}); the letter comes 2 days later.`, `Visa-Mappe → uni-assist (75 €); Zulassung nach 2 Tagen.`),
+    blockers: [{ when: { test: 'visa.admissionSent' }, hint: L('Đã nộp uni-assist, chờ thư mời (2 ngày).', 'Applied — waiting for the letter (2 days).', 'Beworben — warte 2 Tage.'), target: HOME_BED }],
+  },
+  'visa.sperr': {
+    targets: [{ target: { scene: 'home', npc: 'bo' } }],
+    hint: L('Sperrkonto 11.904 €: họp gia đình với Bố buổi tối (thế chấp sổ đỏ, nhờ cô Lan, hoặc đổi sang Ausbildung).', 'Blocked account €11,904: family meeting with Dad in the evening (mortgage, cô Lan, or switch to Ausbildung).', 'Sperrkonto: Familienrat mit Papa am Abend.'),
   },
   'visa.contract': {
     targets: [{ target: PASSPORT }],
-    hint: L('Hồ sơ visa → Gửi hồ sơ xin học nghề; hợp đồng từ Sonnenhof về sau 1 ngày.', 'Visa file → Send applications; the Sonnenhof contract arrives a day later.', 'Visa-Mappe → Bewerbungen senden; der Vertrag kommt einen Tag später.'),
+    hint: L('Hồ sơ visa → Gửi hồ sơ xin học nghề; hợp đồng Sonnenhof về sau 1 ngày. (Cầu nối: có sẵn.)', 'Visa file → Send applications; the Sonnenhof contract comes a day later. (Bridge programme: already done.)', 'Visa-Mappe → Bewerbungen; Vertrag nach 1 Tag.'),
+    blockers: [{ when: { test: 'visa.contractSent' }, hint: L('Đã gửi hồ sơ, chờ hợp đồng (1 ngày).', 'Sent — waiting for the contract (1 day).', 'Gesendet — warte 1 Tag.'), target: HOME_BED }],
+  },
+  'visa.ba': {
+    targets: [{ target: HOME_BED }],
+    hint: L('Cơ quan Lao động Đức (BA) xét hợp đồng, tự động đồng ý sau 2 ngày. Trong lúc đó làm giấy tờ khác.', 'The German employment agency (BA) checks the contract — automatic approval after 2 days. Do other papers meanwhile.', 'Die BA prüft den Vertrag — nach 2 Tagen automatisch.'),
+  },
+  'visa.portal': {
+    targets: [{ if: { test: 'visa.portalToFill' }, target: HOME_DESK }, { target: PASSPORT }],
+    hint: L(
+      `Laptop ở bàn học → Điền đơn Auslandsportal (8 ô, chép đúng từ hộ chiếu — cẩn thận Họ và Tên!). Hoặc 💼 văn phòng điền hộ (${vnd(500_000)}).`,
+      `Laptop at the home desk → Fill in the Auslandsportal form (8 fields, copy the passport exactly — mind surname vs given name!). Or 💼 the office does it (${vnd(500_000)}).`,
+      `Laptop → Auslandsportal ausfüllen (8 Felder — Vor- und Nachname!). Oder 💼 das Büro (${vnd(500_000)}).`,
+    ),
   },
   'visa.termin': {
     targets: [{ target: PASSPORT }],
     hint: L(
-      'Mở Hồ sơ visa → Săn lịch hẹn: lịch chỉ có giờ làm việc hôm nay (muộn rồi thì ngày làm việc kế tiếp). Ô trống hiện lên thì bấm thật nhanh!',
-      'Open the visa file → Hunt a Termin: only today’s office hours (or the next working day if it’s late). When a slot appears, tap it fast!',
-      'Visa-Mappe → Termin jagen: nur die heutigen Bürozeiten (oder der nächste Werktag). Freien Termin schnell antippen!',
+      `Hồ sơ visa → Săn lịch VFS (miễn phí, ô trống hiện lên thì bấm thật nhanh!). Hoặc 💼 nhờ Tuấn săn hộ (${vnd(500_000)}, có lịch sau 2–4 ngày). Ai rao BÁN lịch là lừa đảo!`,
+      `Visa file → Hunt a VFS slot (free — tap fast when one appears!). Or 💼 Tuấn hunts it (${vnd(500_000)}, 2–4 days). Anyone SELLING slots is a scammer!`,
+      `Visa-Mappe → VFS-Termin jagen (kostenlos). Oder 💼 Tuấn sucht (${vnd(500_000)}). Wer Termine VERKAUFT, betrügt!`,
     ),
+    blockers: [{ when: { test: 'visa.officeTermin' }, hint: L('Tuấn đang săn lịch hộ, đủ giấy tờ là có lịch sau 2–4 ngày.', 'Tuấn is hunting your slot — 2–4 days once your papers are complete.', 'Tuấn sucht einen Termin.'), target: PASSPORT }],
+  },
+  'visa.submit': {
+    targets: [{ if: { scene: 'embassy' }, target: { scene: 'embassy', npc: 'vfsClerk' } }, { target: { scene: 'vietnam', npc: 'anhTu' } }],
+    hint: L(
+      `Đúng ngày hẹn ({termin}): Anh Tú xe ôm → Đại sứ quán / VFS → quầy VFS: nộp hồ sơ, lấy vân tay, đóng phí visa 75 € (${vnd(2_400_000)}) + phí VFS ${vnd(700_000)}.`,
+      `On the day ({termin}): Tú (xe ôm) → embassy / VFS → VFS window: hand in, fingerprints, visa fee €75 (${vnd(2_400_000)}) + VFS fee ${vnd(700_000)}.`,
+      `Am Termintag ({termin}): Tú → Botschaft / VFS → VFS-Schalter: abgeben, Fingerabdrücke, 75 € + VFS-Gebühr.`,
+    ),
+    blockers: [
+      { when: { test: 'visa.terminLater' }, hint: L('Lịch hẹn của bạn là {termin}. Bấm đồng hồ hoặc ngủ đến hôm đó.', 'Your appointment is on {termin}. Wait or sleep until then.', 'Dein Termin ist am {termin}.'), target: HOME_BED },
+      { when: { all: [{ test: 'visa.terminToday' }, { not: { test: 'visa.embassyOpen' } }, { not: { scene: 'embassy' } }] }, hint: L('VFS mở 8–17h. Bấm đồng hồ để chờ.', 'VFS is open 8:00–17:00. Tap the clock.', 'VFS 8–17 Uhr.'), target: CLOCK },
+      { when: { not: { flag: 'visa.terminDay', atLeast: 1 } }, hint: L('Chưa có lịch hẹn (hoặc bị trả hồ sơ). Mở Hồ sơ visa → săn lịch lại.', 'No appointment (or your file was sent back). Open the visa file → hunt again.', 'Kein Termin. Visa-Mappe → neu jagen.'), target: PASSPORT },
+      needMoney(3_100_000, L('phí visa và phí VFS', 'the visa and VFS fees', 'Visum- und VFS-Gebühr')),
+    ],
   },
   'visa.interview': {
     targets: [{ target: { scene: 'embassy', npc: 'officer' } }],
-    hint: L(
-      'Đúng ngày hẹn ({termin}): nói chuyện với Anh Tú xe ôm ở góc phố → Đại sứ quán Đức, rồi nói chuyện với cán bộ visa để phỏng vấn.',
-      'On your Termin day ({termin}): talk to Tú the xe ôm driver at the corner → German Embassy, then talk to the visa officer.',
-      'Am Termin-Tag ({termin}): Sprich mit Tú (Motorradtaxi) → Deutsche Botschaft, dann mit der Visabeamtin.',
-    ),
+    hint: L('Nộp ở quầy VFS xong thì sang quầy bà Lehmann → phỏng vấn (5 câu, cần 60%).', 'After the VFS window, go to Ms Lehmann’s window → interview (5 questions, 60% to pass).', 'Nach dem VFS-Schalter zu Frau Lehmann → Interview.'),
     blockers: [
-      {
-        when: { test: 'visa.terminLater' },
-        hint: L(
-          'Lịch hẹn của bạn là {termin}. Bấm đồng hồ để chờ hoặc về nhà ngủ cho đến hôm đó.',
-          'Your Termin is on {termin}. Tap the clock to wait, or go home and sleep until then.',
-          'Dein Termin ist am {termin}. Tippe auf die Uhr oder schlaf bis dahin.',
-        ),
-        target: HOME_BED,
-      },
-      {
-        when: { all: [{ test: 'visa.terminToday' }, { not: { test: 'visa.embassyOpen' } }, { not: { scene: 'embassy' } }] },
-        hint: L(
-          'Đại sứ quán mở 8–17h. Bấm đồng hồ để chờ đến giờ làm việc.',
-          'The embassy is open 8:00–17:00. Tap the clock to wait.',
-          'Die Botschaft ist 8–17 Uhr geöffnet. Tippe auf die Uhr zum Warten.',
-        ),
-        target: CLOCK,
-      },
-      {
-        when: { not: { flag: 'visa.terminDay', atLeast: 1 } },
-        hint: L(
-          'Bạn chưa có lịch hẹn (hoặc đã lỡ hẹn). Mở Hồ sơ visa → Săn lịch hẹn lại.',
-          'You have no Termin (or missed it). Open the visa file → hunt a new one.',
-          'Kein Termin (oder verpasst). Visa-Mappe → neuen Termin jagen.',
-        ),
-        target: PASSPORT,
-      },
+      { when: { test: 'visa.canRemonstrate' }, hint: L('Bị từ chối: mở Hồ sơ visa → Viết đơn khiếu nại (Remonstration) trong 7 ngày, hoặc săn lịch nộp lại.', 'Rejected: open the visa file → write a Remonstration within 7 days, or hunt a new slot.', 'Abgelehnt: Remonstration schreiben oder neu beantragen.'), target: PASSPORT },
+      { when: { not: { flag: 'visa.terminDay', atLeast: 1 } }, hint: L('Chưa có lịch hẹn. Mở Hồ sơ visa → săn lịch.', 'No appointment. Open the visa file → hunt a slot.', 'Kein Termin. Visa-Mappe → Termin jagen.'), target: PASSPORT },
+      { when: { test: 'visa.terminLater' }, hint: L('Lịch hẹn của bạn là {termin}.', 'Your appointment is on {termin}.', 'Dein Termin ist am {termin}.'), target: HOME_BED },
     ],
   },
   'dep.visa': {
     targets: [{ target: HOME_BED }],
     hint: L(
-      'Visa đang được xử lý, có kết quả ngày {ready}. Về nhà ngủ hoặc bấm đồng hồ để chờ — trong lúc đó cứ đi làm kiếm thêm tiền vé máy bay!',
-      'Your visa is being processed; ready on {ready}. Sleep or wait — meanwhile earn money for the flight!',
-      'Dein Visum wird bearbeitet, fertig am {ready}. Schlaf oder warte — und verdiene Geld für den Flug!',
+      'Visa đang được xử lý, có kết quả ngày {ready} (3 ngày). Trong lúc đó đi làm, đổi Euro, chào bạn bè.',
+      'Your visa is being processed; ready on {ready} (3 days). Meanwhile: work, change euros, say goodbye.',
+      'Dein Visum wird bearbeitet, fertig am {ready}.',
     ),
   },
   'dep.flight': {
-    targets: [{ target: MAI }],
+    targets: [{ if: { test: 'visa.ready' }, target: MAI }, { target: PASSPORT }],
     hint: L(
-      `Nói chuyện với chị Mai → Mua vé máy bay (${vnd(CONFIG.visa.flightCost)}), hoặc mua trong Hồ sơ visa.`,
-      `Talk to Mai → Buy a plane ticket (${vnd(CONFIG.visa.flightCost)}), or buy it in the visa file.`,
-      `Sprich mit Mai → Flug kaufen (${vnd(CONFIG.visa.flightCost)}), oder in der Visa-Mappe.`,
+      `Vé máy bay: văn phòng chị Mai (${vnd(17_000_000)}, có người dẫn ra sân bay) hoặc tự đặt trên laptop ở nhà (giá đổi theo ngày, 15–20 triệu). Ký Cầu nối thì Sonnenhof gửi vé miễn phí.`,
+      `Flight: Mai’s office (${vnd(17_000_000)}, someone takes you to the airport) or book it yourself on the home laptop (price changes daily, 15–20 million). With the bridge programme Sonnenhof sends it free.`,
+      `Flug: Mais Büro (${vnd(17_000_000)}) oder selbst am Laptop (15–20 Mio.). Brückenprogramm: gratis.`,
     ),
-    blockers: [needMoney(CONFIG.visa.flightCost, L('vé máy bay', 'the plane ticket', 'den Flug'))],
+    blockers: [maiClosed],
+  },
+  'dep.exchange': {
+    targets: [{ target: BANK }],
+    hint: L(
+      'Ngân hàng Phố Cổ (cuối phố phía tây) → anh Quân → Mua Euro (1 € = 31.500 ₫). Lương đầu tiên cuối tuần đầu mới về: tuần đầu cần khoảng 600 €.',
+      'Old Quarter bank (west end) → Quân → Buy euros (€1 = 31,500 ₫). Your first pay comes at the end of the first week: you need about €600.',
+      'Bank am Westende → Herr Quân → Euro kaufen (1 € = 31.500 ₫). Für die erste Woche ~600 €.',
+    ),
+    blockers: [vnOfficeClosed],
   },
   'dep.airport': {
-    targets: [{ if: { scene: 'airport' }, target: { scene: 'airport', npc: 'me' } }, { target: { scene: 'airport', spot: 'gate' } }],
+    targets: [{ if: { scene: 'airport' }, target: { scene: 'airport', npc: 'me' } }, { target: { scene: 'vietnam', npc: 'anhTu' } }],
     hint: L(
-      'Nói chuyện với Anh Tú xe ôm → Sân bay Nội Bài. Chào Mẹ một câu rồi ra cửa lên máy bay (Gate 7).',
-      'Talk to Tú → Nội Bài Airport. Say goodbye to Mum, then go to the boarding gate (Gate 7).',
-      'Sprich mit Tú → Flughafen Nội Bài. Verabschiede dich von Mama und geh zum Gate 7.',
+      'Nói chuyện với Anh Tú xe ôm → Sân bay Nội Bài. Chào Mẹ, Bố và Na rồi ra cửa lên máy bay (Gate 7).',
+      'Talk to Tú → Nội Bài Airport. Say goodbye to Mum, Dad and Na, then go to Gate 7.',
+      'Sprich mit Tú → Flughafen Nội Bài. Verabschiede dich und geh zu Gate 7.',
     ),
   },
 
@@ -732,6 +821,8 @@ export const STEP_GUIDES: Record<string, StepGuide> = {
  */
 export const SCENE_LINKS: { from: SceneId; to: SceneId; via: GuidePoint; label: Localized }[] = [
   { from: 'vietnam', to: 'home', via: { spot: 'home' }, label: L('Vào nhà', 'Go home', 'Nach Hause') },
+  { from: 'vietnam', to: 'maiOffice', via: { spot: 'mai-door' }, label: L('Lên Văn phòng Mai Anh', 'Up to the Mai Anh office', 'Hoch ins Büro Mai Anh') },
+  { from: 'maiOffice', to: 'vietnam', via: { spot: 'mai-exit' }, label: L('Ra phố', 'Out to the street', 'Auf die Straße') },
   { from: 'home', to: 'vietnam', via: { spot: 'home-exit' }, label: L('Ra phố', 'Out to the street', 'Auf die Straße') },
   { from: 'vietnam', to: 'classroom', via: { spot: 'center-door' }, label: L('Vào Trung tâm Đức ngữ', 'Into the German centre', 'Ins Sprachzentrum') },
   { from: 'classroom', to: 'vietnam', via: { spot: 'class-exit' }, label: L('Ra phố', 'Out to the street', 'Auf die Straße') },

@@ -57,7 +57,7 @@ export const CONFIG = {
 
   /** Money/energy change through jobs (M2); time, energy restore and saving arrive in M3. */
   startingStats: {
-    money: 2_500_000, // VND
+    money: 3_000_000, // VND (story 2.1)
     energy: 80,
     maxEnergy: 100,
     mood: 60,
@@ -134,9 +134,10 @@ export const CONFIG = {
   /** Learning German (plan §6 chapter 1). Level index 0 = A1 course/exam. */
   german: {
     levels: [
-      { name: 'A1', courseFee: 300_000, examFee: 100_000, xpToExam: 60 },
-      { name: 'A2', courseFee: 400_000, examFee: 150_000, xpToExam: 80 },
-      { name: 'B1', courseFee: 500_000, examFee: 200_000, xpToExam: 100 },
+      // Story 2.1: a small centre in the lane (≈ 1/3 of Goethe Hà Nội); Goethe exam fees.
+      { name: 'A1', courseFee: 4_500_000, examFee: 3_000_000, xpToExam: 60 },
+      { name: 'A2', courseFee: 5_000_000, examFee: 3_500_000, xpToExam: 80 },
+      { name: 'B1', courseFee: 6_500_000, examFee: 4_800_000, xpToExam: 120 },
     ],
     lessonMinutes: 60,
     lessonEnergy: 8,
@@ -145,6 +146,12 @@ export const CONFIG = {
     selfStudyMinutes: 45,
     selfStudyEnergy: 5,
     selfStudyXpFactor: 0.5,
+    /** Nicos Weg on the phone (Deutsche Welle, free): anywhere, short, slow. */
+    nicosMinutes: 20,
+    nicosEnergy: 2,
+    nicosXpFactor: 0.25,
+    /** B1 is four modules (Lesen, Hören, Schreiben, Sprechen); a failed module is retaken alone. */
+    b1ModuleRetakeFee: 1_200_000,
     examMinutes: 120,
     examPassScore: 0.7,
     examPassMood: 15,
@@ -153,10 +160,40 @@ export const CONFIG = {
 
   /** The visa chapter (plan §6 chapter 2). Amounts are game-balanced, not real-world prices. */
   visa: {
-    /** Simplified in-game exchange rate (bank: đổi tiền VND ⇄ EUR). */
-    vndPerEur: 3000,
-    financeProof: { studium: 3_000_000, ausbildung: 1_500_000 },
-    flightCost: 1_500_000,
+    /** Bank exchange (story 2.1, like Vietcombank 2026): you buy € at 31.500 ₫, sell € at 30.000 ₫. */
+    eurBuy: 31_500,
+    eurSell: 30_000,
+    /** Studium: blocked account (Sperrkonto) 2026, € — solved by the family (sổ đỏ) or Cô Lan's guarantee. */
+    sperrkonto: 11_904,
+    sperrMonthly: 992,
+    /** One-way flight booked by chị Mai's office (fixed, with someone to take you to the airport). */
+    flightCost: 17_000_000,
+    /** Booking it yourself on the laptop: the price changes every day within this range. */
+    flightLaptop: [15_000_000, 20_000_000] as [number, number],
+    /** First days' insurance (Ausbildung: the employer insures you from day one; Studium: 3 months). */
+    insurance: { ausbildung: 700_000, studium: 3_000_000 },
+    /** Văn phòng Mai Anh: everything with an office price + the Termin hunt, minus the flight. */
+    officePackage: 5_500_000,
+    officeTermin: 500_000,
+    /** Tuấn finds a VFS slot this many days ahead (random in the range). */
+    officeTerminDays: [2, 4] as [number, number],
+    /** VFS: national visa fee 75 € paid in đồng + the VFS service fee. */
+    vfsVisaFee: 2_400_000,
+    vfsServiceFee: 700_000,
+    /** APS interviews only on round days: every 14 days, the first on day 3 (a Wednesday). */
+    apsRoundEvery: 14,
+    apsFirstRound: 3,
+    /** BA approval arrives this many days after the contract. */
+    baWaitDays: 2,
+    /** Days after a rejection in which a Remonstration letter can still be sent. */
+    remonstrationDays: 7,
+    /** Euros the step "dep.exchange" asks for; the first week in Germany needs ~600 € in total. */
+    exchangeGoal: 200,
+    firstWeekEur: 600,
+    /** Envelopes at Nội Bài: Mẹ and Bố. */
+    envelopes: { me: 300, bo: 100 },
+    /** VFS slot sellers (scam): what clicking the message costs. */
+    scamSlotPrice: 3_000_000,
     xeOmFare: 30_000,
     xeOmMinutes: 30,
     /** Termin slots: working hours only, every 30 min, at least `terminLeadMinutes` from now (today, else the next weekday). */
@@ -170,7 +207,7 @@ export const CONFIG = {
     apsPassScore: 0.6,
     interviewPassScore: 0.6,
     /** Days between an approved interview and the visa being ready. */
-    approvalWaitDays: 2,
+    approvalWaitDays: 3,
     rejectCooldownDays: 1,
     embassyHours: [8, 17] as [number, number],
   },
@@ -298,16 +335,51 @@ export const CONFIG = {
     /** Pause after an order is resolved before the next customer is scheduled. */
     leaveDelaySec: 0.9,
     /** Wage multiplier at 0% and 100% satisfaction. */
-    payMultiplier: { min: 0.5, max: 1.5 },
+    payMultiplier: { min: 0.7, max: 1.1 },
   },
 
   /** Balancing per job. Content (actions, recipes) lives in data/tasks.ts. */
+  /**
+   * Family & debt (story 2.1 §1.7–1.8). Borrowing from Bố/Mẹ is always possible, but the yellow house
+   * gets poorer at these debt levels (VND); repaying restores it in reverse.
+   */
+  family: {
+    loanSizes: [1_000_000, 3_000_000, 5_000_000],
+    loanMood: -5,
+    /** Total debt ≥ these → house level 1, 2, 3. */
+    debtLevels: [5_000_000, 15_000_000, 30_000_000],
+    /** Mortgage of the sổ đỏ (Studium, family meeting option A). */
+    mortgage: 380_000_000,
+    morningGuiltMood: -3,
+    repaidMood: 20,
+    /** Mẹ's xôi on the table: free breakfast before this hour. */
+    xoiBefore: 8,
+    xoiEnergy: 10,
+    /** Weekly contribution to the household (góp tiền nhà). */
+    contributions: [500_000, 1_000_000],
+    /** "Kèm em học": sessions with Na before Bin's mother asks for a tutor. */
+    tutorNaSessions: 3,
+    tutorNaMood: 5,
+  },
+
+  /**
+   * Side jobs in Vietnam (story 2.1 §11.1): each at most once a day; ranks after 8 and 20 times
+   * (+10 % / +20 % pay). Pay = regional minimum wage 2026 (25.500 ₫/h) × ~16 h per game shift.
+   */
+  vnJobs: {
+    rankAt: [8, 20],
+    rankBonus: [0, 0.1, 0.2],
+    circleK: { day: 400_000, night: 520_000, energy: 15, nightEnergy: 30, dayHours: [6, 22] as [number, number], seconds: 90, minutes: 240 },
+    grab: { min: 300_000, max: 700_000, fuel: 40_000, energy: 20, hours: [6, 23] as [number, number], uniform: 300_000, rainBonus: 0.3, fine: 200_000, minutes: 240 },
+    tutor: { pay: 450_000, payUp: 600_000, energy: 8, hours: [18, 21] as [number, number], minutes: 120, midterm: 8, midtermBonus: 500_000 },
+  },
+
   jobs: {
     cafeBarista: {
       durationSec: 60,
-      /** Wage (VND) for a full shift at 100% multiplier 1.0. */
-      pay: 100_000,
-      tipPerFastOrder: 3_000,
+      /** Wage (VND) for a full shift at 100% multiplier 1.0 (story 2.1: 450.000 ₫ + tips 0–60k). */
+      pay: 450_000,
+      tipPerFastOrder: 6_000,
       energyCost: 15,
       xp: 20,
       patienceBaseSec: 7,

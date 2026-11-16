@@ -83,7 +83,8 @@ export const usePlayer = create<PlayerState>()((set) => ({
     const give = Math.min(Math.max(0, amount), s.money)
     if (give <= 0) return 0
     const other: Currency = s.currency === 'VND' ? 'EUR' : 'VND'
-    const got = roundMoney(s.currency === 'VND' ? give / CONFIG.visa.vndPerEur : give * CONFIG.visa.vndPerEur, other)
+    // Buying euros costs more đồng than selling them brings back (bank spread).
+    const got = roundMoney(s.currency === 'VND' ? give / CONFIG.visa.eurBuy : give * CONFIG.visa.eurSell, other)
     set({ money: roundMoney(s.money - give, s.currency), otherMoney: roundMoney(s.otherMoney + got, other) })
     return got
   },

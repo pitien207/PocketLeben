@@ -12,6 +12,9 @@ import { startSocial } from './net/social'
 import { startSecrets } from './game/systems/secrets'
 import { SECRETS_ENABLED } from './data/secrets'
 import { startStory } from './game/systems/story'
+import { startVisa } from './game/systems/visa'
+import { startFamily } from './game/systems/family'
+import { startVnStory } from './game/systems/vnStory'
 
 /**
  * The game itself, loaded after the title screen (keeps the first paint light).
@@ -34,6 +37,10 @@ startSocial()
 startNet()
 if (SECRETS_ENABLED) startSecrets()
 startStory()
+// Story 2.1 (Vietnam): office bookings + BA approval, morning family effects, cracked phone.
+startVisa()
+startFamily()
+startVnStory()
 
 // Background music follows the place you're in.
 const applyMusic = () => {

@@ -48,6 +48,121 @@ const SHARED_EMBASSY: QaQuestion[] = [
 ]
 
 export const QA_SETS = {
+  /** Asked on top when chị Mai's office wrote the CV and letter (story 2.1). */
+  embassyGhost: {
+    title: { vi: 'Phỏng vấn visa', en: 'Visa interview', de: 'Visumsinterview' },
+    asker: 'officer',
+    questions: [
+      q('„Haben Sie diesen Brief selbst geschrieben?"', '“Did you write this letter yourself?”', [
+        a(2, 'Ich hatte Hilfe, aber ich kann jeden Satz erklären: Ich möchte in der Pflege arbeiten, weil…', 'Ich hatte Hilfe, aber ich kann jeden Satz erklären: Ich möchte in der Pflege arbeiten, weil…', 'Gut, ehrlich. (Tốt, thật thà.)', 'Good, honest.'),
+        a(1, 'Ja, natürlich.', 'Ja, natürlich.', 'Dann lesen Sie mir bitte den zweiten Absatz vor… (Vậy đọc giúp tôi đoạn thứ hai…)', 'Then please read me the second paragraph…'),
+        a(0, 'Dạ văn phòng viết hộ em, em không đọc được ạ.', 'The agency wrote it, I can’t read it.', BAD[0], BAD[1]),
+      ]),
+    ],
+  },
+  /** B1 Sprechen module (story 2.1: four modules like the Goethe exam). */
+  b1Sprechen: {
+    title: { vi: 'Thi B1 · Sprechen', en: 'B1 exam · Speaking', de: 'B1-Prüfung · Sprechen' },
+    asker: 'pruefer',
+    questions: [
+      q('„Stellen Sie sich bitte vor."', '“Please introduce yourself.”', [
+        a(2, 'Ich heiße An, ich bin 20 und komme aus Hà Nội. Ich lerne seit einem Jahr Deutsch.', 'Ich heiße An, ich bin 20 und komme aus Hà Nội. Ich lerne seit einem Jahr Deutsch.', GOOD[0], GOOD[1]),
+        a(1, 'Ich An. Hà Nội.', 'Ich An. Hà Nội.', OK[0], OK[1]),
+        a(0, '(im lặng)', '(silence)', 'Bitte sprechen Sie. (Bạn nói đi.)', 'Please speak.'),
+      ]),
+      q('„Was machen Sie gern in Ihrer Freizeit?"', '“What do you like doing in your free time?”', [
+        a(2, 'Am Wochenende trinke ich gern Kaffee mit Freunden am Hoàn-Kiếm-See.', 'Am Wochenende trinke ich gern Kaffee mit Freunden am Hoàn-Kiếm-See.', GOOD[0], GOOD[1]),
+        a(1, 'Ich gern Kaffee.', 'Ich gern Kaffee.', OK[0], OK[1]),
+        a(0, 'Yes, coffee!', 'Yes, coffee!', 'Auf Deutsch, bitte.', 'In German, please.'),
+      ]),
+      q('„Planen wir zusammen eine Feier. Was schlagen Sie vor?"', '“Let’s plan a party together. What do you suggest?”', [
+        a(2, 'Wie wäre es mit Samstagabend? Ich kann Frühlingsrollen mitbringen.', 'Wie wäre es mit Samstagabend? Ich kann Frühlingsrollen mitbringen.', 'Sehr gute Idee!', 'Great idea!'),
+        a(1, 'Samstag. Essen.', 'Samstag. Essen.', OK[0], OK[1]),
+        a(0, 'Ich mag keine Feiern.', 'Ich mag keine Feiern.', 'Hmm… (Ừm…)', 'Hmm…'),
+      ]),
+      q('„Was sind Vor- und Nachteile vom Leben in der Großstadt?"', '“Pros and cons of big-city life?”', [
+        a(2, 'Einerseits gibt es viele Jobs, andererseits ist die Miete teuer und es ist laut.', 'Einerseits gibt es viele Jobs, andererseits ist die Miete teuer und es ist laut.', GOOD[0], GOOD[1]),
+        a(1, 'Großstadt ist gut. Und laut.', 'Großstadt ist gut. Und laut.', OK[0], OK[1]),
+        a(0, 'Weiß nicht.', 'Weiß nicht.', BAD[0], BAD[1]),
+      ]),
+      q('„Erzählen Sie von Ihrem letzten Urlaub."', '“Tell me about your last holiday.”', [
+        a(2, 'Letzten Sommer bin ich nach Hạ Long gefahren. Wir haben eine Bootstour gemacht.', 'Letzten Sommer bin ich nach Hạ Long gefahren. Wir haben eine Bootstour gemacht.', GOOD[0], GOOD[1]),
+        a(1, 'Ich fahre Hạ Long letzte Sommer.', 'Ich fahre Hạ Long letzte Sommer.', OK[0], OK[1]),
+        a(0, 'Urlaub? Ich arbeite immer.', 'Urlaub? Ich arbeite immer.', 'Schade… (Tiếc nhỉ…)', 'Pity…'),
+      ]),
+    ],
+  },
+  /** Cầu nối: online interview with Anna from Sonnenhof (A2 level, story 2.1 §1.5). */
+  cauNoi: {
+    title: { vi: 'Phỏng vấn online với Sonnenhof', en: 'Online interview with Sonnenhof', de: 'Online-Interview Sonnenhof' },
+    asker: 'anna',
+    questions: [
+      q('„Hallo! Wie heißen Sie und woher kommen Sie?"', '“Hello! What’s your name and where are you from?”', [
+        a(2, 'Ich heiße An. Ich komme aus Hà Nội, Vietnam.', 'Ich heiße An. Ich komme aus Hà Nội, Vietnam.', 'Schön! (Hay quá!)', 'Nice!'),
+        a(1, 'An. Vietnam.', 'An. Vietnam.', OK[0], OK[1]),
+        a(0, 'Hello, I am fine, thank you!', 'Hello, I am fine, thank you!', 'Auf Deutsch, bitte!', 'In German, please!'),
+      ]),
+      q('„Warum möchten Sie in der Pflege arbeiten?"', '“Why do you want to work in nursing?”', [
+        a(2, 'Ich helfe gern Menschen. Meine Oma war lange krank.', 'Ich helfe gern Menschen. Meine Oma war lange krank.', 'Das verstehe ich gut.', 'I understand.'),
+        a(1, 'Weil es Arbeit gibt.', 'Weil es Arbeit gibt.', OK[0], OK[1]),
+        a(0, 'Ich möchte reisen.', 'Ich möchte reisen.', 'Hmm… Pflege ist kein Urlaub.', 'Nursing is no holiday.'),
+      ]),
+      q('„Arbeiten Sie gern im Team?"', '“Do you like working in a team?”', [
+        a(2, 'Ja, sehr gern. Im Café arbeite ich auch mit Kollegen.', 'Ja, sehr gern. Im Café arbeite ich auch mit Kollegen.', GOOD[0], GOOD[1]),
+        a(1, 'Ja.', 'Ja.', OK[0], OK[1]),
+        a(0, 'Lieber allein.', 'Lieber allein.', 'Bei uns arbeitet man im Team…', 'We work in teams here…'),
+      ]),
+      q('„Können Sie auch am Wochenende arbeiten?"', '“Can you work weekends too?”', [
+        a(2, 'Ja, das ist kein Problem. Ich weiß, Pflege ist Schichtarbeit.', 'Ja, das ist kein Problem. Ich weiß, Pflege ist Schichtarbeit.', 'Perfekt!', 'Perfect!'),
+        a(1, 'Manchmal.', 'Manchmal.', OK[0], OK[1]),
+        a(0, 'Nein, am Wochenende schlafe ich.', 'Nein, am Wochenende schlafe ich.', 'Oh…', 'Oh…'),
+      ]),
+    ],
+  },
+  /** Cô Lan's video call (Studium, Sperrkonto option B): 3 questions, 2 good answers needed. */
+  coLan: {
+    title: { vi: 'Gọi video với cô Lan (Leipzig)', en: 'Video call with cô Lan (Leipzig)', de: 'Videoanruf mit Frau Lan (Leipzig)' },
+    asker: 'coLan',
+    questions: [
+      q('„Warum möchtest du Pflege studieren?"', '“Why do you want to study nursing?”', [
+        a(2, 'Ich möchte kranken und alten Menschen helfen. In Deutschland lernt man das sehr gut.', 'Ich möchte kranken und alten Menschen helfen. In Deutschland lernt man das sehr gut.', 'Das hätte mein Vater auch gesagt. (Bố cô cũng sẽ nói thế.)', 'My father would have said that too.'),
+        a(1, 'Weil es ein guter Beruf ist.', 'Weil es ein guter Beruf ist.', OK[0], OK[1]),
+        a(0, 'Weil man viel Geld verdient.', 'Weil man viel Geld verdient.', 'Hmm…', 'Hmm…'),
+      ]),
+      q('„Wie lange dauert das Studium?"', '“How long does the degree take?”', [
+        a(2, 'Ein Jahr Studienkolleg, dann drei bis vier Jahre Bachelor.', 'Ein Jahr Studienkolleg, dann drei bis vier Jahre Bachelor.', 'Gut, du hast dich informiert.', 'Good, you looked it up.'),
+        a(1, 'Ein paar Jahre.', 'Ein paar Jahre.', OK[0], OK[1]),
+        a(0, 'Keine Ahnung.', 'Keine Ahnung.', 'Das solltest du wissen…', 'You should know that…'),
+      ]),
+      q('„Was machst du, wenn das Geld knapp wird?"', '“What will you do if money gets tight?”', [
+        a(2, 'Ich arbeite neben dem Studium, höchstens 20 Stunden pro Woche, wie erlaubt.', 'Ich arbeite neben dem Studium, höchstens 20 Stunden pro Woche, wie erlaubt.', 'Sehr vernünftig.', 'Very sensible.'),
+        a(1, 'Ich spare.', 'Ich spare.', OK[0], OK[1]),
+        a(0, 'Dann rufe ich dich an, Tante!', 'Then I will call you, auntie!', 'Ha… (Hà…)', 'Ha…'),
+      ]),
+    ],
+  },
+  /** Circle K: the manager's 3-question interview before the first shift. */
+  circleK: {
+    title: { vi: 'Phỏng vấn ở Circle K', en: 'Circle K interview', de: 'Vorstellungsgespräch Circle K' },
+    asker: 'chiQuanLy',
+    questions: [
+      q('Khách đưa tờ 200.000 ₫ cho hóa đơn 46.000 ₫. Em thối bao nhiêu?', 'A customer pays 200,000 ₫ for 46,000 ₫. How much change?', [
+        a(2, '154.000 ₫', '154,000 ₫', 'Nhanh đấy!', 'Quick!'),
+        a(0, '164.000 ₫', '164,000 ₫', 'Sai rồi em, thối thiếu là khách mắng đấy.', 'Wrong — customers get angry.'),
+        a(0, '146.000 ₫', '146,000 ₫', 'Ơ, tính lại xem.', 'Check again.'),
+      ]),
+      q('Có người say nằm trước cửa lúc 2 giờ sáng. Em làm gì?', 'A drunk man lies at the door at 2 a.m. What do you do?', [
+        a(2, 'Gọi bảo vệ, rồi mang cho chú ấy chai nước.', 'Call security, then bring him some water.', 'Chuẩn.', 'Right.'),
+        a(1, 'Kệ chú ấy.', 'Ignore him.', 'Ừm… không hẳn.', 'Hmm… not quite.'),
+        a(0, 'Quay video đăng TikTok.', 'Film it for TikTok.', 'Không được!', 'No way!'),
+      ]),
+      q('Hàng sắp hết hạn thì xếp ở đâu trên kệ?', 'Where do items close to expiry go on the shelf?', [
+        a(2, 'Lên phía trước, để bán trước.', 'At the front, so they sell first.', 'Đúng rồi, hàng cũ bán trước!', 'Yes — first in, first out!'),
+        a(1, 'Đâu cũng được.', 'Anywhere.', 'Không đâu em.', 'Not really.'),
+        a(0, 'Giấu ra sau cùng.', 'Hide them at the back.', 'Thế là hỏng hết hàng.', 'Then it all spoils.'),
+      ]),
+    ],
+  },
   embassyAusbildung: {
     title: { vi: 'Phỏng vấn visa học nghề', en: 'Vocational training visa interview', de: 'Visumsinterview Ausbildung' },
     asker: 'officer',
@@ -63,9 +178,14 @@ export const QA_SETS = {
         a(0, 'Ở đâu cũng được ạ.', 'Anywhere is fine.', BAD[0], BAD[1]),
       ]),
       q('„Wie finanzieren Sie sich?"', '“How will you support yourself?”', [
-        a(2, 'Mit meiner Ausbildungsvergütung und meinem Sperrkonto.', 'Mit meiner Ausbildungsvergütung und meinem Sperrkonto.', GOOD[0], GOOD[1]),
+        a(2, 'Mit meiner Ausbildungsvergütung. Ein Sperrkonto brauche ich dafür nicht.', 'Mit meiner Ausbildungsvergütung. Ein Sperrkonto brauche ich dafür nicht.', GOOD[0], GOOD[1]),
         a(1, 'Bố mẹ em sẽ gửi tiền ạ.', 'My parents will send money.', OK[0], OK[1]),
         a(0, 'Em chưa nghĩ tới chuyện đó.', 'I haven’t thought about it.', BAD[0], BAD[1]),
+      ]),
+      q('„Wie viel verdienen Sie in der Ausbildung?"', '“How much will you earn during the training?”', [
+        a(2, 'Im ersten Jahr etwa 1.490 Euro brutto.', 'Im ersten Jahr etwa 1.490 Euro brutto.', 'Richtig. (Đúng rồi.)', 'Correct.'),
+        a(1, 'Genug zum Leben, glaube ich.', 'Genug zum Leben, glaube ich.', OK[0], OK[1]),
+        a(0, 'Hundert Millionen Dong!', 'A hundred million dong!', 'Wer hat Ihnen das erzählt? (Ai nói với bạn thế?)', 'Who told you that?'),
       ]),
       q('„Warum gerade die Pflege?"', '“Why nursing care in particular?”', [
         a(2, 'Ich helfe gern Menschen, besonders älteren Menschen.', 'Ich helfe gern Menschen, besonders älteren Menschen.', 'Das ist schön. (Thật đáng quý.)', 'That’s lovely.'),
@@ -90,14 +210,19 @@ export const QA_SETS = {
         a(0, 'Để qua đó đi làm kiếm tiền ạ.', 'To work and earn money.', BAD[0], BAD[1]),
       ]),
       q('„Welches Fach möchten Sie studieren?"', '“Which subject will you study?”', [
-        a(2, 'Informatik. Ich habe eine Zulassung der Universität.', 'Informatik. Ich habe eine Zulassung der Universität.', GOOD[0], GOOD[1]),
-        a(1, 'Etwas mit Technik.', 'Etwas mit Technik.', OK[0], OK[1]),
+        a(2, 'Pflegewissenschaft (B.Sc.). Zuerst besuche ich das Studienkolleg, die Zulassung habe ich.', 'Pflegewissenschaft (B.Sc.). Zuerst besuche ich das Studienkolleg, die Zulassung habe ich.', GOOD[0], GOOD[1]),
+        a(1, 'Etwas mit Medizin.', 'Etwas mit Medizin.', OK[0], OK[1]),
         a(0, 'Ngành nào cũng được ạ.', 'Any subject is fine.', BAD[0], BAD[1]),
       ]),
       q('„Wie finanzieren Sie Ihr Studium?"', '“How will you finance your studies?”', [
-        a(2, 'Ich habe ein Sperrkonto mit dem nötigen Betrag.', 'Ich habe ein Sperrkonto mit dem nötigen Betrag.', GOOD[0], GOOD[1]),
+        a(2, 'Mit einem Sperrkonto oder einer Verpflichtungserklärung — die Unterlagen sind hier.', 'Mit einem Sperrkonto oder einer Verpflichtungserklärung — die Unterlagen sind hier.', GOOD[0], GOOD[1]),
         a(1, 'Em sẽ đi làm thêm ạ.', 'I’ll get a side job.', OK[0], OK[1]),
         a(0, 'Dạ chưa tính ạ.', 'Haven’t planned that.', BAD[0], BAD[1]),
+      ]),
+      q('„Warum müssen Sie zuerst ins Studienkolleg?"', '“Why do you have to go to a Studienkolleg first?”', [
+        a(2, 'Mein vietnamesisches Abitur reicht nicht für ein direktes Studium. Das Studienkolleg bereitet mich ein Jahr lang vor.', 'Mein vietnamesisches Abitur reicht nicht für ein direktes Studium. Das Studienkolleg bereitet mich ein Jahr lang vor.', GOOD[0], GOOD[1]),
+        a(1, 'Weil es Pflicht ist.', 'Weil es Pflicht ist.', OK[0], OK[1]),
+        a(0, 'Studienkolleg là gì ạ?', 'What is a Studienkolleg?', BAD[0], BAD[1]),
       ]),
       q('„Haben Sie das APS-Zertifikat?"', '“Do you have the APS certificate?”', [
         a(2, 'Ja, hier bitte.', 'Ja, hier bitte.', GOOD[0], GOOD[1]),
