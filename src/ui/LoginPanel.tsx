@@ -146,16 +146,16 @@ function Avatar({ picture, name }: { picture: string | null; name: string }) {
  * Sign in / create an account. With Google set up, Google is the main (one-tap) way and the
  * name + password form folds away behind a link. Closing the panel means playing offline.
  */
-export function LoginPanel({ onClose }: { onClose: () => void }) {
+export function LoginPanel({ onClose, onSuccess, onOffline, initialMode = 'login' }: { onClose: () => void; onSuccess?: () => void; onOffline?: () => void; initialMode?: 'login' | 'register' }) {
   const t = useT()
-  const [mode, setMode] = useState<'login' | 'register'>('login')
+  const [mode, setMode] = useState<'login' | 'register'>(initialMode)
   const [name, setName] = useState('')
   const [password, setPassword] = useState('')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<AuthError | null>(null)
   const [hasGoogle, setHasGoogle] = useState<boolean | null>(null)
   /** Name + password form unfolded (always when Google isn't available). */
-  const [showForm, setShowForm] = useState(false)
+  const [showForm, setShowForm] = useState(initialMode === 'register')
   /** First Google sign-in: choose a player name. */
   const [pick, setPick] = useState<{ ticket: string; email: string | null; greeting: string | null; picture: string | null } | null>(null)
 
@@ -170,7 +170,7 @@ export function LoginPanel({ onClose }: { onClose: () => void }) {
           if (c?.id && c.password) {
             setName(c.id)
             setPassword(c.password)
-            setShowForm(true)
+            if (initialMode === 'login') setShowForm(true)
           }
         })
         .catch(() => {})
@@ -180,7 +180,7 @@ export function LoginPanel({ onClose }: { onClose: () => void }) {
   const finish = (result: Account | AuthError) => {
     setBusy(false)
     if (typeof result === 'string') setError(result)
-    else onClose()
+    else (onSuccess ?? onClose)()
   }
 
   const submit = async (e: FormEvent) => {
@@ -305,7 +305,7 @@ export function LoginPanel({ onClose }: { onClose: () => void }) {
                 </button>
               </>
             )}
-            <button type="button" onClick={onClose} className="mt-2 w-full rounded-xl py-2 text-sm font-black text-ink/60">
+            <button type="button" onClick={onOffline ?? onClose} data-testid="login-offline" className="mt-2 w-full rounded-xl py-2 text-sm font-black text-ink/60">
               {t('account.offline')}
             </button>
           </>

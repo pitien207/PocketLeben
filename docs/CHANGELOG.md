@@ -1,5 +1,43 @@
 # Changelog
 
+## 1.16.1 — Characters: real hair, clothes that fit
+
+The user found the characters "just shapes stacked together" (e.g. the ponytail). Rebuilt how the chibi is made; the rig, animations and outfit data are unchanged.
+
+### Changed — hair (`chibi/hair.ts`)
+- Every style is a **hair shell** grown from the crown: bangs end in soft points over the forehead, side locks frame the face, the cut line has thickness, strands show as clumps. The back of the head is always covered (no bald nape).
+- Bob / long fall as a curtain; **ponytail, bun, braid, elder bun are pulled back** (strands run toward the tie); short / spiky / buzz hug the head down to the nape.
+- **Ponytail = one tapered lock** that rises from a scrunchie and hangs down, splitting into clumps at the tip; twin tails, side braid (plaits crossing), buns (a coiled lock), side wisps, ahoge, spikes and curls are locks too.
+- Close-up (your own character) gets a light shine band on the hair.
+
+### Changed — clothes (`chibi/cloth.ts`)
+- **Arms and legs are one continuous tube each, skinned to both bones**: elbows and knees bend smoothly; sleeves, cuffs, shorts / trouser hems and socks are part of the limb with a real hem, nothing floats.
+- Tops are fitted lathes with a hem lip over the shorts / trousers (no more ball for the hips); collars, plackets, pockets, lapels, the áo dài closure, aprons, lederhosen straps, ties and the red neckerchief are cut out of the body surface and follow its curve.
+- Skirts / dress / dirndl: flared and pleated with an inside; áo dài panels softly curved; hoodie has a hood on the back; puffer is quilted; backpack is rounded with straps over the shoulders.
+- Shoes have rounded soles; sneakers get a toe bumper, collar and laces; sandals show the foot.
+- 2D portraits (`ui/Portrait.tsx`) use the same hair cuts: pointed bangs, tapered ponytail / twin tails with ties, plaited braid, coiled buns.
+
+### Performance
+- Street (≈ 31 characters): character triangles 192k → 244k (outline included), shadows 95k → 131k. Small details (prints, buttons) are left out of the ink outline.
+
+### Manual test checklist (phone)
+- [ ] Character creation (girl / boy): hair from front, side, back — no skin showing at the back of the head; ponytail has a tie and hangs naturally.
+- [ ] Walk / run: elbows and knees bend smoothly, sleeves and shorts stay on the limbs; sit on a stool and ride a motorbike (IK hands / feet still on the grips / pedals).
+- [ ] Wardrobe: tee, long shirt, hoodie, jacket + tie, áo dài, áo bà ba, dress, skirt, dirndl, puffer + beanie, helmet, nón lá — nothing pokes through.
+- [ ] Busy street (many NPCs): still smooth on your phone.
+- [ ] Dialogue portraits: new hair cuts.
+
+## 1.16.0 — Vietnamese only, login-first start menu
+
+### Changed
+- **Only Vietnamese**: English and German were removed (no language buttons on the title screen or in Settings; en.json / de.json deleted). Old settings that said en/de switch to Tiếng Việt.
+- **Start menu = Đăng nhập · Đăng ký.** With a remembered login: **Đăng nhập** (plays as that account, shows its name and the saved day), **Đăng xuất**, **Đăng ký** (signs out, opens the new-account form). A successful sign-in / sign-up starts the game right away; the panel's "Chơi offline không cần tài khoản" still plays without an account.
+
+### Manual test checklist (phone)
+- [ ] Fresh browser: title shows only Đăng nhập / Đăng ký; Đăng ký opens the form on "Tạo tài khoản"; creating the account starts the game.
+- [ ] Reload: Đăng nhập (with your name) / Đăng xuất / Đăng ký; Đăng nhập plays, Đăng xuất goes back to two items.
+- [ ] Settings: no language row; all text Vietnamese.
+
 ## 1.15.0 — Story 2.1: Vietnam part (chapters 1–2)
 
 The whole Vietnam part follows the user's story file v2.1 (`visa-hunter-phan-viet-nam.md`, now in `docs/STORY.md`).

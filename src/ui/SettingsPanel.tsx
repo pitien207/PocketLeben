@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { CONFIG, type QualityLevel } from '../data/config'
 import { exportSave, importSave, resetSave, suspendSaving } from '../game/systems/save'
-import { LANGUAGE_NAMES, useT } from '../i18n'
+import { useT } from '../i18n'
 import { useDialogue } from '../store/dialogueStore'
-import { useSettings, type TimeSpeed, type Language } from '../store/settingsStore'
+import { useSettings, type TimeSpeed } from '../store/settingsStore'
 import { useUI } from '../store/uiStore'
 import { CloseIcon } from './icons'
 import { TestTools } from './TestTools'
@@ -326,7 +326,7 @@ export function SettingsPanel() {
   const t = useT()
   const open = useUI((s) => s.settingsOpen)
   const setOpen = useUI((s) => s.setSettingsOpen)
-  const { musicOn, toggleMusic, sfxOn, toggleSfx, quality, setQuality, language, setLanguage, timeSpeed, setTimeSpeed, guideArrows, setGuideArrows, guideHints, setGuideHints } = useSettings()
+  const { musicOn, toggleMusic, sfxOn, toggleSfx, quality, setQuality,  timeSpeed, setTimeSpeed, guideArrows, setGuideArrows, guideHints, setGuideHints } = useSettings()
   const fullscreen = useFullscreen()
   const taps = useRef({ n: 0, at: 0 })
 
@@ -418,13 +418,6 @@ export function SettingsPanel() {
               onChange={setQuality}
             />
           </Row>
-          <Row label={t('settings.language')}>
-            <Segmented<Language>
-              value={language}
-              options={(Object.keys(LANGUAGE_NAMES) as Language[]).map((l) => ({ value: l, label: l.toUpperCase() }))}
-              onChange={setLanguage}
-            />
-          </Row>
           {fullscreen.supported && (
             <Row label={t('settings.fullscreen')}>
               <Segmented
@@ -459,7 +452,7 @@ export function SettingsPanel() {
               pushToast(on ? 'toast.testOn' : 'toast.testOff', 'info')
             }}
           >
-            Visa Hunter · {t('settings.version', { version: CONFIG.version })} · {LANGUAGE_NAMES[language]}
+            Visa Hunter · {t('settings.version', { version: CONFIG.version })}
           </p>
         </div>
       </div>

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
-import { LANGUAGE_NAMES, useT } from '../i18n'
+import { useT } from '../i18n'
 import { signOut } from '../net/auth'
-import { useSettings, type Language } from '../store/settingsStore'
+import { useSettings } from '../store/settingsStore'
 import { createTitleAudio } from '../title/titleAudio'
 import { googleSignedOut } from '../net/google'
 import { LoginPanel, useAccount } from './LoginPanel'
@@ -143,13 +143,13 @@ function DeskBackdrop() {
  */
 export function TitleScreen({ onPlay, loading = false }: { onPlay?: () => void; loading?: boolean }) {
   const t = useT()
-  const language = useSettings((s) => s.language)
-  const setLanguage = useSettings((s) => s.setLanguage)
   const musicOn = useSettings((s) => s.musicOn)
   const toggleMusic = useSettings((s) => s.toggleMusic)
   const account = useAccount()
   const day = useMemo(savedDay, [])
-  const [loginOpen, setLoginOpen] = useState(false)
+  /** Login panel open on this tab (the start menu is only "Đăng nhập" / "Đăng ký"). */
+  const [login, setLogin] = useState<'login' | 'register' | null>(null)
+  const loginOpen = login !== null
   const [audioStarted, setAudioStarted] = useState(audio.started)
 
   // Ambience: starts with the first tap / key (browsers need a gesture), follows the music setting.
@@ -184,7 +184,7 @@ export function TitleScreen({ onPlay, loading = false }: { onPlay?: () => void; 
 
   // Desktop: Enter / Space starts the game.
   useEffect(() => {
-    if (loading || !onPlay || loginOpen) return
+    if (loading || !onPlay || loginOpen || !account) return
     const onKey = (e: KeyboardEvent) => {
       if ((e.code === 'Enter' || e.code === 'Space') && !(e.target as HTMLElement | null)?.closest?.('button')) {
         e.preventDefault()
@@ -193,7 +193,7 @@ export function TitleScreen({ onPlay, loading = false }: { onPlay?: () => void; 
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [loading, onPlay, loginOpen])
+  }, [loading, onPlay, loginOpen, account])
 
   return (
     <div className="absolute inset-0 z-50 overflow-hidden bg-linear-to-b from-[#bfe3ff] via-[#ffe9cc] to-[#ffd9a8] text-ink">
@@ -215,42 +215,37 @@ export function TitleScreen({ onPlay, loading = false }: { onPlay?: () => void; 
           </div>
         ) : (
           <nav className="flex flex-col gap-0.5 portrait:items-center" aria-label="Menu">
-            <MenuButton n="01" primary onClick={() => onPlay?.()} hint={day ? t('hud.day', { day }) : t('loading.subtitle')} testId="title-play">
-              {day ? t('title.continue') : t('title.play')}
-            </MenuButton>
             {account ? (
-              <div className="flex items-baseline gap-3.5 py-2 text-[21px] font-semibold [@media(max-height:520px)]:py-1 [@media(max-height:520px)]:text-[17px] text-[#4a3226] portrait:justify-center" style={{ fontFamily: VN }} data-testid="account-chip">
-                <small className="w-[22px] text-[11px] font-medium tracking-[0.14em] text-[#4a3226]/45 portrait:hidden">02</small>
-                <span className="flex min-w-0 items-center gap-2">
-                  <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-[#3fae72] shadow-[0_0_0_2px_#fff]" />
-                  <span className="truncate">{account.name}</span>
-                </span>
-                <button type="button" onClick={() => void signOut().then(googleSignedOut)} className="shrink-0 text-[13px] font-semibold text-[#4a3226]/60 underline-offset-2 hover:text-lacquer hover:underline">
+              <>
+                {/* A login is remembered: play as that account, sign out, or make a new one. */}
+                <MenuButton n="01" primary onClick={() => onPlay?.()} hint={day ? `${account.name} · ${t('hud.day', { day })}` : account.name} testId="title-play">
+                  {t('account.login')}
+                </MenuButton>
+                <MenuButton n="02" onClick={() => void signOut().then(googleSignedOut)} hint={account.name} testId="title-signout">
                   {t('account.signOut')}
-                </button>
-              </div>
+                </MenuButton>
+                <MenuButton
+                  n="03"
+                  onClick={() => {
+                    void signOut().then(googleSignedOut)
+                    setLogin('register')
+                  }}
+                  hint={t('title.registerHint')}
+                  testId="title-register"
+                >
+                  {t('title.register')}
+                </MenuButton>
+              </>
             ) : (
-              <MenuButton n="02" onClick={() => setLoginOpen(true)} hint={t('title.onlineHint')} testId="login-open">
-                {t('account.signInOnline')}
-              </MenuButton>
+              <>
+                <MenuButton n="01" primary onClick={() => setLogin('login')} hint={day ? t('hud.day', { day }) : t('title.onlineHint')} testId="login-open">
+                  {t('account.login')}
+                </MenuButton>
+                <MenuButton n="02" onClick={() => setLogin('register')} hint={t('title.registerHint')} testId="title-register">
+                  {t('title.register')}
+                </MenuButton>
+              </>
             )}
-            <div className="flex items-baseline gap-3.5 py-2 text-[21px] font-semibold [@media(max-height:520px)]:py-1 [@media(max-height:520px)]:text-[17px] text-[#4a3226] portrait:justify-center" style={{ fontFamily: VN }} role="group" aria-label={t('settings.language')}>
-              <small className="w-[22px] text-[11px] font-medium tracking-[0.14em] text-[#4a3226]/45 portrait:hidden">03</small>
-              <span className="flex gap-1">
-                {(Object.keys(LANGUAGE_NAMES) as Language[]).map((l) => (
-                  <button
-                    key={l}
-                    type="button"
-                    onClick={() => setLanguage(l)}
-                    aria-pressed={language === l}
-                    title={LANGUAGE_NAMES[l]}
-                    className={`rounded-full px-2.5 py-0.5 text-[16px] font-bold transition ${language === l ? 'bg-lacquer text-white shadow-[0_2px_0_rgba(90,30,20,0.35)]' : 'text-[#4a3226]/70 hover:text-lacquer'}`}
-                  >
-                    {l.toUpperCase()}
-                  </button>
-                ))}
-              </span>
-            </div>
           </nav>
         )}
       </div>
@@ -274,7 +269,21 @@ export function TitleScreen({ onPlay, loading = false }: { onPlay?: () => void; 
         Hà Nội · <b className="font-bold text-lacquer">07:45</b> · {t('title.weather')}
         <span className="ml-2 opacity-60">v{__APP_VERSION__}</span>
       </div>
-      {loginOpen && <LoginPanel onClose={() => setLoginOpen(false)} />}
+      {login && (
+        <LoginPanel
+          key={login}
+          initialMode={login}
+          onClose={() => setLogin(null)}
+          onOffline={() => {
+            setLogin(null)
+            onPlay?.()
+          }}
+          onSuccess={() => {
+            setLogin(null)
+            onPlay?.()
+          }}
+        />
+      )}
     </div>
   )
 }

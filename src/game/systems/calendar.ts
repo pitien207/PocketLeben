@@ -13,7 +13,6 @@ import { weekdayIndex } from './time'
  */
 
 const DAY_MS = 24 * 60 * 60 * 1000
-const MONTHS_EN = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
 export function dateOf(day: number) {
   const { year, month, day: d } = CONFIG.time.startDate
@@ -23,20 +22,16 @@ export function dateOf(day: number) {
 
 const pad = (n: number) => String(n).padStart(2, '0')
 
-/** "01/09" · "1 Sep" · "01.09." */
-export function shortDate(day: number, language: Language) {
+/** "01/09" */
+export function shortDate(day: number, _language?: Language) {
   const d = dateOf(day)
-  if (language === 'en') return `${d.day} ${MONTHS_EN[d.month - 1]}`
-  if (language === 'de') return `${pad(d.day)}.${pad(d.month)}.`
   return `${pad(d.day)}/${pad(d.month)}`
 }
 
-/** "Thứ Hai, 01/09/2025" · "Monday, 1 Sep 2025" · "Montag, 01.09.2025" */
+/** "Thứ Hai, 01/09/2025" */
 export function longDate(day: number, language: Language) {
   const d = dateOf(day)
   const weekday = translate(language, `weekday.${weekdayIndex(day)}` as I18nKey)
-  if (language === 'en') return `${weekday}, ${d.day} ${MONTHS_EN[d.month - 1]} ${d.year}`
-  if (language === 'de') return `${weekday}, ${pad(d.day)}.${pad(d.month)}.${d.year}`
   return `${weekday}, ${pad(d.day)}/${pad(d.month)}/${d.year}`
 }
 

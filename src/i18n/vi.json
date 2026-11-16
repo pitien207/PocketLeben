@@ -593,5 +593,7 @@
   "action.lanCall": "Gọi video cô Lan",
   "action.flightLaptop": "Đặt vé máy bay",
   "interact.maiOffice": "Văn phòng Mai Anh",
-  "phone.jobs": "Việc"
+  "phone.jobs": "Việc",
+  "title.register": "Đăng ký",
+  "title.registerHint": "tạo tài khoản mới"
 }

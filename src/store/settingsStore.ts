@@ -2,7 +2,8 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import type { QualityLevel } from '../data/config'
 
-export type Language = 'vi' | 'en' | 'de'
+/** Only Vietnamese since 1.16 (the user removed English and German). */
+export type Language = 'vi'
 export type TimeSpeed = 'slow' | 'normal' | 'fast'
 
 interface SettingsState {
@@ -21,7 +22,6 @@ interface SettingsState {
   toggleMusic: () => void
   toggleSfx: () => void
   setQuality: (quality: QualityLevel) => void
-  setLanguage: (language: Language) => void
   setTimeSpeed: (timeSpeed: TimeSpeed) => void
   setGuideArrows: (on: boolean) => void
   setGuideHints: (on: boolean) => void
@@ -45,7 +45,6 @@ export const useSettings = create<SettingsState>()(
       toggleMusic: () => set((s) => ({ musicOn: !s.musicOn })),
       toggleSfx: () => set((s) => ({ sfxOn: !s.sfxOn })),
       setQuality: (quality) => set({ quality }),
-      setLanguage: (language) => set({ language }),
       setTimeSpeed: (timeSpeed) => set({ timeSpeed }),
       setGuideArrows: (guideArrows) => set({ guideArrows }),
       setGuideHints: (guideHints) => set({ guideHints }),
@@ -54,7 +53,9 @@ export const useSettings = create<SettingsState>()(
     }),
     {
       name: 'visa-hunter-settings',
-      version: 1,
+      version: 2,
+      // Older saves may still say 'en' / 'de'.
+      migrate: (state) => ({ ...(state as object), language: 'vi' }) as never,
       partialize: ({ musicOn, sfxOn, quality, language, timeSpeed, guideArrows, guideHints, testMode, online }) => ({
         musicOn,
         sfxOn,

@@ -8,6 +8,7 @@ import { RIDES, type RideAnchors, type RideKind } from '../scenes/shared/vehicle
 import { damp } from '../systems/math'
 import { faceTexture, lightness } from './chibi/face'
 import { makeFaceMaterial, outlineMaterial, silhouetteMaterial, toonBodyMaterial } from './chibi/materials'
+import { limbGeometries } from './chibi/cloth'
 import { bodyParts, DEFAULT_EYES, type Carry } from './chibi/parts'
 import { B, BIND, FORE, HEAD_R, HEAD_Y, HIP_Y, PARENT, SHIN, STOOL_Y, THIGH, UPPER } from './chibi/rig'
 
@@ -106,7 +107,9 @@ function headSphere(w: number, h: number, withUv: boolean) {
 
 /** All parts merged into one geometry; `withHead` adds the head sphere (outline only). */
 function buildGeometry(o: Outfit, carry: Carry, k: number, withHead: boolean, headSeg: [number, number] = [14, 10]): BufferGeometry {
-  const parts = bodyParts(o, carry).map(([bone, shapes]) => skinTo(buildShapes([{ group: simplify(shapes, k), at: BIND[bone] }]), bone))
+  const parts = bodyParts(o, carry, k).map(([bone, shapes]) => skinTo(buildShapes([{ group: simplify(shapes, k), at: BIND[bone] }]), bone))
+  // Arms and legs: one tube each, skinned to both bones (soft elbows and knees).
+  for (const limb of limbGeometries(o, k)) parts.push(limb.clone())
   if (withHead) {
     const head = headSphere(headSeg[0], headSeg[1], false).toNonIndexed()
     head.deleteAttribute('uv')

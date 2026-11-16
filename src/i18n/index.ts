@@ -1,21 +1,12 @@
 import { useCallback } from 'react'
 import vi from './vi.json'
-import en from './en.json'
-import de from './de.json'
 import { useSettings, type Language } from '../store/settingsStore'
 
-/** Vietnamese is the source of truth: every key must exist in vi.json. */
+/** The game is Vietnamese only (1.16): all UI strings live in vi.json. */
 export type I18nKey = keyof typeof vi
 type Dictionary = Record<I18nKey, string>
 
-// Typed as Dictionary so a missing key in en/de is a compile error.
-const dictionaries: Record<Language, Dictionary> = { vi, en, de }
-
-export const LANGUAGE_NAMES: Record<Language, string> = {
-  vi: 'Tiếng Việt',
-  en: 'English',
-  de: 'Deutsch',
-}
+const dictionaries: Record<Language, Dictionary> = { vi }
 
 export type TranslateVars = Record<string, string | number>
 
