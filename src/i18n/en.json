@@ -1,5 +1,5 @@
 {
-  "loading.text": "Packing the suitcase...",
+  "loading.text": "Packing the suitcase…",
   "hud.settings": "Settings",
   "hud.musicMute": "Mute music",
   "hud.musicUnmute": "Play music",
@@ -573,5 +573,17 @@
   "action.takePapers": "Take the originals",
   "interact.papers": "Paper cabinet",
   "quests.directions": "Directions",
-  "quests.unfocus": "Stop directions to this step"
+  "quests.unfocus": "Stop directions to this step",
+  "weekdayShort.0": "Mon",
+  "weekdayShort.1": "Tue",
+  "weekdayShort.2": "Wed",
+  "weekdayShort.3": "Thu",
+  "weekdayShort.4": "Fri",
+  "weekdayShort.5": "Sat",
+  "weekdayShort.6": "Sun",
+  "hud.menu": "Menu",
+  "loading.assets": "Loading…",
+  "loading.ready": "Let’s go!",
+  "loading.tip": "Tip",
+  "loading.word": "Word"
 }

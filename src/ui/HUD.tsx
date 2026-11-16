@@ -19,30 +19,38 @@ import { SCENES } from '../game/scenes/registry'
 import { useWorld } from '../store/worldStore'
 import { EmoteButton, OnlineChip } from './OnlineUI'
 
+/**
+ * Top HUD (1.14, slimmed down for phones): one thin status line — clock, energy, mood on the
+ * left, money on the right — the objective under it, and the buttons as a narrow icon rail
+ * along the right edge. Everything else stays out of the way of the street.
+ */
+
 /** Red dot on the bag button when the backpack is (almost) full. */
 function BagFullBadge() {
   useInventory((s) => s.items)
   useFlags((s) => s.flags)
   if (bagWeight() < bagCapacity() * 0.9) return null
-  return <span className="absolute -top-1 -right-1 h-3.5 w-3.5 rounded-full border-2 border-white bg-lacquer" />
+  return <span className="absolute -top-1 -right-1 h-3 w-3 rounded-full border-2 border-white bg-lacquer" />
 }
 
-function HudButton({ label, onClick, children, tour }: { label: string; onClick: () => void; children: ReactNode; tour?: string }) {
+/** One icon of the right-hand rail. */
+export function RailButton({ label, onClick, children, tour, testId }: { label: string; onClick: () => void; children: ReactNode; tour?: string; testId?: string }) {
   return (
     <button
       type="button"
       data-tour={tour}
+      data-testid={testId}
       aria-label={label}
       title={label}
       onClick={onClick}
-      className="hud-chip pointer-events-auto relative grid h-11 w-11 place-items-center text-[22px] text-ink transition active:translate-y-[3px] active:shadow-none"
+      className="hud-slim pointer-events-auto relative grid h-9 w-9 place-items-center text-[18px] text-ink transition active:translate-y-[2px] active:shadow-none sm:h-10 sm:w-10 sm:text-[20px]"
     >
       {children}
     </button>
   )
 }
 
-/** Shows "+12.000 ₫" floating up from the money pill whenever money increases. */
+/** Shows "+12.000 ₫" floating up next to the money whenever it increases. */
 function useMoneyGain(money: number) {
   const previous = useRef(money)
   const [gain, setGain] = useState<{ amount: number; key: number } | null>(null)
@@ -57,7 +65,7 @@ function useMoneyGain(money: number) {
   return gain
 }
 
-/** Clock + calendar chip; tap it for the clock panel (wait, schedule, time speed). */
+/** Clock + date; tap for the clock panel (wait, schedule, time speed). */
 function Clock() {
   const t = useT()
   const language = useSettings((s) => s.language)
@@ -68,19 +76,18 @@ function Clock() {
   const daytime = hour >= 6 && hour < 18.5
   const country = useWorld((s) => SCENES[s.scene].country)
   const raining = isRaining(day, minutes, country)
-  const weekday = t(`weekday.${weekdayIndex(day)}` as I18nKey)
   return (
     <button
       type="button"
       onClick={() => openPanel({ type: 'clock' })}
       data-tour="clock"
       aria-label={`${formatClock(minutes)}, ${longDate(day, language)} — ${t('clock.title')}`}
-      className="pointer-events-auto flex items-center gap-1.5 rounded-2xl border-[2.5px] border-outline bg-jade bg-linear-to-b from-[#4f9a72] to-jade py-1 pr-3 pl-1.5 text-left text-white shadow-[inset_0_2px_0_rgba(255,255,255,0.3),0_3px_0_var(--color-outline)] [text-shadow:0_2px_0_rgba(20,50,34,0.5)] transition active:translate-y-[3px] active:shadow-none"
+      className="pointer-events-auto flex h-9 shrink-0 items-center gap-1.5 rounded-xl border-2 border-outline bg-jade pr-2 pl-1.5 text-left text-white shadow-[inset_0_1.5px_0_rgba(255,255,255,0.3),0_2px_0_var(--color-outline)] [text-shadow:0_1px_0_rgba(20,50,34,0.5)] transition active:translate-y-[2px] active:shadow-none sm:h-10"
     >
-      <span className="grid h-7 w-7 place-items-center rounded-full bg-white/20 text-lg">{raining ? <RainIcon /> : daytime ? <SunIcon /> : <MoonIcon />}</span>
-      <span className="font-display text-lg leading-none font-extrabold tabular-nums">{formatClock(minutes)}</span>
-      <span className="text-[11px] leading-tight font-bold opacity-95">
-        {weekday}
+      <span className="text-[16px] text-gold-light">{raining ? <RainIcon /> : daytime ? <SunIcon /> : <MoonIcon />}</span>
+      <span className="font-display text-[17px] leading-none font-extrabold tabular-nums sm:text-lg">{formatClock(minutes)}</span>
+      <span className="hidden text-[9.5px] leading-[1.1] font-black opacity-90 min-[380px]:inline">
+        {t(`weekdayShort.${weekdayIndex(day)}` as I18nKey)}
         <br />
         <span className="tabular-nums">{shortDate(day, language)}</span>
       </span>
@@ -88,114 +95,115 @@ function Clock() {
   )
 }
 
-function StatChip({ label, icon, value, max, barClass }: { label: string; icon: ReactNode; value: number; max: number; barClass: string }) {
+function Meter({ label, icon, value, max, barClass }: { label: string; icon: ReactNode; value: number; max: number; barClass: string }) {
   const pct = Math.max(0, Math.min(100, Math.round((value / max) * 100)))
   return (
-    <div role="status" aria-label={`${label}: ${Math.round(value)}/${max}`} className="hud-chip flex h-9 items-center gap-1.5 pr-2 pl-0.5 font-display text-[15px] font-extrabold text-ink">
-      <span className="-ml-2.5 grid h-8 w-8 shrink-0 place-items-center rounded-full border-[2.5px] border-outline bg-cream text-[19px] shadow-[0_2px_0_var(--color-outline)]">{icon}</span>
-      <div className="hidden h-2.5 w-7 overflow-hidden rounded-full border-[1.5px] border-outline bg-ink/15 min-[380px]:block sm:w-12">
-        <div className={`h-full rounded-full transition-[width] duration-500 ${barClass}`} style={{ width: `${pct}%` }} />
-      </div>
-      <span className="w-6 text-right tabular-nums">{Math.round(value)}</span>
+    <span role="status" aria-label={`${label}: ${Math.round(value)}/${max}`} title={label} className="flex items-center gap-1">
+      <span className="text-[15px]">{icon}</span>
+      <span className="hidden h-1.5 w-10 overflow-hidden rounded-full bg-ink/15 sm:block">
+        <span className={`block h-full rounded-full transition-[width] duration-500 ${barClass}`} style={{ width: `${pct}%` }} />
+      </span>
+      <span className="min-w-[1.4em] text-right font-display text-[14px] leading-none font-extrabold tabular-nums">{Math.round(value)}</span>
+    </span>
+  )
+}
+
+/** Energy and mood side by side in one plate. */
+function Stats() {
+  const t = useT()
+  const energy = usePlayer((s) => Math.round(s.energy))
+  const maxEnergy = usePlayer((s) => s.maxEnergy)
+  const mood = usePlayer((s) => Math.round(s.mood))
+  return (
+    <div className="hud-slim flex h-9 shrink-0 items-center gap-2 px-2 text-ink sm:h-10">
+      <Meter label={t('hud.energy')} icon={<BoltIcon />} value={energy} max={maxEnergy} barClass={energy < 20 ? 'animate-pulse bg-lacquer' : 'bg-gold'} />
+      <span className="h-4 w-px bg-outline/20" />
+      <Meter label={t('hud.mood')} icon={<MoodIcon value={mood} />} value={mood} max={100} barClass="bg-rose" />
     </div>
   )
 }
 
-/** Top HUD: buttons + clock on the left, money + energy + mood on the right. */
-export function HUD() {
+/** Money of the country you're in, and the other wallet small underneath. */
+function Money() {
   const t = useT()
   const money = usePlayer((s) => s.money)
   const currency = usePlayer((s) => s.currency)
   const otherMoney = usePlayer((s) => s.otherMoney)
   const otherCurrency = currency === 'VND' ? 'EUR' : 'VND'
-  const energy = usePlayer((s) => Math.round(s.energy))
-  const maxEnergy = usePlayer((s) => s.maxEnergy)
-  const mood = usePlayer((s) => Math.round(s.mood))
-  const setSettingsOpen = useUI((s) => s.setSettingsOpen)
-  const openPanel = useUI((s) => s.openPanel)
   const gain = useMoneyGain(money)
-  const showVisa = useFlags((s) => !!s.flags['visa.path'] && !s.flags['de.arrived'])
-
   return (
-    <header className="pointer-events-none absolute inset-x-0 top-0 z-10 flex items-start justify-between gap-2 px-safe pt-safe">
-      <div className="flex flex-col items-start gap-2">
-        <div className="flex gap-2">
-          <HudButton label={t('hud.settings')} onClick={() => setSettingsOpen(true)}>
-            <GearIcon />
-          </HudButton>
-          {/* Music on/off lives in Settings; this spot is the phone (friends, chat). */}
-          <HudButton label={t('hud.phone')} onClick={() => openPanel({ type: 'phone' })} tour="phone">
-            <PhoneIcon />
-            <PhoneBadge />
-          </HudButton>
-          <HudButton label={t('hud.bag')} onClick={() => openPanel({ type: 'bag' })} tour="bag">
-            <BagIcon />
-            <BagFullBadge />
-          </HudButton>
-          {showVisa && (
-            <HudButton label={t('visa.title')} onClick={() => openPanel({ type: 'visa' })} tour="passport">
-              <ActionIcon name="passport" />
-            </HudButton>
-          )}
-        </div>
-        <Clock />
-        {/* Out of the column's flow so a long objective never squeezes the money/stat chips. */}
-        <div className="relative h-0 w-full">
-          <div className="absolute top-0 left-0">
-            <QuestTracker />
-          </div>
-        </div>
-      </div>
-
-      <div className="flex flex-col items-end gap-2">
-        <div className="relative">
-          <div
-            role="status"
-            aria-label={`${t('hud.money')}: ${formatMoney(money, currency)}`}
-            className="hud-chip flex h-11 items-center gap-1.5 pr-3 pl-1 font-display text-base font-extrabold text-ink sm:text-lg"
-          >
-            <CoinIcon className={`-ml-3 shrink-0 text-[30px] drop-shadow-[0_2px_0_var(--color-outline)] ${gain ? 'animate-coin' : ''}`} key={gain?.key} />
-            <span className="tabular-nums">{formatMoney(money, currency)}</span>
-          </div>
-          {/* The other wallet (euros in Vietnam, đồng in Germany), small under the main one. */}
+    <div className="relative">
+      <div role="status" aria-label={`${t('hud.money')}: ${formatMoney(money, currency)}`} className="hud-slim flex h-9 items-center gap-1 pr-2.5 pl-1 text-ink sm:h-10">
+        <CoinIcon className={`shrink-0 text-[20px] ${gain ? 'animate-coin' : ''}`} key={gain?.key} />
+        <span className="flex flex-col items-end leading-none">
+          <span className="font-display text-[15px] font-extrabold tabular-nums sm:text-base">{formatMoney(money, currency)}</span>
           {otherMoney > 0 && (
-            <div
-              role="status"
+            <span
               data-testid="other-money"
               aria-label={`${t('hud.otherMoney')}: ${formatMoney(otherMoney, otherCurrency)}`}
               title={t('hud.otherMoney')}
-              className="hud-chip absolute top-full right-1 mt-1 px-2 py-0.5 text-[11px] font-black whitespace-nowrap text-ink/70 tabular-nums"
+              className="mt-px text-[9.5px] font-black text-ink/55 tabular-nums"
             >
               + {formatMoney(otherMoney, otherCurrency)}
-            </div>
-          )}
-          {gain && (
-            <span
-              key={gain.key}
-              className="animate-float-up absolute top-full right-1 mt-1 rounded-full bg-jade px-2.5 py-0.5 text-sm font-black whitespace-nowrap text-white shadow"
-            >
-              +{formatMoney(gain.amount, currency)}
             </span>
           )}
+        </span>
+      </div>
+      {gain && (
+        <span key={gain.key} className="animate-float-up absolute top-1 right-full mr-1.5 rounded-full bg-jade px-2 py-0.5 text-[12px] font-black whitespace-nowrap text-white shadow">
+          +{formatMoney(gain.amount, currency)}
+        </span>
+      )}
+    </div>
+  )
+}
+
+export function HUD() {
+  const t = useT()
+  const setSettingsOpen = useUI((s) => s.setSettingsOpen)
+  const openPanel = useUI((s) => s.openPanel)
+  const showVisa = useFlags((s) => !!s.flags['visa.path'] && !s.flags['de.arrived'])
+
+  return (
+    <header className="pointer-events-none absolute inset-x-0 top-0 z-10 flex flex-col gap-1.5 px-safe pt-safe">
+      {/* Row 1: status line */}
+      <div className="flex items-start justify-between gap-2">
+        <div className="flex min-w-0 items-center gap-1.5">
+          <Clock />
+          <Stats />
         </div>
-        <div className="flex gap-1.5">
-          <StatChip
-            label={t('hud.energy')}
-            icon={<BoltIcon />}
-            value={energy}
-            max={maxEnergy}
-            barClass={energy < 20 ? 'animate-pulse bg-lacquer' : 'bg-linear-to-r from-gold to-[#f7a440]'}
-          />
-          <StatChip label={t('hud.mood')} icon={<MoodIcon value={mood} />} value={mood} max={100} barClass="bg-linear-to-r from-rose to-[#ff7f9f]" />
+        <Money />
+      </div>
+
+      {/* Row 2: the objective (as wide as it can be) and the icon rail on the right */}
+      <div className="flex items-start justify-between gap-2">
+        <div className="min-w-0 flex-1">
+          <QuestTracker />
         </div>
-        <div className="flex flex-col items-end gap-1.5 sm:flex-row sm:items-center">
+        <nav className="flex shrink-0 flex-col items-end gap-1.5" aria-label={t('hud.menu')}>
+          <RailButton label={t('hud.bag')} onClick={() => openPanel({ type: 'bag' })} tour="bag">
+            <BagIcon />
+            <BagFullBadge />
+          </RailButton>
+          {/* The phone (friends, chat); music on/off lives in Settings. */}
+          <RailButton label={t('hud.phone')} onClick={() => openPanel({ type: 'phone' })} tour="phone">
+            <PhoneIcon />
+            <PhoneBadge />
+          </RailButton>
+          <RailButton label={`${t('map.title')} (M)`} onClick={() => openPanel({ type: 'map' })} tour="map">
+            <MapIcon />
+          </RailButton>
+          {showVisa && (
+            <RailButton label={t('visa.title')} onClick={() => openPanel({ type: 'visa' })} tour="passport">
+              <ActionIcon name="passport" />
+            </RailButton>
+          )}
           <OnlineChip />
           <EmoteButton />
-        </div>
-        {/* No minimap: the map opens with M or this button. */}
-        <HudButton label={`${t('map.title')} (M)`} onClick={() => openPanel({ type: 'map' })} tour="map">
-          <MapIcon />
-        </HudButton>
+          <RailButton label={t('hud.settings')} onClick={() => setSettingsOpen(true)}>
+            <GearIcon />
+          </RailButton>
+        </nav>
       </div>
     </header>
   )

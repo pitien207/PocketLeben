@@ -1,5 +1,5 @@
 {
-  "loading.text": "Koffer wird gepackt...",
+  "loading.text": "Koffer packen…",
   "hud.settings": "Einstellungen",
   "hud.musicMute": "Musik aus",
   "hud.musicUnmute": "Musik an",
@@ -573,5 +573,17 @@
   "action.takePapers": "Originale nehmen",
   "interact.papers": "Dokumentenschrank",
   "quests.directions": "Weg zeigen",
-  "quests.unfocus": "Wegweiser zu diesem Schritt beenden"
+  "quests.unfocus": "Wegweiser zu diesem Schritt beenden",
+  "weekdayShort.0": "Mo",
+  "weekdayShort.1": "Di",
+  "weekdayShort.2": "Mi",
+  "weekdayShort.3": "Do",
+  "weekdayShort.4": "Fr",
+  "weekdayShort.5": "Sa",
+  "weekdayShort.6": "So",
+  "hud.menu": "Menü",
+  "loading.assets": "Wird geladen…",
+  "loading.ready": "Los geht’s!",
+  "loading.tip": "Tipp",
+  "loading.word": "Vokabel"
 }

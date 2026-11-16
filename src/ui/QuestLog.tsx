@@ -11,7 +11,7 @@ import { useFlags } from '../store/flagsStore'
 import { useUI } from '../store/uiStore'
 import { Sheet } from './Sheet'
 import { SkipStepButton } from './TestTools'
-import { CheckIcon, ScrollIcon, StarIcon, TargetIcon } from './icons'
+import { CheckIcon, PinIcon, ScrollIcon, StarIcon, TargetIcon } from './icons'
 import { SecretList } from './SecretCard'
 import { SECRETS_ENABLED } from '../data/secrets'
 
@@ -42,26 +42,24 @@ export function QuestTracker() {
 
   if (!objective) return null
   const blocked = hints && guide?.stepId === stepId ? guide.blocked : null
+  const progress = guide && guide.stepId === stepId ? `${guide.done}/${guide.total}` : null
+  // Slim (1.14): one plate, at most two lines; the blocker shows as one red line under it.
   return (
-    <div className="pointer-events-auto flex w-[min(17rem,calc(100vw-1.5rem))] items-stretch gap-1 sm:w-80" data-tour="quest">
+    <div className="pointer-events-auto flex w-full max-w-[min(21rem,100%)] items-stretch gap-1" data-tour="quest">
       <button
         type="button"
         key={flash}
         onClick={() => openPanel({ type: 'quests' })}
-        className={`hud-chip relative flex min-w-0 flex-1 items-start gap-1.5 px-2.5 py-1.5 text-left ${flash ? 'step-done-flash' : ''}`}
+        className={`hud-slim relative flex min-w-0 flex-1 items-center gap-1.5 px-2 py-1 text-left ${flash ? 'step-done-flash' : ''}`}
       >
-        <span className="mt-0.5 shrink-0 text-[18px]">{flash ? <CheckIcon /> : objective.focused ? '📍' : <TargetIcon />}</span>
-        <span className="min-w-0">
-          <span className="block text-[12px] leading-snug font-extrabold text-ink" data-testid="tracker-step">
+        <span className={`shrink-0 text-[15px] ${blocked ? 'text-lacquer' : ''}`}>{flash ? <CheckIcon /> : objective.focused ? <PinIcon /> : <TargetIcon />}</span>
+        <span className="min-w-0 flex-1">
+          <span className="line-clamp-2 text-[11.5px] leading-[1.2] font-extrabold text-ink sm:text-[12.5px]" data-testid="tracker-step">
             {localize(objective.step.text)}
           </span>
-          {guide && guide.stepId === stepId && (
-            <span className="block text-[10px] font-black text-ink/60 tabular-nums">
-              {t('guide.progress', { done: guide.done, total: guide.total })}
-            </span>
-          )}
-          {blocked && <span className="line-clamp-2 text-[11px] leading-tight font-bold text-lacquer">⚠️ {fillGuide(localize(blocked))}</span>}
+          {blocked && <span className="mt-0.5 line-clamp-1 text-[10.5px] leading-tight font-bold text-lacquer">{fillGuide(localize(blocked))}</span>}
         </span>
+        {progress && <span className="shrink-0 self-start rounded-full bg-ink/8 px-1.5 py-px text-[9.5px] font-black text-ink/55 tabular-nums">{progress}</span>}
       </button>
       {objective.focused && (
         <button
@@ -69,18 +67,18 @@ export function QuestTracker() {
           aria-label={t('quests.unfocus')}
           title={t('quests.unfocus')}
           onClick={() => useGuide.getState().setFocus(null)}
-          className="hud-chip grid w-8 shrink-0 place-items-center text-sm font-black text-ink/60"
+          className="hud-slim grid w-7 shrink-0 place-items-center text-[12px] font-black text-ink/60"
         >
           ✕
         </button>
       )}
-      <SkipStepButton stepId={objective.step.id} className="hud-chip px-2 text-base" />
+      <SkipStepButton stepId={objective.step.id} className="hud-slim px-1.5 text-sm" />
       {hints && (
         <button
           type="button"
           aria-label={t('guide.title')}
           onClick={() => openPanel({ type: 'guide' })}
-          className={`hud-chip grid w-9 shrink-0 place-items-center font-display text-xl font-extrabold ${blocked ? 'text-lacquer' : 'text-jade'}`}
+          className={`hud-slim grid w-8 shrink-0 place-items-center font-display text-lg font-extrabold ${blocked ? 'text-lacquer' : 'text-jade'}`}
         >
           <span className={blocked ? 'animate-pulse' : ''}>?</span>
         </button>
@@ -149,7 +147,7 @@ export function QuestLog() {
                         const focused = focus === s.id
                         return (
                           <li key={s.id} className={`flex items-center gap-1.5 text-[13px] font-bold ${ok ? 'text-jade line-through' : 'text-ink'}`}>
-                            <span>{ok ? '✓' : focused ? '📍' : '○'}</span>
+                            <span className="w-4 shrink-0 text-center">{ok ? '✓' : focused ? <PinIcon className="inline align-[-2px]" /> : '○'}</span>
                             {ok ? (
                               <span className="flex-1">{localize(s.text)}</span>
                             ) : (

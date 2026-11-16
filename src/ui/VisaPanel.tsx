@@ -14,6 +14,7 @@ import { usePlayer } from '../store/playerStore'
 import { useTime } from '../store/timeStore'
 import { useUI } from '../store/uiStore'
 import { Sheet } from './Sheet'
+import { PinIcon } from './icons'
 
 /** Quest step that leads to a document done in a real place (for "Chỉ đường"). */
 function stepFor(docId: string): string | null {
@@ -90,7 +91,8 @@ export function VisaPanel() {
                   }}
                   className="shrink-0 rounded-xl border-2 border-lacquer bg-white px-2.5 py-1.5 text-[12px] font-black text-lacquer active:translate-y-0.5"
                 >
-                  📍 {t('quests.directions')}
+                  <PinIcon className="mr-0.5 inline align-[-2px]" />
+                  {t('quests.directions')}
                 </button>
               )}
               {!complete && step && !step.auto && !step.at && (

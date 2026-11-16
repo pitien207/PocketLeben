@@ -215,6 +215,17 @@
     0 3px 0 var(--color-outline);
 }
 
+/* Slim HUD plate (1.14): the same paper + ink outline, half the bulk — keeps the 3D view open on phones. */
+@utility hud-slim {
+  background-color: var(--color-cream);
+  border: 2px solid var(--color-outline);
+  border-radius: 0.75rem;
+  box-shadow:
+    inset 0 1.5px 0 #ffffff,
+    inset 0 -2px 0 #f1dcb6,
+    0 2px 0 var(--color-outline);
+}
+
 /* Hà Nội's blue enamel street-name plaque (white inner border). */
 @utility plaque-hanoi {
   background-color: var(--color-hanoi-blue);

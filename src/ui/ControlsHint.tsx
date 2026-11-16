@@ -21,13 +21,13 @@ export function ControlsHint() {
 
   return (
     <div
-      className={`pointer-events-none absolute inset-x-0 z-10 flex justify-center px-6 transition-opacity duration-700 ${
+      className={`pointer-events-none absolute inset-x-0 z-10 flex justify-center pr-14 pl-6 transition-opacity duration-700 ${
         ready && visible && !touring ? 'opacity-100' : 'opacity-0'
       }`}
       // Above the joystick, clear of the HUD and the quest tracker.
-      style={{ bottom: 'calc(max(1rem, env(safe-area-inset-bottom)) + 9.5rem)' }}
+      style={{ bottom: 'calc(max(1rem, env(safe-area-inset-bottom)) + 8.75rem)' }}
     >
-      <p className="max-w-md rounded-2xl bg-ink/75 px-4 py-2 text-center text-sm font-bold text-cream shadow-[inset_0_0_0_2px_rgba(244,192,78,0.35)]">
+      <p className="max-w-xs rounded-xl bg-ink/70 px-3 py-1.5 text-center text-[11.5px] leading-snug font-bold text-cream sm:max-w-md sm:text-[13px]">
         {t(isTouch ? 'hint.touch' : 'hint.desktop')}
       </p>
     </div>

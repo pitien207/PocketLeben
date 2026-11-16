@@ -1,5 +1,5 @@
 {
-  "loading.text": "Đang xếp hành lý...",
+  "loading.text": "Đang xếp vali…",
   "hud.settings": "Cài đặt",
   "hud.musicMute": "Tắt nhạc",
   "hud.musicUnmute": "Bật nhạc",
@@ -573,5 +573,17 @@
   "action.takePapers": "Lấy giấy tờ gốc",
   "interact.papers": "Tủ giấy tờ",
   "quests.directions": "Chỉ đường",
-  "quests.unfocus": "Bỏ chỉ đường tới nhiệm vụ này"
+  "quests.unfocus": "Bỏ chỉ đường tới nhiệm vụ này",
+  "weekdayShort.0": "T2",
+  "weekdayShort.1": "T3",
+  "weekdayShort.2": "T4",
+  "weekdayShort.3": "T5",
+  "weekdayShort.4": "T6",
+  "weekdayShort.5": "T7",
+  "weekdayShort.6": "CN",
+  "hud.menu": "Menu",
+  "loading.assets": "Đang tải tài nguyên…",
+  "loading.ready": "Lên đường thôi!",
+  "loading.tip": "Mẹo",
+  "loading.word": "Từ vựng"
 }

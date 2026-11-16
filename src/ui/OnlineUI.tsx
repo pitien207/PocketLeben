@@ -36,12 +36,12 @@ export function EmoteButton() {
         aria-expanded={open}
         data-testid="emote-button"
         onClick={() => setOpen((o) => !o)}
-        className="hud-chip pointer-events-auto relative grid h-9 w-9 place-items-center text-[20px] transition active:translate-y-[3px] active:shadow-none"
+        className="hud-slim pointer-events-auto relative grid h-9 w-9 place-items-center text-[18px] transition active:translate-y-[2px] active:shadow-none sm:h-10 sm:w-10 sm:text-[20px]"
       >
         <ChatIcon />
       </button>
       {open && (
-        <div className="panel pointer-events-auto fixed inset-x-3 z-30 mx-auto max-w-[19rem] p-2.5" style={{ top: 'calc(max(0.625rem, env(safe-area-inset-top)) + 9rem)' }} data-testid="emote-picker">
+        <div className="panel pointer-events-auto absolute top-0 right-full z-30 mr-2 w-[min(19rem,calc(100vw-4.5rem))] p-2.5" data-testid="emote-picker">
           <div className="grid grid-cols-6 gap-1.5">
             {ORDER.slice(0, 6).map((e) => (
               <button
@@ -116,7 +116,7 @@ export function OnlineChip() {
   if (status === 'off') return null
   if (status === 'replaced') {
     return (
-      <button type="button" onClick={reconnect} data-testid="online-chip" className="hud-chip pointer-events-auto flex h-8 items-center gap-1.5 px-3 text-xs font-black text-ink">
+      <button type="button" onClick={reconnect} data-testid="online-chip" className="hud-slim pointer-events-auto flex h-9 max-w-[11rem] items-center gap-1.5 px-2.5 text-[11px] leading-tight font-black text-ink sm:h-10">
         <span className="h-2.5 w-2.5 rounded-full bg-gold" /> {t('online.replaced')}
       </button>
     )
@@ -129,14 +129,14 @@ export function OnlineChip() {
         onClick={() => setOpen((o) => !o)}
         data-testid="online-chip"
         aria-label={live ? t('online.count', { n: Math.max(online, 1) }) : t('online.connecting')}
-        className="hud-chip pointer-events-auto flex h-8 items-center gap-1.5 px-3 text-xs font-black text-ink"
+        title={live ? t('online.count', { n: Math.max(online, 1) }) : t('online.connecting')}
+        className="hud-slim pointer-events-auto flex h-9 w-9 flex-col items-center justify-center gap-0.5 text-ink sm:h-10 sm:w-10"
       >
-        <span className={`h-2.5 w-2.5 rounded-full ${live ? 'bg-[#3fae72]' : 'animate-pulse bg-ink/40'}`} />
-        <span className="tabular-nums sm:hidden">{live ? Math.max(online, 1) : '…'}</span>
-        <span className="hidden sm:inline">{live ? t('online.count', { n: Math.max(online, 1) }) : t('online.connecting')}</span>
+        <span className={`h-2 w-2 rounded-full ${live ? 'bg-[#3fae72]' : 'animate-pulse bg-ink/40'}`} />
+        <span className="text-[11px] leading-none font-black tabular-nums">{live ? Math.max(online, 1) : '…'}</span>
       </button>
       {open && live && (
-        <div className="panel pointer-events-auto absolute top-full right-0 z-30 mt-2 w-52 p-3 text-sm" data-testid="online-list">
+        <div className="panel pointer-events-auto absolute top-0 right-full z-30 mr-2 w-56 p-3 text-sm" data-testid="online-list">
           <p className="mb-1.5 font-display font-extrabold text-lacquer">{t('online.here')}</p>
           {roster.length === 0 ? (
             <p className="text-[13px] font-bold text-ink/65">{t('online.nobody')}</p>

@@ -3,7 +3,6 @@ import { LANGUAGE_NAMES, useT } from '../i18n'
 import { signOut } from '../net/auth'
 import { useSettings, type Language } from '../store/settingsStore'
 import { createTitleAudio } from '../title/titleAudio'
-import { HanoiScenery } from './HanoiScenery'
 import { googleSignedOut } from '../net/google'
 import { LoginPanel, useAccount } from './LoginPanel'
 
@@ -124,7 +123,7 @@ function DeskBackdrop() {
         requestAnimationFrame(() => setReady(true))
       })
       .catch(() => {
-        // No WebGL / offline chunk: the painted Hà Nội backdrop stays.
+        // No WebGL / offline chunk: the plain morning sky stays.
       })
     return () => {
       cancelled = true
@@ -133,7 +132,6 @@ function DeskBackdrop() {
   }, [])
   return (
     <>
-      <HanoiScenery className={`absolute inset-x-0 bottom-0 h-[42%] w-full transition-opacity duration-1000 ${ready ? 'opacity-0' : 'opacity-100'}`} />
       <div ref={host} className={`absolute inset-0 transition-opacity duration-[1200ms] ${ready ? 'opacity-100' : 'opacity-0'}`} />
     </>
   )

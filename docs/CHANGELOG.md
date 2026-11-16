@@ -1,5 +1,28 @@
 # Changelog
 
+## 1.14.0 — Slim HUD, new loading screen
+
+### Changed — HUD (phones first)
+- The top of the screen was mostly HUD. Now: **one thin status line** (clock with short date, energy + mood in one
+  plate, money with the second wallet underneath), **the objective in one plate** (max. two lines, progress as a
+  small badge, a blocker as one red line), and **all buttons as a narrow icon rail** on the right edge
+  (bag, phone, map, visa file, online players, emotes, settings). On a 412 px phone the left side ends ~92 px from
+  the top (was ~300 px).
+- Slimmer outline style (`hud-slim`), SVG pin instead of 📍 emoji, smaller camera +/− (now low on the right),
+  smaller "how to move" hint that stays clear of the buttons. Emote picker and online list open to the left of the rail.
+
+### Changed — loading
+- New loading screen from the user's design: dusk on a Hà Nội rooftop — you from behind holding up the passport,
+  a plane heading for Germany, string lights, washing line, water tank — logo VISA HUNTER / ĐI ĐỨC, rotating tips
+  (vi/en/de) and a progress bar. The first static splash (before the code arrives) uses the same colours and logo.
+- The old Hồ Gươm picture is gone everywhere (title screen placeholder, loading screen).
+
+### Manual test checklist (phone)
+- [ ] Open the game on the phone: dusk splash → title → "Chơi" → rooftop loading screen with tips and a bar.
+- [ ] In the street: the HUD takes only the top strip + a thin rail on the right; nothing overlaps at 360 px.
+- [ ] Rail: bag, phone, map, settings open; online count + emotes appear when online; the emote picker opens to the left.
+- [ ] Objective plate: tap = quest log, "?" = guide card; a blocked step shows one red line.
+
 ## 1.13.0 — Visa papers in real places, two wallets, Termin today, directions for every task
 
 ### Added
