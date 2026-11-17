@@ -1,7 +1,7 @@
 {
   "name": "visa-hunter",
   "private": true,
-  "version": "1.25.0",
+  "version": "1.29.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -16,8 +16,10 @@
     "@react-three/fiber": "^9.8.2",
     "@react-three/rapier": "^2.2.0",
     "canvas-confetti": "^1.9.4",
+    "motion": "^14.14.0",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
+    "sonner": "^2.0.8",
     "three": "^0.187.0",
     "ws": "^8.23.0",
     "zustand": "^5.1.0"

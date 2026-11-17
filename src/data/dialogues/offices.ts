@@ -19,7 +19,7 @@ const closed = (vi: string, en: string): DialogueDef['nodes'][string] => ({
   text: L(`${vi} Giờ làm việc ${OPEN[0]}h–${OPEN[1]}h, em bấm đồng hồ để chờ nhé.`, `${en} Open ${OPEN[0]}:00–${OPEN[1]}:00 — tap the clock to wait.`),
 })
 
-/** Translation + notary fee for the ten pages (story 2.1: 1.500.000 ₫). */
+/** Translation + notary fee for the ten pages (story 2.1: 1.500.000đ). */
 function notaryCost() {
   const step = VISA_DOCS.find((d) => d.id === 'diploma')?.steps[0]
   return typeof step?.cost === 'number' ? step.cost : 0
@@ -126,9 +126,9 @@ export const OFFICE_DIALOGUES: Record<string, DialogueDef> = {
       exchange: {
         text: L('Đổi bao nhiêu em? Hôm nay ngân hàng bán Euro giá 1 € = {rate}, mua lại giá {sell}. Sang Đức thì tiêu bằng Euro, còn tiền Việt vẫn nằm trong ví của em. Tuần đầu bên đó cần ít nhất khoảng 600 € đấy.', 'How much? Today the bank sells €1 for {rate} and buys it back for {sell}. In Germany you pay in euros; your đồng stay in your wallet. You’ll need at least about €600 for the first week.'),
         choices: [
-          { text: L('Mua 100 € (3.150.000 ₫)', 'Buy €100 (3,150,000 ₫)', '100 € kaufen'), effect: { type: 'action', id: 'bank.exchange', arg: '3150000' } },
-          { text: L('Mua 300 € (9.450.000 ₫)', 'Buy €300 (9,450,000 ₫)', '300 € kaufen'), effect: { type: 'action', id: 'bank.exchange', arg: '9450000' } },
-          { text: L('Mua 600 € (18.900.000 ₫)', 'Buy €600 (18,900,000 ₫)', '600 € kaufen'), effect: { type: 'action', id: 'bank.exchange', arg: '18900000' } },
+          { text: L('Mua 100 € (3.150.000đ)', 'Buy €100 (3,150,000đ)', '100 € kaufen'), effect: { type: 'action', id: 'bank.exchange', arg: '3150000' } },
+          { text: L('Mua 300 € (9.450.000đ)', 'Buy €300 (9,450,000đ)', '300 € kaufen'), effect: { type: 'action', id: 'bank.exchange', arg: '9450000' } },
+          { text: L('Mua 600 € (18.900.000đ)', 'Buy €600 (18,900,000đ)', '600 € kaufen'), effect: { type: 'action', id: 'bank.exchange', arg: '18900000' } },
           { text: L('Đổi hết tiền Việt', 'Change all my đồng', 'Alles tauschen'), effect: { type: 'action', id: 'bank.exchange', arg: 'all' } },
           { text: L('Thôi để sau ạ', 'Not now', 'Später') },
         ],

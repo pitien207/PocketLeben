@@ -28,7 +28,13 @@ Every asset must be CC0 or our own (plan §2, §9). List each one here with its 
   **Fluent Emoji 3D** by Microsoft — https://github.com/microsoft/fluentui-emoji — **MIT licence**
   (Copyright (c) Microsoft Corporation). Shrunk to 128 px WebP; otherwise unchanged.
 
+## Grab sprites (1.26)
+- `src/assets/grab/*.png` (top-down motorcycle, cars, cones, barrier, oil) from **Kenney**'s *Racing Pack* — https://kenney.nl —
+  license **CC0 1.0**. Renamed only.
+
 ## Libraries
+- **motion** (motion.dev, formerly Framer Motion, MIT licence, https://github.com/motiondivision/motion) for the quest animations.
+- **sonner** (Emil Kowalski, MIT licence, https://github.com/emilkowalski/sonner) for the notifications.
 - **canvas-confetti** (Kirill Shestakov, ISC licence, https://github.com/catdad/canvas-confetti) for the confetti in
   the job mini-games.
 

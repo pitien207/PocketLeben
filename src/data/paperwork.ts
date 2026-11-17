@@ -246,7 +246,7 @@ export const CLAUSE_DOCS = {
       { text: L('Ngành: điều dưỡng hoặc nhà hàng (tùy sắp xếp).', 'Field: nursing or restaurant (as arranged).') },
       { text: L('Mức lương: 100 triệu đồng/tháng.', 'Salary: 100 million đồng a month.'), mark: L('Không nói trước thuế hay sau thuế', 'Doesn’t say gross or net') },
       { text: L('Thời gian xuất cảnh dự kiến: 3–6 tháng sau khi ký.', 'Expected departure: 3–6 months after signing.') },
-      { text: L('Phí dịch vụ: 250.000.000 ₫, đóng trước 70%. Phí không hoàn lại trong mọi trường hợp.', 'Service fee: 250,000,000 ₫, 70% up front. Not refundable in any case.'), mark: L('Phí không hoàn lại', 'Non-refundable fee') },
+      { text: L('Phí dịch vụ: 250.000.000đ, đóng trước 70%. Phí không hoàn lại trong mọi trường hợp.', 'Service fee: 250,000,000đ, 70% up front. Not refundable in any case.'), mark: L('Phí không hoàn lại', 'Non-refundable fee') },
       { text: L('Học viên tự học tiếng Đức theo hướng dẫn của công ty.', 'The student learns German following the company’s advice.') },
       { text: L('Hợp đồng lập thành 2 bản tiếng Việt.', 'Two copies, in Vietnamese.') },
     ],

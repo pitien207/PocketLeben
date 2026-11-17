@@ -96,10 +96,18 @@ function DongIcon() {
           <stop offset="1" stopColor="#f2a81d" />
         </linearGradient>
       </defs>
-      <circle cx="12" cy="12.6" r="10" fill="#a8650f" />
-      <circle cx="12" cy="11.4" r="10" fill="url(#w-dong)" stroke="#8a5210" strokeWidth="1.2" />
-      <circle cx="12" cy="11.4" r="7.2" fill="none" stroke="#fff6c9" strokeWidth="1" opacity="0.85" />
-      <path d="M9 7.6h4.6M12 6v9.2M12.1 9.4c-1.9-.9-3.9.3-3.9 2.5s2 3.4 3.9 2.5M8.6 17h6" fill="none" stroke="#8a5210" strokeWidth="1.5" strokeLinecap="round" />
+      {/* 1.28: an embossed "đ" (no underline), a milled rim and a shine */}
+      <circle cx="12" cy="12.7" r="10.2" fill="#a8650f" />
+      <circle cx="12" cy="11.5" r="10.2" fill="url(#w-dong)" stroke="#8a5210" strokeWidth="1.1" />
+      <circle cx="12" cy="11.5" r="8.4" fill="none" stroke="#c98a1c" strokeWidth="1.4" strokeDasharray="0.9 1.1" opacity="0.7" />
+      <circle cx="12" cy="11.5" r="6.9" fill="#ffd45a" stroke="#b9781a" strokeWidth="0.8" />
+      <text x="12.2" y="15.3" textAnchor="middle" fontSize="10.5" fontWeight="900" fontFamily="'Be Vietnam Pro', sans-serif" fill="#fff3c4" opacity="0.9">
+        đ
+      </text>
+      <text x="12" y="15" textAnchor="middle" fontSize="10.5" fontWeight="900" fontFamily="'Be Vietnam Pro', sans-serif" fill="#8a5210">
+        đ
+      </text>
+      <path d="M6.2 7.6a7 7 0 0 1 4.6-3" stroke="#ffffff" strokeWidth="1.4" fill="none" strokeLinecap="round" opacity="0.75" />
     </svg>
   )
 }

@@ -160,7 +160,7 @@ export const CONFIG = {
 
   /** The visa chapter (plan §6 chapter 2). Amounts are game-balanced, not real-world prices. */
   visa: {
-    /** Bank exchange (story 2.1, like Vietcombank 2026): you buy € at 31.500 ₫, sell € at 30.000 ₫. */
+    /** Bank exchange (story 2.1, like Vietcombank 2026): you buy € at 31.500đ, sell € at 30.000đ. */
     eurBuy: 31_500,
     eurSell: 30_000,
     /** Studium: blocked account (Sperrkonto) 2026, € — solved by the family (sổ đỏ) or Cô Lan's guarantee. */
@@ -329,7 +329,7 @@ export const CONFIG = {
     /** How long the controls hint stays on screen (ms). */
     hintDurationMs: 8000,
     /** How long a toast message stays on screen (ms). */
-    toastMs: 1700,
+    toastMs: 2600,
   },
 
   /** Rules shared by every WorkStation task. */
@@ -370,9 +370,14 @@ export const CONFIG = {
 
   /**
    * Side jobs in Vietnam (story 2.1 §11.1): each at most once a day; ranks after 8 and 20 times
-   * (+10 % / +20 % pay). Pay = regional minimum wage 2026 (25.500 ₫/h) × ~16 h per game shift.
+   * (+10 % / +20 % pay). Pay = regional minimum wage 2026 (25.500đ/h) × ~16 h per game shift.
    */
   vnJobs: {
+    /**
+     * TEMPORARY (1.27, user is testing the job games): every job may be done any number of times a day.
+     * Set back to true to restore "once a day".
+     */
+    oncePerDay: false,
     rankAt: [8, 20],
     rankBonus: [0, 0.1, 0.2],
     circleK: { day: 400_000, night: 520_000, energy: 15, nightEnergy: 30, dayHours: [6, 22] as [number, number], seconds: 90, minutes: 240 },
@@ -381,7 +386,7 @@ export const CONFIG = {
      * fareBase + farePerEdge × the shortest way (+rainBonus when it rains), +tip for 5 stars; speed in
      * map blocks per second. min/max = what a shift usually earns (job board).
      */
-    grab: { min: 300_000, max: 700_000, fuel: 40_000, energy: 20, hours: [6, 23] as [number, number], uniform: 300_000, rainBonus: 0.3, fine: 200_000, minutes: 240, seconds: 80, speed: 1.35, fareBase: 24_000, farePerEdge: 6_500, tip: 15_000 },
+    grab: { min: 300_000, max: 700_000, fuel: 40_000, energy: 20, hours: [6, 23] as [number, number], uniform: 300_000, rainBonus: 0.3, fine: 200_000, minutes: 240, seconds: 90, speed: 1.6, fareBase: 24_000, farePerEdge: 6_000, tip: 15_000 },
     /**
      * Tiệm trà sữa (1.17): a 90-second shift of the bubble-tea mini-game. Walking out early pays only
      * the share worked and counts as a strike; `maxQuits` strikes = fired for `banDays` days.
@@ -394,7 +399,7 @@ export const CONFIG = {
   jobs: {
     cafeBarista: {
       durationSec: 60,
-      /** Wage (VND) for a full shift at 100% multiplier 1.0 (story 2.1: 450.000 ₫ + tips 0–60k). */
+      /** Wage (VND) for a full shift at 100% multiplier 1.0 (story 2.1: 450.000đ + tips 0–60k). */
       pay: 450_000,
       tipPerFastOrder: 6_000,
       energyCost: 15,

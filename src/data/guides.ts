@@ -545,9 +545,9 @@ export const STEP_GUIDES: Record<string, StepGuide> = {
   'dep.exchange': {
     targets: [{ target: BANK }],
     hint: L(
-      'Ngân hàng Phố Cổ (cuối phố phía tây) → anh Quân → Mua Euro (1 € = 31.500 ₫). Lương đầu tiên cuối tuần đầu mới về: tuần đầu cần khoảng 600 €.',
-      'Old Quarter bank (west end) → Quân → Buy euros (€1 = 31,500 ₫). Your first pay comes at the end of the first week: you need about €600.',
-      'Bank am Westende → Herr Quân → Euro kaufen (1 € = 31.500 ₫). Für die erste Woche ~600 €.',
+      'Ngân hàng Phố Cổ (cuối phố phía tây) → anh Quân → Mua Euro (1 € = 31.500đ). Lương đầu tiên cuối tuần đầu mới về: tuần đầu cần khoảng 600 €.',
+      'Old Quarter bank (west end) → Quân → Buy euros (€1 = 31,500đ). Your first pay comes at the end of the first week: you need about €600.',
+      'Bank am Westende → Herr Quân → Euro kaufen (1 € = 31.500đ). Für die erste Woche ~600 €.',
     ),
     blockers: [vnOfficeClosed],
   },

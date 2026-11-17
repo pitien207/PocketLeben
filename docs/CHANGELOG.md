@@ -1,5 +1,79 @@
 # Changelog
 
+## 1.29.0 — New quest UI
+
+### Changed
+- **HUD quest card**: a progress ring around a 3D icon (🎯 the objective, 📍 when you pinned a step, ⚠️ when blocked,
+  ✅ for a moment when a step is done), the quest name with its step count, the step itself (slides in when it
+  changes), a 💡 hint button.
+- **Quest log**: a banner for the current chapter (3D icon, name, progress over all its steps); quest cards with a
+  coloured edge, a 3D icon (📜 main, ⭐ side, 🏆 done), a badge, a progress ring, opening and closing smoothly; the
+  steps as a timeline — done (green check, struck through), now (pulsing, highlighted, with a 🧭 "Chỉ đường" pill),
+  later (grey); finished quests and older chapters folded away. Animations with **Motion** (motion.dev, MIT).
+
+### Manual test checklist (phone)
+- [ ] HUD: the quest card with its ring and step; finish a step → check pops, the next step slides in.
+- [ ] Quest log: chapter banner, open / close a card, tap "Chỉ đường" → the guide points there (📍 on the HUD).
+
+## 1.28.0 — Grab without a route line, polished Grab UI, prettier đồng
+
+### Changed
+- **Grab is harder: no route line.** Only the pin and, when it is off screen, the arrow at the screen edge — now with
+  a rough distance ("~750 m", "1,2 km"). Find your own way through one-way streets, jams and road works.
+- **Grab UI**: the order card shows the steps (1 · Lấy món › 2 · Giao) and the distance; stats with icons; the
+  direction pad has drawn arrows on a shared base plate.
+- **Money in đồng everywhere is written "84.000đ"** (the ₫ sign showed as an underlined đ in our fonts), in the HUD,
+  shops, mini-games, dialogues and notifications. The HUD đồng coin is redrawn: an embossed "đ" on a milled gold coin.
+
+### Manual test checklist (phone)
+- [ ] Grab: no blue route line; the edge arrow shows a distance; order card steps and distance.
+- [ ] Money everywhere reads like "3.000.000đ"; the HUD coin looks like a gold coin with "đ".
+
+## 1.27.0 — Grab streets bigger and prettier; jobs without a daily limit (testing)
+
+### Changed
+- **Grab streets** redrawn in the style of Kenney's *Road Textures* (CC0): wider dark asphalt with light curbs and
+  sidewalks, dashed lane lines, a double yellow line on Tràng Tiền and Hàng Gai, zebra crossings on every arm of a
+  crossing, clean square crossings. Roofs and trees cast small shadows. The GPS line is wider and flows toward the
+  target. The camera is closer (everything about 25 % bigger again), cars and the scooter are bigger.
+- **No minimap** in Grab (not needed); the arrow at the screen edge still points to an off-screen target.
+- **TEMPORARY for testing:** every job (tea shop, Circle K, Grab, tutoring) can be done as often as you like in a
+  day (`CONFIG.vnJobs.oncePerDay = false`). Set it back to `true` before release.
+
+### Manual test checklist (phone)
+- [ ] Grab: streets look like a city map (asphalt, curbs, zebra crossings), bigger than before, no minimap.
+- [ ] Play the tea shift, Circle K and Grab twice in the same day: allowed.
+
+## 1.26.0 — Professional notifications, a bigger and much harder Grab
+
+### Changed — notifications
+- Notifications are now compact cards at the top edge (the Sonner library, MIT) instead of bubbles in the middle
+  of the screen: a 3D icon by kind (✅ step done, 🏆 quest done, 🏅 achievement, 💰 money, ⚠️ problem, 🛍️ shopping,
+  ✨ good news, 💬 info), a small coloured title, the text, a coloured edge. They stack neatly (max 3), can be
+  tapped or swiped away, stay a little longer, and no longer cover dialogues or panels.
+- During a mini-game nothing pops up over it: the news waits and appears one by one when the game closes.
+
+### Changed — Grab
+- **Bigger**: a map of 8 × 9 crossings (two new shops: Kem Tràng Tiền, Xôi Yến; more street names) seen through a
+  **camera that follows the scooter**, so roads, pins and vehicles are about 40 % larger. A **minimap** in the
+  corner shows the whole quarter, you, the target and the camera window; an **arrow at the screen edge** points
+  to a target that is off screen. Big cross-shaped direction pad, bigger order card.
+- **Top-down sprites** (Kenney Racing Pack, CC0): your green motorbike turns with the road; cars drive the streets.
+- **Much harder**:
+  - 5–9 **cars driving around** (more at higher ranks). Bump into one: stopped for a moment, the order loses a star.
+  - **Road works** (barrier, cones, 🚧) close 2–4 streets and move every 15 s; the GPS knows them.
+  - **Traffic jams** (red, slow) 4–6 streets, moving every 12 s; the GPS doesn't know them.
+  - A **tight ETA**; far too late (×1.7) and the **customer cancels** (no fare, 1★).
+  - **Offers expire** after 9 s if you don't pick one.
+- Summary shows cancelled orders and bumps.
+
+### Manual test checklist (phone)
+- [ ] Finish a quest step, buy clothes, borrow money: neat cards at the top with 3D icons; with a dialogue open
+      they don't cover it; tap one to close it.
+- [ ] Start Grab, then get a notification (e.g. a phone message): it appears only after the game.
+- [ ] Grab: camera follows you, minimap, edge arrow, cars driving (bump one → "Va quẹt! −1★"), road works,
+      offers expire, a late order gets cancelled.
+
 ## 1.25.0 — Real-looking portraits, 3D icons in the job games
 
 ### Changed — portraits

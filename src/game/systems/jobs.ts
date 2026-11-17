@@ -28,7 +28,8 @@ const today = () => useTime.getState().day
 const hour = () => useTime.getState().minutes / 60
 
 export const jobCount = (job: VnJob) => flagNumber(`job.${job}.count`)
-export const jobDoneToday = (job: VnJob) => getFlag(`job.${job}.day`) === today()
+/** Done today already? Always false while CONFIG.vnJobs.oncePerDay is off (testing). */
+export const jobDoneToday = (job: VnJob) => J.oncePerDay && getFlag(`job.${job}.day`) === today()
 /** 0 = Mới, 1 = Quen việc, 2 = Giỏi. */
 export function jobRank(job: VnJob) {
   const n = jobCount(job)

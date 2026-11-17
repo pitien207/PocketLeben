@@ -396,7 +396,9 @@ Quán cà phê đầu phố đổi thành **Tiệm Trà Sữa Phố Cổ**, ch�
 #### 🛵 Chạy Grab
 **Đăng ký tài xế** `job.grab` (một lần): mượn xe Wave của bố, mang bằng lái A1 và giấy tờ xe, mua áo + mũ đồng phục 300.000 ₫.
 
-✏️ **Trò chơi (1.21, giao hàng + chở khách, 80 giây, toàn màn hình):** bản đồ phố cổ nhìn từ trên xuống (dãy nhà ống, cây, Hồ Gươm có Tháp Rùa và cầu Thê Húc, tên phố Tràng Tiền, Hàng Bạc, Hàng Đào, Hàng Gai, Hàng Trống, Hàng Bông, Lê Thái Tổ, Đinh Tiên Hoàng…).
+✏️ **1.26 — khó hơn nhiều:** bản đồ to hơn (8 × 9 ngã tư, thêm Kem Tràng Tiền, Xôi Yến), camera bám theo xe (1.27: đường to, đẹp kiểu bản đồ thành phố, không còn bản đồ nhỏ), mũi tên chỉ đích; ô tô chạy thật trên đường (va quẹt = dừng xe, trừ 1★), đường đang sửa chắn lối (đổi chỗ mỗi 15 giây), ETA gắt, trễ quá ×1,7 thì khách hủy đơn (1★, không có tiền), đơn chờ quá 9 giây thì chuyển cho tài xế khác. Ca dài 90 giây.
+
+✏️ **Trò chơi (1.21, giao hàng + chở khách, toàn màn hình):** bản đồ phố cổ nhìn từ trên xuống (dãy nhà ống, cây, Hồ Gươm có Tháp Rùa và cầu Thê Húc, tên phố Tràng Tiền, Hàng Bạc, Hàng Đào, Hàng Gai, Hàng Trống, Hàng Bông, Lê Thái Tổ, Đinh Tiên Hoàng…).
 - App báo **2 đơn** để chọn: **giao đồ ăn** (Phở Gia Truyền, Bánh mì Phố Cổ, Tiệm Trà Sữa, Cà phê trứng, Bún chả Hàng Mành, Chè Bốn Mùa) hoặc **chở khách**, có quãng đường và tiền cuốc.
 - Lái: bấm ← ↑ ↓ → (hoặc vuốt bản đồ): xe tự chạy thẳng và rẽ ở ngã tư kế tiếp; bấm hướng ngược lại để quay đầu.
 - Đường chấm xanh = **GPS**, nhưng GPS không biết **tắc đường** (đoạn đỏ có ô tô, đi rất chậm, 12 giây đổi chỗ một lần). **Phố một chiều** (mũi tên ») không đi ngược được.

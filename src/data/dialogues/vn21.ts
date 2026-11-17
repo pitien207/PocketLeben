@@ -672,7 +672,7 @@ export const VN21_DIALOGUES: Record<string, DialogueDef> = {
     ],
     nodes: {
       goethe: {
-        text: L('📱 „GOETHE-INSTITUT: Le phi thi B1 cua ban chua duoc xac nhan. Chuyen khoan 3.000.000d trong hom nay de giu cho: STK 0123…"', '📱 “GOETHE-INSTITUT: your exam fee is not confirmed. Transfer 3,000,000 ₫ today to keep your place: acct 0123…”'),
+        text: L('📱 „GOETHE-INSTITUT: Le phi thi B1 cua ban chua duoc xac nhan. Chuyen khoan 3.000.000d trong hom nay de giu cho: STK 0123…"', '📱 “GOETHE-INSTITUT: your exam fee is not confirmed. Transfer 3,000,000đ today to keep your place: acct 0123…”'),
         choices: [
           { text: L('Chuyển khoản ngay', 'Transfer now'), effect: { type: 'action', id: 'sms.resolve', arg: 'pay' } },
           { text: L('Gọi lên Goethe hỏi cho chắc', 'Call the Goethe-Institut to check'), effect: { type: 'action', id: 'sms.resolve', arg: 'no' } },
@@ -686,16 +686,16 @@ export const VN21_DIALOGUES: Record<string, DialogueDef> = {
         ],
       },
       wedding: {
-        text: L('📱 „Tối nay đám cưới tao nhé, cả lớp 12A đều đến!" (Phong bì khoảng 500.000 ₫.)', '📱 “My wedding is tonight, the whole class is coming!” (An envelope of about 500,000 ₫.)'),
+        text: L('📱 „Tối nay đám cưới tao nhé, cả lớp 12A đều đến!" (Phong bì khoảng 500.000đ.)', '📱 “My wedding is tonight, the whole class is coming!” (An envelope of about 500,000đ.)'),
         choices: [
-          { text: L('Đi đám cưới (500.000 ₫)', 'Go to the wedding (500,000 ₫)'), cost: 500_000, effect: { type: 'action', id: 'sms.resolve', arg: 'pay' } },
+          { text: L('Đi đám cưới (500.000đ)', 'Go to the wedding (500,000đ)'), cost: 500_000, effect: { type: 'action', id: 'sms.resolve', arg: 'pay' } },
           { text: L('Nhắn xin lỗi không đi được', 'Apologise, can’t come'), effect: { type: 'action', id: 'sms.resolve', arg: 'no' } },
         ],
       },
       screen: {
-        text: L('Màn hình điện thoại vỡ nát. Tiệm sửa đầu ngõ báo giá thay màn hình 1.200.000 ₫.', 'The phone screen is shattered. The repair shop quotes 1,200,000 ₫ for a new one.'),
+        text: L('Màn hình điện thoại vỡ nát. Tiệm sửa đầu ngõ báo giá thay màn hình 1.200.000đ.', 'The phone screen is shattered. The repair shop quotes 1,200,000đ for a new one.'),
         choices: [
-          { text: L('Thay màn hình (1.200.000 ₫)', 'Replace it (1,200,000 ₫)'), cost: 1_200_000, effect: { type: 'action', id: 'sms.resolve', arg: 'pay' } },
+          { text: L('Thay màn hình (1.200.000đ)', 'Replace it (1,200,000đ)'), cost: 1_200_000, effect: { type: 'action', id: 'sms.resolve', arg: 'pay' } },
           { text: L('Dùng tạm', 'Live with it'), effect: { type: 'action', id: 'sms.resolve', arg: 'no' } },
         ],
       },

@@ -26,9 +26,9 @@ export const EVENT_CHANCE = 0.45
 
 export const EVENTS: GameEvent[] = [
   // Vietnam (story 2.1 §7)
-  E('momMoney', '📩 Mẹ chuyển khoản: „Mẹ gửi con ít tiền học tiếng nè!" (+500.000 ₫)', '📩 Mum sends money: “For your German lessons!” (+500,000 ₫)', { when: { country: 'vn' }, money: 500_000, mood: 5 }),
+  E('momMoney', '📩 Mẹ chuyển khoản: „Mẹ gửi con ít tiền học tiếng nè!" (+500.000đ)', '📩 Mum sends money: “For your German lessons!” (+500,000đ)', { when: { country: 'vn' }, money: 500_000, mood: 5 }),
   E('rainVn', '🌧 Mưa to cả buổi sáng, đường ngập. Ướt hết rồi… (Chạy Grab hôm nay: cuốc đắt hơn 30% nhưng mệt hơn.)', '🌧 Heavy rain all morning, streets flooded. Soaked… (Grab today: rides pay 30% more but tire you more.)', { when: { country: 'vn' }, mood: -5 }),
-  E('bikeBroken', '🔧 Xe đạp bị thủng lốp, vá mất 30.000 ₫.', '🔧 Flat bicycle tyre, 30,000 ₫ to fix.', { when: { country: 'vn' }, money: -30_000 }),
+  E('bikeBroken', '🔧 Xe đạp bị thủng lốp, vá mất 30.000đ.', '🔧 Flat bicycle tyre, 30,000đ to fix.', { when: { country: 'vn' }, money: -30_000 }),
   E('friendCoffee', '☕ Bạn cũ rủ cà phê sáng, kể chuyện cười cả buổi.', '☕ An old friend invites you for coffee and jokes.', { when: { country: 'vn' }, mood: 8 }),
   E('scamGoethe', '📱 Tin nhắn lạ: „Goethe-Institut: lệ phí thi của bạn chưa được xác nhận…"', '📱 A strange text: “Goethe-Institut: your exam fee has not been confirmed…”', { when: { all: [{ country: 'vn' }, { flag: 'course.0' }, { not: { germanLevel: 3 } }] }, weight: 0.7, action: { id: 'event.morning', arg: 'goethe' } }),
   E('vfsSeller', '📱 Tin nhắn: „Có slot VFS tuần sau, 3 triệu, chuyển khoản trước…"', '📱 A text: “VFS slot next week, 3 million, pay first…”', { when: { all: [{ country: 'vn' }, { flag: 'visa.path' }, { noFlag: 'visa.readyDay' }] }, weight: 1.2, action: { id: 'event.morning', arg: 'vfs' } }),

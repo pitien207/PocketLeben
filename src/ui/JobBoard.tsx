@@ -135,7 +135,7 @@ export function JobBoard() {
           )}
           {!!getFlag('phone.cracked') && (
             <button type="button" onClick={() => runAction('phone.fixScreen')} className="mt-1 w-full rounded-xl btn-jade py-1.5 text-[13px] font-extrabold">
-              {localize(L('Thay màn hình vỡ (1.200.000 ₫)', 'Replace the cracked screen (1,200,000 ₫)'))}
+              {localize(L('Thay màn hình vỡ (1.200.000đ)', 'Replace the cracked screen (1,200,000đ)'))}
             </button>
           )}
         </div>

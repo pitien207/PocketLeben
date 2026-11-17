@@ -159,7 +159,7 @@ function smsResolve(arg?: string) {
       p.addMoney(-Math.min(p.money, 3_000_000))
       p.changeMood(-10)
       bumpFlag('stats.scammed')
-      say(L('Mất 3.000.000 ₫… Goethe-Institut không bao giờ đòi tiền qua tin nhắn.', 'Lost 3,000,000 ₫… The Goethe-Institut never asks for money by text.'), 'bad')
+      say(L('Mất 3.000.000đ… Goethe-Institut không bao giờ đòi tiền qua tin nhắn.', 'Lost 3,000,000đ… The Goethe-Institut never asks for money by text.'), 'bad')
     } else {
       p.changeMood(5)
       setFlag('achv.alert', true)
@@ -170,7 +170,7 @@ function smsResolve(arg?: string) {
       p.addMoney(-Math.min(p.money, CONFIG.visa.scamSlotPrice))
       p.changeMood(-10)
       bumpFlag('stats.scammed')
-      say(L('Chuyển 3.000.000 ₫ xong thì số kia chặn bạn. Không có lịch hẹn nào cả. Lịch VFS miễn phí, ai bán là lừa.', 'You transfer 3,000,000 ₫ and the number blocks you. No appointment. VFS slots are free — anyone selling them is a scammer.'), 'bad')
+      say(L('Chuyển 3.000.000đ xong thì số kia chặn bạn. Không có lịch hẹn nào cả. Lịch VFS miễn phí, ai bán là lừa.', 'You transfer 3,000,000đ and the number blocks you. No appointment. VFS slots are free — anyone selling them is a scammer.'), 'bad')
     } else {
       say(L('Xóa tin nhắn. Chị Mai đã dặn: lịch hẹn miễn phí, ai bán là lừa.', 'Message deleted. Mai warned you: slots are free, sellers are scammers.'), 'good')
     }
