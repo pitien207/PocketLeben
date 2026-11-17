@@ -41,6 +41,17 @@
   --animate-twinkle: twinkle 1.4s ease-in-out infinite;
   --animate-cloud: cloud 14s ease-in-out infinite alternate;
   --animate-sound-hint: sound-hint 2.4s ease-in-out infinite;
+  --animate-rain: rain 0.45s linear infinite;
+
+  /* Grab mini-game: rain streaks sliding down over the map. */
+  @keyframes rain {
+    from {
+      background-position: 0 0;
+    }
+    to {
+      background-position: -16px 60px;
+    }
+  }
 
   /* Title: soft ring inviting a tap on the sound button. */
   @keyframes sound-hint {

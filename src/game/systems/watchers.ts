@@ -190,6 +190,7 @@ export function startWatchers(): () => void {
     timer = window.setTimeout(evaluate, 120)
   }
   let lastDay = useTime.getState().day
+  let lastBucket = -1
   const unsubs = [
     useFlags.subscribe(schedule),
     usePlayer.subscribe(schedule),
@@ -201,7 +202,12 @@ export function startWatchers(): () => void {
         chargeRent()
         morningEvent(s.day)
       }
-      schedule()
+      // Re-check quests every 5 game minutes, not on every tick (1.21: it ran each real second).
+      const bucket = s.day * 1000 + Math.floor(s.minutes / 5)
+      if (bucket !== lastBucket) {
+        lastBucket = bucket
+        schedule()
+      }
     }),
   ]
   if (getFlag('log.day') === undefined) snapshotDay(useTime.getState().day)

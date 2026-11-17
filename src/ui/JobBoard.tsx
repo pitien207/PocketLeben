@@ -34,7 +34,7 @@ const JOBS: Record<VnJob, { name: Localized; where: Localized; pay: string; hour
     where: L('Góc Hàng Gai – Hàng Bông', 'Corner of Hàng Gai and Hàng Bông'),
     pay: `${vnd(J.circleK.day)} · ${L('đêm', 'night').vi} ${vnd(J.circleK.night)}`,
     hours: '6–22h · 22–6h',
-    lock: L('Phỏng vấn 3 câu với chị Hạnh (quản lý) ở cửa hàng.', 'A 3-question interview with Hạnh (manager) at the shop.'),
+    lock: L('Gặp chị Hạnh (quản lý) ở cửa hàng là được nhận luôn.', 'See Hạnh (manager) at the shop — she hires on the spot.'),
   },
   grab: {
     name: L('Chạy Grab', 'Grab driver', 'Grab-Fahrer'),

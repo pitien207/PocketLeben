@@ -120,7 +120,9 @@ export function startAutosave(): () => void {
   const unsubscribers = [
     useWorld.subscribe(schedule),
     usePlayer.subscribe(schedule),
-    useTime.subscribe(schedule),
+    // The clock ticks every second: saving on each tick would never let the debounce fire (and
+    // costs a JSON + localStorage write). The 10 s interval saves the time; a new day saves at once.
+    useTime.subscribe((t, prev) => t.day !== prev.day && schedule()),
     useInventory.subscribe(schedule),
     useFlags.subscribe(schedule),
   ]

@@ -27,7 +27,7 @@ export type VehicleKind = 'motorbike' | 'car' | 'bicycle'
 const VEHICLE = {
   motorbike: { shapes: motorbikeShapes, ride: 'motorbike', half: [0.28, 0.6, 0.78], speed: 1, honk: 'biker' },
   bicycle: { shapes: bicycleShapes, ride: 'bicycle', half: [0.25, 0.6, 0.66], speed: 0.55, honk: 'cyclist' },
-  car: { shapes: carShapes, ride: null, half: [0.6, 0.7, 1.2], speed: 1.05, honk: 'driver' },
+  car: { shapes: carShapes, ride: null, half: [0.78, 0.75, 1.58], speed: 1.05, honk: 'driver' },
 } as const
 const LANE_HALF_WIDTH = 1.1
 
@@ -99,7 +99,7 @@ function TrafficBike({ id, kind, lane, startX, color, outfit }: BikeProps) {
             <ChibiModel motion={rider} outfit={outfit} />
           </group>
         )}
-        <SpeechBubble id={id} y={vehicle.ride ? 2.1 : 1.8} />
+        <SpeechBubble id={id} y={vehicle.ride ? 2.1 : 2.05} />
       </group>
       <RigidBody ref={rb} type="kinematicPosition" colliders={false} position={[startX, 0, lane.z]} rotation={[0, yaw, 0]}>
         <CuboidCollider args={[vehicle.half[0], vehicle.half[1], vehicle.half[2]]} position={[0, vehicle.half[1], 0]} />

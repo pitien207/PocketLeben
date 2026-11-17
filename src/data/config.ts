@@ -352,8 +352,8 @@ export const CONFIG = {
   family: {
     loanSizes: [1_000_000, 3_000_000, 5_000_000],
     loanMood: -5,
-    /** Total debt ≥ these → house level 1, 2, 3. */
-    debtLevels: [5_000_000, 15_000_000, 30_000_000],
+    /** Total debt ≥ these → house level 1, 2, 3. Level 1 = any loan at all (1.21, user's wish: one loan and the house is visibly poor). */
+    debtLevels: [1, 15_000_000, 30_000_000],
     /** Mortgage of the sổ đỏ (Studium, family meeting option A). */
     mortgage: 380_000_000,
     morningGuiltMood: -3,
@@ -376,7 +376,12 @@ export const CONFIG = {
     rankAt: [8, 20],
     rankBonus: [0, 0.1, 0.2],
     circleK: { day: 400_000, night: 520_000, energy: 15, nightEnergy: 30, dayHours: [6, 22] as [number, number], seconds: 90, minutes: 240 },
-    grab: { min: 300_000, max: 700_000, fuel: 40_000, energy: 20, hours: [6, 23] as [number, number], uniform: 300_000, rainBonus: 0.3, fine: 200_000, minutes: 240 },
+    /**
+     * Grab (1.21): a real-time ride on a top-down map of the Old Quarter, `seconds` long. Each order pays
+     * fareBase + farePerEdge × the shortest way (+rainBonus when it rains), +tip for 5 stars; speed in
+     * map blocks per second. min/max = what a shift usually earns (job board).
+     */
+    grab: { min: 300_000, max: 700_000, fuel: 40_000, energy: 20, hours: [6, 23] as [number, number], uniform: 300_000, rainBonus: 0.3, fine: 200_000, minutes: 240, seconds: 80, speed: 1.35, fareBase: 24_000, farePerEdge: 6_500, tip: 15_000 },
     /**
      * Tiệm trà sữa (1.17): a 90-second shift of the bubble-tea mini-game. Walking out early pays only
      * the share worked and counts as a strike; `maxQuits` strikes = fired for `banDays` days.

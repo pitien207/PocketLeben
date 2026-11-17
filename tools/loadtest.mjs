@@ -15,6 +15,7 @@
  *   --rooms     spread bots over this many scenes instead of one crowd (default 1)
  *   --prefix    account name prefix (default "bot"); accounts are reused on the next run
  *   --stay      keep the bots online at the end (Ctrl+C to stop) — to watch them in the game
+ *   --legacy    bots behave like a pre-1.21 app: one message per snapshot instead of the batched room tick
  *
  * The server must allow many sign-ups from one IP: start it with AUTH_RATE_LIMIT=20 (or higher).
  * Needs Node 22+ (built-in WebSocket and fetch).
@@ -35,6 +36,7 @@ const SCENE = args.scene ?? 'vietnam'
 const WALK = Number(args.walk ?? 0.6)
 const PREFIX = args.prefix ?? 'bot'
 const STAY = args.stay === 'true'
+const LEGACY = args.legacy === 'true'
 const WS_URL = `${URL_BASE.replace(/^http/, 'ws')}/ws`
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
 
@@ -77,7 +79,7 @@ class Bot {
     await new Promise((resolve, reject) => {
       const ws = new WebSocket(WS_URL)
       this.ws = ws
-      ws.onopen = () => ws.send(JSON.stringify({ t: 'auth', token: this.token }))
+      ws.onopen = () => ws.send(JSON.stringify(LEGACY ? { t: 'auth', token: this.token } : { t: 'auth', token: this.token, caps: ['batch'] }))
       ws.onerror = () => {
         stats.errors++
         reject(new Error(`${this.name}: socket error`))

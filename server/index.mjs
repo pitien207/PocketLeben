@@ -360,6 +360,49 @@ function cleanSnap(s) {
   }
 }
 
+/** Old clients (a cached app from before 1.21) still get every snapshot on its own. */
+function broadcastLegacy(room, msg, except) {
+  const ids = rooms.get(room)
+  if (!ids) return
+  let text = null
+  for (const id of ids) {
+    const c = clients.get(id)
+    if (!c || c.batch || id === except || c.ws.readyState !== 1) continue
+    text ??= JSON.stringify(msg)
+    c.ws.send(text)
+  }
+}
+
+/**
+ * Room tick (1.21): everyone who moved since the last tick goes out in ONE message per room,
+ * serialised once and sent to every member — N players cost N sends per tick instead of N².
+ * The outfit is only included when it changed (players who just joined got it in 'join').
+ */
+const ROOM_TICK_MS = 100
+setInterval(() => {
+  for (const [room, ids] of rooms) {
+    const l = []
+    for (const id of ids) {
+      const c = clients.get(id)
+      if (!c?.dirty || !c.snap) continue
+      c.dirty = false
+      if (c.outfitDirty) {
+        c.outfitDirty = false
+        l.push([id, c.snap])
+      } else {
+        const { outfit: _outfit, ...rest } = c.snap
+        l.push([id, rest])
+      }
+    }
+    if (!l.length) continue
+    const text = JSON.stringify({ t: 'snaps', l })
+    for (const id of ids) {
+      const c = clients.get(id)
+      if (c?.batch && c.ws.readyState === 1) c.ws.send(text)
+    }
+  }
+}, ROOM_TICK_MS).unref()
+
 function broadcast(room, msg, except) {
   const ids = rooms.get(room)
   if (!ids) return
@@ -388,6 +431,10 @@ function joinRoom(c, scene) {
   const others = [...rooms.get(room)].map((id) => clients.get(id)).filter((o) => o?.snap)
   rooms.get(room).add(c.id)
   c.room = room
+  // 'join' below carries the full snapshot (outfit included)
+  c.dirty = false
+  c.outfitDirty = false
+  c.outfitKey = JSON.stringify(c.snap?.outfit ?? null)
   c.ws.send(JSON.stringify({ t: 'room', room, players: others.map((o) => ({ id: o.id, name: o.name, s: o.snap })) }))
   broadcast(room, { t: 'join', id: c.id, name: c.name, s: c.snap }, c.id)
 }
@@ -414,7 +461,7 @@ wss.on('connection', (ws) => {
       clearTimeout(timeout)
       // One connection per account: a new tab replaces the old one.
       for (const other of clients.values()) if (other.user === user) other.ws.close(4002, 'replaced')
-      c = { id: nextId++, user, name: account.name, ws, scene: null, room: null, snap: null, lastSnap: 0, lastEmote: 0 }
+      c = { id: nextId++, user, name: account.name, ws, scene: null, room: null, snap: null, lastSnap: 0, lastEmote: 0, batch: Array.isArray(msg.caps) && msg.caps.includes('batch'), dirty: false, outfitDirty: false, outfitKey: '' }
       clients.set(c.id, c)
       ws.send(JSON.stringify({ t: 'welcome', id: c.id, name: c.name, key: user }))
       void social.presence(user, true)
@@ -435,7 +482,15 @@ wss.on('connection', (ws) => {
         leaveRoom(c)
         c.scene = snap.scene
         joinRoom(c, snap.scene)
-      } else if (c.room) broadcast(c.room, { t: 'snap', id: c.id, s: snap }, c.id)
+      } else if (c.room) {
+        const key = JSON.stringify(snap.outfit)
+        if (key !== c.outfitKey) {
+          c.outfitKey = key
+          c.outfitDirty = true
+        }
+        c.dirty = true
+        broadcastLegacy(c.room, { t: 'snap', id: c.id, s: snap }, c.id)
+      }
     } else if (msg.t === 'emote' && EMOTES.has(msg.e) && c.room) {
       if (now - c.lastEmote < 1000) return
       c.lastEmote = now

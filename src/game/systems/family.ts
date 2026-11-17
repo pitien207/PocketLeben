@@ -14,7 +14,7 @@ import { L, say, vnd } from './say'
 
 /**
  * Family and debt (story 2.1 §1.7–1.8, §2.2). Borrow 1/3/5 million from Bố or Mẹ (once a day),
- * and the yellow tube house gets poorer at 5 / 15 / 30 million; repaying Mẹ restores it in reverse.
+ * and the yellow tube house gets poorer with the first loan, then at 15 / 30 million; repaying Mẹ restores it in reverse.
  * Also: Mẹ's xôi for breakfast, the weekly household contribution, tutoring Na, and the family
  * meeting about the Sperrkonto (mortgage the sổ đỏ, or ask cô Lan in Leipzig).
  */

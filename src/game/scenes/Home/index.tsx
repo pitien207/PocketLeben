@@ -24,9 +24,10 @@ const STYLE = { wall: '#f6dfa8', wallLow: '#ecc983', floor: '#e2a77f', floorAlt:
 /** The paint gets dingier with every debt level (story 2.1 §1.8). */
 const STYLES = [
   STYLE,
-  { wall: '#eed59c', wallLow: '#e0bd7a', floor: '#d99f78', floorAlt: '#cc916b', trim: '#f3e6c6', window: '#c6dfec' },
-  { wall: '#e0c68f', wallLow: '#cfab6e', floor: '#c9926f', floorAlt: '#b98362', trim: '#e3d5b4', window: '#b9d0dc' },
-  { wall: '#cdb486', wallLow: '#b99a66', floor: '#b58566', floorAlt: '#a37558', trim: '#cfc2a2', window: '#a9bfca' },
+  // 1.21: one loan is enough for the room to look clearly worn
+  { wall: '#d0b886', wallLow: '#ad905e', floor: '#ba8a68', floorAlt: '#a87a5a', trim: '#d2c4a2', window: '#adc3cf' },
+  { wall: '#c3aa7c', wallLow: '#a28558', floor: '#ad7f60', floorAlt: '#9a6f53', trim: '#c7b896', window: '#a2b8c4' },
+  { wall: '#b49b70', wallLow: '#957a50', floor: '#9e7356', floorAlt: '#8c654b', trim: '#b9ab8b', window: '#97adb8' },
 ]
 
 const WOOD = '#9a6a43'
@@ -80,9 +81,7 @@ function furniture(): ShapeItem[] {
   for (let i = 0; i < 3; i++) s.push({ cyl: [0.005, 0.005, 0.22, 4], at: [ax - 0.03 + i * 0.03, 2.18, BACK + 0.25], color: '#c8322b' })
   for (const sx of [-1, 1]) s.push({ cyl: [0.025, 0.025, 0.16, 8], at: [ax + sx * 0.42, 2.07, BACK + 0.25], color: '#c8322b' })
   s.push({ cyl: [0.16, 0.12, 0.03, 12], at: [ax + 0.25, 2.0, BACK + 0.24], color: '#d9a43a' })
-  ;['#ff9b3d', '#a8d86b', '#ffe066', '#ff6b5e', '#7fc06b'].forEach((c, i) =>
-    s.push({ sphere: [0.05, 8, 6], at: [ax + 0.25 + Math.cos(i * 1.26) * 0.07, 2.06 + (i === 2 ? 0.05 : 0), BACK + 0.24 + Math.sin(i * 1.26) * 0.06], color: c }),
-  )
+  // (the five fruits on the plate depend on the debt: houseShapes)
 
   // Wooden tea set (bộ bàn ghế gỗ) with a teapot and cups
   const tx = -2.0
@@ -128,13 +127,21 @@ function furniture(): ShapeItem[] {
 }
 
 /**
- * The yellow house follows the family's debt (story 2.1 §1.8): 0 normal, 1 cobwebs + dried flowers,
+ * The yellow house follows the family's debt (story 2.1 §1.8): 0 normal, 1 (any loan) cobwebs, dried flowers, an empty fruit plate,
  * 2 TV sold, a crack, the clock gone, 3 broken wall, a leak bucket, Bố's Wave sold. Mortgage: the
  * glass case of the sổ đỏ is empty.
  */
 function houseShapes(level: number, mortgaged: boolean, clock: boolean): ShapeItem[] {
   const s: ShapeItem[] = []
   const ax = -0.4
+  // The plate of five fruits on the altar: full at level 0, one wrinkled orange once you borrow
+  if (level === 0) {
+    ;['#ff9b3d', '#a8d86b', '#ffe066', '#ff6b5e', '#7fc06b'].forEach((c, i) =>
+      s.push({ sphere: [0.05, 8, 6], at: [ax + 0.25 + Math.cos(i * 1.26) * 0.07, 2.06 + (i === 2 ? 0.05 : 0), BACK + 0.24 + Math.sin(i * 1.26) * 0.06], color: c }),
+    )
+  } else {
+    s.push({ sphere: [0.045, 8, 6], at: [ax + 0.25, 2.05, BACK + 0.24], scale: [1, 0.85, 1], color: '#c98a3d' })
+  }
   // Flowers on the altar: fresh at level 0, dried from level 1
   s.push({ cyl: [0.05, 0.07, 0.18, 8], at: [ax - 0.3, 2.08, BACK + 0.22], color: '#e8f4f8' })
   const petals = level === 0 ? ['#ff9fb2', '#ffe066', '#ff6b5e'] : ['#a8865a', '#8e6e4a', '#b89a6a']
@@ -147,10 +154,10 @@ function houseShapes(level: number, mortgaged: boolean, clock: boolean): ShapeIt
     s.push({ box: [0.012, 0.6, 1.0], at: [-W / 2 + 0.03, 0.9, -0.9], color: '#e9d39a' })
   }
   if (level >= 1) {
-    // Cobwebs in the ceiling corners
-    for (const [x, z] of [[-W / 2 + 0.2, BACK + 0.2], [W / 2 - 0.2, BACK + 0.2]] as [number, number][]) {
-      for (let i = 0; i < 4; i++) s.push({ box: [0.6 - i * 0.12, 0.01, 0.01], at: [x, 2.9 - i * 0.08, z], rot: [0, Math.PI / 4, 0.6], color: '#f4f4f4' })
-      s.push({ torus: [0.16, 0.006, 3, 10, Math.PI / 2], at: [x, 2.85, z], rot: [Math.PI / 2, 0, Math.PI / 4], color: '#f4f4f4' })
+    // Cobwebs in the ceiling corners (big ones)
+    for (const [x, z] of [[-W / 2 + 0.2, BACK + 0.2], [W / 2 - 0.2, BACK + 0.2], [-W / 2 + 0.2, D / 2 - 0.4]] as [number, number][]) {
+      for (let i = 0; i < 5; i++) s.push({ box: [0.9 - i * 0.15, 0.012, 0.012], at: [x, 2.9 - i * 0.1, z], rot: [0, Math.PI / 4, 0.6], color: '#f4f4f4' })
+      for (const r of [0.14, 0.26, 0.38]) s.push({ torus: [r, 0.006, 3, 10, Math.PI / 2], at: [x, 2.88, z], rot: [Math.PI / 2, 0, Math.PI / 4], color: '#f4f4f4' })
     }
   }
   if (level >= 2) {
@@ -192,16 +199,17 @@ const rnd = (i: number) => {
 }
 
 /**
- * What being poor looks like, on top of the sold things: peeling paint and damp from level 1,
- * newspaper over the holes, mould, a taped window and noodle boxes from level 2, and at level 3
- * bare bricks, buckets under every leak, patched washing on a line, a candle instead of the lamp.
+ * What being poor looks like, on top of the sold things. From the very first loan (level 1, 1.21):
+ * peeling paint, damp and mould, newspaper over holes, a taped window, broken tiles, noodle boxes,
+ * a bare bulb, unpaid bills on the wall, a pot under a leak, grime streaks, damp side walls, patched
+ * washing on a line. Level 2: a second leak. Level 3: bare bricks with rubble, a wet floor, a candle instead of the lamp.
  */
 function povertyShapes(level: number): ShapeItem[] {
   const s: ShapeItem[] = []
   if (level < 1) return s
   const wallZ = BACK + 0.011
   // Peeling paint: pale plaster blotches, more of them every level
-  const peel = [6, 12, 20][level - 1]
+  const peel = [14, 20, 26][level - 1]
   for (let i = 0; i < peel; i++) {
     const x = -W / 2 + 0.5 + rnd(i) * (W - 1)
     const y = 0.35 + rnd(i + 40) * 2.2
@@ -212,9 +220,9 @@ function povertyShapes(level: number): ShapeItem[] {
     if (i % 2 === 0) s.push({ box: [w * 0.5, 0.07, 0.009], at: [x + 0.05, y - 0.04, wallZ + 0.001], rot: [0, 0, rnd(i) - 0.5], color: '#a89a80' })
   }
   // Damp creeping up from the floor
-  for (let i = 0; i < 4 + level * 3; i++) {
+  for (let i = 0; i < 7 + level * 3; i++) {
     const x = -W / 2 + 0.3 + rnd(i + 200) * (W - 0.6)
-    s.push({ box: [0.3 + rnd(i + 210) * 0.5, 0.12 + rnd(i + 220) * (0.12 * level), 0.007], at: [x, 0.2 + rnd(i + 230) * 0.1, wallZ], color: level >= 2 && i % 2 ? '#7d8a66' : '#a8946e' })
+    s.push({ box: [0.3 + rnd(i + 210) * 0.5, 0.18 + rnd(i + 220) * (0.14 * (level + 1)), 0.007], at: [x, 0.22 + rnd(i + 230) * 0.12, wallZ], color: i % 2 ? '#7d8a66' : '#a8946e' })
   }
   // Water stain running down from the top of the wall
   for (let i = 0; i < level + 1; i++) {
@@ -222,11 +230,45 @@ function povertyShapes(level: number): ShapeItem[] {
     s.push({ box: [0.34, 0.5 + i * 0.2, 0.007], at: [x, 2.65 - i * 0.1, wallZ], color: '#b9a276' })
     s.push({ box: [0.05, 0.9, 0.008], at: [x + 0.06, 2.1 - i * 0.1, wallZ], color: '#b9a276' })
   }
+  // Grime running down from the ceiling
+  for (let i = 0; i < 6 + level * 2; i++) {
+    const x = -W / 2 + 0.4 + rnd(i + 500) * (W - 0.8)
+    if (Math.abs(x + 0.4) < 0.7) continue
+    const h = 0.5 + rnd(i + 520) * 0.9
+    s.push({ box: [0.06 + rnd(i + 510) * 0.08, h, 0.006], at: [x, H - 0.08 - h / 2, wallZ], color: '#9c875e' })
+  }
+  // A first crack above the door frame side
+  for (let i = 0; i < 3; i++) s.push({ box: [0.025, 0.28, 0.01], at: [-1.55 + (i % 2 ? 0.06 : 0), 2.55 - i * 0.26, BACK + 0.012], rot: [0, 0, i % 2 ? -0.4 : 0.35], color: '#6b5236' })
+  // Damp on the side walls too
+  for (const side of [-1, 1]) {
+    for (let i = 0; i < 3 + level; i++) {
+      const z = BACK + 0.8 + rnd(i * 7 + side * 3 + 600) * (D - 1.6)
+      s.push({ box: [0.006, 0.3 + rnd(i + 610) * 0.4, 0.5 + rnd(i + 620) * 0.6], at: [side * (W / 2 - 0.011), 0.3, z], color: i % 2 ? '#8d7a55' : '#7d8a66' })
+      s.push({ box: [0.006, 0.22, 0.3 + rnd(i + 630) * 0.3], at: [side * (W / 2 - 0.012), 1.3 + rnd(i + 640) * 1.0, z + 0.2], color: '#e8dcc2' })
+    }
+  }
+  // Patched washing on a line across the room: there is no money for a dryer rack, or for new clothes
+  s.push({ box: [W - 1.2, 0.012, 0.012], at: [0, 2.35, 0.3], color: '#6b5a48' })
+  ;['#9a8f7c', '#7f8da3', '#b39a72', '#8f8a80', '#a89a80'].forEach((c, i) => {
+    const x = -W / 2 + 1.4 + i * ((W - 2.8) / 4)
+    s.push({ box: [0.42, 0.5, 0.02], at: [x, 2.08, 0.3], rot: [0, 0, (i % 2 ? 1 : -1) * 0.05], color: c })
+    s.push({ box: [0.14, 0.14, 0.024], at: [x + 0.06, 2.0, 0.3], rot: [0, 0, 0.3], color: i % 2 ? '#c2a98a' : '#6d7c8f' })
+  })
   // The blanket is patched
   const { x: bx, z: bz } = HOME_ROOM.bed
   s.push({ box: [0.3, 0.012, 0.2], at: [bx - 0.3, 0.546, bz + 0.72], rot: [0, 0.2, 0], color: '#c2a98a' })
   s.push({ box: [0.22, 0.012, 0.16], at: [bx + 0.35, 0.546, bz + 0.68], rot: [0, -0.3, 0], color: '#8f8a80' })
-  if (level < 2) return s
+
+  // Unpaid bills pinned beside the calendar, stamped red
+  ;[[1.35, 1.62, 0.1], [1.55, 1.45, -0.12], [1.42, 1.28, 0.05]].forEach(([x, y, r]) => {
+    s.push({ box: [0.24, 0.32, 0.008], at: [x, y, wallZ + 0.004], rot: [0, 0, r], color: '#f6f1e4' })
+    s.push({ box: [0.18, 0.05, 0.009], at: [x, y + 0.08, wallZ + 0.006], rot: [0, 0, r], color: '#d4473b' })
+    for (let l = 0; l < 3; l++) s.push({ box: [0.16, 0.012, 0.009], at: [x, y - 0.02 - l * 0.05, wallZ + 0.006], rot: [0, 0, r], color: '#9a948a' })
+  })
+  // A pot catching a drip from the ceiling
+  s.push({ cyl: [0.14, 0.12, 0.14, 10], at: [1.9, 0.11, 1.9], color: '#b8b8c0' })
+  s.push({ cyl: [0.12, 0.12, 0.012, 10], at: [1.9, 0.16, 1.9], color: '#9fd8f0' })
+  s.push({ sphere: [0.025, 6, 4], at: [1.9, 1.6, 1.9], scale: [1, 1.6, 1], color: '#9fd8f0' })
 
   // Newspaper pasted over holes in the plaster
   for (const [x, y, r] of [[-1.9, 1.2, 0.08], [1.25, 0.9, -0.12], [3.0, 1.5, 0.05]] as const) {
@@ -238,7 +280,7 @@ function povertyShapes(level: number): ShapeItem[] {
   s.push({ box: [0.5, 0.04, 0.012], at: [dx - 0.1, 1.8, BACK + 0.02], rot: [0, 0, 0.7], color: '#d9c48a' })
   s.push({ box: [0.4, 0.04, 0.012], at: [dx + 0.05, 1.7, BACK + 0.02], rot: [0, 0, -0.5], color: '#d9c48a' })
   // Broken floor tiles
-  for (let i = 0; i < 5 + (level - 2) * 5; i++) {
+  for (let i = 0; i < 10 + (level - 1) * 4; i++) {
     const x = -W / 2 + 0.8 + rnd(i + 300) * (W - 1.6)
     const z = BACK + 1.2 + rnd(i + 310) * (D - 2)
     s.push({ box: [0.3 + rnd(i + 320) * 0.3, 0.004, 0.2 + rnd(i + 330) * 0.3], at: [x, 0.043, z], rot: [0, rnd(i + 340) * 3, 0], color: '#8b6a52' })
@@ -248,6 +290,11 @@ function povertyShapes(level: number): ShapeItem[] {
   // A bare bulb on a wire instead of the ceiling lamp
   s.push({ cyl: [0.006, 0.006, 0.7, 4], at: [0.6, 2.65, 0.2], color: '#3a3a3a' })
   s.push({ sphere: [0.06, 8, 6], at: [0.6, 2.27, 0.2], color: '#fff2b8' })
+  if (level < 2) return s
+
+  // A red basin under a second leak
+  s.push({ cyl: [0.26, 0.2, 0.14, 12], at: [-1.0, 0.11, -0.4], color: '#d4473b' })
+  s.push({ cyl: [0.23, 0.23, 0.02, 12], at: [-1.0, 0.16, -0.4], color: '#9fd8f0' })
   if (level < 3) return s
 
   // More bare brick where the plaster fell off
@@ -257,18 +304,8 @@ function povertyShapes(level: number): ShapeItem[] {
     // rubble under it
     for (let i = 0; i < 4; i++) s.push({ box: [0.12, 0.07, 0.1], at: [px - 0.3 + i * 0.2, 0.075, BACK + 0.2 + (i % 2) * 0.12], rot: [0, i, 0], color: i % 2 ? '#c8653d' : '#d9cdb5' })
   }
-  // More leaks: a basin and a pot catching drips
-  s.push({ cyl: [0.26, 0.2, 0.14, 12], at: [-1.0, 0.11, -0.4], color: '#d4473b' })
-  s.push({ cyl: [0.23, 0.23, 0.02, 12], at: [-1.0, 0.16, -0.4], color: '#9fd8f0' })
-  s.push({ cyl: [0.14, 0.12, 0.16, 10], at: [1.9, 0.12, 1.9], color: '#b8b8c0' })
+  // The floor is wet around the pot now
   s.push({ cyl: [0.55, 0.55, 0.008, 14], at: [1.7, 0.045, 1.7], color: '#bcd9e8' })
-  // Patched washing on a line across the room
-  s.push({ box: [W - 1.2, 0.012, 0.012], at: [0, 2.35, 0.3], color: '#6b5a48' })
-  ;['#9a8f7c', '#7f8da3', '#b39a72', '#8f8a80', '#a89a80'].forEach((c, i) => {
-    const x = -W / 2 + 1.4 + i * ((W - 2.8) / 4)
-    s.push({ box: [0.42, 0.5, 0.02], at: [x, 2.08, 0.3], rot: [0, 0, (i % 2 ? 1 : -1) * 0.05], color: c })
-    s.push({ box: [0.14, 0.14, 0.024], at: [x + 0.06, 2.0, 0.3], rot: [0, 0, 0.3], color: i % 2 ? '#c2a98a' : '#6d7c8f' })
-  })
   // A candle on the tea table: the electricity is cut some evenings
   s.push({ cyl: [0.07, 0.07, 0.012, 10], at: [-2.35, 0.495, 1.1], color: '#d9cdb5' })
   s.push({ cyl: [0.022, 0.022, 0.13, 8], at: [-2.35, 0.56, 1.1], color: '#f6efe0' })

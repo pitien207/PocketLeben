@@ -25,6 +25,8 @@ export interface Remote {
   yaw: number
   motion: MotionState
   outfit: Outfit
+  /** JSON of the outfit, computed when it arrives (the model rebuilds when it changes). */
+  outfitKey: string
 }
 
 /** Read every frame by RemotePlayers: plain objects, no React state per update. */
@@ -42,16 +44,28 @@ function rosterUpdate() {
   useNet.getState().set({ roster: [...remotes.values()].map((r) => ({ id: r.id, name: r.name })) })
 }
 
+/** My connection id (the batched room updates include everyone, me too). */
+let myId = -1
+
+/** A snapshot arrived. Batched updates leave the outfit out when it hasn't changed (1.21). */
 function upsert(id: number, name: string | undefined, s: PlayerSnapshot | null) {
-  if (!s) return
+  if (!s || id === myId) return
   const r = remotes.get(id)
   if (r) {
+    if (!s.outfit) s = { ...s, outfit: r.outfit }
+    else {
+      const key = JSON.stringify(s.outfit)
+      if (key !== r.outfitKey) {
+        r.outfit = s.outfit
+        r.outfitKey = key
+      }
+    }
     r.snap = s
-    r.outfit = s.outfit
     if (name) r.name = name
     return
   }
-  remotes.set(id, { id, name: name ?? '?', snap: s, x: s.x, z: s.z, yaw: s.yaw, motion: { ...s.motion }, outfit: s.outfit })
+  if (!s.outfit) return // never seen and no outfit yet: wait for the full snapshot ('join' / 'room')
+  remotes.set(id, { id, name: name ?? '?', snap: s, x: s.x, z: s.z, yaw: s.yaw, motion: { ...s.motion }, outfit: s.outfit, outfitKey: JSON.stringify(s.outfit) })
   rosterUpdate()
 }
 
@@ -106,6 +120,7 @@ function onMessage(ev: MessageEvent<string>) {
   switch (msg.t) {
     case 'welcome':
       retry = 0
+      myId = typeof msg.id === 'number' ? msg.id : -1
       net.set({ status: 'online', name: msg.name as string, key: (msg.key as string) ?? null })
       lastSent = ''
       tick()
@@ -121,6 +136,10 @@ function onMessage(ev: MessageEvent<string>) {
       break
     case 'snap':
       upsert(msg.id as number, undefined, msg.s as PlayerSnapshot)
+      break
+    case 'snaps':
+      // One message per room tick with everyone who moved: [id, snapshot][]
+      for (const [id, snap] of msg.l as [number, PlayerSnapshot][]) upsert(id, undefined, snap)
       break
     case 'leave':
       remotes.delete(msg.id as number)
@@ -152,7 +171,7 @@ function connect() {
   useNet.getState().set({ status: 'connecting', name: account.name })
   const socket = new WebSocket(socketUrl())
   ws = socket
-  socket.onopen = () => socket.send(JSON.stringify({ t: 'auth', token: account.token }))
+  socket.onopen = () => socket.send(JSON.stringify({ t: 'auth', token: account.token, caps: ['batch'] }))
   socket.onmessage = onMessage
   socket.onclose = (e) => {
     if (ws !== socket) return

@@ -1,5 +1,90 @@
 # Changelog
 
+## 1.21.0 — Circle K and Grab games rebuilt, no Circle K interview, a poor house from the first loan, bigger cars
+
+### Changed — Circle K (full-screen game, like the tea shop)
+- **No interview any more**: talking to chị Hạnh hires you on the spot ("Vào ca luôn" or "lúc khác em vào ca"),
+  and starting a shift from anywhere hires you too. The job board shows Circle K as open from the start.
+- The shift is a real till: a shop backdrop (shelves, drinks fridge, ceiling lights, promo poster), the customer at
+  the counter with their things on it, an LCD register and a scanner.
+  1. **Scan** each item (tap it: beep, red laser, it goes into the bag; the total grows).
+  2. **Microwave** for bánh bao / xúc xích / cơm nắm: press "Bấm để hâm", stop on the asked second (±4 s, ±3, ±2 by rank).
+  3. **Count out the change** from a cash drawer of drawn banknotes (1K…200K). The display shows the change due
+     only at rank "Mới"; later you work it out yourself. Too much = the shop loses it (off your wage), too little =
+     the customer complains. From rank 1 some pay "có lẻ" (100K + 2K) or **by bank transfer**: check the amount on
+     their phone — some transfers are short.
+  4. Between customers chị Hạnh brings a **crate**: put each thing on the right shelf (tủ mát, tủ đông, kệ mì,
+     kệ nước, kệ bánh kẹo), and the older best-before date to the front.
+- Patience bar per customer, satisfaction meter, night shift look (dark shop, one night event card: students,
+  a drunk man, power cut, Linh at 3 a.m.).
+- **✕ = leave early**: paid for the share of the shift worked, the day is used up, no rank progress.
+- Own summary: customers, % right, mistakes, wage, deductions.
+
+### Changed — Grab (delivery game, real time)
+- A top-down **map of the Old Quarter** (tube-house blocks, trees, Hồ Gươm with Tháp Rùa and the red bridge,
+  street names: Tràng Tiền, Hàng Bạc, Hàng Đào, Hàng Gai, Hàng Trống, Hàng Bông, Lê Thái Tổ, Đinh Tiên Hoàng…).
+- 80 seconds per shift. The phone offers **two orders**: food from a shop (phở, bánh mì, trà sữa, cà phê trứng,
+  bún chả, chè) or a passenger — pick one, ride to the pickup, then to the drop before the **ETA** runs out
+  (5 stars + tip if on time).
+- **Steering**: tap ← ↑ ↓ → (or swipe the map, or arrow keys): the scooter keeps going and turns at the next
+  crossing that allows it; tap the opposite way to turn round. A blue dotted **GPS line** shows the shortest way
+  — but it doesn't know about **traffic jams** (red, slow, they move every 12 s). **One-way streets** (» arrows)
+  only go one way. On the **weekend Hàng Đào is a walking street** (pink, people): riding in = CSGT whistle,
+  200.000 ₫ fine.
+- **Rain**: falling rain, slower scooter, +30 % fares. After 18:00 the map gets dusky and the headlight shines.
+- Special passengers stay: Herr Jakob (German sentence → XP, bakery after 5 rides), tourists (Old Quarter quiz →
+  tip), anh Khải (overheard: "không cần B1"), bà bán xôi early in the morning (pays with xôi).
+- Own summary: orders, average stars, fares, tips, fines, rank bonus, fuel → what's left.
+
+### Changed — the house
+- **One loan of any size is enough**: house level 1 now starts at 1 ₫ of debt (was 5 million); levels 2 / 3 stay
+  at 15 / 30 million.
+- Level 1 is clearly poor now: much dingier walls and floor, peeling paint, damp and mould (back and side walls),
+  grime running down from the ceiling, a crack, newspaper over holes, a taped window, broken tiles, boxes of
+  instant noodles, a bare bulb, red-stamped unpaid bills by the calendar, a pot under a leak, **patched washing on
+  a line across the room**, big cobwebs, only one wrinkled orange left on the altar — and Bố and Mẹ already wear
+  **patched clothes** (ragged at level 3). The walk-in cutscene line says so.
+
+### Changed — cars
+- Bigger (1.5 × 3.1 m, was 1.1 × 2.3) and detailed: a glass cabin in the car's real side profile, A/B/C pillars,
+  roof, dark wheel arches, rims with spokes, grille, headlights, fog lights, indicators, tail lights, number
+  plates, mirrors, wipers, door seams and handles, an antenna. Two bodies (hatchback and sedan with a boot), picked
+  by colour. Collider and speech bubble follow the new size.
+
+### Performance — smoother play, ready for more people online
+- **The stutter about once a second is gone.** Its cause: the Hoàng Kim LED sign ("BAO VISA 100%" / "KHÔNG CẦN B1"
+  / "LƯƠNG 100 TRIỆU") rebuilt a canvas texture and a material every 0.9 s. Now the three boards are built once
+  and only shown in turn.
+- The game clock ticks every real second; on each tick the game also re-checked every quest and achievement and
+  re-armed the autosave. Quests are now re-checked every 5 game minutes (and on any real change), and the clock no
+  longer re-arms the autosave (the 10-second save and a new day still save). Bonus: the debounced autosave
+  actually fires again — the ticking clock kept postponing it.
+- Characters far away (> 35 m) animate on every third frame, hidden ones not at all.
+- **Online:** the server now sends each room ONE message per 100 ms with everyone who moved (serialised once),
+  instead of relaying every snapshot to every player, and leaves the outfit out unless it changed. Measured with 50
+  players in one street: 7,700 → 540 messages/s from the server, 2.3 → 1.05 MB/s, latency p50 8 → 3 ms.
+  An app from before 1.21 (still cached) keeps getting the old per-snapshot messages.
+- Online players: only the 12 nearest within 60 m are drawn, name plates only within 20 m, and the outfit is no
+  longer compared with JSON on every frame for every player.
+- `tools/loadtest.mjs --legacy` simulates pre-1.21 clients for comparison.
+
+### Fixed
+- Money "+…" float in the HUD reused one React key for two elements (console warning on every gain).
+
+### Manual test checklist (phone)
+- [ ] Talk to chị Hạnh at Circle K: no questions — "Vào ca luôn" starts a shift; the job board shows Circle K open.
+- [ ] Circle K day shift: scan, heat a bánh bao on the second, count out change with notes, a crate (shelf + date).
+      Give wrong change once: deduction on the summary. ✕ → "Nghỉ ca" → paid for part of the shift.
+- [ ] Circle K night shift (22–6h): dark shop, one night event, bank transfers to check.
+- [ ] Grab (phone → Việc → "Mở app"): choose an order, steer with the buttons and by swiping; jams slow you down;
+      a one-way street refuses a wrong turn; finish with 5 stars + tip. Weekend: ride into Hàng Đào → fine.
+      Rainy day: rain on the map, +30 %. Summary money = fares + tips − fines + rank − fuel.
+- [ ] Borrow 1 million from Mẹ, go back home: cutscene, the room is clearly poorer, parents in patched clothes.
+- [ ] Hà Nội avenue (Tràng Tiền) and the German street: the cars look bigger and detailed, motorbikes unchanged.
+- [ ] Stand in front of Hoàng Kim on Hàng Bông and walk around: the LED sign still changes, no hitch any more.
+- [ ] Two phones online in the same street: you see each other walk smoothly, outfit changes show, name plates
+      appear when close (< 20 m).
+
 ## 1.20.0 — Time only, no speed setting, weather that changes
 
 ### Removed

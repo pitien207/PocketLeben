@@ -141,28 +141,6 @@ export const QA_SETS = {
       ]),
     ],
   },
-  /** Circle K: the manager's 3-question interview before the first shift. */
-  circleK: {
-    title: { vi: 'Phỏng vấn ở Circle K', en: 'Circle K interview', de: 'Vorstellungsgespräch Circle K' },
-    asker: 'chiQuanLy',
-    questions: [
-      q('Khách đưa tờ 200.000 ₫ cho hóa đơn 46.000 ₫. Em thối bao nhiêu?', 'A customer pays 200,000 ₫ for 46,000 ₫. How much change?', [
-        a(2, '154.000 ₫', '154,000 ₫', 'Nhanh đấy!', 'Quick!'),
-        a(0, '164.000 ₫', '164,000 ₫', 'Sai rồi em, thối thiếu là khách mắng đấy.', 'Wrong — customers get angry.'),
-        a(0, '146.000 ₫', '146,000 ₫', 'Ơ, tính lại xem.', 'Check again.'),
-      ]),
-      q('Có người say nằm trước cửa lúc 2 giờ sáng. Em làm gì?', 'A drunk man lies at the door at 2 a.m. What do you do?', [
-        a(2, 'Gọi bảo vệ, rồi mang cho chú ấy chai nước.', 'Call security, then bring him some water.', 'Chuẩn.', 'Right.'),
-        a(1, 'Kệ chú ấy.', 'Ignore him.', 'Ừm… không hẳn.', 'Hmm… not quite.'),
-        a(0, 'Quay video đăng TikTok.', 'Film it for TikTok.', 'Không được!', 'No way!'),
-      ]),
-      q('Hàng sắp hết hạn thì xếp ở đâu trên kệ?', 'Where do items close to expiry go on the shelf?', [
-        a(2, 'Lên phía trước, để bán trước.', 'At the front, so they sell first.', 'Đúng rồi, hàng cũ bán trước!', 'Yes — first in, first out!'),
-        a(1, 'Đâu cũng được.', 'Anywhere.', 'Không đâu em.', 'Not really.'),
-        a(0, 'Giấu ra sau cùng.', 'Hide them at the back.', 'Thế là hỏng hết hàng.', 'Then it all spoils.'),
-      ]),
-    ],
-  },
   embassyAusbildung: {
     title: { vi: 'Phỏng vấn visa học nghề', en: 'Vocational training visa interview', de: 'Visumsinterview Ausbildung' },
     asker: 'officer',

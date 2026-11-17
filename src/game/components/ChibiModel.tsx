@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, type RefObject } from 'react'
 import { useFrame } from '@react-three/fiber'
-import { Bone, Float32BufferAttribute, Group, Quaternion, Skeleton, SkinnedMesh, Sphere, SphereGeometry, Uint16BufferAttribute, Vector3, type BufferGeometry, type Texture } from 'three'
+import { Bone, Float32BufferAttribute, Group, Quaternion, Skeleton, SkinnedMesh, Sphere, SphereGeometry, Uint16BufferAttribute, Vector3, type BufferGeometry, type Object3D, type Texture } from 'three'
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js'
 import { PLAYER_OUTFIT, type Outfit } from '../../data/npcs'
 import { buildShapes, type ShapeItem } from '../scenes/shared/Shapes'
@@ -58,6 +58,13 @@ export type ChibiDetail = 'high' | 'low'
 const DETAIL: Record<ChibiDetail, number> = { high: 0.8, low: 0.45 }
 const OUTLINE_DETAIL = 0.32
 const OUTLINE_RANGE_SQ = 26 * 26
+/** Beyond this the pose is a few pixels tall: animate on every 3rd frame only (1.21). */
+const FAR_SQ = 35 * 35
+/** Hidden by an ancestor (e.g. a far-away online player): nothing to animate. */
+function shown(o: Object3D | null) {
+  for (let n = o; n; n = n.parent) if (!n.visible) return false
+  return true
+}
 const _world = new Vector3()
 
 const seg = (n: number | undefined, fallback: number, k: number, min: number) => Math.max(min, Math.round((n ?? fallback) * k))
@@ -278,14 +285,21 @@ export function ChibiModel({ motion, outfit = PLAYER_OUTFIT, carry = null, detai
     arms: 0,
     kick: 0,
     anchors: RIDES.motorbike as RideAnchors,
+    frame: Math.floor(Math.random() * 3),
+    owed: 0,
   })
 
   useFrame(({ camera }, rawDt) => {
-    const dt = Math.min(rawDt, 0.1)
     const a = anim.current
+    if (!shown(rig.group)) return
     // The ink outline only matters up close (far away it is thinner than a pixel).
     rig.group.getWorldPosition(_world)
-    rig.outline.visible = _world.distanceToSquared(camera.position) < OUTLINE_RANGE_SQ
+    const d2 = _world.distanceToSquared(camera.position)
+    rig.outline.visible = d2 < OUTLINE_RANGE_SQ
+    a.owed += rawDt
+    if (d2 > FAR_SQ && ++a.frame % 3 !== 0) return
+    const dt = Math.min(a.owed, 0.1)
+    a.owed = 0
     const m = motion.current
     const bone = rig.bones
     const s = m?.speed ?? 0

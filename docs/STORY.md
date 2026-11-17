@@ -164,9 +164,9 @@ Mở sau khi đậu A2. Chị Mai giới thiệu: viện dưỡng lão Sonnenhof
 | Mức | Tổng nợ | Trong nhà thay đổi | Bố mẹ |
 |---|---|---|---|
 | 0 | 0 ₫ | Bình thường: tivi, hoa tươi trên bàn thờ, đồng hồ treo tường, xe Wave dựng ở sân | Vui vẻ, mẹ hát khi nấu cơm |
-| 1 | ≥ 5 triệu | **Mạng nhện** ở góc trần · lọ hoa trên bàn thờ chỉ còn hoa khô · mâm cơm ít món hơn · 🆕 sơn tường bong, chân tường ẩm, vệt nước thấm, chăn vá | Mẹ cười gượng, bố ít nói · 🆕 quần áo bố mẹ bạc màu |
-| 2 | ≥ 15 triệu | **Tivi biến mất** (bán), chỗ để tivi còn vết bụi hình chữ nhật · **tường nứt** một vệt dài · đồng hồ treo tường không còn · 🆕 dán báo che lỗ tường, mốc xanh chân tường, cửa sổ nứt dán băng dính, gạch nền vỡ, mấy thùng mì tôm cạnh bếp, bóng đèn trần treo dây | Bố ngồi ngoài hiên đến khuya · Mẹ đi rửa bát thuê buổi tối · hội thoại buồn hơn · 🆕 **quần áo bố mẹ vá chằng vá đụp** (ngực, lưng, khuỷu tay, đầu gối) |
-| 3 | ≥ 30 triệu | **Mảng tường vỡ**, lộ gạch · mái dột, có xô hứng nước giữa nhà · **xe Wave của bố bị bán** (không chạy Grab được nữa) · Na không đi học thêm nữa · 🆕 thêm mảng gạch lộ có gạch vụn dưới chân, thêm chậu và nồi hứng dột, **dây phơi quần áo vá giăng ngang phòng**, nến trên bàn nước (bị cắt điện), tấm bìa các-tông chỗ dựng xe | Mặt bố mẹ buồn rõ, mẹ có quầng thâm mắt · Na: "Nhà mình nghèo đi hả anh/chị?" · 🆕 **quần áo bố mẹ rách rưới**: thêm miếng vá, tay áo và ống quần sờn cụt |
+| 1 | ✏️ **vay dù chỉ 1 lần** (> 0 ₫) | **Nghèo thấy rõ ngay:** tường ố xám, sơn bong, chân tường và hai tường bên ẩm mốc, vệt ố chảy từ trần, một vết nứt nhỏ · **mạng nhện** to ở góc trần · dán báo che lỗ tường, cửa sổ nứt dán băng dính, gạch nền vỡ · mấy thùng mì tôm cạnh bếp, bóng đèn trần treo dây · **hóa đơn tiền điện đóng dấu đỏ** ghim cạnh tờ lịch · nồi hứng nước dột · **dây phơi quần áo vá giăng ngang phòng** · lọ hoa trên bàn thờ chỉ còn hoa khô, **đĩa ngũ quả chỉ còn một quả cam héo** · chăn vá | Mẹ cười gượng, bố ít nói · ✏️ **quần áo bố mẹ đã phải vá** (bạc màu, miếng vá ở ngực, khuỷu tay, đầu gối) |
+| 2 | ≥ 15 triệu | **Tivi biến mất** (bán), chỗ để tivi còn vết bụi hình chữ nhật · **tường nứt** một vệt dài · đồng hồ treo tường không còn · thêm chậu đỏ hứng dột, thêm gạch vỡ, tường càng ố | Bố ngồi ngoài hiên đến khuya · Mẹ đi rửa bát thuê buổi tối · hội thoại buồn hơn · quần áo bố mẹ vá chằng vá đụp |
+| 3 | ≥ 30 triệu | **Mảng tường vỡ**, lộ gạch · mái dột, có xô hứng nước giữa nhà · **xe Wave của bố bị bán** (không chạy Grab được nữa) · Na không đi học thêm nữa · thêm mảng gạch lộ có gạch vụn dưới chân, sàn ướt quanh nồi hứng dột, nến trên bàn nước (bị cắt điện), tấm bìa các-tông chỗ dựng xe | Mặt bố mẹ buồn rõ, mẹ có quầng thâm mắt · Na: "Nhà mình nghèo đi hả anh/chị?" · **quần áo bố mẹ rách rưới**: thêm miếng vá, tay áo và ống quần sờn cụt |
 | Đặc biệt | Thế chấp sổ đỏ (Studium, mục 2.2) | Cuốn sổ đỏ trong tủ kính biến mất, chỉ còn khung trống | Bố ngồi một mình trước bàn thờ |
 
 **Trả nợ thì nhà đẹp lại**, theo đúng thứ tự ngược lại:
@@ -350,7 +350,7 @@ Lương giờ ở Việt Nam bám theo **lương tối thiểu vùng I năm 2026
 | Nghề | Ở đâu | Giờ làm | Mở khi | Lương ngoài đời **(ư)** | Mỗi lần trong game | Năng lượng |
 |---|---|---|---|---|---|---|
 | **Pha trà sữa** 🆕 | Tiệm Trà Sữa Phố Cổ (chị Vy) | 7–22h | Từ đầu | 25–30k/giờ + tip | **450.000 ₫** + tip | −15 |
-| **Trông quán Circle K** | Circle K đầu phố Hàng Gai | Ca ngày 6–22h · Ca đêm 22–6h | Từ đầu (phỏng vấn 3 câu với chị quản lý) | ~25k/giờ | **400.000 ₫** (ca đêm **520.000 ₫**) | −15 (đêm −30, sáng hôm sau mệt) |
+| **Trông quán Circle K** | Circle K đầu phố Hàng Gai | Ca ngày 6–22h · Ca đêm 22–6h | ✏️ Từ đầu — gặp chị Hạnh là **được nhận luôn, không phỏng vấn** | ~25k/giờ | **400.000 ₫** (ca đêm **520.000 ₫**) | −15 (đêm −30, sáng hôm sau mệt) |
 | **Chạy Grab** | Khắp phố cổ | 6–23h | Đăng ký tài xế (xem dưới) | ~20–35k/cuốc sau chiết khấu | **300.000–700.000 ₫** tùy số cuốc và sao, trừ tiền xăng 40.000 ₫ | −20 |
 | **Gia sư Toán lớp 8** | Nhà phụ huynh phố Hàng Bông | 18–21h, Thứ Hai–Sáu | Xong nhiệm vụ "Kèm em học" (Na giới thiệu học trò) | 150k/buổi 1,5 giờ | **450.000 ₫** | −8 |
 
@@ -380,17 +380,30 @@ Quán cà phê đầu phố đổi thành **Tiệm Trà Sữa Phố Cổ**, ch�
 *(Chưa làm: khách quen anh Tú xe ôm, chị Mai, khách Tây hỏi đường.)*
 
 #### 🏪 Trông quán Circle K
-Trò chơi 90 giây, 3 việc xen kẽ:
-1. **Tính tiền:** quét hàng, khách đưa tờ 500.000 ₫ cho món 87.000 ₫ → chọn đúng tiền thừa thật nhanh. Thối sai là trừ vào lương.
-2. **Xếp kệ:** kéo hàng vào đúng kệ, hàng sắp hết hạn để lên trước.
-3. **Hâm đồ ăn:** xúc xích, mì ly… đúng số giây lò vi sóng.
+✏️ **Nhận việc:** chị Hạnh đang thiếu người — nói chuyện với chị là được nhận ngay: „Đúng lúc chị đang thiếu người — chị nhận em luôn!" (không còn 3 câu phỏng vấn).
+
+✏️ **Trò chơi trong ca (90 giây, toàn màn hình, 1.21):** sau lưng khách là kệ hàng, tủ nước, đèn trần, poster „MUA 2 TẶNG 1"; khách đặt đồ lên quầy, có màn hình máy tính tiền và máy quét.
+1. **Quét hàng:** bấm từng món (bíp, tia đỏ, món vào túi; tổng tiền tăng dần).
+2. **Hâm đồ ăn:** bánh bao, xúc xích, cơm nắm — „Hâm nóng giúp chị cái bánh bao nhé — 50 giây!" Bấm hâm, dừng đúng giây (±4 / ±3 / ±2 theo hạng). Sai: „Ơ, vẫn còn lạnh ngắt…" / „Nóng bỏng tay, hơi khét rồi…"
+3. **Thối tiền:** khách đưa tiền (vẽ thành tờ 10K, 20K, 50K…), bạn bấm từng tờ trong ngăn kéo để đếm tiền thối. Hạng Mới: màn hình hiện sẵn số tiền phải thối; từ Quen việc phải tự tính, có khách đưa „có lẻ" (100K + 2K) và khách **chuyển khoản** — nhìn điện thoại của khách, chuyển thiếu thì bấm „Chuyển thiếu!". Thối thừa = cửa hàng mất, trừ vào lương; thối thiếu = khách phàn nàn.
+4. **Xếp kệ:** giữa các lượt khách, chị Hạnh mang thùng hàng tới: xếp từng món đúng kệ (tủ mát, tủ đông, kệ mì, kệ nước, kệ bánh kẹo), hai lốc sữa thì lốc **hạn sử dụng sớm hơn để ra trước**.
+- Mỗi khách có thanh kiên nhẫn („Lâu quá… thôi chị sang cửa hàng khác!"), có thanh hài lòng chung.
+- Lương ca = lương ngày/đêm × (60–100% theo tỉ lệ làm đúng) − tiền thối sai, × thưởng hạng.
+- **Nghỉ ca sớm** (✕): chỉ trả phần đã làm, hôm đó không vào ca lại được, không tính hạng.
 
 **Sự kiện ca đêm** (ngẫu nhiên): nhóm sinh viên ôn thi mua 20 gói mì lúc 2h sáng · người say nằm ngủ trước cửa (gọi bảo vệ hay mang cho chai nước?) · mất điện, tính tiền bằng giấy bút · 🆕 Linh vào mua đồ lúc 3h vì học bài cả đêm (+cảnh trò chuyện, +XP cho cả hai).
 
 #### 🛵 Chạy Grab
 **Đăng ký tài xế** `job.grab` (một lần): mượn xe Wave của bố, mang bằng lái A1 và giấy tờ xe, mua áo + mũ đồng phục 300.000 ₫.
 
-Trò chơi: bản đồ phố cổ nhìn từ trên xuống, 4–6 cuốc mỗi lần. Đón khách → né tắc đường, đi đúng chiều phố một chiều → trả khách. Nhanh, không va quẹt thì được 5 sao và tip. Rẽ nhầm vào phố đi bộ cuối tuần là bị phạt 200.000 ₫.
+✏️ **Trò chơi (1.21, giao hàng + chở khách, 80 giây, toàn màn hình):** bản đồ phố cổ nhìn từ trên xuống (dãy nhà ống, cây, Hồ Gươm có Tháp Rùa và cầu Thê Húc, tên phố Tràng Tiền, Hàng Bạc, Hàng Đào, Hàng Gai, Hàng Trống, Hàng Bông, Lê Thái Tổ, Đinh Tiên Hoàng…).
+- App báo **2 đơn** để chọn: **giao đồ ăn** (Phở Gia Truyền, Bánh mì Phố Cổ, Tiệm Trà Sữa, Cà phê trứng, Bún chả Hàng Mành, Chè Bốn Mùa) hoặc **chở khách**, có quãng đường và tiền cuốc.
+- Lái: bấm ← ↑ ↓ → (hoặc vuốt bản đồ): xe tự chạy thẳng và rẽ ở ngã tư kế tiếp; bấm hướng ngược lại để quay đầu.
+- Đường chấm xanh = **GPS**, nhưng GPS không biết **tắc đường** (đoạn đỏ có ô tô, đi rất chậm, 12 giây đổi chỗ một lần). **Phố một chiều** (mũi tên ») không đi ngược được.
+- Giao trước khi hết **ETA** → 5 sao + tip; trễ thì ít sao hơn.
+- **Cuối tuần Hàng Đào là phố đi bộ** (màu hồng, có người đi bộ): chạy vào là CSGT thổi còi, phạt 200.000 ₫.
+- Trời mưa: có mưa rơi trên bản đồ, xe chậm hơn, giá cuốc +30%. Sau 18h bản đồ tối dần, xe bật đèn pha.
+- Hết giờ: bảng tổng kết (đơn, sao trung bình, tiền cuốc, tip, phạt, thưởng hạng, trừ xăng 40.000 ₫).
 
 **Khách đặc biệt** (mỗi người xuất hiện vài lần, có hội thoại):
 - **Herr Jakob** 🆕: người Đức sống ở Tây Hồ, đang học tiếng Việt, quê ở **Lindenberg**. Mỗi cuốc là một đoạn trao đổi ngôn ngữ: bạn sửa tiếng Việt cho ông, ông sửa tiếng Đức cho bạn (+XP). Lần thứ 5: "Khi nào sang Lindenberg, nhớ đến tiệm bánh của em gái tôi!"

@@ -9,7 +9,7 @@ import { canPlayMusicFiles, MUSIC, trackForTime, type MusicTrack } from './music
  * SFX: short synthesized blips. The AudioContext starts on the first tap/key (browser autoplay rules).
  */
 
-export type SfxName = 'click' | 'right' | 'wrong' | 'coin' | 'pickup' | 'success' | 'fail' | 'honk' | 'door' | 'stamp' | 'sip' | 'bell'
+export type SfxName = 'click' | 'right' | 'wrong' | 'coin' | 'pickup' | 'success' | 'fail' | 'honk' | 'door' | 'stamp' | 'sip' | 'bell' | 'beep' | 'ding' | 'whistle' | 'till'
 export type MusicTheme = 'vn' | 'de' | 'indoor' | null
 
 let ctx: AudioContext | null = null
@@ -158,6 +158,26 @@ export function playSfx(name: SfxName) {
       break
     case 'sip':
       noise(t, 0.35, 0.25, 900)
+      break
+    case 'beep':
+      // Barcode scanner
+      tone(1850, t, 0.07, 'square', 0.1, b)
+      break
+    case 'ding':
+      // Microwave done: "ting ting"
+      tone(1568, t, 0.5, 'sine', 0.3, b)
+      tone(1568, t + 0.28, 0.6, 'sine', 0.25, b)
+      break
+    case 'whistle':
+      // Traffic police whistle (a trill)
+      for (let i = 0; i < 8; i++) tone(i % 2 ? 2350 : 2600, t + i * 0.04, 0.05, 'sine', 0.22, b)
+      tone(2500, t + 0.34, 0.35, 'sine', 0.22, b)
+      break
+    case 'till':
+      // Cash drawer sliding open + coins
+      noise(t, 0.12, 0.35, 1400)
+      tone(1319, t + 0.1, 0.12, 'square', 0.08, b)
+      tone(1760, t + 0.17, 0.2, 'square', 0.08, b)
       break
   }
 }

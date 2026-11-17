@@ -1,4 +1,6 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useRef } from 'react'
+import { useFrame } from '@react-three/fiber'
+import type { Group } from 'three'
 import { CuboidCollider, RigidBody } from '@react-three/rapier'
 import { NPCS } from '../../../data/npcs'
 import { useFlags } from '../../../store/flagsStore'
@@ -117,14 +119,33 @@ function circleKShapes(): ShapeItem[] {
 
 const MAI_DOOR: SpotAction[] = [{ id: 'enter', labelKey: 'action.enterOffice', icon: 'door', action: 'mai.enter', primary: true }]
 
-/** The LED sign of Hoàng Kim cycles through its promises. */
+/**
+ * The LED sign of Hoàng Kim cycles through its promises. All three boards are built once and only
+ * shown in turn (1.21): rebuilding a canvas texture + material every 0.9 s made the game stutter.
+ * They are all visible on the first frame so their textures are uploaded up front.
+ */
 function LedSign() {
-  const [i, setI] = useState(0)
-  useEffect(() => {
-    const id = window.setInterval(() => setI((n) => (n + 1) % LED.length), 900)
-    return () => window.clearInterval(id)
-  }, [])
-  return <SignBoard options={LED[i]} width={3.4} position={[H.x0 - 0.12, 3.05, (H.z0 + H.z1) / 2]} rotation={[0, -Math.PI / 2, 0]} />
+  const boards = useRef<(Group | null)[]>([])
+  const clock = useRef({ t: 0, i: -1, frames: 0 })
+  useFrame((_, dt) => {
+    const c = clock.current
+    // Let the first frames draw all three (texture upload), then cycle.
+    if (++c.frames < 3) return
+    c.t += Math.min(dt, 0.1)
+    const i = Math.floor(c.t / 0.9) % LED.length
+    if (i === c.i) return
+    c.i = i
+    boards.current.forEach((b, k) => b && (b.visible = k === i))
+  })
+  return (
+    <>
+      {LED.map((o, k) => (
+        <group key={k} ref={(g) => void (boards.current[k] = g)}>
+          <SignBoard options={o} width={3.4} position={[H.x0 - 0.12, 3.05, (H.z0 + H.z1) / 2]} rotation={[0, -Math.PI / 2, 0]} />
+        </group>
+      ))}
+    </>
+  )
 }
 
 export function HangBong() {

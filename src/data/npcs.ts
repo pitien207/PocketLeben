@@ -61,12 +61,11 @@ function fade(hex: string, amount: number) {
 /** Bố and Mẹ's clothes by the house level (0–3): washed-out colours, then patches, then rags. */
 export function raggedOutfit(o: Outfit, level: number): Outfit {
   if (level <= 0) return o
-  const f = [0, 0.25, 0.45, 0.6][Math.min(3, level)]
+  const f = [0, 0.35, 0.5, 0.62][Math.min(3, level)]
   const out: Outfit = { ...o, shirt: fade(o.shirt, f), shorts: fade(o.shorts, f), shoe: fade(o.shoe, f) }
-  if (level >= 2) {
-    out.ragged = level >= 3 ? 2 : 1
-    out.expression = level >= 3 ? 'sad' : 'neutral'
-  }
+  // Patched from the first loan on (1.21), ragged at level 3.
+  out.ragged = level >= 3 ? 2 : 1
+  out.expression = level >= 3 ? 'sad' : 'neutral'
   return out
 }
 

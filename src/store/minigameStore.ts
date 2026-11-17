@@ -12,6 +12,8 @@ export interface MinigameResult {
   perfect: boolean
   /** Extra outcome, e.g. how many days ahead the booked Termin is. */
   value?: number
+  /** Share of a shift worked when the player walked out early (job games), 0–1. */
+  fraction?: number
   /** The bubble-tea shift. */
   tea?: TeaOutcome
 }

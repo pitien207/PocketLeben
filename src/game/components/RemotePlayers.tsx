@@ -101,6 +101,27 @@ function NamePlate({ name }: { name: string }) {
   )
 }
 
+/**
+ * Many players in one street (1.21): only the MAX_SHOWN nearest within SHOW_RANGE are drawn, and
+ * name plates (DOM, repositioned every frame) only within NAME_RANGE. Recomputed 4× a second.
+ */
+const MAX_SHOWN = 12
+const SHOW_RANGE_SQ = 60 * 60
+const NAME_RANGE_SQ = 20 * 20
+const shownRemotes = new Set<number>()
+const namedRemotes = new Set<number>()
+function pickShown() {
+  const p = playerState.position
+  const list = [...remotes.values()].map((r) => ({ id: r.id, d: (r.x - p.x) ** 2 + (r.z - p.z) ** 2 })).filter((e) => e.d < SHOW_RANGE_SQ)
+  list.sort((a, b) => a.d - b.d)
+  shownRemotes.clear()
+  namedRemotes.clear()
+  for (const e of list.slice(0, MAX_SHOWN)) {
+    shownRemotes.add(e.id)
+    if (e.d < NAME_RANGE_SQ) namedRemotes.add(e.id)
+  }
+}
+
 /** One other player: eases toward their latest snapshot (a jump of > 4 m snaps straight there). */
 function RemotePlayer({ id, name }: { id: number; name: string }) {
   const root = useRef<Group>(null)
@@ -109,16 +130,20 @@ function RemotePlayer({ id, name }: { id: number; name: string }) {
   const emote = useNet((s) => s.emotes[id])
   const chat = useNet((s) => s.chats[id])
   const outfitKey = useRef('')
+  const [named, setNamed] = useState(false)
   const [, rerender] = useReducer((n: number) => n + 1, 0)
   const r0 = remotes.get(id)
-  outfitKey.current = JSON.stringify(r0?.outfit ?? null)
+  outfitKey.current = r0?.outfitKey ?? ''
 
   useFrame((_, rawDt) => {
     const r = remotes.get(id)
     const g = root.current
     if (!r || !g) return
+    g.visible = shownRemotes.has(id)
+    const wantName = namedRemotes.has(id)
+    if (wantName !== named) setNamed(wantName)
     // Outfit changed (they bought clothes): rebuild the model (geometry is cached per outfit).
-    if (JSON.stringify(r.outfit) !== outfitKey.current) rerender()
+    if (r.outfitKey !== outfitKey.current) rerender()
     const dt = Math.min(rawDt, 0.1)
     const far = Math.hypot(r.snap.x - r.x, r.snap.z - r.z) > 4
     r.x = far ? r.snap.x : damp(r.x, r.snap.x, 10, dt)
@@ -134,7 +159,7 @@ function RemotePlayer({ id, name }: { id: number; name: string }) {
       <group ref={facing}>
         <ChibiModel motion={motion} outfit={r0?.outfit} />
       </group>
-      <NamePlate name={name} />
+      {named && <NamePlate name={name} />}
       <Bubbles emote={emote} chat={chat} />
     </group>
   )
@@ -144,6 +169,13 @@ function RemotePlayer({ id, name }: { id: number; name: string }) {
 export function RemotePlayers() {
   const roster = useNet((s) => s.roster)
   const status = useNet((s) => s.status)
+  const since = useRef(1)
+  useFrame((_, dt) => {
+    since.current += dt
+    if (since.current < 0.25) return
+    since.current = 0
+    pickShown()
+  })
   if (status !== 'online') return null
   return (
     <>

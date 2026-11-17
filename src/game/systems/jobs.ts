@@ -52,7 +52,8 @@ export function recordJob(job: VnJob) {
 
 export function jobUnlocked(job: VnJob) {
   if (job === 'cafe') return teaBanLeft() <= 0
-  if (job === 'circleK') return !!getFlag('job.circleK.hired')
+  // Circle K takes anyone: talking to chị Hạnh (or starting a shift) hires you on the spot.
+  if (job === 'circleK') return true
   if (job === 'grab') return !!getFlag('job.grab') && houseLevel() < 3
   return !!getFlag('job.tutor.unlocked')
 }
@@ -138,48 +139,61 @@ function teaShift() {
 
 // --- Circle K ---------------------------------------------------------------------------------
 
-/** The manager's interview (3 questions) before the first shift. */
-function circleKInterview() {
+const CK = J.circleK
+const isNight = () => hour() >= 22 || hour() < 6
+
+/**
+ * Pay of a Circle K shift: the share of customers served right scales it 60–100 %, wrong change
+ * comes off it, walking out early pays only the share of the shift worked; then the rank bonus.
+ */
+export function circleKWage(o: { score: number; deduct: number; fraction: number }, night: boolean, rank: number) {
+  const base = (night ? CK.night : CK.day) * (0.6 + 0.4 * o.score) * o.fraction - o.deduct
+  return Math.max(0, Math.round((base * (1 + J.rankBonus[rank])) / 1000) * 1000)
+}
+
+/** No interview: chị Hạnh is short of staff and takes you on the spot. */
+function circleKHire() {
   if (getFlag('job.circleK.hired')) return false
-  if (getFlag('job.circleK.triedDay') === today()) {
-    say(L('Chị quản lý: „Mai em quay lại phỏng vấn lại nhé."', 'Manager: “Come back tomorrow and try again.”'), 'info')
-    return false
-  }
-  useMinigame.getState().start({ kind: 'qa', set: 'circleK', count: 3, passScore: 0.6 }, (r) => {
-    setFlag('job.circleK.triedDay', today())
-    if (r.passed) {
-      setFlag('job.circleK.hired', true)
-      say(L('Chị quản lý: „Được, em bắt đầu được rồi. Ca ngày 6–22h, ca đêm 22–6h."', 'Manager: “Okay, you can start. Day shift 6–22, night shift 22–6.”'), 'good')
-    } else {
-      say(L('Chị quản lý: „Em còn lúng túng quá. Mai thử lại nhé."', 'Manager: “You’re still unsure. Try again tomorrow.”'), 'bad')
-    }
-  })
+  setFlag('job.circleK.hired', true)
+  say(L('Chị Hạnh: „Ok, chị nhận em luôn! Ca ngày 6–22h, ca đêm 22–6h. Áo đồng phục treo trong kho nhé."', 'Hạnh: “Okay, you’re hired! Day shift 6–22, night shift 22–6. Your uniform is in the back.”'), 'good')
   return true
 }
 
-const isNight = () => hour() >= 22 || hour() < 6
-
 function circleKShift() {
-  if (!getFlag('job.circleK.hired')) return circleKInterview()
+  if (useMinigame.getState().active) return false
   if (jobDoneToday('circleK')) return alreadyToday(), false
+  if (!getFlag('job.circleK.hired')) circleKHire()
   const night = isNight()
-  const C = J.circleK
-  const energy = night ? C.nightEnergy : C.energy
-  if (usePlayer.getState().energy < energy) {
-    pushToast('toast.tooTired', 'bad')
-    return false
-  }
-  useMinigame.getState().start({ kind: 'circleK', night, rank: jobRank('circleK') }, (r) => {
-    const base = (night ? C.night : C.day) * (0.6 + 0.4 * r.score) - (r.value ?? 0)
-    const got = finishPay('circleK', base, energy, C.minutes)
+  const energy = night ? CK.nightEnergy : CK.energy
+  const rank = jobRank('circleK')
+  useMinigame.getState().start({ kind: 'circleK', night, rank }, (r) => {
+    const fraction = r.fraction ?? 1
+    const deduct = r.value ?? 0
+    const got = circleKWage({ score: r.score, deduct, fraction }, night, rank)
+    const p = usePlayer.getState()
+    p.addMoney(got)
+    p.spendEnergy(Math.round(energy * fraction))
+    spendTime(Math.round(CK.minutes * fraction))
+    playSfx('coin')
+    if (fraction < 1) {
+      setFlag('job.circleK.day', today())
+      say(L('Nghỉ ca Circle K sớm: +{m}', 'Left the Circle K shift early: +{m}'), 'info', { m: vnd(got) })
+      return
+    }
+    recordJob('circleK')
     if (night) setFlag('job.nightTired', today() + 1)
     say(L('Xong ca Circle K: +{m}', 'Circle K shift done: +{m}', 'Circle-K-Schicht: +{m}'), 'good', { m: vnd(got) })
-    if (r.value) say(L('Thối sai tiền: trừ {d} vào lương.', 'Wrong change: {d} taken off your pay.'), 'bad', { d: vnd(r.value) })
+    if (deduct) say(L('Thối sai tiền: trừ {d} vào lương.', 'Wrong change: {d} taken off your pay.'), 'bad', { d: vnd(deduct) })
   })
   return true
 }
 
 // --- Grab -------------------------------------------------------------------------------------
+
+/** What a Grab shift leaves you: fares + tips − fines, the rank bonus, minus the fuel. */
+export function grabNet(earned: number, rank: number) {
+  return Math.max(0, Math.round((earned * (1 + J.rankBonus[rank])) / 1000) * 1000) - J.grab.fuel
+}
 
 /** Register as a driver: Bố's Wave, licence A1, uniform + helmet. Once. */
 function grabRegister() {
@@ -258,7 +272,9 @@ function tutorShift() {
 registerActions({
   'job.tea': teaShift,
   'job.circleK': circleKShift,
-  'job.circleKInterview': circleKInterview,
+  'job.circleKHire': circleKHire,
+  // Old saves / dialogues: the interview is gone, this just hires.
+  'job.circleKInterview': circleKHire,
   'job.grabRegister': grabRegister,
   'job.grab': grabShift,
   'job.tutor': tutorShift,

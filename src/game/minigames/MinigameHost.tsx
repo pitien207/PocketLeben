@@ -11,7 +11,9 @@ import { MinigameThemeContext, ResultView, type MinigameTheme } from './common'
 import { BubbleTeaGame } from './BubbleTea'
 import { DerDieDas } from './DerDieDas'
 import { B1_MODULE_NAMES, B1_MODULES, Exam } from './Exam'
-import { CircleKGame, GrabGame, TutorGame } from './JobGames'
+import { CircleKGame } from './CircleK'
+import { GrabGame } from './GrabRun'
+import { TutorGame } from './JobGames'
 import { ListenGame } from './ListenGame'
 import { ClauseHunt, LetterGame, PortalForm } from './Paperwork'
 import { QaGame } from './QaGame'
@@ -105,7 +107,14 @@ export function MinigameHost() {
         game = <ClauseHunt key={active.id} doc={active.doc} onComplete={complete('', 0.99, true)} />
         break
       case 'circleK':
-        game = <CircleKGame key={active.id} night={active.night} rank={active.rank} onComplete={complete('Circle K', 0.5)} />
+        game = (
+          <CircleKGame
+            key={active.id}
+            night={active.night}
+            rank={active.rank}
+            onDone={(o) => finish({ ...makeResult(o.ok, Math.max(1, o.all), 0.5), value: o.deduct, fraction: o.fraction })}
+          />
+        )
         break
       case 'grab':
         game = <GrabGame key={active.id} rain={active.rain} rank={active.rank} onComplete={complete('Grab', 0, true)} />

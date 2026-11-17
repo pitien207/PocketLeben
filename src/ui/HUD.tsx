@@ -148,14 +148,14 @@ function Wallet({ id, label, value, text, icon }: { id: string; label: string; v
   const gain = useMoneyGain(value)
   return (
     <div role="status" aria-label={`${label}: ${text}`} title={label} data-testid={`wallet-${id}`} className="relative flex h-7 items-center">
-      <span className={`relative z-10 -mr-3 h-7 w-7 shrink-0 drop-shadow-[0_1px_0_rgba(40,25,15,0.35)] ${gain ? 'animate-coin' : ''}`} key={gain?.key}>
+      <span className={`relative z-10 -mr-3 h-7 w-7 shrink-0 drop-shadow-[0_1px_0_rgba(40,25,15,0.35)] ${gain ? 'animate-coin' : ''}`} key={`coin${gain?.key ?? 0}`}>
         {icon}
       </span>
       <span className="flex h-[1.4rem] items-center rounded-full border border-white/25 bg-[#3a2a22]/80 pr-2 pl-4 font-display text-[13px] leading-none font-extrabold text-[#fff6dc] tabular-nums shadow-[0_2px_6px_rgba(40,25,15,0.25)] backdrop-blur-sm">
         {text}
       </span>
       {gain && (
-        <span key={gain.key} className="animate-float-up absolute top-full right-0 mt-0.5 rounded-full bg-jade px-1.5 py-0.5 text-[11px] font-black whitespace-nowrap text-white shadow">
+        <span key={`up${gain.key}`} className="animate-float-up absolute top-full right-0 mt-0.5 rounded-full bg-jade px-1.5 py-0.5 text-[11px] font-black whitespace-nowrap text-white shadow">
           +{id === 'eur' ? euros(gain.amount) : whole(gain.amount)}
         </span>
       )}

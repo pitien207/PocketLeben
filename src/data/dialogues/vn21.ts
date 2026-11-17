@@ -263,8 +263,8 @@ export const VN21_DIALOGUES: Record<string, DialogueDef> = {
       { node: 'down' },
     ],
     nodes: {
-      up1: { text: L('(Mạng nhện giăng ở góc trần. Lọ hoa trên bàn thờ chỉ còn hoa khô. Mâm cơm ít món hơn. Mẹ cười gượng, bố ít nói.)', '(Cobwebs in the corner of the ceiling. Only dried flowers on the altar. Fewer dishes at dinner. Mum’s smile is forced, Dad says little.)') },
-      up2: { text: L('(Chiếc tivi không còn nữa, chỗ cũ chỉ còn vết bụi hình chữ nhật. Tường nứt một vệt dài. Đồng hồ treo tường cũng đã bán.)', '(The TV is gone — just a dusty rectangle where it stood. A long crack runs down the wall. The wall clock was sold too.)') },
+      up1: { text: L('(Căn nhà như cũ đi chục tuổi: tường bong sơn, chân tường ẩm mốc, mấy lỗ thủng dán tạm giấy báo. Hóa đơn tiền điện đóng dấu đỏ ghim cạnh tờ lịch, góc nhà xếp mấy thùng mì tôm, cái nồi hứng nước dột. Đĩa ngũ quả trên bàn thờ chỉ còn một quả cam héo. Áo bố mẹ đã phải vá. Mẹ cười gượng, bố ít nói.)', '(The house looks ten years older: peeling paint, damp walls, holes covered with newspaper. Red-stamped electricity bills beside the calendar, boxes of instant noodles in the corner, a pot catching a leak. One wrinkled orange left on the altar. Mum and Dad wear patched clothes. Mum’s smile is forced, Dad says little.)') },
+      up2: { text: L('(Chiếc tivi không còn nữa, chỗ cũ chỉ còn vết bụi hình chữ nhật. Tường nứt một vệt dài. Đồng hồ treo tường cũng đã bán. Quần áo vá phơi giăng ngang phòng.)', '(The TV is gone — just a dusty rectangle where it stood. A long crack runs down the wall. The wall clock was sold too.)') },
       up3: { text: L('(Một mảng tường vỡ lộ gạch. Mái dột, giữa nhà có cái xô hứng nước. Xe Wave của bố đã bán. Na hỏi nhỏ: „Nhà mình nghèo đi hả anh/chị?")', '(A chunk of wall has broken off, showing bricks. The roof leaks into a bucket in the middle of the room. Dad’s Wave is sold. Na whispers: “Are we getting poor?”)') },
       mortgage: { text: L('(Cuốn sổ đỏ trong tủ kính biến mất, chỉ còn khung trống. Bố ngồi một mình trước bàn thờ.)', '(The land certificate is gone from the glass case — an empty frame remains. Dad sits alone before the altar.)') },
       down: { text: L('(Nhà đã sửa lại một phần. Bố mẹ nhìn bạn, nhẹ nhõm hơn.)', '(Part of the house has been fixed. Mum and Dad look at you, relieved.)') },
@@ -569,10 +569,10 @@ export const VN21_DIALOGUES: Record<string, DialogueDef> = {
     start: [{ if: { noFlag: 'job.circleK.hired' }, node: 'hire' }, { node: 'hello' }],
     nodes: {
       hire: {
-        text: L('Em muốn làm thêm ở đây à? Chị hỏi 3 câu, được thì vào ca luôn. Ca ngày {day}, ca đêm {night}.', 'Looking for a job? Three questions, then you can start. Day shift {day}, night shift {night}.'),
+        text: L('Em muốn làm thêm à? Đúng lúc chị đang thiếu người — chị nhận em luôn! Ca ngày {day}, ca đêm {night}. Vào ca luôn không em?', 'Looking for a job? I’m short of staff — you’re hired! Day shift {day}, night shift {night}. Start right now?'),
         choices: [
-          { text: L('Em sẵn sàng!', 'I’m ready!'), effect: { type: 'action', id: 'job.circleKInterview' } },
-          { text: L('Để em suy nghĩ', 'Let me think') },
+          { text: L('Vào ca luôn (90 giây)', 'Start a shift now (90 seconds)'), if: { not: { test: 'job.circleKToday' } }, effect: { type: 'action', id: 'job.circleK' } },
+          { text: L('Dạ, lúc khác em vào ca', 'I’ll come for a shift later'), effect: { type: 'action', id: 'job.circleKHire' } },
         ],
       },
       hello: {
