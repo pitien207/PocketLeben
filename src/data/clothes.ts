@@ -45,7 +45,7 @@ export const CLOTHES: ClothingDef[] = [
   c('depToOng', 'Dép tổ ong', 'Honeycomb sandals', 'shoe', 'vnClothes', 30_000, { shoe: '#4fa3d9', shoeType: 'sandal' }, '#4fa3d9'),
   c('nonLa', 'Nón lá', 'Conical hat', 'hat', 'vnClothes', 50_000, { accessory: 'nonLa' }, '#f2d79c'),
   c('hoodieMint', 'Áo hoodie xanh mint', 'Mint hoodie', 'shirt', 'vnClothes', 220_000, { shirt: '#8fd3c1', top: 'hoodie' }, '#8fd3c1'),
-  c('vayHoa', 'Váy liền hoa nhí', 'Floral dress', 'shirt', 'vnClothes', 250_000, { shirt: '#ffc8dd', top: 'dress' }, '#ffc8dd'),
+  c('vayHoa', 'Váy liền hoa nhí', 'Floral dress', 'shirt', 'vnClothes', 250_000, { shirt: '#ffe3ea', top: 'dress', pattern: 'hoa-nhi', patternColor: '#ef6f8c' }, '#ffe3ea'),
   c('muLuoiTrai', 'Mũ lưỡi trai đỏ', 'Red cap', 'hat', 'vnClothes', 60_000, { accessory: 'cap', accent: '#d4473b' }, '#d4473b'),
   c('kepNo', 'Kẹp nơ hồng', 'Pink hair bow', 'hat', 'vnClothes', 30_000, { accessory: 'bow', accent: '#ff6f91' }, '#ff6f91'),
   c('taiNghe', 'Tai nghe chụp tai', 'Headphones', 'hat', 'vnClothes', 180_000, { accessory: 'headphones', accent: '#a9d6ff' }, '#a9d6ff'),
@@ -57,6 +57,13 @@ export const CLOTHES: ClothingDef[] = [
   c('dongPhuc', 'Sơ mi đồng phục trắng', 'White school shirt', 'shirt', 'vnClothes', 110_000, { shirt: '#ffffff', top: 'long', pattern: undefined }, '#ffffff'),
   c('khanQuangDo', 'Khăn quàng đỏ', 'Red neckerchief', 'neck', 'vnClothes', 15_000, { neck: 'redScarf' }, '#d8262f'),
   c('giayBupBe', 'Giày búp bê', 'Ballet flats', 'shoe', 'vnClothes', 120_000, { shoe: '#2a2224', shoeType: 'loafer' }, '#2a2224'),
+  // 1.23: fabric prints (src/assets/patterns)
+  c('aoThoCam', 'Áo thổ cẩm', 'Brocade top', 'shirt', 'vnClothes', 260_000, { shirt: '#2a2a34', top: 'long', pattern: 'tho-cam', patternColor: '#2a6fb0' }, '#2a2a34'),
+  c('vayThoCam', 'Váy thổ cẩm', 'Brocade skirt', 'shorts', 'vnClothes', 240_000, { shorts: '#2a2a34', bottom: 'skirt', patternBottom: 'tho-cam', patternBottomColor: '#c2185b' }, '#2a2a34'),
+  c('aoCaro', 'Sơ mi kẻ caro', 'Plaid shirt', 'shirt', 'vnClothes', 170_000, { shirt: '#eef2f8', top: 'long', pattern: 'caro', patternColor: '#c8322b' }, '#eef2f8'),
+  c('aoSaoVang', 'Áo thun sao vàng', 'Gold-star T-shirt', 'shirt', 'vnClothes', 120_000, { shirt: '#d4202a', top: 'tee', pattern: 'sao', patternColor: '#ffd23f' }, '#d4202a'),
+  c('aoBaBaDao', 'Áo bà ba hoa đào', 'Peach-blossom bà ba', 'shirt', 'vnClothes', 190_000, { shirt: '#fff0f3', top: 'baba', pattern: 'dao', patternColor: '#f06292' }, '#fff0f3'),
+  c('quanHoaNhi', 'Quần lụa ống rộng hoa nhí', 'Wide floral silk trousers', 'shorts', 'vnClothes', 190_000, { shorts: '#f6efe2', bottom: 'widePants', patternBottom: 'hoa-nhi', patternBottomColor: '#7fa8d9' }, '#f6efe2'),
   c('baloMoi', 'Balo du học (+4 kg)', 'Study-abroad backpack (+4 kg)', 'bag', 'vnClothes', 200_000, { bag: '#7fb8e8' }, '#7fb8e8'),
   // Sidewalk barber (Vietnam)
   c('tocNgan', 'Tóc ngắn', 'Short hair', 'hair', 'barber', 70_000, { hairStyle: 'short' }, '#3d2c2c'),
@@ -79,6 +86,10 @@ export const CLOTHES: ClothingDef[] = [
   c('quanLua', 'Quần lụa trắng', 'White silk trousers', 'shorts', 'tailor', 200_000, { shorts: '#f6f1e7', bottom: 'pants' }, '#f6f1e7'),
   c('aoDaiXanh', 'Áo dài xanh ngọc', 'Jade áo dài', 'shirt', 'tailor', 1_200_000, { shirt: '#3fae9a', top: 'aoDai' }, '#3fae9a'),
   c('aoDaiTim', 'Áo dài tím Huế', 'Huế purple áo dài', 'shirt', 'tailor', 480_000, { shirt: '#8e6bb8', top: 'aoDai' }, '#8e6bb8'),
+  c('aoDaiSen', 'Áo dài hoa sen', 'Lotus áo dài', 'shirt', 'tailor', 1_400_000, { shirt: '#f7eef2', top: 'aoDai', pattern: 'sen', patternColor: '#f28bb0' }, '#f7eef2'),
+  c('aoDaiMai', 'Áo dài hoa mai (Tết)', 'Apricot-blossom áo dài (Tết)', 'shirt', 'tailor', 1_500_000, { shirt: '#c8322b', top: 'aoDai', pattern: 'mai', patternColor: '#ffd23f' }, '#c8322b'),
+  c('aoDaiTrongDong', 'Áo dài họa tiết trống đồng', 'Bronze-drum áo dài', 'shirt', 'tailor', 1_600_000, { shirt: '#24508a', top: 'aoDai', pattern: 'trong-dong', patternColor: '#e8c46a' }, '#24508a'),
+  c('aoDaiSong', 'Áo dài sóng nước', 'Water-wave áo dài', 'shirt', 'tailor', 1_300_000, { shirt: '#2f8f9d', top: 'aoDai', pattern: 'song', patternColor: '#e8f6f8' }, '#2f8f9d'),
   c('khanVoan', 'Nón lá quai lụa', 'Silk-strap conical hat', 'hat', 'tailor', 90_000, { accessory: 'nonLa' }, '#f2d79c'),
   // Flohmarkt (Germany, EUR)
   c('pulli', 'Áo len Pullover', 'Pullover', 'shirt', 'flohmarkt', 8, { shirt: '#5b7cc4', top: 'long' }, '#5b7cc4'),

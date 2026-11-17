@@ -1,13 +1,14 @@
 import { useEffect, useMemo, useRef, type RefObject } from 'react'
 import { useFrame } from '@react-three/fiber'
-import { Bone, Float32BufferAttribute, Group, Quaternion, Skeleton, SkinnedMesh, Sphere, SphereGeometry, Uint16BufferAttribute, Vector3, type BufferGeometry, type Object3D, type Texture } from 'three'
+import { Bone, Float32BufferAttribute, Group, Quaternion, Skeleton, SkinnedMesh, Sphere, SphereGeometry, Uint16BufferAttribute, Vector3, type BufferGeometry, type Material, type Object3D, type Texture } from 'three'
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js'
 import { PLAYER_OUTFIT, type Outfit } from '../../data/npcs'
 import { buildShapes, type ShapeItem } from '../scenes/shared/Shapes'
 import { RIDES, type RideAnchors, type RideKind } from '../scenes/shared/vehicles'
 import { damp } from '../systems/math'
 import { faceTexture, lightness } from './chibi/face'
-import { makeFaceMaterial, outlineMaterial, silhouetteMaterial, toonBodyMaterial } from './chibi/materials'
+import { makeFaceMaterial, makePrintMaterial, outlineMaterial, silhouetteMaterial, toonBodyMaterial } from './chibi/materials'
+import { outfitPrints } from './chibi/patterns'
 import { limbGeometries } from './chibi/cloth'
 import { bodyParts, DEFAULT_EYES, type Carry } from './chibi/parts'
 import { B, BIND, FORE, HEAD_R, HEAD_Y, HIP_Y, PARENT, SHIN, STOOL_Y, THIGH, UPPER } from './chibi/rig'
@@ -183,7 +184,7 @@ function createRig(geo: ChibiGeometries, o: Outfit) {
   group.updateMatrixWorld(true)
   // Poses move the body around (sitting, riding): cull with a generous fixed sphere.
   const bounds = new Sphere(new Vector3(0, 0.85, 0), 1.6)
-  const make = (g: BufferGeometry, material: typeof toonBodyMaterial | typeof outlineMaterial | typeof faceMaterial, shadow: boolean) => {
+  const make = (g: BufferGeometry, material: Material, shadow: boolean) => {
     const mesh = new SkinnedMesh(g, material)
     mesh.bind(skeleton)
     mesh.castShadow = shadow
@@ -192,12 +193,15 @@ function createRig(geo: ChibiGeometries, o: Outfit) {
     group.add(mesh)
     return mesh
   }
-  const body = make(geo.body, toonBodyMaterial, true)
+  // Fabric prints (1.23): an own material only when the outfit wears one.
+  const prints = outfitPrints(o)
+  const printMaterial = prints.top || prints.bottom ? makePrintMaterial(prints.top, prints.bottom) : null
+  const body = make(geo.body, printMaterial ?? toonBodyMaterial, true)
   make(geo.face, faceMaterial, false)
   const outline = make(geo.outline, outlineMaterial, false)
   // Seen through walls/trees: drawn last, only where something is in front of the character.
   if (geo.silhouette) make(geo.silhouette, silhouetteMaterial, false).renderOrder = 20
-  return { group, body, outline, bones, skeleton, faceMaterial, faces: tex }
+  return { group, body, outline, bones, skeleton, faceMaterial, printMaterial, faces: tex }
 }
 
 // --- Two-bone inverse kinematics (allocation-free) -------------------------------------
@@ -269,6 +273,7 @@ export function ChibiModel({ motion, outfit = PLAYER_OUTFIT, carry = null, detai
     () => () => {
       rig.skeleton.dispose()
       rig.faceMaterial.dispose()
+      rig.printMaterial?.dispose()
     },
     [rig],
   )

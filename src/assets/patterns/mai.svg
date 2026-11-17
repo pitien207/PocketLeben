@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" data-size="0.13">
+  <!-- Hoa mai (Tết apricot blossom): five round petals. currentColor = petals -->
+  <path d="M2 40c10-6 20-8 30-20M32 20c6-6 14-8 26-6M20 30l-4-8" stroke="#7a4a2e" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+  <g transform="translate(16 20)">
+    <circle cx="0" cy="-5" r="4.2" fill="currentColor"/><circle cx="4.8" cy="-1.5" r="4.2" fill="currentColor"/>
+    <circle cx="3" cy="4.2" r="4.2" fill="currentColor"/><circle cx="-3" cy="4.2" r="4.2" fill="currentColor"/>
+    <circle cx="-4.8" cy="-1.5" r="4.2" fill="currentColor"/>
+    <circle r="2.4" fill="#e8742c"/>
+    <path d="M0 0l0-3.4M0 0l3.2-1M0 0l2-2.8M0 0l-2-2.8M0 0l-3.2-1" stroke="#c44a1a" stroke-width="0.7"/>
+  </g>
+  <g transform="translate(46 44) scale(0.85)">
+    <circle cx="0" cy="-5" r="4.2" fill="currentColor"/><circle cx="4.8" cy="-1.5" r="4.2" fill="currentColor"/>
+    <circle cx="3" cy="4.2" r="4.2" fill="currentColor"/><circle cx="-3" cy="4.2" r="4.2" fill="currentColor"/>
+    <circle cx="-4.8" cy="-1.5" r="4.2" fill="currentColor"/>
+    <circle r="2.4" fill="#e8742c"/>
+  </g>
+  <circle cx="40" cy="18" r="2.6" fill="currentColor"/>
+  <circle cx="52" cy="13" r="2" fill="currentColor" opacity="0.85"/>
+  <circle cx="6" cy="38" r="2.2" fill="currentColor" opacity="0.85"/>
+  <circle cx="26" cy="52" r="2.4" fill="currentColor" opacity="0.9"/>
+</svg>

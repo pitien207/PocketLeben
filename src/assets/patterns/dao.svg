@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" data-size="0.13">
+  <!-- Hoa đào (peach blossom, northern Tết): notched petals. currentColor = petals -->
+  <path d="M0 52c14-4 24-14 30-30M30 22c4-8 10-12 20-14" stroke="#5a3a2e" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+  <g transform="translate(22 30)">
+    <path id="p" d="M0 0c-3-2-4-6-2-8c1 1 2 1 2 0c0 1 1 1 2 0c2 2 1 6-2 8z" fill="currentColor"/>
+    <use href="#p" transform="rotate(72)"/><use href="#p" transform="rotate(144)"/>
+    <use href="#p" transform="rotate(216)"/><use href="#p" transform="rotate(288)"/>
+    <circle r="1.8" fill="#c2185b"/>
+  </g>
+  <g transform="translate(48 50) scale(0.8)">
+    <use href="#p"/><use href="#p" transform="rotate(72)"/><use href="#p" transform="rotate(144)"/>
+    <use href="#p" transform="rotate(216)"/><use href="#p" transform="rotate(288)"/>
+    <circle r="1.8" fill="#c2185b"/>
+  </g>
+  <circle cx="44" cy="12" r="2.4" fill="currentColor"/>
+  <circle cx="10" cy="46" r="2" fill="currentColor" opacity="0.85"/>
+  <path d="M40 14l-3-3M8 48l-3 2" stroke="#7fb069" stroke-width="1.6" stroke-linecap="round"/>
+</svg>

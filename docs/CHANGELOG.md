@@ -1,5 +1,53 @@
 # Changelog
 
+## 1.23.0 — Vietnamese fabric prints, prettier characters, hoa giấy
+
+### Added — fabric prints ("sprites" for clothes)
+- Clothes can now wear a **print**: every SVG in `src/assets/patterns/` is a tileable fabric design. Drop in a new
+  file and it can be used by name — no code change (how-to in `src/assets/patterns/README.md`).
+  `currentColor` in the SVG becomes the item's print colour, so one design works in many colours.
+- Nine Vietnamese prints to start: **hoa sen** (lotus), **hoa mai** (Tết apricot blossom), **hoa đào** (peach
+  blossom), **trống đồng** (Đông Sơn bronze drum), **thổ cẩm** (highland brocade), **caro**, **sóng nước** (water
+  waves), **hoa nhí** (ditsy flowers), **sao vàng** (gold stars).
+- The print wraps the 3D chibi's top (and, new, the skirt / trousers) and shows on the 2D portraits and in the
+  shop / bag swatches. Still one draw call per character.
+- New clothes: at Cô Hoa's tailor **áo dài hoa sen, hoa mai (Tết), trống đồng, sóng nước**; at Chị Hằng's stall
+  **áo thổ cẩm, váy thổ cẩm, sơ mi caro, áo thun sao vàng, áo bà ba hoa đào, quần lụa ống rộng hoa nhí**; the
+  "váy liền hoa nhí" finally has its little flowers.
+- Some people in the Old Quarter dress up: Cô Hoa (lotus áo dài), Cô Đào (peach-blossom bà ba), Cô Liên and Mẹ
+  (hoa nhí), the two temple keepers (bronze-drum áo dài).
+
+### Changed
+- **Characters look rounder**: a soft warm rim light on the edges (cel-shaded anime look), on bodies and faces.
+- **Hoa giấy** (bougainvillea): about one in five of the old houses in the north quarter has magenta bracts
+  climbing up one corner and spreading along the first-floor cornice.
+
+### Fixed
+- Putting on another top kept the old top's print and apron; another bottom kept the lederhosen socks. Now the
+  new item replaces them.
+
+### Manual test checklist (phone)
+- [ ] Cô Hoa's tailor: buy the lotus áo dài — lotus flowers on the 3D character (front, back, sleeves), in the
+      portrait and on the shop swatch. Then wear a plain T-shirt: no flowers left.
+- [ ] Chị Hằng's stall: áo thổ cẩm + váy thổ cẩm together (print on both), áo thun sao vàng.
+- [ ] Walk past Cô Hoa / Cô Đào / the temple keepers: their prints show.
+- [ ] Phố đi bộ / north rows: some old houses have pink-purple hoa giấy.
+- [ ] Characters have a soft light rim, faces too; nothing flickers.
+
+## 1.22.0 — Real car models
+
+### Changed
+- The traffic cars on Phố Tràng Tiền and in Lindenstraße are now **low-poly car models from the Quaternius
+  Cars Pack (CC0)**: a hatchback, a small car, two sports cars, an SUV with roof rails and a taxi — proper bodies,
+  windows, wheels with rims, lights. The body is painted in the game's pastel traffic colours (the taxi stays
+  yellow), each car still one draw call (~3,000 triangles). About 100 KB extra to download (once, then cached
+  offline). The hand-built car shows for the moment until the file has loaded, or if it can't be loaded.
+
+### Manual test checklist (phone)
+- [ ] Hà Nội, Phố Tràng Tiền (north avenue) and the German street: cars are the new models, several kinds and
+      colours, no flicker after they appear. Stand in a lane: a car stops in front of you as before.
+- [ ] Offline (airplane mode after one visit): cars still show.
+
 ## 1.21.0 — Circle K and Grab games rebuilt, no Circle K interview, a poor house from the first loan, bigger cars
 
 ### Changed — Circle K (full-screen game, like the tea shop)

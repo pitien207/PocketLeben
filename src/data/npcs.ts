@@ -39,9 +39,15 @@ export interface Outfit {
   lashes?: boolean
   /** Shoe shape (default sneaker); `shoe` is its colour. */
   shoeType?: ShoeType
-  /** Print on the top, in `patternColor`. */
-  pattern?: 'stripes' | 'flowers'
+  /**
+   * Print on the top, in `patternColor`: the geometry prints 'stripes' / 'flowers', or (1.23) any fabric print
+   * file in src/assets/patterns (its file name, e.g. 'sen', 'tho-cam').
+   */
+  pattern?: 'stripes' | 'flowers' | (string & {})
   patternColor?: string
+  /** Fabric print on the bottom (skirt, trousers), in `patternBottomColor` (1.23). */
+  patternBottom?: string
+  patternBottomColor?: string
   /** Apron over the clothes (waiter, dirndl), its colour. */
   apron?: string
   /** Knee socks (lederhosen), hair tie colour. */
@@ -139,7 +145,7 @@ export const NPCS = {
     id: 'coBa',
     name: { vi: 'Cô Liên', en: 'Auntie Liên', de: 'Tante Liên' },
     title: { vi: 'Chủ tạp hóa', en: 'Grocery owner', de: 'Ladenbesitzerin' },
-    outfit: { skin: '#f5cfb0', hair: '#2b2222', hairStyle: 'bun',  shorts: '#2f3a4d', shoe: '#ff9b8f', bag: null, accessory: null,  bottom: 'pants', top: 'baba', shirt: '#f7a8c0', shoeType: 'sandal', expression: 'happy', lashes: true },
+    outfit: { skin: '#f5cfb0', hair: '#2b2222', hairStyle: 'bun',  shorts: '#2f3a4d', shoe: '#ff9b8f', bag: null, accessory: null,  bottom: 'pants', top: 'baba', pattern: 'hoa-nhi', patternColor: '#ffffff', shirt: '#f7a8c0', shoeType: 'sandal', expression: 'happy', lashes: true },
     dialogueId: 'coBa',
   },
   chuBay: {
@@ -282,7 +288,7 @@ export const NPCS = {
   coDao: {
     id: 'coDao',
     name: { vi: 'Cô Đào', en: 'Đào', de: 'Đào' },
-    outfit: { skin: '#f5cfb0', hair: '#2b2222', hairStyle: 'bun', shirt: '#b8e0c8', shorts: '#3f4a5c', shoe: '#ffffff', bag: null, accessory: 'nonLa', top: 'baba', lashes: true, expression: 'happy', shoeType: 'sandal' },
+    outfit: { skin: '#f5cfb0', hair: '#2b2222', hairStyle: 'bun', shirt: '#b8e0c8', shorts: '#3f4a5c', shoe: '#ffffff', bag: null, accessory: 'nonLa', top: 'baba', pattern: 'dao', patternColor: '#f06292', lashes: true, expression: 'happy', shoeType: 'sandal' },
   },
   anhPhong: {
     id: 'anhPhong',
@@ -384,7 +390,7 @@ export const NPCS = {
     id: 'coMay',
     name: { vi: 'Cô Hoa thợ may', en: 'Hoa the tailor', de: 'Schneiderin Hoa' },
     title: { vi: 'May đo áo dài', en: 'Áo dài tailor', de: 'Áo-dài-Schneiderei' },
-    outfit: { skin: '#f6d6c0', hair: '#2b2222', hairStyle: 'bob', shirt: '#7a4a8a', shorts: '#f6e7c4', shoe: '#c8322b', bag: null, accessory: null,  bottom: 'pants', top: 'aoDai', lashes: true },
+    outfit: { skin: '#f6d6c0', hair: '#2b2222', hairStyle: 'bob', shirt: '#7a4a8a', shorts: '#f6e7c4', shoe: '#c8322b', bag: null, accessory: null,  bottom: 'pants', top: 'aoDai', pattern: 'sen', patternColor: '#f4d6e6', lashes: true },
     dialogueId: 'coMay',
   },
   chuSau: {
@@ -404,7 +410,7 @@ export const NPCS = {
   me: {
     id: 'me',
     name: { vi: 'Mẹ', en: 'Mum', de: 'Mama' },
-    outfit: { skin: '#f0c8a8', hair: '#2b2222', hairStyle: 'bun', shirt: '#e98aa0', shorts: '#3f4a5c', shoe: '#ffffff', bag: null, accessory: null,  bottom: 'pants', top: 'baba', lashes: true, expression: 'happy', shoeType: 'sandal' },
+    outfit: { skin: '#f0c8a8', hair: '#2b2222', hairStyle: 'bun', shirt: '#e98aa0', shorts: '#3f4a5c', shoe: '#ffffff', bag: null, accessory: null,  bottom: 'pants', top: 'baba', pattern: 'hoa-nhi', patternColor: '#fff3e0', lashes: true, expression: 'happy', shoeType: 'sandal' },
     dialogueId: 'me',
   },
   bo: {
@@ -564,7 +570,7 @@ export const NPCS = {
     id: 'ongTu',
     name: { vi: 'Ông Từ Bảy', en: 'Grandpa Bảy', de: 'Opa Bảy' },
     title: { vi: 'Thủ từ đình làng', en: 'Temple keeper', de: 'Tempelwächter' },
-    outfit: { skin: '#e8b994', hair: '#e8e4dc', hairStyle: 'buzz', shirt: '#7a3b30', shorts: '#3f3a36', shoe: '#5d4a3e', bag: null, accessory: null, top: 'aoDai', bottom: 'pants', shoeType: 'sandal', expression: 'happy-closed' },
+    outfit: { skin: '#e8b994', hair: '#e8e4dc', hairStyle: 'buzz', shirt: '#7a3b30', shorts: '#3f3a36', shoe: '#5d4a3e', bag: null, accessory: null, top: 'aoDai', pattern: 'trong-dong', patternColor: '#c9a45a', bottom: 'pants', shoeType: 'sandal', expression: 'happy-closed' },
     dialogueId: 'ongTu',
   },
   coTu: {
@@ -598,7 +604,7 @@ export const NPCS = {
     id: 'cuTu',
     name: { vi: 'Cụ Thủ Từ', en: 'The temple keeper', de: 'Der Tempelwächter' },
     title: { vi: 'Đền Ngọc Sơn', en: 'Ngọc Sơn Temple', de: 'Ngọc-Sơn-Tempel' },
-    outfit: { skin: '#e8b994', hair: '#efeae4', hairStyle: 'buzz', shirt: '#5b3a6e', shorts: '#2f2a36', shoe: '#2f2a36', bag: null, accessory: 'glasses', top: 'aoDai', shoeType: 'loafer', expression: 'happy-closed' },
+    outfit: { skin: '#e8b994', hair: '#efeae4', hairStyle: 'buzz', shirt: '#5b3a6e', shorts: '#2f2a36', shoe: '#2f2a36', bag: null, accessory: 'glasses', top: 'aoDai', pattern: 'trong-dong', patternColor: '#d9b86a', shoeType: 'loafer', expression: 'happy-closed' },
     dialogueId: 'cuTu',
   },
   duKhach: {

@@ -1,4 +1,5 @@
 import { CLOTHES, CLOTHES_SHOP_NAMES, type ClothesShopId } from '../data/clothes'
+import { swatchStyle } from '../game/components/chibi/patterns'
 import { buyClothing, isWearing, wear } from '../game/systems/wardrobe'
 import { formatMoney } from '../i18n/format'
 import { useT } from '../i18n'
@@ -34,7 +35,7 @@ export function ClothesPanel() {
           const wearing = owned && isWearing(item.id)
           return (
             <li key={item.id} className="flex flex-col items-center gap-1 rounded-2xl bg-white/80 p-2.5 text-center shadow-[inset_0_0_0_2px_#f1dcb6]">
-              <span className="h-8 w-8 rounded-full shadow-[inset_0_0_0_3px_rgba(91,70,54,0.15)]" style={{ background: item.swatch }} />
+              <span className="h-8 w-8 rounded-full shadow-[inset_0_0_0_3px_rgba(91,70,54,0.15)]" style={swatchStyle(item.swatch, item.apply)} />
               <span className="text-[13px] leading-tight font-extrabold">{localize(item.name)}</span>
               {owned ? (
                 <button

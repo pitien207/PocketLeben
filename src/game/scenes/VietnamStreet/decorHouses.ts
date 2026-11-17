@@ -384,5 +384,38 @@ export function planRow(x0: number, x1: number, seed: number): DecorLot[] {
 }
 
 export function decorHouse(style: DecorStyle, width: number, depth: number, seed: number): ShapeItem[] {
-  return BUILDERS[style](width, depth, seeded(seed))
+  const shapes = BUILDERS[style](width, depth, seeded(seed))
+  // 1.23: about four in ten of the old houses have hoa giấy (bougainvillea) climbing the front.
+  // Not on pastel lots (their sign hangs on the balcony) nor on the modern / hotel fronts.
+  const r = seeded(seed * 7 + 3)
+  if ((style === 'colonial' || style === 'tapThe' || style === 'oldLow') && r() < 0.42) shapes.push(...bougainvillea(width, depth / 2, r))
+  return shapes
+}
+
+const BLOOMS = ['#e0457b', '#c2368f', '#f06aa0', '#d94f8c', '#f58cb6']
+const LEAF = '#5f9e57'
+
+/** Hoa giấy: a woody stem up one corner, a mass of magenta bracts along the first-floor cornice, a few trailing strands. */
+function bougainvillea(w: number, f: number, r: Rng): ShapeItem[] {
+  const s: ShapeItem[] = []
+  const side = r() < 0.5 ? -1 : 1
+  const x0 = side * (w / 2 - 0.25)
+  const reach = Math.min(w * 0.55, 2.4)
+  s.push({ cyl: [0.03, 0.045, 3.0, 5], at: [x0, 1.5, f + 0.1], color: '#6b4a32' })
+  for (let j = 0; j < 4; j++) s.push({ ico: [0.13, 0], at: [x0 + (r() - 0.5) * 0.2, 0.9 + j * 0.55, f + 0.14], color: j % 2 ? LEAF : pick(r, BLOOMS) })
+  const n = 10 + Math.floor(r() * 6)
+  for (let i = 0; i < n; i++) {
+    const t = i / (n - 1)
+    s.push({
+      ico: [0.2 + r() * 0.16, 0],
+      at: [x0 - side * t * reach, 3.2 + Math.sin(t * Math.PI) * 0.3 + (r() - 0.5) * 0.25, f + 0.12 + r() * 0.18],
+      rot: [r() * 3, r() * 3, 0],
+      color: i % 3 === 0 ? LEAF : pick(r, BLOOMS),
+    })
+  }
+  for (let k = 0; k < 3; k++) {
+    const x = x0 - side * (0.3 + r() * (reach - 0.3))
+    for (let j = 0; j < 3; j++) s.push({ ico: [0.09 + r() * 0.05, 0], at: [x + (r() - 0.5) * 0.1, 2.95 - j * 0.22, f + 0.15], color: j === 2 ? LEAF : pick(r, BLOOMS) })
+  }
+  return s
 }

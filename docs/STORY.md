@@ -191,7 +191,7 @@ Mở sau khi đậu A2. Chị Mai giới thiệu: viện dưỡng lão Sonnenhof
 | Chè, quà vặt chợ đêm Bà Năm | — | 25.000–40.000 ₫ |
 | Nước mía | — | 15.000 ₫ |
 | Cắt tóc Chú Thắng | — | 70.000 ₫ |
-| May áo dài Cô Hoa | — | 1.200.000 ₫ |
+| May áo dài Cô Hoa | — | 1.200.000 ₫ (🆕 áo dài có hoa văn: hoa sen 1,4 tr · hoa mai Tết 1,5 tr · trống đồng 1,6 tr · sóng nước 1,3 tr) |
 | Dầu gió Cô Thảo | — | 30.000 ₫ |
 | Đèn lồng | — | 80.000 ₫ |
 | Xe buýt | — | 🆕 8.000 ₫ |

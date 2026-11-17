@@ -334,7 +334,7 @@ function cleanSnap(s) {
   const m = s.motion ?? {}
   const o = s.outfit ?? {}
   const outfit = {}
-  for (const k of ['skin', 'hair', 'hairStyle', 'shirt', 'shorts', 'shoe', 'bag', 'accessory', 'accent', 'top', 'bottom', 'neck', 'neckColor', 'eye', 'expression', 'shoeType', 'pattern', 'patternColor', 'apron', 'socks', 'hairTie']) {
+  for (const k of ['skin', 'hair', 'hairStyle', 'shirt', 'shorts', 'shoe', 'bag', 'accessory', 'accent', 'top', 'bottom', 'neck', 'neckColor', 'eye', 'expression', 'shoeType', 'pattern', 'patternColor', 'patternBottom', 'patternBottomColor', 'apron', 'socks', 'hairTie']) {
     const v = o[k] === null ? null : str(o[k])
     if (v !== undefined) outfit[k] = v
   }

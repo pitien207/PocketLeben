@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import { Color } from 'three'
 import type { HairStyle, Outfit } from '../data/npcs'
+import { isFilePattern, patternDataUrl, PATTERNS } from '../game/components/chibi/patterns'
 
 /** A tiny face drawn from the same outfit data as the 3D chibi, for dialogue boxes and the wardrobe. */
 let gradientId = 0
@@ -14,12 +15,25 @@ export function Portrait({ outfit, size = 64 }: { outfit: Outfit; size?: number 
   const accent = outfit.accent
   const dark = shadeHex(hair, -0.18)
   const tie = outfit.hairTie ?? accent ?? '#e2574c'
+  // Fabric print on the shirt (1.23): the same SVG as on the 3D model, tiled at about the same scale.
+  const print = isFilePattern(outfit.pattern) ? patternDataUrl(outfit.pattern, outfit.patternColor ?? '#ffffff') : null
+  const tile = isFilePattern(outfit.pattern) ? PATTERNS[outfit.pattern].size * 90 : 0
   return (
     <svg viewBox="0 0 64 64" width={size} height={size} aria-hidden="true">
       <circle cx="32" cy="32" r="31" fill="#fff6e3" />
       {/* Hair behind the head */}
       <HairBack style={hairStyle} hair={hair} dark={dark} tie={tie} />
       <path d="M12 64c2-12 10-17 20-17s18 5 20 17z" fill={shirt} />
+      {print && (
+        <>
+          <defs>
+            <pattern id={id + 'print'} patternUnits="userSpaceOnUse" width={tile} height={tile}>
+              <image href={print} width={tile} height={tile} />
+            </pattern>
+          </defs>
+          <path d="M12 64c2-12 10-17 20-17s18 5 20 17z" fill={'url(#' + id + 'print)'} />
+        </>
+      )}
       {outfit.ragged && (
         <>
           <rect x="17" y="54" width="8" height="7" rx="1" fill="#b39a72" stroke="#4a3a2c" strokeWidth="0.8" strokeDasharray="1.5 1.2" transform="rotate(-12 21 57)" />

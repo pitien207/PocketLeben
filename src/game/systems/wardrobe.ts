@@ -12,7 +12,7 @@ import { useUI } from '../../store/uiStore'
 /** Which outfit fields each slot controls (to reset a slot to the default look). */
 const SLOT_FIELDS: Record<ClothingSlot, (keyof Outfit)[]> = {
   shirt: ['shirt', 'top', 'pattern', 'patternColor', 'apron'],
-  shorts: ['shorts', 'bottom', 'socks'],
+  shorts: ['shorts', 'bottom', 'socks', 'patternBottom', 'patternBottomColor'],
   shoe: ['shoe', 'shoeType'],
   hat: ['accessory', 'accent'],
   hair: ['hairStyle', 'hair'],
@@ -46,7 +46,16 @@ export function wear(id: string) {
   const item = getClothing(id)
   const p = usePlayer.getState()
   if (!item || !p.wardrobe.includes(id)) return
-  p.setOutfit({ ...p.outfit, ...item.apply })
+  // A new top / bottom replaces the old one's print, apron and socks (they used to stay on).
+  const next: Outfit = { ...p.outfit }
+  for (const k of WORN_WITH[item.slot] ?? []) delete next[k]
+  p.setOutfit({ ...next, ...item.apply })
+}
+
+/** Details that belong to the garment, not to the person: cleared when another item of the slot is worn. */
+const WORN_WITH: Partial<Record<ClothingSlot, (keyof Outfit)[]>> = {
+  shirt: ['pattern', 'patternColor', 'apron'],
+  shorts: ['patternBottom', 'patternBottomColor', 'socks'],
 }
 
 /** A clothing item found as a secret: free, straight into the wardrobe. */

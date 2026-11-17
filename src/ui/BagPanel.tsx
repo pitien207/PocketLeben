@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { swatchStyle } from '../game/components/chibi/patterns'
 import { ACHIEVEMENTS } from '../data/achievements'
 import { getClothing, type ClothingSlot } from '../data/clothes'
 import { getItem, type ItemDef } from '../data/items'
@@ -273,7 +274,7 @@ function Wardrobe() {
                     onClick={() => wear(c.id)}
                     className={`flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[12px] font-extrabold ${isWearing(c.id) ? 'btn-jade' : 'bg-white/80 shadow-[inset_0_0_0_2px_#f1dcb6]'}`}
                   >
-                    <span className="h-3.5 w-3.5 rounded-full" style={{ background: c.swatch }} />
+                    <span className="h-3.5 w-3.5 rounded-full" style={swatchStyle(c.swatch, c.apply)} />
                     {localize(c.name)}
                   </button>
                 ) : null,

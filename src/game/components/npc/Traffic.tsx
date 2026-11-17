@@ -1,4 +1,4 @@
-import { useMemo, useRef } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { CuboidCollider, RigidBody, type RapierRigidBody } from '@react-three/rapier'
 import type { Group } from 'three'
@@ -8,6 +8,7 @@ import { RIDER_OUTFITS, type Outfit } from '../../../data/npcs'
 import { useBubbles } from '../../../store/bubbleStore'
 import { PALETTE as P } from '../../scenes/shared/palette'
 import { bicycleShapes, carShapes, motorbikeShapes, RIDES } from '../../scenes/shared/props'
+import { CAR_MODELS, carModelShapes, carModelsReady, loadCarModels } from '../../scenes/shared/carModels'
 import { Shapes } from '../../scenes/shared/Shapes'
 import { damp } from '../../systems/math'
 import { playerState } from '../../systems/playerState'
@@ -27,7 +28,8 @@ export type VehicleKind = 'motorbike' | 'car' | 'bicycle'
 const VEHICLE = {
   motorbike: { shapes: motorbikeShapes, ride: 'motorbike', half: [0.28, 0.6, 0.78], speed: 1, honk: 'biker' },
   bicycle: { shapes: bicycleShapes, ride: 'bicycle', half: [0.25, 0.6, 0.66], speed: 0.55, honk: 'cyclist' },
-  car: { shapes: carShapes, ride: null, half: [0.78, 0.75, 1.58], speed: 1.05, honk: 'driver' },
+  // Quaternius car models (shared/carModels.ts); the hand-built carShapes stand in while they load.
+  car: { shapes: carShapes, ride: null, half: [0.82, 0.75, 1.7], speed: 1.05, honk: 'driver' },
 } as const
 const LANE_HALF_WIDTH = 1.1
 
@@ -38,15 +40,26 @@ interface BikeProps {
   startX: number
   color: string
   outfit: Outfit
+  /** Which car model (cars only). */
+  model?: string
 }
 
 /** One scooter + helmeted rider cruising a lane. Slows, stops and honks for the player. */
-function TrafficBike({ id, kind, lane, startX, color, outfit }: BikeProps) {
+function TrafficBike({ id, kind, lane, startX, color, outfit, model }: BikeProps) {
   const vehicle = VEHICLE[kind]
   const group = useRef<Group>(null)
   const rb = useRef<RapierRigidBody>(null)
   const rider = useRef<MotionState>({ speed: 0, ride: vehicle.ride, pedal: Math.random() * 6 })
-  const shapes = useMemo(() => vehicle.shapes(color), [vehicle, color])
+  const [carsReady, setCarsReady] = useState(carModelsReady)
+  useEffect(() => {
+    if (kind !== 'car' || carsReady) return
+    let alive = true
+    void loadCarModels().then(() => alive && setCarsReady(carModelsReady()))
+    return () => {
+      alive = false
+    }
+  }, [kind, carsReady])
+  const shapes = useMemo(() => (kind === 'car' && carsReady && model ? carModelShapes(model, color) : null) ?? vehicle.shapes(color), [vehicle, kind, carsReady, model, color])
   const cfg = CONFIG.traffic
   const st = useRef<{ x: number; cruise: number; speed: number; honked: boolean; t: number } | null>(null)
   if (!st.current) {
@@ -122,6 +135,7 @@ export function Traffic({ lanes, perLane = 2, kinds = ['motorbike'], outfits = R
           startX: -CONFIG.traffic.wrapX + ((i + 0.5) / perLane) * 2 * CONFIG.traffic.wrapX + n * 3,
           color: BIKE_COLORS[n % BIKE_COLORS.length],
           outfit: outfits[n % outfits.length],
+          model: CAR_MODELS[(n * 7 + lanes.length) % CAR_MODELS.length],
         })
         n++
       }

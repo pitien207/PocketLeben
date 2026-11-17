@@ -41,7 +41,7 @@ function precompress(): Plugin {
     writeBundle(options, bundle) {
       const dir = options.dir ?? 'dist'
       for (const name of Object.keys(bundle)) {
-        if (!/.(js|mjs|css|html|svg|json|webmanifest|wasm|txt)$/.test(name)) continue
+        if (!/.(js|mjs|css|html|svg|json|webmanifest|wasm|txt|bin)$/.test(name)) continue
         const file = join(dir, name)
         if (statSync(file).size < 1024) continue
         const data = readFileSync(file)

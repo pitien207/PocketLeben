@@ -4,10 +4,16 @@ Every asset must be CC0 or our own (plan §2, §9). List each one here with its 
 
 ## 3D models
 - All geometry (player, NPCs, Saigon street, embassy, airport, German street, Altbau houses, WG,
-  Bürgeramt, care home, vehicles, props, backdrops) is built in code from primitives — original work,
-  no external models.
+  Bürgeramt, care home, motorbikes, bicycles, props, backdrops) is built in code from primitives — original work.
+- **Traffic cars** (1.22): six cars (NormalCar1, NormalCar2, SportsCar, SportsCar2, SUV, Taxi) from the
+  **Cars Pack by Quaternius** — https://quaternius.com/packs/cars.html — license **CC0 1.0** (public domain,
+  https://creativecommons.org/publicdomain/zero/1.0/). Converted from OBJ/MTL by `tools/obj2cars.mjs` into
+  `src/assets/models/cars.bin` + `cars.json` (scaled ×0.8, some material colours adjusted, body repainted per car).
+  Thank you, Quaternius (https://www.patreon.com/quaternius).
 
 ## Textures
+- Fabric prints in `src/assets/patterns/*.svg` (hoa sen, hoa mai, hoa đào, trống đồng, thổ cẩm, caro, sóng nước, hoa nhí,
+  sao vàng, 1.23): original SVG artwork made for this game.
 - Pavement tiles, awning stripes and every shop / street sign (Vietnamese and German) are drawn at runtime on `<canvas>` —
   original work, no image files.
 
