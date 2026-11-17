@@ -67,7 +67,7 @@ export function ListenGame({ level, count, title, onComplete }: { level: number;
         </button>
         {(!canSpeak || picked !== null) && <p className="font-display text-xl font-extrabold">{current.s.de}</p>}
       </div>
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-2 short:grid short:grid-cols-2">
         {current.options.map((o, i) => (
           <AnswerButton key={o.de} state={picked === null ? 'idle' : o.de === current.s.de ? 'right' : picked === i ? 'wrong' : 'dim'} disabled={picked !== null} onClick={() => answer(i)}>
             {meaning(o)}

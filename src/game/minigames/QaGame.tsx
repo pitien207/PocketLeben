@@ -69,7 +69,7 @@ export function QaGame({ set, count, add, onComplete }: { set: QaSetId; count: n
           />
         </div>
       </div>
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-2 short:grid short:grid-cols-2">
         {current.answers.map((ans, i) => {
           const state = picked === null ? 'idle' : picked === i ? (ans.score === 2 ? 'right' : ans.score === 0 ? 'wrong' : 'idle') : 'dim'
           return (

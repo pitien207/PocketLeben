@@ -1,4 +1,4 @@
-# Visa Hunter — Game Plan & Build Spec
+# Pocket Leben — Game Plan & Build Spec
 
 > Paste this file into your project root (e.g. `docs/PLAN.md`) and tell the AI coding agent:
 > "Read docs/PLAN.md. Implement Milestone 1 only. Ask before changing the architecture."
@@ -8,7 +8,7 @@
 
 ## 1. Concept
 
-**Visa Hunter** is a cute 3D life-simulation web game about the journey of a young Vietnamese person
+**Pocket Leben** is a cute 3D life-simulation web game about the journey of a young Vietnamese person
 who learns German in Vietnam, earns money with part-time jobs, survives the visa process, moves to Germany
 for university (Studium) or vocational training (Ausbildung), graduates, works, and builds a life there.
 
@@ -165,7 +165,7 @@ without touching engine code.
 ## 10. First prompt to paste
 
 ```
-You are building a mobile-first 3D web game called "Visa Hunter". Read docs/PLAN.md fully.
+You are building a mobile-first 3D web game called "Pocket Leben". Read docs/PLAN.md fully.
 Implement Milestone M1 only:
 - Vite + React + TypeScript + React Three Fiber + drei + Rapier + Zustand + Tailwind
 - A small cute low-poly scene (Vietnamese street corner with a house and a café), pastel colors, soft shadows

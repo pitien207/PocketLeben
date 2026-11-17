@@ -5,6 +5,7 @@ import { useT } from '../i18n'
 import { useMinigame } from '../store/minigameStore'
 import { useToasts, type Toast } from '../store/toastStore'
 import { Icon3d } from './Icon3d'
+import { SHORT_QUERY, useMedia } from './useMedia'
 
 /**
  * Notifications (1.26, user: the old bubbles in the middle of the screen looked cheap and covered
@@ -46,7 +47,7 @@ function GameToast({ id, l }: { id: string | number; l: Look }) {
       type="button"
       onClick={() => toast.dismiss(id)}
       data-testid="game-toast"
-      className="relative flex w-[min(92vw,380px)] items-center gap-2.5 overflow-hidden rounded-2xl border-2 border-outline bg-[#fffaf0] py-2 pr-3 pl-3.5 text-left text-ink shadow-[0_4px_0_var(--color-outline),0_12px_28px_rgba(74,50,38,0.28)]"
+      className="relative flex w-[min(92vw,380px)] items-center short:w-[min(44vw,340px)] short:py-1.5 gap-2.5 overflow-hidden rounded-2xl border-2 border-outline bg-[#fffaf0] py-2 pr-3 pl-3.5 text-left text-ink shadow-[0_4px_0_var(--color-outline),0_12px_28px_rgba(74,50,38,0.28)]"
     >
       <span className="absolute inset-y-0 left-0 w-1.5" style={{ background: l.accent }} />
       <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl" style={{ background: `${l.accent}1f` }}>
@@ -91,5 +92,12 @@ export function Toasts() {
     }
   }, [t])
 
-  return <Toaster position="top-center" visibleToasts={3} gap={8} offset={10} mobileOffset={{ top: 8 }} toastOptions={{ unstyled: true }} />
+  // A phone on its side (1.30): the top line holds the clock, money and tools and the bottom the
+  // conversation, so notices drop into the free gap on the left, under the objective, over the joystick.
+  const short = useMedia(SHORT_QUERY)
+  if (short) {
+    const side = { top: '6.6rem', left: 'max(0.75rem, env(safe-area-inset-left))' }
+    return <Toaster key="short" position="top-left" visibleToasts={2} gap={6} offset={side} mobileOffset={side} toastOptions={{ unstyled: true }} />
+  }
+  return <Toaster key="tall" position="top-center" visibleToasts={3} gap={8} offset={10} mobileOffset={{ top: 8 }} toastOptions={{ unstyled: true }} />
 }

@@ -101,7 +101,7 @@ export function TutorGame({ rank, onComplete }: { rank: number; onComplete: (cor
         ))}
       </div>
       {phase === 'fix' && (
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-2 short:grid short:grid-cols-2">
           {p.fixes.map((f, i) => (
             <AnswerButton
               key={i}

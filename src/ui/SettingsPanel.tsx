@@ -1,3 +1,4 @@
+import { setFullscreen } from '../fullscreen'
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { CONFIG, type QualityLevel } from '../data/config'
 import { exportSave, importSave, resetSave, suspendSaving } from '../game/systems/save'
@@ -59,10 +60,8 @@ function useFullscreen() {
     document.addEventListener('fullscreenchange', onChange)
     return () => document.removeEventListener('fullscreenchange', onChange)
   }, [supported])
-  const toggle = () => {
-    if (document.fullscreenElement) void document.exitFullscreen()
-    else void document.documentElement.requestFullscreen().catch(() => {})
-  }
+  // Going full screen also keeps the phone landscape (1.30); turning it off is remembered for Play.
+  const toggle = () => setFullscreen(!document.fullscreenElement)
   return { supported, active, toggle }
 }
 
@@ -351,12 +350,12 @@ export function SettingsPanel() {
 
   return (
     <div
-      className="pointer-events-auto absolute inset-0 z-30 grid place-items-center bg-ink/30 p-4 backdrop-blur-sm"
+      className="pointer-events-auto absolute inset-0 z-30 modal-scroll bg-ink/30 p-4 backdrop-blur-sm"
       onPointerDown={(e) => {
         if (e.target === e.currentTarget) setOpen(false)
       }}
     >
-      <div role="dialog" aria-modal="true" aria-labelledby="settings-title" className="panel animate-pop relative w-full max-w-sm p-5 pt-7 text-ink">
+      <div role="dialog" aria-modal="true" aria-labelledby="settings-title" className="panel animate-pop relative w-full max-w-sm p-5 pt-7 text-ink short:max-w-md short:pb-3">
         <h2 id="settings-title" className="absolute -top-4 left-1/2 -translate-x-1/2 rounded-full ribbon px-5 py-1 text-lg whitespace-nowrap">
           {t('settings.title')}
         </h2>
@@ -369,7 +368,7 @@ export function SettingsPanel() {
           <CloseIcon />
         </button>
 
-        <div className="max-h-[70dvh] overflow-y-auto overscroll-contain" style={{ touchAction: 'pan-y' }}>
+        <div className="max-h-[70dvh] overflow-y-auto overscroll-contain short:max-h-[calc(100dvh-8.5rem)]" style={{ touchAction: 'pan-y' }}>
           <TestTools />
           <AccountSection />
           <OfflineStatus />
@@ -452,7 +451,7 @@ export function SettingsPanel() {
               pushToast(on ? 'toast.testOn' : 'toast.testOff', 'info')
             }}
           >
-            Visa Hunter · {t('settings.version', { version: CONFIG.version })}
+            Pocket Leben · {t('settings.version', { version: CONFIG.version })}
           </p>
         </div>
       </div>

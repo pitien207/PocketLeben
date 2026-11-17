@@ -1,7 +1,7 @@
-# Visa Hunter
+# Pocket Leben
 
 A cute, mobile-first 3D life-sim: learn German in Hà Nội's Old Quarter, hunt a visa, and build a life in Germany.
-Notes for coding sessions: [CLAUDE.md](CLAUDE.md) · Design and milestones: [docs/VISA_HUNTER_PLAN.md](docs/VISA_HUNTER_PLAN.md) · Progress: [docs/CHANGELOG.md](docs/CHANGELOG.md) ·
+Notes for coding sessions: [CLAUDE.md](CLAUDE.md) · Design and milestones: [docs/POCKET_LEBEN_PLAN.md](docs/POCKET_LEBEN_PLAN.md) · Progress: [docs/CHANGELOG.md](docs/CHANGELOG.md) ·
 Deploy: [docs/DEPLOY.md](docs/DEPLOY.md)
 
 ## Run

@@ -25,7 +25,7 @@ export function CharacterCreate() {
   }
 
   return (
-    <div className="pointer-events-auto absolute inset-0 z-40 flex items-center justify-center bg-linear-to-b from-[#bfe3ff]/95 via-[#ffe9cc]/95 to-[#ffd9a8]/95 p-4" data-testid="create">
+    <div className="pointer-events-auto absolute inset-0 z-40 modal-scroll bg-linear-to-b from-[#bfe3ff]/95 via-[#ffe9cc]/95 to-[#ffd9a8]/95 p-4" data-testid="create">
       <div role="dialog" aria-modal="true" aria-label={t('create.title')} className="panel animate-pop relative w-full max-w-md p-5 pt-8 text-center text-ink">
         <h2 className="absolute -top-4 left-1/2 -translate-x-1/2 rounded-full ribbon px-6 py-1 text-xl whitespace-nowrap">{t('create.title')}</h2>
         <p className="text-[15px] font-bold text-ink/75">{t('create.question')}</p>

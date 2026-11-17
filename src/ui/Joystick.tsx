@@ -91,10 +91,10 @@ export function Joystick() {
         setSprintToggle(!running)
         setRunning(!running)
       }}
-      className={`pointer-events-auto absolute z-20 grid h-10 w-10 place-items-center rounded-full border-[2.5px] text-[20px] select-none active:translate-y-0.5 ${
+      className={`pointer-events-auto absolute z-21 grid h-10 w-10 place-items-center rounded-full border-[2.5px] text-[20px] select-none active:translate-y-0.5 ${
         running ? 'border-outline bg-gold shadow-[0_3px_0_var(--color-outline)]' : 'border-outline bg-cream shadow-[0_3px_0_var(--color-outline)]'
       }`}
-      // Tucked against the top-right of the stick ring.
+      // Tucked against the top-right of the stick ring — above the stick's touch box (z-21), which overlaps it.
       style={{ left: 'calc(max(0.25rem, env(safe-area-inset-left)) + 6.9rem)', bottom: 'calc(max(0.5rem, env(safe-area-inset-bottom)) + 6.4rem)' }}
     >
       <RunIcon />

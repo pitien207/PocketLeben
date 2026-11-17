@@ -117,7 +117,7 @@ export const CLOTHES: ClothingDef[] = [
   c('giftFlowerCrown', 'Vòng hoa cúc dại', 'Wildflower crown', 'hat', 'gift', 0, { accessory: 'flowerCrown' }, '#ff9fb2'),
   c('giftTurtleTee', 'Áo thun Rùa Hồ Gươm', 'Hồ Gươm turtle tee', 'shirt', 'gift', 0, { shirt: '#8cc2bb', top: 'tee' }, '#8cc2bb'),
   c('giftScarf', 'Khăn len bà đan', 'Scarf Grandma knitted', 'neck', 'gift', 0, { neck: 'scarf', neckColor: '#f4c04e' }, '#f4c04e'),
-  c('giftHoodie', 'Hoodie Visa Hunter vàng', 'Golden Visa Hunter hoodie', 'shirt', 'gift', 0, { shirt: '#f4c04e', top: 'hoodie' }, '#f4c04e'),
+  c('giftHoodie', 'Hoodie Pocket Leben vàng', 'Golden Pocket Leben hoodie', 'shirt', 'gift', 0, { shirt: '#f4c04e', top: 'hoodie' }, '#f4c04e'),
 ]
 
 export const CLOTHES_SHOP_NAMES: Record<ClothesShopId, Localized> = {

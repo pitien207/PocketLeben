@@ -1,5 +1,69 @@
 # Changelog
 
+## 1.31.0 — The game is now called **Pocket Leben**, with a new logo
+
+### Changed
+- **New name: Pocket Leben** (was Visa Hunter) — page title, home-screen name (PWA), title screen, Settings, texts,
+  the golden gift hoodie, README and docs (the plan is now `docs/POCKET_LEBEN_PLAN.md`), package names.
+  Kept on purpose: the browser storage keys (`visa-hunter-save`, settings, login, camera…) so nobody loses their
+  game or login, the offline-cache names, and the Azure / ghcr / Cosmos DB resource names and the web address
+  (renaming those would need new Azure resources and moving the data).
+- **New logo** (from the user's image): a round red rubber stamp — "POCKET LEBEN" along the top, a plane and "2027" in
+  the middle, "HÀ NỘI • DEUTSCHLAND" along the bottom, speckled ink, slightly turned. It is drawn in SVG
+  (`ui/PocketLogo.tsx`): pressed onto the visa form on the title screen, the app icons (`pwa/icon.svg` →
+  `public/icons/*.png`) and the favicon (rings + plane).
+- **Start screen** shows the name big and clear: "Pocket **Leben**" above the visa form with its stamp.
+- **Loading screen and splash** show the name as text in the loading screen's style ("POCKET **LEBEN**" in cream
+  with a plum outline, LEBEN in gold, a red "HÀ NỘI → DEUTSCHLAND" ribbon) — no logo there.
+- **GitHub repo and local folder are called PocketLeben.** Hosting moves to a fresh Azure stack `pocketleben-*`
+  (Container App `pocket-leben`, Cosmos `pocketleben-cosmos`, database `pocketleben`, image `ghcr.io/pitien207/pocket-leben`,
+  https://pocketleben.nghiapham.org) — set up by hand from `docs/DEPLOY.md`; the workflow and the server default
+  database already use the new names.
+
+### Fixed
+- **The run button on phones can be tapped again**: the joystick's touch area lay on top of it.
+
+### Manual test checklist (phone)
+- [ ] Browser tab and home-screen icon: "Pocket Leben" with the red stamp; start screen: big "Pocket Leben" above the
+      visa form, the stamp on the form.
+- [ ] Loading screen: "POCKET LEBEN" text with the red ribbon, above the character.
+- [ ] Old save and login still there after the update.
+- [ ] The run button (next to the joystick) toggles running.
+
+## 1.30.0 — Made for landscape (phones and tablets on their side)
+
+### Changed
+- **HUD (user's layout)**: top line = clock on the left, money (đồng, euro, diamonds) as the right-most thing; the
+  tools (bag, phone, map, visa, online, emotes, settings) sit under the money — a row in landscape (pop-ups open
+  downward), a column in portrait. **No zoom buttons any more** (pinch with two fingers / mouse wheel zooms).
+- **Objective card is compact**: a slim plate like the tool rail, smaller ring and text, **no light-bulb button**
+  (tap the card for the quest log; a blocked step still shows its red hint line).
+- **Conversations on a phone held sideways**: the text box stays bottom-left, the choices stand in a column on the
+  right (no more stack of buttons over the street).
+- **Notices** on a phone held sideways drop into the free gap on the left (under the objective, above the joystick),
+  so they never cover the money, the text of a conversation or its choices. Place plaques show at the bottom centre.
+- **Bubble tea, Circle K and Grab** have a landscape layout: tea = customer + tea taps left, mixing station right;
+  Circle K = shop floor + till left, work area right (items in one row, a 5-column cash drawer); Grab = order, stats
+  and the arrow pad (left thumb) in a column, the map fills the rest and shows the same area of town as in portrait.
+  Everything fits in 740 × 340 (a phone in a browser with its bars).
+- **Quizzes and paper forms**: wider frame, answers in two columns on a phone held sideways. Sheets (bag, shop,
+  quests…) and Settings use the full height; every centred card scrolls instead of being cut off on a low screen.
+- **Full screen + landscape lock**: tapping Play on a phone or tablet goes full screen and keeps the screen
+  landscape (Android Chrome; iPhone Safari has no such API). Settings → Toàn màn hình turns it off (remembered). The
+  installed app (PWA) now opens in landscape (`manifest.orientation`).
+- **Rotate hint**: a phone held upright gets one card "Xoay ngang để chơi nhé!" (with a Full-screen button where
+  possible); it goes away when the phone is turned and never comes back after playing sideways once.
+
+### Manual test checklist (phone + tablet, landscape)
+- [ ] Street: clock left, money far right, the tools under the money (row sideways, column upright); no + / −
+      buttons, pinch still zooms; small objective card without a light bulb; emote / online pop-ups open downward.
+- [ ] Talk to Mẹ: text bottom-left, choices on the right; a notice (e.g. borrowing) appears on the left, not over them.
+- [ ] Bag, quest log, visa file, Settings: fit the screen, scroll inside.
+- [ ] Bubble tea, Circle K (scan, microwave, cash drawer, transfer, crates) and Grab (offers, order, arrows, map):
+      everything visible and tappable without scrolling.
+- [ ] Android Chrome: Play → full screen + landscape; Settings → Toàn màn hình off → next Play stays in the browser.
+- [ ] Hold the phone upright: rotate card; turn the phone → it disappears and does not return.
+
 ## 1.29.0 — New quest UI
 
 ### Changed

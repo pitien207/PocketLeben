@@ -215,7 +215,7 @@ export function LoginPanel({ onClose, onSuccess, onOffline, initialMode = 'login
     </p>
   )
   return (
-    <div className="absolute inset-0 z-[60] grid place-items-center overflow-y-auto bg-ink/45 p-4" role="dialog" aria-modal="true" aria-label={t('account.title')} onClick={onClose}>
+    <div className="absolute inset-0 z-[60] modal-scroll overflow-y-auto bg-ink/45 p-4" role="dialog" aria-modal="true" aria-label={t('account.title')} onClick={onClose}>
       <form onSubmit={submit} onClick={(e) => e.stopPropagation()} className="panel animate-pop my-6 w-full max-w-sm p-5" data-testid="login-panel">
         <div className="-mt-9 mb-3 flex justify-center">
           <span className="ribbon px-5 py-1 font-display text-lg font-extrabold">{t(pick ? 'account.pickName' : 'account.title')}</span>

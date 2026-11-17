@@ -41,7 +41,7 @@ export function EmoteButton() {
         <ChatIcon />
       </button>
       {open && (
-        <div className="panel pointer-events-auto absolute top-0 right-full z-30 mr-2 w-[min(19rem,calc(100vw-4.5rem))] p-2.5" data-testid="emote-picker">
+        <div className="panel pointer-events-auto absolute top-0 right-full z-30 mr-2 land:top-full land:right-0 land:mt-2 land:mr-0 w-[min(19rem,calc(100vw-4.5rem))] p-2.5" data-testid="emote-picker">
           <div className="grid grid-cols-6 gap-1.5">
             {ORDER.slice(0, 6).map((e) => (
               <button
@@ -136,7 +136,7 @@ export function OnlineChip() {
         <span className="text-[10px] leading-none font-black tabular-nums">{live ? Math.max(online, 1) : '…'}</span>
       </button>
       {open && live && (
-        <div className="panel pointer-events-auto absolute top-0 right-full z-30 mr-2 w-56 p-3 text-sm" data-testid="online-list">
+        <div className="panel pointer-events-auto absolute top-0 right-full z-30 mr-2 land:top-full land:right-0 land:mt-2 land:mr-0 w-56 p-3 text-sm" data-testid="online-list">
           <p className="mb-1.5 font-display font-extrabold text-lacquer">{t('online.here')}</p>
           {roster.length === 0 ? (
             <p className="text-[13px] font-bold text-ink/65">{t('online.nobody')}</p>

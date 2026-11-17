@@ -2,6 +2,7 @@ import { lazy, StrictMode, Suspense, useState } from 'react'
 import { createRoot } from 'react-dom/client'
 import { TitleScreen } from './ui/TitleScreen'
 import { pullCloudSave } from './net/auth'
+import { startLandscapePlay } from './fullscreen'
 import './index.css'
 
 /**
@@ -19,6 +20,8 @@ function Root() {
   const [syncing, setSyncing] = useState(false)
   // Signed in: take the cloud save first if it is newer than this device's.
   const play = () => {
+    // Phones / tablets: full screen + landscape, the way the game is meant to be played (1.30).
+    startLandscapePlay()
     setSyncing(true)
     void pullCloudSave().finally(() => setPlaying(true))
   }

@@ -15,7 +15,7 @@ const PUBLIC_PRECACHE = ['manifest.webmanifest', 'favicon.svg', 'icons/icon-192.
  */
 function serviceWorker(): Plugin {
   return {
-    name: 'visa-hunter-sw',
+    name: 'pocket-leben-sw',
     apply: 'build',
     generateBundle(_options, bundle) {
       const files = Object.keys(bundle).filter((f) => !f.endsWith('.map') && f !== 'index.html' && !(/\.(ogg|mp3|m4a)$/.test(f) && !/sfx-/.test(f)))
@@ -36,7 +36,7 @@ function serviceWorker(): Plugin {
  */
 function precompress(): Plugin {
   return {
-    name: 'visa-hunter-precompress',
+    name: 'pocket-leben-precompress',
     apply: 'build',
     writeBundle(options, bundle) {
       const dir = options.dir ?? 'dist'

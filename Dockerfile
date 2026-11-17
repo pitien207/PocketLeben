@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-# Visa Hunter: the built game (dist/) + the Node server (accounts, cloud saves, multiplayer) in one image.
+# Pocket Leben: the built game (dist/) + the Node server (accounts, cloud saves, multiplayer) in one image.
 # Deployed to Azure Container Apps by .github/workflows/deploy.yml (see docs/DEPLOY.md).
 
 # ---- 1. Build the game (typecheck + Vite) ----
@@ -20,7 +20,7 @@ RUN npm ci --omit=dev --no-audit --no-fund && npm cache clean --force
 FROM node:24-alpine AS runtime
 ENV NODE_ENV=production \
     PORT=8080 \
-    DATA_DIR=/tmp/visa-hunter-data
+    DATA_DIR=/tmp/pocket-leben-data
 WORKDIR /app
 # Without MONGO_URI the server falls back to files in DATA_DIR (temporary: lost on restart).
 # Files stay owned by root (read-only for the app); the process runs as "node".

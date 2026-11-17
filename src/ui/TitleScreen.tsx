@@ -5,6 +5,7 @@ import { useSettings } from '../store/settingsStore'
 import { createTitleAudio } from '../title/titleAudio'
 import { googleSignedOut } from '../net/google'
 import { LoginPanel, useAccount } from './LoginPanel'
+import { PocketStamp, GAME_NAME } from './PocketLogo'
 
 /** Day number of the saved game, if there is one (read without loading the game code). */
 function savedDay(): number | null {
@@ -26,18 +27,14 @@ const audio = createTitleAudio(0.8)
 let audioStopTimer: number | undefined
 
 const HAND = "'Patrick Hand', 'Comic Sans MS', cursive"
-const STAMP = "'Barlow Condensed', 'Baloo 2', sans-serif"
 const VN = "'Be Vietnam Pro', 'Nunito', system-ui, sans-serif"
 
-/** Rough rubber-stamp edge (SVG noise as a mask). */
-const STAMP_MASK =
-  "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' seed='3'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -2.2 1.75'/%3E%3C/filter%3E%3Crect width='220' height='120' filter='url(%23n)'/%3E%3C/svg%3E\")"
 
-/** The visa application form with the red "ĐI ĐỨC" stamp — doubles as the game's logo. */
+/** The visa application form with the round red Pocket Leben stamp — doubles as the game's logo. */
 function VisaForm({ name }: { name: string | null }) {
   return (
     <div
-      aria-label="Visa Hunter — Đi Đức"
+      aria-label={`${GAME_NAME} — Hà Nội → Deutschland`}
       role="img"
       className="relative origin-top -rotate-2 bg-[#fbf4e4] px-5 pt-[18px] pb-5 text-[#2b2a33] shadow-[0_18px_40px_rgba(90,60,30,0.28),0_2px_0_rgba(0,0,0,0.06)] portrait:scale-[0.82] [@media(max-height:520px)]:-mb-[4.5rem] [@media(max-height:520px)]:origin-top-left [@media(max-height:520px)]:scale-[0.6]"
       style={{ backgroundImage: 'repeating-linear-gradient(0deg, transparent 0 27px, rgba(60,70,110,.12) 27px 28px)', fontFamily: VN }}
@@ -62,14 +59,8 @@ function VisaForm({ name }: { name: string | null }) {
           </span>
         </div>
       ))}
-      <div
-        className="absolute -right-3.5 -bottom-[26px] -rotate-[11deg] rounded-md border-[3.5px] border-current px-3.5 pt-1.5 pb-1 text-center text-[#c42f3c] mix-blend-multiply"
-        style={{ boxShadow: 'inset 0 0 0 3px #fbf4e4, inset 0 0 0 5px currentColor', WebkitMask: STAMP_MASK, mask: STAMP_MASK, fontFamily: STAMP }}
-      >
-        <div className="text-[12px] leading-tight font-semibold tracking-[0.22em]">VISA HUNTER</div>
-        <div className="text-[50px] leading-[0.95] font-extrabold tracking-[0.02em]">ĐI ĐỨC</div>
-        <div className="text-[12px] leading-tight font-semibold tracking-[0.22em]">HÀ NỘI → DEUTSCHLAND</div>
-      </div>
+      {/* The logo: the round Pocket Leben stamp pressed onto the form (1.31). */}
+      <PocketStamp size={140} className="absolute -right-5 -bottom-[42px] -rotate-6 mix-blend-multiply" />
     </div>
   )
 }
@@ -202,7 +193,17 @@ export function TitleScreen({ onPlay, loading = false }: { onPlay?: () => void; 
       <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(255,247,232,0.88)_0%,rgba(255,247,232,0.45)_30%,transparent_48%)] portrait:bg-[linear-gradient(0deg,rgba(255,247,232,0.92)_0%,rgba(255,247,232,0.5)_30%,transparent_45%),linear-gradient(180deg,rgba(255,247,232,0.55)_0%,transparent_22%)]" />
 
       <div className="absolute inset-y-0 left-[clamp(28px,5vw,80px)] flex w-[min(360px,86vw)] flex-col justify-center gap-11 [@media(max-height:520px)]:gap-4 portrait:inset-x-0 portrait:mx-auto portrait:w-[min(340px,86vw)] portrait:justify-between portrait:pt-[max(7vh,env(safe-area-inset-top))] portrait:pb-[max(6vh,calc(env(safe-area-inset-bottom)+2.5rem))]">
-        <VisaForm name={account?.name ?? null} />
+        {/* 1.31 (user): the game's name, big and clear, above the form with its stamp. */}
+        <div className="flex flex-col gap-4 portrait:items-center [@media(max-height:520px)]:gap-2">
+          <h1
+            className="m-0 font-display text-[clamp(42px,5vw,64px)] leading-[0.95] font-extrabold tracking-[0.5px] text-[#3a2418] portrait:text-center portrait:text-[44px] [@media(max-height:520px)]:text-[34px]"
+            style={{ textShadow: '0 3px 0 rgba(244,192,78,0.95), 0 10px 22px rgba(90,60,30,0.18)' }}
+            data-testid="title-name"
+          >
+            Pocket <span className="text-lacquer">Leben</span>
+          </h1>
+          <VisaForm name={account?.name ?? null} />
+        </div>
 
         {loading ? (
           <div className="flex flex-col items-start gap-2 portrait:items-center" style={{ fontFamily: VN }}>

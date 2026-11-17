@@ -1,101 +1,164 @@
-# Triển khai Visa Hunter lên Azure (Container Apps + Cosmos DB)
+# Triển khai Pocket Leben lên Azure (Container Apps + Cosmos DB)
 
-Từ 1.7.0 game có server (tài khoản, save trên mây, multiplayer qua WebSocket), nên **không** dùng Static Web Apps
-nữa (không chạy được server WebSocket). Cách triển khai giống dự án lofitalk:
+Game có server (tài khoản, save trên mây, multiplayer qua WebSocket) nên chạy trên Azure Container Apps, dữ liệu
+trong Cosmos DB for MongoDB. Bộ tài nguyên **pocketleben-*** được dựng lại từ đầu ở 1.31 (bỏ bộ `visahunter-*` cũ
+khi chưa có người chơi).
 
 ```
 git push main ──► GitHub Actions (.github/workflows/deploy.yml)
                     ├─ docker build (npm ci + typecheck + vite build, server deps)
-                    ├─ push ghcr.io/pitien207/visa-hunter:<sha>
+                    ├─ push ghcr.io/pitien207/pocket-leben:<sha>
                     └─ az containerapp update (đăng nhập Azure bằng OIDC, không có mật khẩu)
                                    │
-Azure  visahunter-rg ─ visahunter-env ─ Container App "visa-hunter" (Node 24, cổng 8080, 0–1 bản sao)
-                     │                  │  MONGO_URI (secret "mongo-uri")
-                     └─ visahunter-cosmos (Cosmos DB, API MongoDB 7.0, gói Free) ─ database "visahunter"
+Azure  pocketleben-rg ─ pocketleben-env ─ Container App "pocket-leben" (Node 24, cổng 8080, 0–1 bản sao)
+                      │                   │  MONGO_URI (secret "mongo-uri"), MONGO_DB=pocketleben, GOOGLE_CLIENT_ID
+                      └─ pocketleben-cosmos (Cosmos DB, API MongoDB 7.0, gói Free) ─ database "pocketleben"
 ```
 
-## Tài nguyên đã tạo (2026-11-15)
+## Tài nguyên
 
 | Thứ | Giá trị |
 |---|---|
-| Resource group | `visahunter-rg` (Germany West Central) |
-| Container Apps environment | `visahunter-env` (Consumption, không gửi log → không tốn Log Analytics) |
-| Container App | `visa-hunter`, 0.25 vCPU / 0.5 GiB, **min 0 – max 1 bản sao** |
-| Địa chỉ | **https://visahunter.nghiapham.org** (chứng chỉ managed miễn phí, Azure tự gia hạn; DNS ở Cloudflare, CNAME để *DNS only*) — dự phòng: https://visa-hunter.blackisland-f796aa91.germanywestcentral.azurecontainerapps.io |
-| Database | `visahunter-cosmos` — Azure Cosmos DB for MongoDB (RU), **free tier** (1000 RU/s + 25 GB miễn phí), Germany West Central. Database `visahunter` (1000 RU/s dùng chung), collections `users`, `tokens`, `saves` |
-| GitHub → Azure | app registration `github-visahunter-deploy` (OIDC, chỉ nhánh `main` của `pitien207/visa-hunter`), quyền **Container Apps Contributor** trên `visahunter-rg` |
-| GitHub secrets / variables | `AZURE_CLIENT_ID`, `AZURE_TENANT_ID`, `AZURE_SUBSCRIPTION_ID`, biến `AZURE_RESOURCE_GROUP=visahunter-rg` |
+| Resource group | `pocketleben-rg` (Germany West Central) |
+| Container Apps environment | `pocketleben-env` (Consumption, không gửi log → không tốn Log Analytics) |
+| Container App | `pocket-leben`, 0.25 vCPU / 0.5 GiB, **min 0 – max 1 bản sao** |
+| Địa chỉ | **https://pocketleben.nghiapham.org** (chứng chỉ managed miễn phí; DNS ở Cloudflare, CNAME để *DNS only*) — dự phòng: địa chỉ `…azurecontainerapps.io` của app |
+| Database | `pocketleben-cosmos` — Cosmos DB for MongoDB (RU), **free tier** (1000 RU/s + 25 GB miễn phí). Database `pocketleben` (1000 RU/s dùng chung), collections `users`, `tokens`, `saves`, … |
+| GitHub → Azure | app registration `github-pocketleben-deploy` (OIDC, chỉ nhánh `main` của `pitien207/PocketLeben`, subject `repo:pitien207@208530485/PocketLeben@1449784608:ref:refs/heads/main`), quyền **Container Apps Contributor** trên `pocketleben-rg` |
+| GitHub secrets / variables | `AZURE_CLIENT_ID`, `AZURE_TENANT_ID`, `AZURE_SUBSCRIPTION_ID`, biến `AZURE_RESOURCE_GROUP=pocketleben-rg` |
 
 **Max 1 bản sao là bắt buộc**: các phòng multiplayer nằm trong bộ nhớ của một tiến trình. Khi không ai chơi, app
 scale về 0 (gần như miễn phí); người đầu tiên vào sẽ chờ vài giây để app khởi động.
 
-## Việc bạn cần làm một lần
+Pocket Leben tách hẳn khỏi lofitalk (`lofitalk-rg`): không dùng chung, không đụng tới tài nguyên của nó.
 
-Image trên ghcr.io đã public (tải được không cần đăng nhập) và database đã nối sẵn — không còn việc bắt buộc.
-Kiểm tra: `https://…azurecontainerapps.io/api/health` → `{"ok":true,"store":"mongodb",…}`.
+## Dựng lại từ đầu (1.31: xoá bộ visahunter-*, tạo bộ pocketleben-*)
 
-### Vì sao Cosmos DB chứ không phải DocumentDB?
-Gói Free của **Azure DocumentDB** (mongoClusters) chỉ cho **một cụm mỗi subscription** — suất đó đang là `lofitalk-db`.
-Gói Free của **Cosmos DB** là suất riêng (một tài khoản free mỗi subscription) và còn trống, nên Visa Hunter có
-database riêng, miễn phí, nằm trong `visahunter-rg`. Cả hai đều nói giao thức MongoDB, server dùng chung code
-(`server/store.mjs`). Lưu ý Cosmos (RU): chỉ index TTL trên `_ts` được phép, nên token hết hạn được kiểm tra trong code.
+Các lệnh viết cho **PowerShell** (`$bien = …`), chạy hết trong **một** cửa sổ. Chuỗi kết nối Cosmos chứa `&`: khi
+PowerShell gọi `az` (là file `az.cmd`), `&` bị hiểu là "lệnh tiếp theo" và lệnh bị cắt — vì vậy giá trị được bọc thêm
+một cặp ngoặc kép (`` `" `` là dấu " trong chuỗi PowerShell), xem bước 3. Subscription `af92c830-…`, tenant `163a6f22-…` giữ nguyên.
 
-Đổi connection string (vd. sau khi xoay khoá):
+### 1. Xoá bộ cũ
+```powershell
+az group delete -n visahunter-rg --yes          # xoá Container App, environment và Cosmos cũ (~10 phút, chờ xong)
+az ad app delete --id e833b26a-a703-47c0-bc65-3afa9bce0270   # app registration github-visahunter-deploy
+```
+- Cloudflare (DNS của `nghiapham.org`): xoá bản ghi CNAME `visahunter` và TXT `asuid.visahunter`.
+- Phải chờ `az group delete` chạy xong rồi mới tạo Cosmos mới: mỗi subscription chỉ có **một** tài khoản Cosmos free tier.
+- Image cũ `ghcr.io/pitien207/visa-hunter` để lại tới khi bản deploy mới chạy (bước 3 dùng nó làm image tạm), sau đó
+  xoá ở GitHub → Your profile → Packages → `visa-hunter` → Package settings → Delete this package.
 
-```bash
-az containerapp secret set -n visa-hunter -g visahunter-rg --secrets "mongo-uri=$(az cosmosdb keys list -n visahunter-cosmos -g visahunter-rg --type connection-strings --query 'connectionStrings[0].connectionString' -o tsv)"
-az containerapp revision restart -n visa-hunter -g visahunter-rg --revision $(az containerapp show -n visa-hunter -g visahunter-rg --query properties.latestRevisionName -o tsv)
+### 2. Database
+```powershell
+az group create -n pocketleben-rg -l germanywestcentral
+az cosmosdb create -n pocketleben-cosmos -g pocketleben-rg --kind MongoDB --server-version 7.0 --enable-free-tier true `
+  --default-consistency-level Session --locations regionName=germanywestcentral failoverPriority=0 isZoneRedundant=false
+az cosmosdb mongodb database create -a pocketleben-cosmos -g pocketleben-rg -n pocketleben --throughput 1000
+```
+**Kiểm tra phiên bản** (phải là `7.0`; có bản Azure CLI bỏ qua `--server-version` và tạo 3.6 — driver MongoDB của server
+không nói chuyện được với 3.6, app sẽ báo Unhealthy):
+```powershell
+az cosmosdb show -n pocketleben-cosmos -g pocketleben-rg --query apiProperties.serverVersion -o tsv
+az cosmosdb update -n pocketleben-cosmos -g pocketleben-rg --server-version 7.0   # nếu ra 3.6
+```
+Không tăng throughput quá 1000 RU/s (phần vượt sẽ tính tiền). Chỉ index TTL trên `_ts` được phép trong Cosmos (RU),
+nên token hết hạn được kiểm tra trong code (`server/store.mjs`).
+
+### 3. Container App
+```powershell
+az containerapp env create -n pocketleben-env -g pocketleben-rg -l germanywestcentral --logs-destination none
+$uri = az cosmosdb keys list -n pocketleben-cosmos -g pocketleben-rg --type connection-strings --query "connectionStrings[0].connectionString" -o tsv
+az containerapp create -n pocket-leben -g pocketleben-rg --environment pocketleben-env `
+  --image ghcr.io/pitien207/visa-hunter:latest --target-port 8080 --ingress external `
+  --cpu 0.25 --memory 0.5Gi --min-replicas 0 --max-replicas 1 `
+  --secrets "`"mongo-uri=$uri`"" `
+  --env-vars MONGO_URI=secretref:mongo-uri MONGO_DB=pocketleben GOOGLE_CLIENT_ID=260353479369-cg476nlo68hvl5ssrgl2goevjesg90ag.apps.googleusercontent.com `
+  --query properties.configuration.ingress.fqdn -o tsv
+```
+Lệnh cuối in ra địa chỉ `pocket-leben.<…>.germanywestcentral.azurecontainerapps.io`. Kiểm tra
+`https://<địa chỉ đó>/api/health` → `{"ok":true,"store":"mongodb",…}`. (Image tạm là bản cũ; lần push đầu thay bằng
+`ghcr.io/pitien207/pocket-leben`.)
+
+### 4. Cho GitHub Actions deploy (OIDC, không mật khẩu)
+Tạo file `cred.json`:
+```json
+{
+  "name": "github-pocketleben-main",
+  "issuer": "https://token.actions.githubusercontent.com",
+  "subject": "repo:pitien207@208530485/PocketLeben@1449784608:ref:refs/heads/main",
+  "audiences": ["api://AzureADTokenExchange"]
+}
+```
+```powershell
+$app = az ad app create --display-name github-pocketleben-deploy --query appId -o tsv
+az ad sp create --id $app
+az ad app federated-credential create --id $app --parameters cred.json
+$rg = az group show -n pocketleben-rg --query id -o tsv
+az role assignment create --assignee $app --role "Container Apps Contributor" --scope $rg
+gh secret set AZURE_CLIENT_ID -b $app -R pitien207/PocketLeben
+gh variable set AZURE_RESOURCE_GROUP -b pocketleben-rg -R pitien207/PocketLeben
+```
+`AZURE_TENANT_ID` và `AZURE_SUBSCRIPTION_ID` không đổi. (Nếu `role assignment create` báo không tìm thấy principal,
+đợi 1–2 phút rồi chạy lại.)
+
+### 5. Tên miền `pocketleben.nghiapham.org`
+```powershell
+az containerapp show -n pocket-leben -g pocketleben-rg --query "[properties.configuration.ingress.fqdn, properties.customDomainVerificationId]" -o tsv
+```
+Cloudflare → DNS của `nghiapham.org`:
+
+| Loại | Tên | Giá trị | Proxy |
+|---|---|---|---|
+| CNAME | `pocketleben` | địa chỉ `…azurecontainerapps.io` (dòng 1 ở trên) | **DNS only** (mây xám) |
+| TXT | `asuid.pocketleben` | mã xác minh (dòng 2 ở trên) | — |
+
+Đợi vài phút rồi gắn domain + chứng chỉ miễn phí (5–20 phút):
+```powershell
+az containerapp hostname add  -n pocket-leben -g pocketleben-rg --hostname pocketleben.nghiapham.org
+az containerapp hostname bind -n pocket-leben -g pocketleben-rg --hostname pocketleben.nghiapham.org --environment pocketleben-env --validation-method CNAME
 ```
 
-### Đăng nhập bằng Google (1.8.0)
-Nút Google chỉ hiện khi server có `GOOGLE_CLIENT_ID`. Tạo một lần trong Google Cloud (miễn phí):
+### 6. Đăng nhập Google
+Google Cloud Console → APIs & Services → Clients → client Web của game → *Authorized JavaScript origins*: thêm
+`https://pocketleben.nghiapham.org` và địa chỉ `…azurecontainerapps.io` mới; xoá hai origin `visahunter…` cũ; giữ
+`http://localhost:5173`. Ở *Branding* đổi tên app thành **Pocket Leben**. Client ID giữ nguyên (đã đặt ở bước 3).
 
-1. https://console.cloud.google.com → tạo project **Visa Hunter**.
-2. *APIs & Services → OAuth consent screen* (Google Auth Platform → *Branding*): tên app "Visa Hunter", email hỗ trợ,
-   *Audience*: **External**, rồi **Publish app** (chỉ xin `openid email profile` nên không cần Google duyệt).
-3. *Clients → Create client* → loại **Web application** → *Authorized JavaScript origins*:
-   - `https://visahunter.nghiapham.org`
-   - `https://visa-hunter.blackisland-f796aa91.germanywestcentral.azurecontainerapps.io`
-   - `http://localhost:5173` (dev trên máy)
-
-   Không cần *Redirect URI*. Không cần client secret (Client ID không phải bí mật).
-4. Copy **Client ID** (`…apps.googleusercontent.com`) rồi:
-
-```bash
-az containerapp update -n visa-hunter -g visahunter-rg --set-env-vars GOOGLE_CLIENT_ID=<client id>
-```
-
+Tạo client mới từ đầu (nếu cần): *OAuth consent screen* → External → Publish app (chỉ `openid email profile`, không
+cần Google duyệt); *Clients → Create client* → Web application với các origin trên, không cần Redirect URI, không cần
+client secret; rồi `az containerapp update -n pocket-leben -g pocketleben-rg --set-env-vars GOOGLE_CLIENT_ID=<client id>`.
 Chạy local: `GOOGLE_CLIENT_ID=<client id> npm run server`.
 
-### Băng thông (1.8.0)
+### 7. Lần deploy đầu
+- Push lên `main` → workflow build và đẩy `ghcr.io/pitien207/pocket-leben` lần đầu. Package mới mặc định **private**:
+  GitHub → Your profile → Packages → `pocket-leben` → Package settings → *Change visibility* → **Public**, rồi
+  *Re-run failed jobs* nếu bước deploy lỗi vì không kéo được image.
+- Kiểm tra `https://pocketleben.nghiapham.org/api/health`, rồi xoá package cũ `visa-hunter` (bước 1).
+
+## Băng thông
 - Build tạo sẵn bản nén `.br`/`.gz` cho mọi file chữ; server gửi bản nhỏ nhất (lần đầu ~1,15 MB thay vì ~4,2 MB).
 - `assets/` có hash trong tên → cache 1 năm; file khác có ETag → không đổi thì trả 304, không tốn dữ liệu.
 - Service worker lưu cả game trên máy; bản mới chỉ tải file thay đổi (three.js, physics, React lấy lại từ cache cũ).
 
-### Tên miền (đã gắn 2026-11-15) `visahunter.nghiapham.org`
-Ở nơi quản lý DNS của `nghiapham.org` thêm:
-
-| Loại | Tên | Giá trị |
-|---|---|---|
-| CNAME | `visahunter` | `visa-hunter.blackisland-f796aa91.germanywestcentral.azurecontainerapps.io` |
-| TXT | `asuid.visahunter` | mã xác minh: `az containerapp show -n visa-hunter -g visahunter-rg --query properties.customDomainVerificationId -o tsv` |
-
-Rồi gắn domain + chứng chỉ miễn phí:
-
-```bash
-az containerapp hostname add  -n visa-hunter -g visahunter-rg --hostname visahunter.nghiapham.org
-az containerapp hostname bind -n visa-hunter -g visahunter-rg --hostname visahunter.nghiapham.org --environment visahunter-env --validation-method CNAME
-```
-
 ## Hằng ngày
 - `git push` lên `main` → khoảng 3–4 phút sau bản mới chạy trên Azure (xem tab *Actions*).
-- Quay về bản cũ: `az containerapp update -n visa-hunter -g visahunter-rg --image ghcr.io/pitien207/visa-hunter:<sha cũ>`
+- Quay về bản cũ: `az containerapp update -n pocket-leben -g pocketleben-rg --image ghcr.io/pitien207/pocket-leben:<sha cũ>`
   (workflow giữ 10 image gần nhất).
-- Xem log trực tiếp: `az containerapp logs show -n visa-hunter -g visahunter-rg --follow`.
+- Xem log trực tiếp: `az containerapp logs show -n pocket-leben -g pocketleben-rg --follow`.
+- Đổi connection string (vd. sau khi xoay khoá):
+  ```powershell
+  $uri = az cosmosdb keys list -n pocketleben-cosmos -g pocketleben-rg --type connection-strings --query "connectionStrings[0].connectionString" -o tsv
+  az containerapp secret set -n pocket-leben -g pocketleben-rg --secrets "`"mongo-uri=$uri`""
+  az containerapp revision restart -n pocket-leben -g pocketleben-rg --revision (az containerapp show -n pocket-leben -g pocketleben-rg --query properties.latestRevisionName -o tsv)
+  ```
 - Chạy giống production trên máy: `npm run build && npm start` (http://localhost:8787; thêm `MONGO_URI=…` để dùng DB).
 
 ## Chi phí ước tính
 - Container Apps Consumption: mỗi tháng miễn phí 180.000 vCPU-giây + 360.000 GiB-giây — với 0.25 vCPU, app chạy
   liên tục khoảng 200 giờ/tháng vẫn trong mức miễn phí; scale về 0 khi vắng người.
-- Cosmos DB free tier: 1000 RU/s + 25 GB miễn phí (database đặt đúng 1000 RU/s dùng chung — đừng tăng, phần vượt sẽ tính tiền).
+- Cosmos DB free tier: 1000 RU/s + 25 GB miễn phí (database đặt đúng 1000 RU/s dùng chung — đừng tăng).
 - ghcr.io: miễn phí cho package public.
+
+### Vì sao Cosmos DB chứ không phải DocumentDB?
+Gói Free của **Azure DocumentDB** (mongoClusters) chỉ cho **một cụm mỗi subscription** — suất đó đang là `lofitalk-db`.
+Gói Free của **Cosmos DB** là suất riêng (một tài khoản free mỗi subscription). Cả hai đều nói giao thức MongoDB, server
+dùng chung code (`server/store.mjs`).

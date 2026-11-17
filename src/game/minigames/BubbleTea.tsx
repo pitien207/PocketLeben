@@ -573,16 +573,17 @@ export function BubbleTeaGame({ rank, strikes, onDone }: { rank: number; strikes
 
   return (
     <div className="pointer-events-auto absolute inset-0 z-40 flex justify-center bg-[#4a3226]/60 select-none" style={{ touchAction: 'none' }} onContextMenu={(e) => e.preventDefault()} data-testid="tea-game">
-      <section className="relative flex h-full w-full max-w-md flex-col overflow-hidden bg-[#fbe9c9] text-ink" role="dialog" aria-modal="true" aria-label="Tiệm trà sữa">
+      <section className="relative flex h-full w-full max-w-md flex-col overflow-hidden bg-[#fbe9c9] text-ink sx-safe land:grid land:max-w-[68rem] land:grid-cols-2 land:grid-rows-[auto_auto_auto_minmax(0,1fr)_auto]" role="dialog" aria-modal="true" aria-label="Tiệm trà sữa">
+        {/* Landscape (1.30): customer + tea taps on the left, the mixing station on the right. */}
         {/* Awning */}
         <div
-          className="h-7 shrink-0 border-b-2 border-outline"
+          className="h-7 shrink-0 border-b-2 border-outline land:col-span-2"
           style={{ background: 'repeating-linear-gradient(90deg,#f8a5b4 0 26px,#fff6ea 26px 52px)', paddingTop: 'env(safe-area-inset-top)' }}
         />
-        <div className="-mt-0.5 h-3 shrink-0" style={{ background: 'radial-gradient(circle at 13px 0,#f8a5b4 12px,transparent 13px) 0 0/52px 12px, radial-gradient(circle at 39px 0,#fff6ea 12px,transparent 13px) 0 0/52px 12px' }} />
+        <div className="-mt-0.5 h-3 shrink-0 land:col-span-2" style={{ background: 'radial-gradient(circle at 13px 0,#f8a5b4 12px,transparent 13px) 0 0/52px 12px, radial-gradient(circle at 39px 0,#fff6ea 12px,transparent 13px) 0 0/52px 12px' }} />
 
         {/* Shift status */}
-        <div className="flex shrink-0 items-center gap-2 px-3 pt-1">
+        <div className="flex shrink-0 items-center gap-2 px-3 pt-1 land:col-span-2 land:pb-1">
           <div className="flex -space-x-2">
             {s.queue.slice(0, 3).map((c, i) => (
               <span key={i} className="rounded-full border-2 border-outline bg-cream" style={{ opacity: 1 - i * 0.2 }}>
@@ -611,7 +612,7 @@ export function BubbleTeaGame({ rank, strikes, onDone }: { rank: number; strikes
         </div>
 
         {/* Customer + order */}
-        <div className="relative mx-2 mt-1 flex min-h-[6rem] flex-[0.6] items-end gap-2 overflow-hidden rounded-2xl border-2 border-outline px-2 pt-1.5 pb-2">
+        <div className="relative mx-2 mt-1 flex min-h-[6rem] flex-[0.6] items-end gap-2 overflow-hidden rounded-2xl border-2 border-outline px-2 pt-1.5 pb-2 land:col-start-1 land:row-start-4 land:mb-1.5 land:min-h-0">
           <TeaBackdrop />
           {speaker ? (
             <>
@@ -661,7 +662,7 @@ export function BubbleTeaGame({ rank, strikes, onDone }: { rank: number; strikes
         </div>
 
         {/* Tea counter */}
-        <div className="shrink-0 border-t-2 border-outline bg-[#f6dcae] px-2 pt-1 pb-2">
+        <div className="shrink-0 border-t-2 border-outline bg-[#f6dcae] px-2 pt-1 pb-2 land:col-start-1 land:row-start-5 land:pb-[max(0.5rem,env(safe-area-inset-bottom))]">
           <Plate>QUẦY TRÀ</Plate>
           <div className="mt-1 flex items-end gap-1">
             {(['M', 'L'] as Size[]).map((size) => (
@@ -703,7 +704,7 @@ export function BubbleTeaGame({ rank, strikes, onDone }: { rank: number; strikes
         </div>
 
         {/* Mixing station */}
-        <div className="flex min-h-0 flex-1 flex-col border-t-2 border-outline bg-[#f3d6a4] px-2 pt-1 pb-2">
+        <div className="flex min-h-0 flex-1 flex-col border-t-2 border-outline bg-[#f3d6a4] px-2 pt-1 pb-2 land:col-start-2 land:row-span-2 land:row-start-4 land:border-l-2">
           <div className="flex items-center gap-2">
             <Plate>PHA LY</Plate>
             <span className="min-w-0 flex-1 truncate text-[12px] font-extrabold text-[#8a5a2b]" data-testid="tea-step">
@@ -779,7 +780,7 @@ export function BubbleTeaGame({ rank, strikes, onDone }: { rank: number; strikes
         </div>
 
         {confirm && !summary && (
-          <div className="absolute inset-0 z-10 grid place-items-center bg-ink/45 p-5">
+          <div className="absolute inset-0 z-10 modal-scroll bg-ink/45 p-5">
             <div className="panel w-full max-w-xs p-4 text-center text-ink">
               <p className="font-display text-xl font-extrabold text-lacquer">Nghỉ ca sớm?</p>
               <p className="mt-2 text-sm font-bold">
@@ -814,7 +815,7 @@ function Summary({ o, rank, onClose }: { o: TeaOutcome; rank: number; onClose: (
     if (!o.quit && o.meter >= 66) burst(box.current, 'big')
   }, [o])
   return (
-    <div className="absolute inset-0 z-10 grid place-items-center bg-ink/45 p-5">
+    <div className="absolute inset-0 z-10 modal-scroll bg-ink/45 p-5">
       <div ref={box} className="panel animate-pop relative w-full max-w-xs p-5 pt-7 text-ink" data-testid="tea-summary">
         <h2 className="absolute -top-5 left-1/2 -translate-x-1/2 rounded-full ribbon px-6 py-1 text-xl whitespace-nowrap">{o.quit ? 'Nghỉ ca sớm' : 'Hết ca!'}</h2>
         <Icon3d name="bubble-tea" className="animate-pop absolute -top-8 -left-4 h-16 w-16 -rotate-12" />

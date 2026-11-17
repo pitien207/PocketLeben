@@ -577,7 +577,9 @@ export function GrabGame({ rain, rank, onComplete }: { rain: boolean; rank: numb
     return () => ro.disconnect()
   }, [])
   // What the camera really shows: the view box covers the map area (slice), so one side is cropped.
-  const scale = Math.max(box.w / VIEW_W, box.h / VIEW_H)
+  // A wide map box (landscape, 1.30) shows the same AREA of town as the portrait view, just wider —
+  // "cover" would zoom in until only a thin strip of streets is left.
+  const scale = box.w > box.h ? Math.sqrt((box.w * box.h) / (VIEW_W * VIEW_H)) : Math.max(box.w / VIEW_W, box.h / VIEW_H)
   const visW = box.w / scale
   const visH = box.h / scale
 
@@ -926,7 +928,7 @@ export function GrabGame({ rain, rank, onComplete }: { rain: boolean; rank: numb
   // Camera window (clamped to the map), with a little shake after a bump
   const cx = Math.min(W - visW / 2, Math.max(visW / 2, s.cam.x)) + (s.shake > 0 ? (Math.random() - 0.5) * 6 : 0)
   const cy = Math.min(H - visH / 2, Math.max(MIN_Y + visH / 2, s.cam.y)) + (s.shake > 0 ? (Math.random() - 0.5) * 6 : 0)
-  const viewBox = `${cx - VIEW_W / 2} ${cy - VIEW_H / 2} ${VIEW_W} ${VIEW_H}`
+  const viewBox = `${cx - visW / 2} ${cy - visH / 2} ${visW} ${visH}`
   // Arrow at the screen edge toward a target that is off screen
   let edgeArrow: { x: number; y: number; angle: number } | null = null
   if (target) {
@@ -945,9 +947,10 @@ export function GrabGame({ rain, rank, onComplete }: { rain: boolean; rank: numb
 
   return (
     <div className="pointer-events-auto absolute inset-0 z-40 flex justify-center bg-[#4a3226]/60 select-none" style={{ touchAction: 'none' }} onContextMenu={(e) => e.preventDefault()} data-testid="grab-game">
-      <section className="relative flex h-full w-full max-w-md flex-col overflow-hidden bg-[#eef6ee] text-ink" role="dialog" aria-modal="true" aria-label="Chạy Grab">
+      <section className="relative flex h-full w-full max-w-md flex-col overflow-hidden bg-[#eef6ee] text-ink sx-safe land:grid land:max-w-[72rem] land:grid-cols-[minmax(13.5rem,17rem)_minmax(0,1fr)] short:grid-cols-[minmax(15rem,19rem)_minmax(0,1fr)] land:grid-rows-[auto_auto_auto_minmax(0,1fr)_auto]" role="dialog" aria-modal="true" aria-label="Chạy Grab">
+        {/* Landscape (1.30): order, stats and the arrow pad (left thumb) in a column, the map fills the rest. */}
         {/* App bar */}
-        <div className="shrink-0 border-b-2 border-outline bg-[linear-gradient(#45bb7c,#2f9e64)] px-3 pb-1.5 text-white" style={{ paddingTop: 'calc(env(safe-area-inset-top) + 6px)' }}>
+        <div className="shrink-0 border-b-2 border-outline bg-[linear-gradient(#45bb7c,#2f9e64)] px-3 pb-1.5 text-white land:col-span-2" style={{ paddingTop: 'calc(env(safe-area-inset-top) + 6px)' }}>
           <div className="flex items-center gap-2">
             <span className="flex min-w-0 flex-col leading-none">
               <span className="font-display text-[19px] font-extrabold tracking-wide drop-shadow-[0_1px_0_rgba(0,0,0,0.25)]">Grab</span>
@@ -972,7 +975,7 @@ export function GrabGame({ rain, rank, onComplete }: { rain: boolean; rank: numb
         </div>
 
         {/* Order / offers */}
-        <div className="shrink-0 px-2 pt-1.5">
+        <div className="shrink-0 px-2 pt-1.5 land:col-start-1 land:row-start-2">
           {o ? (
             <div className={`flex items-center gap-2.5 rounded-2xl border-2 border-outline px-2.5 py-2 shadow-[0_3px_0_var(--color-outline)] ${late ? 'bg-[#ffe3e3]' : 'bg-white'}`} data-testid="grab-order" data-leg={o.leg}>
               <span className="grid h-14 w-14 shrink-0 place-items-center overflow-hidden rounded-full border-2 border-outline [&>*]:h-full [&>*]:w-full" style={{ background: o.offer.shop?.color ?? '#fff6e3' }}>
@@ -1001,7 +1004,7 @@ export function GrabGame({ rain, rank, onComplete }: { rain: boolean; rank: numb
               </div>
             </div>
           ) : s.offers ? (
-            <div className="grid grid-cols-2 gap-1.5">
+            <div className="grid grid-cols-2 gap-1.5 land:grid-cols-1 short:grid-cols-2">
               {s.offers.map((of, i) => (
                 <button key={i} type="button" data-testid={`grab-offer-${i}`} onClick={() => accept(of)} className="animate-pop relative flex flex-col overflow-hidden rounded-2xl border-2 border-outline bg-white px-2 pt-1.5 pb-2 text-left shadow-[0_3px_0_var(--color-outline)] active:translate-y-0.5">
                   <span className="flex items-center gap-1.5">
@@ -1010,7 +1013,7 @@ export function GrabGame({ rain, rank, onComplete }: { rain: boolean; rank: numb
                     </span>
                     <span className="min-w-0 text-[12.5px] leading-tight font-black">{of.kind === 'food' ? of.shop!.name : RIDER_LOOK[of.rider ?? 'normal'].name}</span>
                   </span>
-                  <span className="mt-0.5 line-clamp-2 text-[11px] leading-tight font-bold text-ink/65">{of.kind === 'food' ? `Giao đồ ăn → ${ROW_NAMES[of.to.y]}` : RIDER_LINE[of.rider ?? 'normal']}</span>
+                  <span className="mt-0.5 line-clamp-2 text-[11px] leading-tight font-bold text-ink/65 short:hidden">{of.kind === 'food' ? `Giao đồ ăn → ${ROW_NAMES[of.to.y]}` : RIDER_LINE[of.rider ?? 'normal']}</span>
                   <span className="mt-0.5 flex items-center justify-between text-[12px] font-black">
                     <span className="text-ink/55">{((of.legs[0] + of.legs[1]) * 0.25).toFixed(1).replace('.', ',')} km</span>
                     <span className="text-[#2f8c5a]">{of.fare ? vnd(of.fare) : 'gói xôi'}</span>
@@ -1025,7 +1028,7 @@ export function GrabGame({ rain, rank, onComplete }: { rain: boolean; rank: numb
         </div>
 
         {/* Shift so far */}
-        <div className="mx-2 mt-1.5 flex shrink-0 items-center justify-between gap-1 rounded-full bg-white/80 px-3 py-0.5 text-[11.5px] font-black text-ink/70" data-testid="grab-stats">
+        <div className="mx-2 mt-1.5 flex shrink-0 items-center justify-between gap-1 rounded-full bg-white/80 px-3 py-0.5 text-[11.5px] font-black text-ink/70 land:col-start-1 land:row-start-3 land:flex-wrap land:gap-x-2 land:rounded-xl" data-testid="grab-stats">
           <span className="flex items-center gap-1">
             <Icon3d name="shopping-bags" className="h-4 w-4" />
             <b className="text-ink">{s.delivered}</b> đơn
@@ -1045,7 +1048,7 @@ export function GrabGame({ rain, rank, onComplete }: { rain: boolean; rank: numb
         {/* Map: a camera that follows the scooter */}
         <div
           ref={mapRef}
-          className="relative mx-2 mt-1.5 min-h-0 flex-1 overflow-hidden rounded-2xl border-2 border-outline bg-[#cfe3c0] shadow-[0_3px_0_var(--color-outline)]"
+          className="relative mx-2 mt-1.5 min-h-0 flex-1 overflow-hidden rounded-2xl border-2 border-outline bg-[#cfe3c0] shadow-[0_3px_0_var(--color-outline)] land:col-start-2 land:row-span-4 land:row-start-2 land:ml-0 land:mb-[max(0.5rem,env(safe-area-inset-bottom))]"
           onPointerDown={(e) => {
             swipe.current = { x: e.clientX, y: e.clientY }
           }}
@@ -1157,7 +1160,7 @@ export function GrabGame({ rain, rank, onComplete }: { rain: boolean; rank: numb
         </div>
 
         {/* Controls: a big cross */}
-        <div className="mx-auto mt-1.5 grid w-[min(100%,22rem)] shrink-0 grid-cols-3 grid-rows-2 gap-1.5 rounded-[1.6rem] border-2 border-outline bg-[linear-gradient(#f6e7cb,#e9d2a8)] p-1.5 shadow-[0_3px_0_var(--color-outline)]" style={{ marginBottom: 'calc(env(safe-area-inset-bottom) + 8px)' }}>
+        <div className="mx-auto mt-1.5 grid w-[min(100%,22rem)] shrink-0 grid-cols-3 grid-rows-2 gap-1.5 rounded-[1.6rem] border-2 border-outline land:col-start-1 land:row-start-5 land:mx-2 land:w-auto bg-[linear-gradient(#f6e7cb,#e9d2a8)] p-1.5 shadow-[0_3px_0_var(--color-outline)]" style={{ marginBottom: 'calc(env(safe-area-inset-bottom) + 8px)' }}>
           {(
             [
               [3, 'col-start-2 row-start-1'],
@@ -1175,7 +1178,7 @@ export function GrabGame({ rain, rank, onComplete }: { rain: boolean; rank: numb
                 steer(d)
               }}
               aria-label={ARROWS[d]}
-              className={`${pos} grid h-14 place-items-center rounded-2xl active:translate-y-0.5 [@media(min-height:760px)]:h-16 ${b.want === d ? 'btn-jade' : 'btn-lacquer'}`}
+              className={`${pos} grid h-14 place-items-center rounded-2xl active:translate-y-0.5 short:h-12 [@media(min-height:760px)]:h-16 ${b.want === d ? 'btn-jade' : 'btn-lacquer'}`}
             >
               <svg viewBox="0 0 24 24" className="h-8 w-8 drop-shadow-[0_2px_0_rgba(0,0,0,0.25)]" style={{ transform: `rotate(${d * 90}deg)` }} aria-hidden="true">
                 <path d="M5 12h11M12 6l6 6-6 6" fill="none" stroke="#fff7e0" strokeWidth="3.4" strokeLinecap="round" strokeLinejoin="round" />
@@ -1185,7 +1188,7 @@ export function GrabGame({ rain, rank, onComplete }: { rain: boolean; rank: numb
         </div>
 
         {talk && (
-          <div className="absolute inset-0 z-10 grid place-items-center bg-ink/45 p-5">
+          <div className="absolute inset-0 z-10 modal-scroll bg-ink/45 p-5">
             <div className="panel animate-pop w-full max-w-xs p-4 text-ink" data-testid="grab-talk">
               <div className="flex items-center gap-2">
                 <span className="rounded-full border-2 border-outline bg-cream">
@@ -1206,7 +1209,7 @@ export function GrabGame({ rain, rank, onComplete }: { rain: boolean; rank: numb
         )}
 
         {confirm && !summary && (
-          <div className="absolute inset-0 z-10 grid place-items-center bg-ink/45 p-5">
+          <div className="absolute inset-0 z-10 modal-scroll bg-ink/45 p-5">
             <div className="panel w-full max-w-xs p-4 text-center text-ink">
               <p className="font-display text-xl font-extrabold text-lacquer">Tắt app, về nghỉ?</p>
               <p className="mt-2 text-sm font-bold">Còn {secs}s. Tiền các cuốc đã chạy vẫn được giữ, nhưng hôm nay không chạy lại được{o ? ' — đơn đang chạy sẽ bị hủy' : ''}.</p>
@@ -1254,7 +1257,7 @@ function GrabSummary({ o, rank, onClose }: { o: GrabOutcome; rank: number; onClo
     if (avg >= 4.3 && o.delivered >= 3) burst(box.current, 'big')
   }, [avg, o.delivered])
   return (
-    <div className="absolute inset-0 z-10 grid place-items-center bg-ink/45 p-5">
+    <div className="absolute inset-0 z-10 modal-scroll bg-ink/45 p-5">
       <div ref={box} className="panel animate-pop relative w-full max-w-xs p-5 pt-7 text-ink" data-testid="grab-summary">
         <h2 className="absolute -top-5 left-1/2 -translate-x-1/2 rounded-full ribbon px-6 py-1 text-xl whitespace-nowrap">Hết giờ chạy!</h2>
         <Icon3d name="motor-scooter" className="animate-pop absolute -top-9 -left-5 h-16 w-16 -rotate-6" />

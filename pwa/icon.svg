@@ -1,24 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <!-- Visa Hunter app icon (original artwork). Full-bleed background so it also works as a maskable icon. -->
-  <defs>
-    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#bfe3ff"/>
-      <stop offset="1" stop-color="#fff1dc"/>
-    </linearGradient>
-  </defs>
-  <rect width="512" height="512" fill="url(#sky)"/>
-  <circle cx="400" cy="118" r="44" fill="#ffe08a"/>
-  <path d="M60 150c24-20 60-20 80 0 18-14 46-12 60 6" fill="none" stroke="#ffffff" stroke-width="18" stroke-linecap="round"/>
-  <g transform="rotate(-9 256 286)">
-    <rect x="150" y="138" width="212" height="286" rx="26" fill="#a8322a"/>
-    <rect x="140" y="128" width="212" height="286" rx="26" fill="#d4473b"/>
-    <rect x="160" y="148" width="172" height="246" rx="16" fill="none" stroke="#f4c04e" stroke-width="6"/>
-    <circle cx="246" cy="250" r="54" fill="none" stroke="#f4c04e" stroke-width="10"/>
-    <path d="M246 214l10 22 24 3-18 16 5 24-21-12-21 12 5-24-18-16 24-3z" fill="#f4c04e"/>
-    <rect x="196" y="334" width="100" height="14" rx="7" fill="#f4c04e"/>
-  </g>
-  <g transform="translate(330 300) rotate(-24)">
-    <path d="M0 40L120 0 70 70 52 50z" fill="#ffffff" stroke="#5b4636" stroke-width="6" stroke-linejoin="round"/>
-    <path d="M52 50L120 0" stroke="#5b4636" stroke-width="5"/>
-  </g>
+  <!-- Pocket Leben app icon (1.31): the logo stamp on cream paper. Full-bleed background, the stamp stays inside the
+       maskable safe circle (radius 40 %). PNGs in public/icons are rendered from this with the web fonts loaded. -->
+  <rect width="512" height="512" fill="#f4ebdd"/>
+  <g transform="translate(56 56)"><defs><path id="ic-t" d="M70 200a130 130 0 0 1 260 0"/><path id="ic-b" d="M44 200a156 156 0 0 0 312 0"/><filter id="ic-i" x="-4%" y="-4%" width="108%" height="108%"><feTurbulence type="fractalNoise" baseFrequency="1.4" numOctaves="2" seed="11" result="n"/><feColorMatrix in="n" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  -2.6 0 0 0 2.12" result="m"/><feComposite in="SourceGraphic" in2="m" operator="in" result="s"/><feTurbulence type="turbulence" baseFrequency="0.045" numOctaves="2" seed="4" result="w"/><feDisplacementMap in="s" in2="w" scale="1.8" xChannelSelector="R" yChannelSelector="G"/></filter></defs><g transform="rotate(-6 200 200)" fill="#c8463a" stroke="#c8463a" filter="url(#ic-i)"><circle cx="200" cy="200" r="186" fill="none" stroke-width="11"/><circle cx="200" cy="200" r="171" fill="none" stroke-width="3.5"/><circle cx="200" cy="200" r="86" fill="none" stroke-width="3.5"/><path d="M54 200h42M304 200h42" stroke-width="4.5" stroke-linecap="round"/><text stroke="none" font-family="'Barlow Condensed','Arial Narrow',sans-serif" font-weight="800" font-size="50" letter-spacing="3.5"><textPath href="#ic-t" startOffset="50%" text-anchor="middle">POCKET LEBEN</textPath></text><text stroke="none" font-family="'Barlow Condensed','Arial Narrow',sans-serif" font-weight="800" font-size="27" letter-spacing="4"><textPath href="#ic-b" startOffset="50%" text-anchor="middle">HÀ NỘI • DEUTSCHLAND</textPath></text><g transform="translate(204 168) rotate(-8) scale(1.12)" stroke="none"><path d="M30 0Q30-3.5 25-3.5H8L-5-22h-7l8 18.5h-15l-6-7.5h-4.5l3 11-3 11h4.5l6-7.5h15l-8 18.5h7L8 3.5h17Q30 3.5 30 0Z"/><path d="M-58 5H-35" stroke="#c8463a" stroke-width="3.4" stroke-linecap="round"/></g><text x="200" y="250" stroke="none" text-anchor="middle" font-family="'Fraunces',Georgia,serif" font-weight="800" font-size="52" letter-spacing="1">2027</text></g></g>
 </svg>

@@ -15,6 +15,7 @@ import { isRaining } from '../game/systems/weather'
 import { SCENES } from '../game/scenes/registry'
 import { useWorld } from '../store/worldStore'
 import { EmoteButton, OnlineChip } from './OnlineUI'
+import { useLandscape } from './useMedia'
 
 /**
  * Top HUD (1.18): one thin line — the clock pill on the left, the three currencies (đồng, euro,
@@ -188,26 +189,14 @@ function Wallets() {
   )
 }
 
-export function HUD() {
+/** The tools, grouped in one rail under the money: a column in portrait, a row in landscape. */
+function Rail({ row }: { row: boolean }) {
   const t = useT()
   const setSettingsOpen = useUI((s) => s.setSettingsOpen)
   const openPanel = useUI((s) => s.openPanel)
   const showVisa = useFlags((s) => !!s.flags['visa.path'] && !s.flags['de.arrived'])
-
   return (
-    <header className="pointer-events-none absolute inset-x-0 top-0 z-10 flex flex-col gap-1.5 px-safe pt-safe">
-      {/* Row 1: status line */}
-      <div className="flex items-center justify-between gap-1.5">
-        <Clock />
-        <Wallets />
-      </div>
-
-      {/* Row 2: the objective (as wide as it can be) and the icon rail on the right */}
-      <div className="flex items-start justify-between gap-2">
-        <div className="min-w-0 flex-1">
-          <QuestTracker />
-        </div>
-        <nav className="hud-slim pointer-events-auto flex shrink-0 flex-col items-center gap-px p-0.5" aria-label={t('hud.menu')}>
+        <nav className={`hud-slim pointer-events-auto flex shrink-0 items-center gap-px p-0.5 ${row ? 'flex-row' : 'flex-col'}`} aria-label={t('hud.menu')}>
           <RailButton label={t('hud.bag')} onClick={() => openPanel({ type: 'bag' })} tour="bag">
             <BagIcon />
             <BagFullBadge />
@@ -231,6 +220,28 @@ export function HUD() {
             <GearIcon />
           </RailButton>
         </nav>
+  )
+}
+
+export function HUD() {
+  // 1.30 (user): the money is the last thing on the top line, far right; the tools sit under it — a row
+  // in landscape (a column would run into the action button on a phone held sideways), a column in
+  // portrait. No zoom buttons (pinch / wheel zooms).
+  const land = useLandscape()
+  return (
+    <header className="pointer-events-none absolute inset-x-0 top-0 z-10 flex flex-col gap-1.5 px-safe pt-safe" data-layout={land ? 'land' : 'portrait'}>
+      {/* Row 1: status line — clock left, money far right */}
+      <div className="flex items-center justify-between gap-1.5">
+        <Clock />
+        <Wallets />
+      </div>
+
+      {/* Row 2: the objective on the left, the tools on the right under the money */}
+      <div className="flex items-start justify-between gap-2">
+        <div className="min-w-0 flex-1">
+          <QuestTracker />
+        </div>
+        <Rail row={land} />
       </div>
     </header>
   )

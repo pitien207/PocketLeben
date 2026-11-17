@@ -6,13 +6,13 @@
       name="viewport"
       content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"
     />
-    <title>Visa Hunter</title>
-    <meta name="description" content="Game 3D dễ thương: học tiếng Đức, săn visa và bắt đầu cuộc sống mới ở Đức." />
+    <title>Pocket Leben</title>
+    <meta name="description" content="Pocket Leben — game 3D dễ thương: từ Hà Nội, học tiếng Đức, săn visa và bắt đầu cuộc sống mới ở Đức." />
     <meta name="theme-color" content="#bfe3ff" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-    <meta name="apple-mobile-web-app-title" content="Visa Hunter" />
+    <meta name="apple-mobile-web-app-title" content="Pocket Leben" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
     <link rel="manifest" href="/manifest.webmanifest" />
@@ -25,6 +25,8 @@
       media="print"
       onload="this.media='all'"
     />
+    <!-- Only the digits of the logo stamp's "2027" (a few hundred bytes). -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@144,800&text=2027&display=swap" />
     <noscript>
       <link
         rel="stylesheet"
@@ -37,26 +39,27 @@
       /* Same look as the in-game loading screen (ui/LoaderArt.tsx): dusk sky over a rooftop, the logo. */
       .splash {
         height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
-        padding-top: max(7vh, 32px); box-sizing: border-box; text-align: center;
+        padding-top: max(6vh, 20px); box-sizing: border-box; text-align: center;
         background: linear-gradient(#2f2a5c 0%, #7a4a7e 38%, #e2816e 58%, #ffbf86 72%, #ffd9a3 80%, #45294a 80.4%, #2f1d36 84%);
         font-family: 'Baloo 2', 'Nunito', system-ui, sans-serif;
       }
+      /* The name, as on the loading screen (ui/LoaderArt.tsx LoaderLogo). */
       .splash b {
-        font-size: clamp(46px, 11vw, 96px); line-height: .9; font-weight: 800; letter-spacing: 1px; color: #fff4dc;
+        font-size: clamp(38px, min(11vw, 15vh), 96px); line-height: .9; font-weight: 800; letter-spacing: 1px; color: #fff4dc;
         -webkit-text-stroke: clamp(5px, 1.1vw, 9px) #3a1f3d; paint-order: stroke fill;
         text-shadow: 0 3px 0 #3a1f3d, 0 6px 0 #3a1f3d, 0 9px 0 #3a1f3d, 0 16px 24px rgba(20,8,30,.55);
       }
       .splash b i { font-style: normal; color: #ffc65c; }
       .splash span {
         margin-top: clamp(8px, 1.6vw, 14px); padding: 2px 18px 0; border-radius: 6px; transform: rotate(-2deg);
-        font-size: clamp(16px, 3.4vw, 24px); font-weight: 800; letter-spacing: 4px; color: #fff; background: #d8443c;
+        font-size: clamp(13px, min(2.6vw, 4vh), 22px); font-weight: 800; letter-spacing: 3px; color: #fff; background: #d8443c;
         box-shadow: 0 4px 0 #8f2622, 0 10px 18px rgba(20,8,30,.4);
       }
     </style>
   </head>
   <body>
     <div id="root">
-      <div class="splash"><b>VISA <i>HUNTER</i></b><span>ĐI ĐỨC</span></div>
+      <div class="splash"><b>POCKET <i>LEBEN</i></b><span>HÀ NỘI → DEUTSCHLAND</span></div>
     </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

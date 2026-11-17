@@ -1,6 +1,14 @@
 @import 'tailwindcss';
 
 /*
+ * Landscape is how people play (1.30). `land:` = any landscape screen wide enough for a side-by-side
+ * layout (phone on its side, tablet, desktop); `short:` = a phone on its side (little height, so
+ * everything must fit in ~320–430 px and sit beside, not above, each other).
+ */
+@custom-variant land (@media (orientation: landscape) and (min-width: 600px));
+@custom-variant short (@media (orientation: landscape) and (max-height: 540px));
+
+/*
  * Visual language — Hà Nội: warm "giấy dó" paper panels with a faint gạch bông (encaustic
  * tile) pattern, Thê Húc-bridge red + gold for primary actions, the green of Old Quarter
  * wooden shutters for secondary ones, ochre "vàng Hà Nội" for lines and accents.
@@ -217,6 +225,20 @@
       opacity: 1;
     }
   }
+  /* Rotate hint (1.30): the phone tips onto its side and back. */
+  @keyframes rotate-phone {
+    0%,
+    20% {
+      transform: rotate(0deg);
+    }
+    50%,
+    80% {
+      transform: rotate(-90deg);
+    }
+    100% {
+      transform: rotate(0deg);
+    }
+  }
   @keyframes nudge {
     0%,
     100% {
@@ -235,6 +257,24 @@
 @utility px-safe {
   padding-left: max(0.75rem, env(safe-area-inset-left));
   padding-right: max(0.75rem, env(safe-area-inset-right));
+}
+/* Full-screen mini-games: keep their content clear of the notch on a phone held sideways. */
+@utility sx-safe {
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
+/* Centred card overlays: centre when it fits, scroll (from the top) when the screen is too low. */
+@utility modal-scroll {
+  display: grid;
+  place-items: center;
+  place-items: safe center;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  touch-action: pan-y;
+  /* room for the ribbon / sticker that pokes out above a card */
+  & > * {
+    margin-block: 1.25rem;
+  }
 }
 
 /* Paper panel with a thin gold inner line and a faint four-petal flower pattern. */

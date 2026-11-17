@@ -29,7 +29,7 @@ export function ChapterCard() {
   if (!intro) return null
   const [label, name] = localize(CHAPTER_NAMES[chapter]).split(' · ')
   return (
-    <div className="absolute inset-0 z-40 grid place-items-center bg-ink/40 p-4" data-testid="chapter-card">
+    <div className="absolute inset-0 z-40 modal-scroll bg-ink/40 p-4" data-testid="chapter-card">
       <div role="dialog" aria-modal="true" className="pointer-events-auto panel animate-pop relative w-full max-w-sm overflow-hidden p-0 text-ink">
         <div className="relative grid h-28 place-items-center bg-linear-to-b from-[#ffd9a8] via-[#ffe9cc] to-paper text-[64px]">
           <span className="drop-shadow-[0_4px_0_rgba(74,50,38,0.25)]">{intro.icon}</span>

@@ -217,26 +217,27 @@ export function LoaderArt() {
   )
 }
 
-/** "VISA HUNTER" with the red "ĐI ĐỨC" ribbon, as in the design. */
+/** The game's name in the loading screen's own style (1.31, user: text, not the stamp): "POCKET LEBEN" in
+ *  cream with a thick plum outline and stacked shadow, LEBEN in gold, a red ribbon under it. Mirrored by the splash in index.html. */
 export function LoaderLogo() {
   return (
-    <div className="pointer-events-none absolute left-1/2 z-[2] -translate-x-1/2 text-center whitespace-nowrap" style={{ top: 'max(7vh, 32px)' }}>
+    <div className="pointer-events-none absolute left-1/2 z-[2] -translate-x-1/2 text-center whitespace-nowrap" style={{ top: 'max(6vh, 20px)' }} data-testid="loader-title">
       <h2
         className="m-0 font-display leading-[0.9] font-extrabold tracking-[1px] text-[#fff4dc]"
         style={{
-          fontSize: 'clamp(46px, 11vw, 96px)',
+          fontSize: 'clamp(38px, min(11vw, 15vh), 96px)',
           WebkitTextStroke: 'clamp(5px, 1.1vw, 9px) #3a1f3d',
           paintOrder: 'stroke fill',
           textShadow: '0 3px 0 #3a1f3d, 0 6px 0 #3a1f3d, 0 9px 0 #3a1f3d, 0 16px 24px rgba(20,8,30,.55)',
         }}
       >
-        VISA <span className="text-[#ffc65c]">HUNTER</span>
+        POCKET <span className="text-[#ffc65c]">LEBEN</span>
       </h2>
       <div
-        className="mt-[clamp(8px,1.6vw,14px)] inline-block -rotate-2 rounded-md bg-[#d8443c] px-[18px] pt-0.5 font-display font-extrabold tracking-[4px] text-white"
-        style={{ fontSize: 'clamp(16px, 3.4vw, 24px)', boxShadow: '0 4px 0 #8f2622, 0 10px 18px rgba(20,8,30,.4)' }}
+        className="mt-[clamp(8px,1.6vw,14px)] inline-block -rotate-2 rounded-md bg-[#d8443c] px-[18px] pt-0.5 font-display font-extrabold tracking-[3px] text-white"
+        style={{ fontSize: 'clamp(13px, min(2.6vw, 4vh), 22px)', boxShadow: '0 4px 0 #8f2622, 0 10px 18px rgba(20,8,30,.4)' }}
       >
-        ĐI ĐỨC
+        HÀ NỘI → DEUTSCHLAND
       </div>
     </div>
   )

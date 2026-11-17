@@ -752,9 +752,10 @@ export function CircleKGame({ night, rank, onDone }: { night: boolean; rank: num
 
   return (
     <div className="pointer-events-auto absolute inset-0 z-40 flex justify-center bg-[#4a3226]/60 select-none" style={{ touchAction: 'manipulation' }} onContextMenu={(e) => e.preventDefault()} data-testid="ck-game">
-      <section className={`relative flex h-full w-full max-w-md flex-col overflow-hidden text-ink ${night ? 'bg-[#dfe3ee]' : 'bg-[#f7f3ec]'}`} role="dialog" aria-modal="true" aria-label="Cửa hàng tiện lợi">
+      <section className={`relative flex h-full w-full max-w-md flex-col overflow-hidden text-ink sx-safe land:grid land:max-w-[68rem] land:grid-cols-2 land:grid-rows-[auto_auto_minmax(0,1fr)_auto] ${night ? 'bg-[#dfe3ee]' : 'bg-[#f7f3ec]'}`} role="dialog" aria-modal="true" aria-label="Cửa hàng tiện lợi">
+        {/* Landscape (1.30): the shop floor + till on the left, the work area on the right. */}
         {/* Fascia: red band with the orange and white stripes */}
-        <div className="shrink-0 border-b-2 border-outline" style={{ paddingTop: 'env(safe-area-inset-top)', background: '#d4202a' }}>
+        <div className="shrink-0 border-b-2 border-outline land:col-span-2" style={{ paddingTop: 'env(safe-area-inset-top)', background: '#d4202a' }}>
           <div className="flex h-8 items-center justify-center gap-2">
             <span className={`font-display text-[15px] font-extrabold tracking-wide text-white ${night ? 'drop-shadow-[0_0_6px_#ff6b5e]' : ''}`}>CIRCLE K · 24/7</span>
             <span className="rounded-full bg-white/90 px-1.5 text-[10px] font-black text-[#d4202a]">{night ? 'CA ĐÊM' : 'CA NGÀY'}</span>
@@ -764,7 +765,7 @@ export function CircleKGame({ night, rank, onDone }: { night: boolean; rank: num
         </div>
 
         {/* Shift status */}
-        <div className="flex shrink-0 items-center gap-2 px-3 pt-1.5">
+        <div className="flex shrink-0 items-center gap-2 px-3 pt-1.5 land:col-span-2">
           <div className="flex -space-x-2">
             {s.queue.slice(0, 3).map((p, i) => (
               <span key={i} className="rounded-full border-2 border-outline bg-cream" style={{ opacity: 1 - i * 0.2 }}>
@@ -794,7 +795,7 @@ export function CircleKGame({ night, rank, onDone }: { night: boolean; rank: num
         </div>
 
         {/* Shop floor: shelves behind, the customer at the till */}
-        <div className="relative mx-2 mt-1.5 flex min-h-[7.4rem] flex-1 flex-col overflow-hidden rounded-2xl border-2 border-outline" style={{ background: night ? 'linear-gradient(#2f3a5c,#46507a)' : 'linear-gradient(#fdf6e8,#f1e4cc)' }}>
+        <div className="relative mx-2 mt-1.5 flex min-h-[7.4rem] flex-1 flex-col overflow-hidden rounded-2xl border-2 border-outline land:col-start-1 land:row-start-3 land:min-h-0" style={{ background: night ? 'linear-gradient(#2f3a5c,#46507a)' : 'linear-gradient(#fdf6e8,#f1e4cc)' }}>
           <ShopBackdrop night={night} />
           <div className="relative flex min-h-0 flex-1 items-end gap-2 px-2 pt-1.5 pb-1">
           {speaker ? (
@@ -850,7 +851,7 @@ export function CircleKGame({ night, rank, onDone }: { night: boolean; rank: num
         </div>
 
         {/* The till: register display + scanner */}
-        <div className="mx-2 mt-1.5 flex shrink-0 items-stretch gap-2">
+        <div className="mx-2 mt-1.5 flex shrink-0 items-stretch gap-2 land:col-start-1 land:row-start-4 land:mb-[max(0.5rem,env(safe-area-inset-bottom))]">
           <div ref={lcdRef} className="relative flex-1 rounded-xl border-2 border-outline bg-[#1d2b22] px-2.5 py-1 font-mono text-[12px] leading-[1.35] font-black text-[#7dffb0] shadow-[0_3px_0_var(--color-outline)]" data-testid="ck-lcd">
             <div className="flex justify-between">
               <span>TỔNG</span>
@@ -878,7 +879,7 @@ export function CircleKGame({ night, rank, onDone }: { night: boolean; rank: num
         </div>
 
         {/* Work area: changes with the step */}
-        <div className="mx-2 mt-1.5 mb-2 flex min-h-[15.5rem] shrink-0 flex-col rounded-2xl border-2 border-outline bg-[#e9dcc4] p-2 shadow-[0_3px_0_var(--color-outline)]">
+        <div className="mx-2 mt-1.5 mb-2 flex min-h-[15.5rem] shrink-0 flex-col rounded-2xl border-2 border-outline bg-[#e9dcc4] p-2 shadow-[0_3px_0_var(--color-outline)] land:col-start-2 land:row-span-2 land:row-start-3 land:ml-0 land:mb-[max(0.5rem,env(safe-area-inset-bottom))] land:min-h-0 short:p-1.5">
           <div className="flex items-center gap-2">
             <Plate>{c ? (c.phase === 'scan' ? 'QUÉT HÀNG' : c.phase === 'heat' ? 'LÒ VI SÓNG' : c.pay.kind === 'qr' ? 'KIỂM TRA' : 'NGĂN KÉO TIỀN') : s.crate ? 'XẾP KỆ' : 'QUẦY'}</Plate>
             <span className="min-w-0 flex-1 truncate text-[12px] font-extrabold text-[#8a5a2b]" data-testid="ck-step">
@@ -906,7 +907,7 @@ export function CircleKGame({ night, rank, onDone }: { night: boolean; rank: num
                   data-testid={`ck-item-${i}`}
                   onClick={() => scan(i)}
                   disabled={c.scanned[i]}
-                  className={`relative flex h-[6.6rem] w-[calc(50%-0.25rem)] flex-col items-center justify-center rounded-2xl border-2 border-outline shadow-[0_3px_0_var(--color-outline)] transition active:translate-y-0.5 ${c.scanned[i] ? 'bg-[#e4f6ea] opacity-60' : 'bg-white'}`}
+                  className={`relative flex h-[6.6rem] w-[calc(50%-0.25rem)] flex-col items-center justify-center rounded-2xl short:h-[6rem] short:w-[calc(25%-0.4rem)] border-2 border-outline shadow-[0_3px_0_var(--color-outline)] transition active:translate-y-0.5 ${c.scanned[i] ? 'bg-[#e4f6ea] opacity-60' : 'bg-white'}`}
                 >
                   <ItemArt id={it.id} className="h-14 w-14" />
                   <span className="text-[11px] leading-tight font-black">{it.name}</span>
@@ -919,7 +920,7 @@ export function CircleKGame({ night, rank, onDone }: { night: boolean; rank: num
 
           {c && c.phase === 'heat' && (
             <div className="mt-1 flex min-h-0 flex-1 flex-col items-center justify-center gap-2">
-              <div className="relative h-[8.5rem] w-full max-w-[17rem]">
+              <div className="relative h-[8.5rem] w-full max-w-[17rem] short:h-[6.6rem]">
                 <MicrowaveArt item={c.heat} t={s.micro.t} running={s.micro.running} done={s.micro.done} />
                 <span className="absolute -top-1 -left-1 rotate-[-6deg] rounded-md border-2 border-outline bg-[#ffe08a] px-1.5 py-0.5 text-[12px] font-black shadow-[0_2px_0_var(--color-outline)]">
                   {c.heat!.hot}s
@@ -930,7 +931,7 @@ export function CircleKGame({ night, rank, onDone }: { night: boolean; rank: num
                 data-testid="ck-micro"
                 onClick={() => (s.micro.running ? stopMicro() : startMicro())}
                 disabled={s.micro.done}
-                className={`w-full max-w-[17rem] rounded-2xl py-3 font-display text-lg font-extrabold active:translate-y-0.5 ${s.micro.running ? 'btn-lacquer' : 'btn-jade'} ${s.micro.done ? 'opacity-50' : ''}`}
+                className={`w-full max-w-[17rem] rounded-2xl py-3 font-display text-lg font-extrabold active:translate-y-0.5 short:py-2 ${s.micro.running ? 'btn-lacquer' : 'btn-jade'} ${s.micro.done ? 'opacity-50' : ''}`}
               >
                 {s.micro.running ? 'DỪNG!' : s.micro.done ? 'Xong' : 'BẤM ĐỂ HÂM'}
               </button>
@@ -938,8 +939,8 @@ export function CircleKGame({ night, rank, onDone }: { night: boolean; rank: num
           )}
 
           {c && c.phase === 'pay' && c.pay.kind === 'cash' && (
-            <div className="mt-1.5 flex min-h-0 flex-1 flex-col gap-1.5">
-              <div className="flex items-center gap-1.5 rounded-xl bg-white/70 px-2 py-1">
+            <div className="mt-1.5 flex min-h-0 flex-1 flex-col gap-1.5 short:mt-1 short:gap-1">
+              <div className="flex items-center gap-1.5 rounded-xl bg-white/70 px-2 py-1 short:py-0.5">
                 <span className="text-[10px] font-black text-ink/60">KHÁCH ĐƯA</span>
                 {c.pay.notes.map((v, i) => (
                   <NoteArt key={i} v={v} className="h-7 w-14" />
@@ -961,7 +962,7 @@ export function CircleKGame({ night, rank, onDone }: { night: boolean; rank: num
                   ))}
                 </div>
               </div>
-              <div className="grid min-h-0 flex-1 grid-cols-4 content-center gap-1.5 rounded-xl bg-[#3b4252] p-1.5 shadow-[inset_0_2px_0_rgba(0,0,0,0.3)]">
+              <div className="grid min-h-0 flex-1 grid-cols-4 content-center gap-1.5 rounded-xl bg-[#3b4252] p-1.5 shadow-[inset_0_2px_0_rgba(0,0,0,0.3)] short:grid-cols-5 short:gap-1 short:p-1">
                 {DRAWER.map((v) => (
                   <button key={v} type="button" data-testid={`ck-note-${v}`} onClick={() => addNote(v)} className="rounded-lg bg-[#2a2f3a] p-0.5 active:translate-y-0.5" aria-label={vnd(v)}>
                     <NoteArt v={v} className="h-auto w-full" />
@@ -976,11 +977,11 @@ export function CircleKGame({ night, rank, onDone }: { night: boolean; rank: num
                     s.tray = []
                     render()
                   }}
-                  className="rounded-2xl border-2 border-outline bg-cream py-2.5 font-extrabold shadow-[0_3px_0_var(--color-outline)] active:translate-y-0.5"
+                  className="rounded-2xl border-2 border-outline bg-cream py-2.5 font-extrabold shadow-[0_3px_0_var(--color-outline)] active:translate-y-0.5 short:py-1.5"
                 >
                   Cất lại
                 </button>
-                <button type="button" data-testid="ck-give" onClick={giveChange} className="rounded-2xl btn-jade py-2.5 font-extrabold active:translate-y-0.5">
+                <button type="button" data-testid="ck-give" onClick={giveChange} className="rounded-2xl btn-jade py-2.5 font-extrabold active:translate-y-0.5 short:py-1.5">
                   {paid(c) === total(c) && s.tray.length === 0 ? 'Đủ tiền, cảm ơn!' : 'Thối tiền'}
                 </button>
               </div>
@@ -989,7 +990,7 @@ export function CircleKGame({ night, rank, onDone }: { night: boolean; rank: num
 
           {c && c.phase === 'pay' && c.pay.kind === 'qr' && (
             <div className="mt-1.5 flex min-h-0 flex-1 items-center gap-3">
-              <div className="h-[11rem] w-[38%] shrink-0" data-testid="ck-phone" data-sent={c.pay.sent}>
+              <div className="h-[11rem] w-[38%] shrink-0 short:h-[9.5rem]" data-testid="ck-phone" data-sent={c.pay.sent}>
                 <PhoneArt amount={c.pay.sent} />
               </div>
               <div className="flex min-w-0 flex-1 flex-col gap-2">
@@ -1050,7 +1051,7 @@ export function CircleKGame({ night, rank, onDone }: { night: boolean; rank: num
         </div>
 
         {event && (
-          <div className="absolute inset-0 z-10 grid place-items-center bg-[#1c2238]/70 p-5">
+          <div className="absolute inset-0 z-10 modal-scroll bg-[#1c2238]/70 p-5">
             <div className="panel animate-pop w-full max-w-xs p-4 text-ink" data-testid="ck-event">
               <p className="font-display text-lg font-extrabold text-[#d4202a]">Ca đêm</p>
               <p className="mt-1 text-[15px] leading-snug font-bold">{eventReply ?? event.text}</p>
@@ -1092,7 +1093,7 @@ export function CircleKGame({ night, rank, onDone }: { night: boolean; rank: num
         )}
 
         {confirm && !summary && (
-          <div className="absolute inset-0 z-10 grid place-items-center bg-ink/45 p-5">
+          <div className="absolute inset-0 z-10 modal-scroll bg-ink/45 p-5">
             <div className="panel w-full max-w-xs p-4 text-center text-ink">
               <p className="font-display text-xl font-extrabold text-lacquer">Nghỉ ca sớm?</p>
               <p className="mt-2 text-sm font-bold">Còn {secs}s nữa mới hết ca. Về bây giờ thì chỉ được trả phần đã làm, và hôm nay không vào ca lại được.</p>
@@ -1124,7 +1125,7 @@ function Summary({ o, night, rank, onClose }: { o: ShiftOutcome; night: boolean;
     if (!quit && score >= 0.85) burst(box.current, 'big')
   }, [quit, score])
   return (
-    <div className="absolute inset-0 z-10 grid place-items-center bg-ink/45 p-5">
+    <div className="absolute inset-0 z-10 modal-scroll bg-ink/45 p-5">
       <div ref={box} className="panel animate-pop relative w-full max-w-xs p-5 pt-7 text-ink" data-testid="ck-summary">
         <h2 className="absolute -top-5 left-1/2 -translate-x-1/2 rounded-full ribbon px-6 py-1 text-xl whitespace-nowrap">{quit ? 'Nghỉ ca sớm' : 'Hết ca!'}</h2>
         {!quit && score >= 0.5 && <Icon3d name="party-popper" className="animate-pop absolute -top-8 -right-4 h-16 w-16 rotate-12" />}

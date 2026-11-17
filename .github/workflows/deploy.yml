@@ -18,8 +18,8 @@ concurrency:
 
 env:
   # ghcr.io image names must be lowercase.
-  IMAGE_NAME: ghcr.io/${{ github.repository_owner }}/visa-hunter
-  CONTAINER_APP_NAME: visa-hunter
+  IMAGE_NAME: ghcr.io/${{ github.repository_owner }}/pocket-leben
+  CONTAINER_APP_NAME: pocket-leben
 
 jobs:
   build-and-deploy:
@@ -82,6 +82,6 @@ jobs:
         continue-on-error: true
         uses: actions/delete-package-versions@e5bc658cc4c965c472efe991f8beea3981499c55 # v5.0.0
         with:
-          package-name: visa-hunter
+          package-name: pocket-leben
           package-type: container
           min-versions-to-keep: 10

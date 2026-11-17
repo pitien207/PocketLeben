@@ -74,7 +74,7 @@ export function NewDayCard() {
   const moneyText = s && s.money !== 0 ? `${s.money > 0 ? '+' : '−'}${formatMoney(Math.abs(s.money), currency)}` : '±0'
 
   return (
-    <div className="pointer-events-auto absolute inset-0 z-40 grid place-items-center bg-linear-to-b from-[#ffd9a8]/85 via-[#ffe9cc]/80 to-[#bfe3ff]/80 p-4 backdrop-blur-sm">
+    <div className="pointer-events-auto absolute inset-0 z-40 modal-scroll bg-linear-to-b from-[#ffd9a8]/85 via-[#ffe9cc]/80 to-[#bfe3ff]/80 p-4 backdrop-blur-sm">
       <div role="dialog" aria-modal="true" className="panel animate-pop relative w-full max-w-xs p-5 pt-8 text-center text-ink">
         <span className="absolute -top-6 left-1/2 grid h-12 w-12 -translate-x-1/2 place-items-center rounded-full bg-gold text-3xl shadow-[0_3px_0_#c9962a]">
           {rainy ? '🌧' : '🌅'}
@@ -157,7 +157,7 @@ export function LocationCard() {
         ? 'plaque-german'
         : 'plaque-room'
   return (
-    <div key={shown.key} className="pointer-events-none absolute inset-x-0 z-20 flex justify-center px-6" style={{ top: 'calc(max(0.625rem, env(safe-area-inset-top)) + 12.5rem)' }}>
+    <div key={shown.key} className="pointer-events-none absolute inset-x-0 z-20 flex justify-center px-6 short:!top-auto short:!bottom-[max(1.25rem,env(safe-area-inset-bottom))]" style={{ top: 'calc(max(0.625rem, env(safe-area-inset-top)) + 12.5rem)' }}>
       <div className={`animate-plaque ${style} flex flex-col items-center px-5 py-1.5 text-center`}>
         <span className="font-display text-xl leading-tight font-extrabold tracking-wide">{localize(plaque.title)}</span>
         {plaque.subtitle && <span className="text-[11px] font-bold opacity-90">{localize(plaque.subtitle)}</span>}

@@ -50,7 +50,7 @@ export function LetterGame({ set, onComplete }: { set: LetterSetId; onComplete: 
         </div>
       )}
       <p className="mb-2 text-sm font-black">{localize(part.prompt)}</p>
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-2 short:grid short:grid-cols-2">
         {part.options.map((o, i) => (
           <AnswerButton key={i} state={picked === null ? 'idle' : picked === i ? (o.ok ? 'right' : 'wrong') : o.ok ? 'right' : 'dim'} disabled={picked !== null} onClick={() => choose(i)}>
             {o.de}
@@ -91,7 +91,7 @@ export function PortalForm({ onComplete, onClose }: { onComplete: (correct: numb
           Ngày sinh / Date of birth: <b>{PASSPORT_DATA.birth}</b> · Số / No.: <b>{PASSPORT_DATA.number}</b>
         </p>
       </div>
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-2 short:grid short:grid-cols-2">
         {fields.map((f, i) => (
           <label key={f.label} className="block">
             <span className="text-[12px] font-black">

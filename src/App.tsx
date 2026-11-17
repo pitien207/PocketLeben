@@ -4,7 +4,6 @@ import { installDebugHooks } from './game/systems/debug'
 import { bindKeyboard } from './game/systems/input'
 import { useSettings } from './store/settingsStore'
 import { ActionButtons } from './ui/ActionButtons'
-import { CameraButtons } from './ui/CameraButtons'
 import { BagPanel } from './ui/BagPanel'
 import { CarePanel, CareResults } from './ui/CarePanel'
 import { ClothesPanel } from './ui/ClothesPanel'
@@ -29,6 +28,7 @@ import { SettingsPanel } from './ui/SettingsPanel'
 import { ShopPanel } from './ui/ShopPanel'
 import { SleepOverlay } from './ui/SleepOverlay'
 import { Toasts } from './ui/Toasts'
+import { RotateHint } from './ui/RotateHint'
 import { WorkPanel } from './ui/WorkPanel'
 import { WorkResults } from './ui/WorkResults'
 
@@ -54,7 +54,6 @@ export default function App() {
         <CarePanel />
         <Joystick />
         <ActionButtons />
-        <CameraButtons />
         <DialogueBox />
         <Toasts />
         <WorkResults />
@@ -74,6 +73,7 @@ export default function App() {
         <ChapterCard />
         <GuideUiPulse />
         <Onboarding />
+        <RotateHint />
         <MinigameHost />
         <SettingsPanel />
         <FastForwardOverlay />

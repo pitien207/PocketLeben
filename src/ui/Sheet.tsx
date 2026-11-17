@@ -16,13 +16,13 @@ export function Sheet({ title, onClose, children }: { title: string; onClose: ()
 
   return (
     <div
-      className="pointer-events-auto absolute inset-0 z-30 flex items-end justify-center bg-ink/30 p-3 backdrop-blur-[2px] sm:items-center"
+      className="pointer-events-auto absolute inset-0 z-30 flex items-end justify-center bg-ink/30 p-3 backdrop-blur-[2px] sm:items-center short:pt-6"
       style={{ paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom))' }}
       onPointerDown={(e) => {
         if (e.target === e.currentTarget) onClose()
       }}
     >
-      <div role="dialog" aria-modal="true" aria-label={title} className="panel animate-sheet relative w-full max-w-md p-4 pt-7 text-ink">
+      <div role="dialog" aria-modal="true" aria-label={title} className="panel animate-sheet relative w-full max-w-md p-4 pt-7 text-ink short:max-w-lg short:pb-3">
         <h2 className="absolute -top-4 left-1/2 -translate-x-1/2 rounded-full ribbon px-5 py-1 text-lg whitespace-nowrap">{title}</h2>
         <button
           type="button"
@@ -32,7 +32,7 @@ export function Sheet({ title, onClose, children }: { title: string; onClose: ()
         >
           <CloseIcon />
         </button>
-        <div className="max-h-[60dvh] overflow-y-auto overscroll-contain" style={{ touchAction: 'pan-y' }}>
+        <div className="max-h-[60dvh] overflow-y-auto overscroll-contain short:max-h-[calc(100dvh-6.5rem)]" style={{ touchAction: 'pan-y' }}>
           {children}
         </div>
       </div>

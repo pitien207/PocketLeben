@@ -98,8 +98,8 @@ export function MinigameFrame({
     return () => window.removeEventListener('keydown', onKey)
   }, [onClose])
   return (
-    <div className={`pointer-events-auto absolute inset-0 z-40 flex items-center justify-center p-3 ${look.backdrop}`}>
-      <section className={`animate-sheet relative flex max-h-[94dvh] w-full max-w-md flex-col p-4 pt-7 ${look.section}`} role="dialog" aria-modal="true" aria-label={title}>
+    <div className={`pointer-events-auto absolute inset-0 z-40 flex items-center justify-center px-safe py-3 short:pt-6 short:pb-2 ${look.backdrop}`}>
+      <section className={`animate-sheet relative flex max-h-[94dvh] w-full max-w-md flex-col p-4 pt-7 short:max-h-full short:max-w-2xl short:pb-3 ${look.section}`} role="dialog" aria-modal="true" aria-label={title}>
         <h2 className="absolute -top-4 left-1/2 max-w-[90%] -translate-x-1/2 truncate rounded-full ribbon px-5 py-1 text-lg whitespace-nowrap">{title}</h2>
         {onClose && (
           <button

@@ -67,7 +67,7 @@ export function VocabQuiz({ level, count, title, onComplete }: SubGameProps) {
         </div>
         <p className="text-sm font-bold text-ink/60">{picked === -1 ? t('mg.timeUp') : t('mg.whatMeans')}</p>
       </div>
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-2 short:grid short:grid-cols-2">
         {current.options.map((o, i) => {
           const isAnswer = o.de === word.de
           const state = picked === null ? 'idle' : isAnswer ? 'right' : picked === i ? 'wrong' : 'dim'

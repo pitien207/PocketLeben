@@ -45,7 +45,7 @@ export function SecretCard() {
   if (r.german) chips.push(`+${r.german} XP Deutsch`)
 
   return (
-    <div className="pointer-events-auto absolute inset-0 z-40 grid place-items-center bg-ink/35 p-4 backdrop-blur-[2px]" onPointerDown={(e) => e.target === e.currentTarget && closePanel()}>
+    <div className="pointer-events-auto absolute inset-0 z-40 modal-scroll bg-ink/35 p-4 backdrop-blur-[2px]" onPointerDown={(e) => e.target === e.currentTarget && closePanel()}>
       <div role="dialog" aria-modal="true" data-testid="secret-card" className="panel animate-pop relative w-full max-w-xs p-5 pt-10 text-center text-ink">
         <span className="absolute -top-9 left-1/2 grid h-[4.5rem] w-[4.5rem] -translate-x-1/2 place-items-center rounded-full border-[3px] border-outline bg-gold-light text-[40px] shadow-[inset_0_3px_0_#fff,0_4px_0_var(--color-outline)]">
           {s.icon}

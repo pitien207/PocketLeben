@@ -80,12 +80,13 @@ export function DialogueBox() {
   return (
     <div
       data-dialogue
-      className="absolute inset-x-0 z-30 flex justify-center px-3"
+      className="absolute inset-x-0 z-30 flex justify-center px-safe"
       style={{ bottom: 'max(0.75rem, calc(env(safe-area-inset-bottom) + 0.5rem))' }}
     >
-      <section className="animate-sheet pointer-events-auto w-full max-w-xl" aria-live="polite">
+      <section className="animate-sheet pointer-events-auto w-full max-w-xl short:flex short:max-w-5xl short:flex-row-reverse short:items-end short:gap-3" aria-live="polite">
+        {/* Phone on its side: the choices stand to the right of the text instead of piling up over the street. */}
         {!typing && choices.length > 0 && (
-          <div className="mb-2 flex flex-col items-end gap-2">
+          <div className="mb-2 flex flex-col items-end gap-2 short:mb-0 short:max-h-[calc(100dvh-1.5rem)] short:w-[42%] short:shrink-0 short:items-stretch short:gap-1.5 short:overflow-y-auto short:p-1" data-testid="dialogue-choices">
             {choices.map((choice, i) => {
               const cost = choice.cost ?? effectCost(choice.effect)
               const short = cost > money
@@ -94,7 +95,7 @@ export function DialogueBox() {
                   key={i}
                   type="button"
                   onClick={() => chooseOption(i)}
-                  className="animate-pop flex max-w-full items-center gap-2 rounded-2xl btn-jade py-2.5 pr-3 pl-4 text-left text-[15px] font-extrabold active:translate-y-1 active:shadow-none"
+                  className="animate-pop flex max-w-full items-center gap-2 rounded-2xl btn-jade py-2.5 pr-3 pl-4 text-left text-[15px] font-extrabold active:translate-y-1 active:shadow-none short:justify-between short:py-2 short:text-[14px] short:leading-tight"
                   style={{ animationDelay: `${i * 50}ms` }}
                 >
                   <span>{fillDialogueVars(localize(choice.text))}</span>
@@ -109,7 +110,7 @@ export function DialogueBox() {
           </div>
         )}
 
-        <button type="button" onClick={onTap} className="panel relative flex w-full gap-3 p-4 pt-5 text-left">
+        <button type="button" onClick={onTap} className="panel relative flex w-full min-w-0 gap-3 p-4 pt-5 text-left short:mx-auto short:max-w-2xl short:flex-1 short:p-3 short:pt-4">
           <span className="absolute -top-4 left-20 rounded-full ribbon px-4 py-0.5 text-base">
             {localize(npc.name)}
             {npc.title && <span className="ml-1.5 text-xs font-bold opacity-80">· {localize(npc.title)}</span>}

@@ -38,7 +38,7 @@ export function EndingPanel() {
   ]
 
   return (
-    <div className="pointer-events-auto absolute inset-0 z-30 grid place-items-center bg-ink/50 p-4 backdrop-blur-sm">
+    <div className="pointer-events-auto absolute inset-0 z-30 modal-scroll bg-ink/50 p-4 backdrop-blur-sm">
       <div role="dialog" aria-modal="true" aria-labelledby="ending-title" className="panel animate-pop relative w-full max-w-sm p-5 pt-8 text-center text-ink">
         <div className="pointer-events-none absolute -top-7 left-1/2 -translate-x-1/2 text-5xl">🎉</div>
         <h2 id="ending-title" className="font-display text-2xl leading-tight font-extrabold text-lacquer">

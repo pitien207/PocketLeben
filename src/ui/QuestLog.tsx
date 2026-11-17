@@ -50,7 +50,7 @@ const stepsOf = (q: QuestDef) => {
 
 // ------------------------------------------------------------------------------- HUD tracker
 
-/** "Next objective" card under the clock: the quest, the step, its progress, a hint button. */
+/** "Next objective" card under the clock: the quest, the step, its progress (tap = quest log). */
 export function QuestTracker() {
   const t = useT()
   const localize = useLocalize()
@@ -77,48 +77,39 @@ export function QuestTracker() {
   const { steps, done } = stepsOf(objective.quest)
   return (
     <LazyMotion features={domAnimation}>
-      <div className="pointer-events-auto flex w-full max-w-[min(22rem,100%)] items-stretch gap-1" data-tour="quest">
+      {/* 1.30 (user): compact — a slim plate like the tool rail, no hint (light bulb) button. */}
+      <div className="pointer-events-auto flex w-full max-w-[min(17.5rem,100%)] items-stretch gap-1" data-tour="quest">
         <button
           type="button"
           onClick={() => openPanel({ type: 'quests' })}
-          className={`relative flex min-w-0 flex-1 items-center gap-2 overflow-hidden rounded-2xl border-2 border-outline bg-[#fffaf0]/95 py-1 pr-2 pl-1 text-left shadow-[0_3px_0_var(--color-outline)] backdrop-blur-sm ${flash ? 'step-done-flash' : ''}`}
+          className={`hud-slim relative flex min-w-0 flex-1 items-center gap-1.5 overflow-hidden py-0.5 pr-2 pl-1 text-left ${flash ? 'step-done-flash' : ''}`}
         >
-          <span className="absolute inset-y-0 left-0 w-1" style={{ background: blocked ? '#d4202a' : objective.focused ? '#d6336c' : JADE }} />
-          <Ring value={steps.length ? done / steps.length : 0} size={38} color={blocked ? '#d4202a' : JADE}>
+          <span className="absolute inset-y-0 left-0 w-[3px]" style={{ background: blocked ? '#d4202a' : objective.focused ? '#d6336c' : JADE }} />
+          <Ring value={steps.length ? done / steps.length : 0} size={28} color={blocked ? '#d4202a' : JADE}>
             <AnimatePresence mode="wait" initial={false}>
               <m.span key={flash ? 'ok' : objective.focused ? 'pin' : blocked ? 'warn' : 'aim'} initial={{ scale: 0.4, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.4, opacity: 0 }} transition={{ type: 'spring', stiffness: 420, damping: 18 }} className="block">
-                <Icon3d name={flash ? 'check-mark-button' : objective.focused ? 'round-pushpin' : blocked ? 'warning' : 'bullseye'} className="h-6 w-6" />
+                <Icon3d name={flash ? 'check-mark-button' : objective.focused ? 'round-pushpin' : blocked ? 'warning' : 'bullseye'} className="h-4 w-4" />
               </m.span>
             </AnimatePresence>
           </Ring>
           <span className="min-w-0 flex-1">
-            <span className="block truncate text-[9.5px] leading-tight font-black tracking-wide text-[#c2410c] uppercase">
+            <span className="block truncate text-[8.5px] leading-tight font-black tracking-wide text-[#c2410c] uppercase">
               {localize(objective.quest.title)} · {done}/{steps.length}
             </span>
             <AnimatePresence mode="popLayout" initial={false}>
-              <m.span key={stepId} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.25 }} className="line-clamp-2 text-[12px] leading-[1.2] font-extrabold text-ink" data-testid="tracker-step">
+              <m.span key={stepId} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.25 }} className="line-clamp-2 text-[11px] leading-[1.2] font-extrabold text-ink" data-testid="tracker-step">
                 {localize(objective.step.text)}
               </m.span>
             </AnimatePresence>
-            {blocked && <span className="mt-0.5 line-clamp-1 block text-[10.5px] leading-tight font-bold text-lacquer">{fillGuide(localize(blocked))}</span>}
+            {blocked && <span className="line-clamp-1 block text-[10px] leading-tight font-bold text-lacquer">{fillGuide(localize(blocked))}</span>}
           </span>
         </button>
         {objective.focused && (
-          <button type="button" aria-label={t('quests.unfocus')} title={t('quests.unfocus')} onClick={() => useGuide.getState().setFocus(null)} className="grid w-8 shrink-0 place-items-center rounded-2xl border-2 border-outline bg-[#fffaf0]/95 text-[12px] font-black text-ink/60 shadow-[0_3px_0_var(--color-outline)]">
+          <button type="button" aria-label={t('quests.unfocus')} title={t('quests.unfocus')} onClick={() => useGuide.getState().setFocus(null)} className="hud-slim grid w-7 shrink-0 place-items-center text-[11px] font-black text-ink/60">
             ✕
           </button>
         )}
         <SkipStepButton stepId={objective.step.id} className="hud-slim px-1.5 text-sm" />
-        {hints && (
-          <button
-            type="button"
-            aria-label={t('guide.title')}
-            onClick={() => openPanel({ type: 'guide' })}
-            className={`grid w-10 shrink-0 place-items-center rounded-2xl border-2 border-outline shadow-[0_3px_0_var(--color-outline)] ${blocked ? 'bg-[#ffe3e3]' : 'bg-[#fff3c9]'}`}
-          >
-            <Icon3d name="light-bulb" className={`h-6 w-6 ${blocked ? 'animate-pulse' : ''}`} />
-          </button>
-        )}
       </div>
     </LazyMotion>
   )

@@ -1,4 +1,4 @@
-# Visa Hunter — Kế hoạch Multiplayer
+# Pocket Leben — Kế hoạch Multiplayer
 
 > Trạng thái (1.7.0): **giai đoạn 1 đã làm** — tài khoản, save trên mây, thấy nhau theo phòng, biểu cảm + câu nói nhanh
 > (`server/index.mjs`, `src/net/`). Server chạy local (`npm run server`), **chưa deploy**. Giai đoạn 2 (đồng hồ chung) chưa làm.

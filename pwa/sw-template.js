@@ -1,4 +1,4 @@
-/* Visa Hunter service worker — generated at build time from pwa/sw-template.js (see vite.config.ts). */
+/* Pocket Leben service worker — generated at build time from pwa/sw-template.js (see vite.config.ts). */
 const VERSION = '__VERSION__'
 const CACHE = `visa-hunter-${VERSION}`
 const RUNTIME = 'visa-hunter-runtime'
