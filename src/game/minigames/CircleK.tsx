@@ -7,6 +7,7 @@ import { Portrait } from '../../ui/Portrait'
 import { playSfx } from '../systems/audio'
 import { setFlag } from '../systems/conditions'
 import { circleKWage } from '../systems/jobs'
+import { burst, Reaction } from './juice'
 
 /**
  * A shift at the corner convenience store (story 2.1 §11.1), full screen like the bubble-tea game:
@@ -150,6 +151,10 @@ interface Game {
   eventShown: boolean
   laser: number
   hint: { text: string; left: number } | null
+  /** Emoji over the customer, a key per customer for the walk-in (1.24). */
+  react: { text: string; key: number } | null
+  custKey: number
+  n: number
 }
 
 const sum = (list: number[]) => list.reduce((a, b) => a + b, 0)
@@ -587,6 +592,9 @@ export function CircleKGame({ night, rank, onDone }: { night: boolean; rank: num
       eventShown: false,
       laser: 0,
       hint: null,
+      react: null,
+      custKey: 0,
+      n: 0,
     }
   }
   const [, setFrame] = useState(0)
@@ -597,6 +605,8 @@ export function CircleKGame({ night, rank, onDone }: { night: boolean; rank: num
   const [summary, setSummary] = useState<ShiftOutcome | null>(null)
   const paused = useRef(false)
   paused.current = confirm || !!summary || !!event
+  const faceRef = useRef<HTMLSpanElement>(null)
+  const lcdRef = useRef<HTMLDivElement>(null)
 
   const hint = useCallback((text: string) => {
     g.current.hint = { text, left: 1.8 }
@@ -620,6 +630,7 @@ export function CircleKGame({ night, rank, onDone }: { night: boolean; rank: num
     s.served++
     s.meter = Math.max(0, Math.min(100, s.meter + (good && !c.slip ? 7 : -10)))
     s.say = { who: c.who.outfit, text, good: good && !c.slip, left: good ? 1.1 : 1.6 }
+    s.react = { text: good && !c.slip ? pick(['😊', '😋', '👍', '🥰']) : '😠', key: ++s.n }
     s.cust = null
     s.tray = []
     s.micro = { t: 0, running: false, done: false }
@@ -688,7 +699,8 @@ export function CircleKGame({ night, rank, onDone }: { night: boolean; rank: num
             const who = s.queue.shift() ?? pick(people)
             s.queue.push(pick(people))
             s.cust = newCustomer(who, rank)
-            playSfx('bell')
+            s.custKey++
+            playSfx('ding')
           }
         }
       }
@@ -781,6 +793,7 @@ export function CircleKGame({ night, rank, onDone }: { night: boolean; rank: num
     const self = c.who.self
     if (given === due) {
       playSfx('till')
+      burst(lcdRef.current, 'coins')
       finishCustomer(true, c.slip ? `Ừ, cảm ơn em.` : c.who.thanks)
     } else if (given > due) {
       s.deduct += given - due
@@ -916,7 +929,12 @@ export function CircleKGame({ night, rank, onDone }: { night: boolean; rank: num
           <div className="relative flex min-h-0 flex-1 items-end gap-2 px-2 pt-1.5 pb-1">
           {speaker ? (
             <>
-              <span className="relative h-[60px] w-[60px] shrink-0 rounded-full border-2 border-outline bg-cream shadow-[0_3px_0_var(--color-outline)] [@media(min-height:740px)]:h-[104px] [@media(min-height:740px)]:w-[104px] [&>svg]:h-full [&>svg]:w-full">
+              <span
+                key={s.custKey}
+                ref={faceRef}
+                className="animate-walk-in relative h-[60px] w-[60px] shrink-0 rounded-full border-2 border-outline bg-cream shadow-[0_3px_0_var(--color-outline)] [@media(min-height:740px)]:h-[104px] [@media(min-height:740px)]:w-[104px] [&>svg]:h-full [&>svg]:w-full"
+              >
+                {s.react && <Reaction key={s.react.key} text={s.react.text} className="-top-3 -right-2" />}
                 <Portrait outfit={{ ...speaker, expression: s.say ? (s.say.good ? 'happy-closed' : 'sad') : patience < 0.3 ? 'sad' : speaker.expression }} size={60} />
               </span>
               <div className="relative min-w-0 flex-1 rounded-2xl border-2 border-outline bg-white px-3 py-1.5 text-[14px] leading-snug font-bold shadow-[0_3px_0_var(--color-outline)]" data-testid="ck-line">
@@ -963,7 +981,7 @@ export function CircleKGame({ night, rank, onDone }: { night: boolean; rank: num
 
         {/* The till: register display + scanner */}
         <div className="mx-2 mt-1.5 flex shrink-0 items-stretch gap-2">
-          <div className="relative flex-1 rounded-xl border-2 border-outline bg-[#1d2b22] px-2.5 py-1 font-mono text-[12px] leading-[1.35] font-black text-[#7dffb0] shadow-[0_3px_0_var(--color-outline)]" data-testid="ck-lcd">
+          <div ref={lcdRef} className="relative flex-1 rounded-xl border-2 border-outline bg-[#1d2b22] px-2.5 py-1 font-mono text-[12px] leading-[1.35] font-black text-[#7dffb0] shadow-[0_3px_0_var(--color-outline)]" data-testid="ck-lcd">
             <div className="flex justify-between">
               <span>TỔNG</span>
               <span data-testid="ck-total">{c ? vnd(sum(c.items.filter((_, i) => c.scanned[i]).map((i) => i.price))) : '—'}</span>
@@ -1231,9 +1249,13 @@ function Summary({ o, night, rank, onClose }: { o: ShiftOutcome; night: boolean;
   const wage = circleKWage({ score, deduct: o.deduct, fraction: o.fraction }, night, rank)
   const before = circleKWage({ score, deduct: 0, fraction: o.fraction }, night, rank)
   const quit = o.fraction < 1
+  const box = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    if (!quit && score >= 0.85) burst(box.current, 'big')
+  }, [quit, score])
   return (
     <div className="absolute inset-0 z-10 grid place-items-center bg-ink/45 p-5">
-      <div className="panel animate-pop relative w-full max-w-xs p-5 pt-7 text-ink" data-testid="ck-summary">
+      <div ref={box} className="panel animate-pop relative w-full max-w-xs p-5 pt-7 text-ink" data-testid="ck-summary">
         <h2 className="absolute -top-5 left-1/2 -translate-x-1/2 rounded-full ribbon px-6 py-1 text-xl whitespace-nowrap">{quit ? 'Nghỉ ca sớm' : 'Hết ca!'}</h2>
         <div className="mb-3 grid grid-cols-3 gap-2 text-center">
           <div className="rounded-2xl bg-mint/60 p-2">

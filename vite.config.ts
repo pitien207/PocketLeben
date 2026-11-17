@@ -18,7 +18,7 @@ function serviceWorker(): Plugin {
     name: 'visa-hunter-sw',
     apply: 'build',
     generateBundle(_options, bundle) {
-      const files = Object.keys(bundle).filter((f) => !f.endsWith('.map') && f !== 'index.html' && !/\.(ogg|mp3|m4a)$/.test(f))
+      const files = Object.keys(bundle).filter((f) => !f.endsWith('.map') && f !== 'index.html' && !(/\.(ogg|mp3|m4a)$/.test(f) && !/sfx-/.test(f)))
       const precache = ['./', ...[...files, ...PUBLIC_PRECACHE].map((f) => `./${f}`)]
       const version = createHash('sha256').update(files.sort().join('|')).digest('hex').slice(0, 10)
       const source = readFileSync('pwa/sw-template.js', 'utf8')

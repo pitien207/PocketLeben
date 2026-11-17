@@ -17,6 +17,16 @@ Every asset must be CC0 or our own (plan §2, §9). List each one here with its 
 - Pavement tiles, awning stripes and every shop / street sign (Vietnamese and German) are drawn at runtime on `<canvas>` —
   original work, no image files.
 
+## Sound effects (1.24)
+- `src/assets/audio/sfx/sfx-*.ogg` (click, pickup, right, wrong, coin, till, stamp, success, fail, door, ding) are taken
+  from **Kenney**'s *Interface Sounds*, *RPG Audio* and *Impact Sounds* packs — https://kenney.nl — license
+  **CC0 1.0** (public domain). Renamed only. Thank you, Kenney!
+- The other effects (scanner beep, whistle, honk, school bell, sip, rain…) are still synthesised in code.
+
+## Libraries
+- **canvas-confetti** (Kirill Shestakov, ISC licence, https://github.com/catdad/canvas-confetti) for the confetti in
+  the job mini-games.
+
 ## Music
 - "Đi Đức — ngày nắng" (`src/assets/audio/music/di-duc-ngay-nang.ogg`) and "Đi Đức — đêm mưa"
   (`di-duc-dem-mua.ogg`): background music provided by the user (project owner) for this game.

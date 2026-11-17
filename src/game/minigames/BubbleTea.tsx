@@ -7,6 +7,7 @@ import { LockIcon, TrashIcon } from '../../ui/icons'
 import { Portrait } from '../../ui/Portrait'
 import { playSfx } from '../systems/audio'
 import { teaWage } from '../systems/jobs'
+import { burst, Reaction } from './juice'
 
 /**
  * The shift at Tiệm Trà Sữa Phố Cổ: customers queue under the awning and order a cup — size,
@@ -103,6 +104,13 @@ interface Game {
   tips: number
   meter: number
   queue: Customer[]
+  /** Emoji over the customer (1.24). */
+  react: { text: string; key: number } | null
+  /** The topping just scooped, falling into the cup. */
+  plop: { color: string; shape: Topping['shape']; key: number } | null
+  /** Bumped for every new customer (walk-in animation). */
+  custKey: number
+  n: number
 }
 
 /** The gauge runs 0 → OVER; pour into [GOOD) for a perfect cup, at least OK for an acceptable one. */
@@ -266,6 +274,82 @@ function SealerArt({ active }: { active: boolean }) {
   )
 }
 
+/**
+ * Inside Tiệm Trà Sữa Phố Cổ (1.24): a chalk menu, string lights, a shelf of pearl jars and cups,
+ * hanging pothos, and a window onto the Old Quarter. Drawn behind the customer.
+ */
+function TeaBackdrop() {
+  const BULBS = ['#ffd23f', '#ff8fab', '#7fd0e0', '#a8e6cf', '#ffb36b']
+  return (
+    <svg viewBox="0 0 320 120" preserveAspectRatio="xMaxYMax slice" className="pointer-events-none absolute inset-0 h-full w-full" aria-hidden="true">
+      <rect width="320" height="120" fill="#fff1dc" />
+      <rect y="92" width="320" height="28" fill="#f3d3a0" />
+      <path d="M0 92h320" stroke="#d9a86a" strokeWidth="2" />
+      {Array.from({ length: 16 }, (_, i) => (
+        <path key={i} d={`M${i * 20 + 10} 94v26`} stroke="#e7c48d" strokeWidth="1.5" />
+      ))}
+      <g transform="translate(-204 0)">
+      {/* Window onto the street */}
+      <rect x="214" y="12" width="98" height="70" rx="5" fill="#cfe9f7" stroke={INK} strokeWidth="2" />
+      {[
+        [218, 34, 18, '#f4c04e'],
+        [237, 26, 22, '#ff9fb2'],
+        [260, 38, 16, '#9fd3b4'],
+        [277, 22, 20, '#e8a37a'],
+        [298, 32, 14, '#c9b3e6'],
+      ].map(([x, y, w, c], i) => (
+        <g key={i}>
+          <rect x={x as number} y={y as number} width={w as number} height={82 - (y as number)} fill={c as string} stroke={INK} strokeWidth="1" />
+          <rect x={(x as number) + 4} y={(y as number) + 6} width={(w as number) - 8} height="7" fill="#fff6e3" opacity="0.8" />
+          <path d={`M${(x as number) - 1} ${y}h${(w as number) + 2}`} stroke="#b4552f" strokeWidth="3" />
+        </g>
+      ))}
+      <path d="M263 12v70M214 47h98" stroke="#fff6ea" strokeWidth="3" />
+      <rect x="214" y="12" width="98" height="70" rx="5" fill="none" stroke={INK} strokeWidth="2.5" />
+      </g>
+      <g transform="translate(214 0)">
+      {/* Chalk menu */}
+      <rect x="10" y="12" width="86" height="66" rx="4" fill="#9a6a43" />
+      <rect x="15" y="17" width="76" height="56" rx="2" fill="#2f4a3e" />
+      <text x="53" y="30" textAnchor="middle" fontSize="11" fontWeight="900" fill="#fdf6e3" fontFamily="Patrick Hand, cursive">MENU</text>
+      {['Trà sữa ...... 25k', 'Matcha ....... 30k', 'Hồng trà ..... 25k', 'Trân châu ..... 5k'].map((t, i) => (
+        <text key={t} x="20" y={42 + i * 8.5} fontSize="6.6" fill="#fdf6e3" opacity="0.9" fontFamily="Patrick Hand, cursive">
+          {t}
+        </text>
+      ))}
+      <path d="M78 26l3-3 3 3-3 3z" fill="#ff8fab" />
+      </g>
+      {/* Shelf with jars of pearls and stacked cups */}
+      <rect x="108" y="56" width="96" height="5" rx="1" fill="#b98a5a" />
+      {[0, 1, 2].map((k) => (
+        <g key={k} transform={`translate(${116 + k * 24} 36)`}>
+          <rect x="0" y="0" width="16" height="20" rx="4" fill="#f4fbff" stroke={INK} strokeWidth="1.2" opacity="0.95" />
+          <rect x="2" y="9" width="12" height="10" rx="3" fill={['#3a2a26', '#f4efe6', '#f6cf5a'][k]} />
+          <rect x="-1" y="-3" width="18" height="4" rx="1.5" fill="#ff8fab" stroke={INK} strokeWidth="1" />
+        </g>
+      ))}
+      {[0, 1, 2, 3].map((k) => (
+        <path key={k} d={`M${186 - 3} ${55 - k * 4}h12l-1.5 4h-9z`} fill="#fffaf0" stroke={INK} strokeWidth="0.8" />
+      ))}
+      <g transform="translate(100 0)">
+      {/* Hanging pothos */}
+      <path d="M104 0v16" stroke={INK} strokeWidth="1" />
+      <path d="M96 16h16l-2 9h-12z" fill="#e8735a" stroke={INK} strokeWidth="1.2" />
+      {[0, 1, 2, 3, 4].map((k) => (
+        <ellipse key={k} cx={98 + (k % 2) * 8} cy={27 + k * 6} rx="3.5" ry="2.4" fill={k % 2 ? '#5f9e57' : '#7fb069'} transform={`rotate(${k % 2 ? 30 : -30} ${98 + (k % 2) * 8} ${27 + k * 6})`} />
+      ))}
+      </g>
+      {/* String lights */}
+      <path d="M0 6q80 12 160 4t160 4" fill="none" stroke="#5d4a3e" strokeWidth="1" />
+      {Array.from({ length: 14 }, (_, i) => {
+        const x = 10 + i * 23
+        const y = 7 + Math.sin((i / 13) * Math.PI) * 5
+        return <circle key={i} cx={x} cy={y + 3} r="2.6" fill={BULBS[i % BULBS.length]} stroke={INK} strokeWidth="0.6" />
+      })}
+    </svg>
+  )
+}
+
 const Plate = ({ children }: { children: ReactNode }) => (
   <span className="rounded-md border-2 border-outline bg-[#f6dfb4] px-2 py-0.5 text-[11px] font-black tracking-wide text-ink shadow-[0_2px_0_var(--color-outline)]">{children}</span>
 )
@@ -278,7 +362,7 @@ const Key = ({ children }: { children: ReactNode }) => <b className="font-black 
 export function BubbleTeaGame({ rank, strikes, onDone }: { rank: number; strikes: number; onDone: (o: TeaOutcome) => void }) {
   const g = useRef<Game>(null as unknown as Game)
   if (!g.current) {
-    g.current = { left: T.seconds, cup: null, order: null, say: null, gap: 0.7, pouring: null, sealing: 0, served: 0, failed: 0, tips: 0, meter: 60, queue: [pick(CUSTOMERS), pick(CUSTOMERS), pick(CUSTOMERS)] }
+    g.current = { left: T.seconds, cup: null, order: null, say: null, gap: 0.7, pouring: null, sealing: 0, served: 0, failed: 0, tips: 0, meter: 60, queue: [pick(CUSTOMERS), pick(CUSTOMERS), pick(CUSTOMERS)], react: null, plop: null, custKey: 0, n: 0 }
   }
   const [, setFrame] = useState(0)
   const render = useCallback(() => setFrame((n) => n + 1), [])
@@ -288,6 +372,7 @@ export function BubbleTeaGame({ rank, strikes, onDone }: { rank: number; strikes
   const paused = useRef(false)
   paused.current = confirm || !!summary
   const hintTimer = useRef(0)
+  const faceRef = useRef<HTMLSpanElement>(null)
 
   const warn = useCallback((text: string) => {
     playSfx('wrong')
@@ -315,6 +400,7 @@ export function BubbleTeaGame({ rank, strikes, onDone }: { rank: number; strikes
       s.failed++
       s.meter = Math.max(0, s.meter - 12)
       s.say = { who: order.who, text: bad, good: false, left: 1.5 }
+      s.react = { text: '😤', key: ++s.n }
       playSfx('wrong')
     } else {
       const perfect = cup.fill >= GOOD[0] && cup.fill < GOOD[1]
@@ -324,6 +410,8 @@ export function BubbleTeaGame({ rank, strikes, onDone }: { rank: number; strikes
       s.tips += tip
       s.meter = Math.min(100, s.meter + (perfect ? 8 : 4))
       s.say = { who: order.who, text: perfect ? order.who.thanks + (tip ? ` (+${vnd(tip)})` : '') : `Hơi ${cup.fill >= GOOD[1] ? 'đầy' : 'vơi'} một chút, nhưng được rồi.`, good: true, left: 1.2 }
+      s.react = { text: tip ? '😍' : perfect ? '😋' : '🙂', key: ++s.n }
+      if (perfect) burst(faceRef.current, tip ? 'coins' : 'small')
       playSfx(tip ? 'coin' : 'right')
     }
     s.cup = null
@@ -359,7 +447,8 @@ export function BubbleTeaGame({ rank, strikes, onDone }: { rank: number; strikes
           const who = s.queue.shift() ?? pick(CUSTOMERS)
           s.queue.push(pick(CUSTOMERS))
           s.order = newOrder(rank, who)
-          playSfx('bell')
+          s.custKey++
+          playSfx('ding')
         }
       } else {
         s.order.left -= dt
@@ -367,6 +456,7 @@ export function BubbleTeaGame({ rank, strikes, onDone }: { rank: number; strikes
           s.failed++
           s.meter = Math.max(0, s.meter - 15)
           s.say = { who: s.order.who, text: 'Lâu quá… thôi không mua nữa!', good: false, left: 1.4 }
+          s.react = { text: '😡', key: ++s.n }
           s.order = null
           playSfx('wrong')
         }
@@ -441,6 +531,7 @@ export function BubbleTeaGame({ rank, strikes, onDone }: { rank: number; strikes
     if (s.cup.toppings.includes(t.id)) return warn('Cho topping này rồi.')
     if (s.cup.toppings.length >= 3) return warn('Ly đầy topping rồi!')
     s.cup.toppings.push(t.id)
+    s.plop = { color: t.color, shape: t.shape, key: ++s.n }
     playSfx('pickup')
     render()
   }
@@ -515,10 +606,16 @@ export function BubbleTeaGame({ rank, strikes, onDone }: { rank: number; strikes
         </div>
 
         {/* Customer + order */}
-        <div className="flex min-h-[5.6rem] shrink-0 items-center gap-2 px-3 py-1.5">
+        <div className="relative mx-2 mt-1 flex min-h-[6rem] flex-[0.6] items-end gap-2 overflow-hidden rounded-2xl border-2 border-outline px-2 pt-1.5 pb-2">
+          <TeaBackdrop />
           {speaker ? (
             <>
-              <span className="shrink-0 rounded-full border-2 border-outline bg-cream shadow-[0_3px_0_var(--color-outline)]">
+              <span
+                key={s.custKey}
+                ref={faceRef}
+                className="animate-walk-in relative h-[62px] w-[62px] shrink-0 rounded-full border-2 border-outline bg-cream shadow-[0_3px_0_var(--color-outline)] [@media(min-height:740px)]:h-[96px] [@media(min-height:740px)]:w-[96px] [&>svg]:h-full [&>svg]:w-full"
+              >
+                {s.react && <Reaction key={s.react.key} text={s.react.text} className="-top-3 -right-2" />}
                 <Portrait outfit={{ ...speaker.outfit, expression: s.say ? (s.say.good ? 'happy-closed' : 'sad') : patience < 0.3 ? 'sad' : speaker.outfit.expression }} size={62} />
               </span>
               <div className="relative min-w-0 flex-1 rounded-2xl border-2 border-outline bg-white px-3 py-2 text-[14px] leading-snug font-bold shadow-[0_3px_0_var(--color-outline)]" data-testid="tea-order">
@@ -554,7 +651,7 @@ export function BubbleTeaGame({ rank, strikes, onDone }: { rank: number; strikes
               </div>
             </>
           ) : (
-            <p className="w-full text-center text-sm font-bold text-ink/50">Khách đang tới…</p>
+            <p className="relative w-full self-center text-center text-sm font-bold text-ink/60">Khách đang tới…</p>
           )}
         </div>
 
@@ -615,6 +712,17 @@ export function BubbleTeaGame({ rank, strikes, onDone }: { rank: number; strikes
             <div className="flex w-[36%] shrink-0 flex-col gap-1.5">
               <div className="relative flex min-h-0 flex-1 flex-col items-center rounded-2xl border-2 border-outline bg-[#e9bf86] p-1.5 shadow-[0_3px_0_var(--color-outline)]">
                 <CupArt cup={s.cup} sealed={busy} className="min-h-0 w-full flex-1" />
+                {s.plop && s.cup && (
+                  <svg key={s.plop.key} viewBox="0 0 24 24" className="animate-plop pointer-events-none absolute top-1/3 left-1/2 -ml-3 h-6 w-6" aria-hidden="true">
+                    {s.plop.shape === 'cream' ? (
+                      <ellipse cx="12" cy="12" rx="9" ry="6" fill={s.plop.color} stroke={INK} strokeWidth="1.2" />
+                    ) : (
+                      [[7, 9], [15, 8], [11, 15]].map(([x, y], i) =>
+                        s.plop!.shape === 'pearl' ? <circle key={i} cx={x} cy={y} r="4" fill={s.plop!.color} stroke={INK} strokeWidth="1" /> : <rect key={i} x={x - 3.5} y={y - 3.5} width="7" height="7" rx="1.5" fill={s.plop!.color} stroke={INK} strokeWidth="1" />,
+                      )
+                    )}
+                  </svg>
+                )}
                 {/* Pour gauge: stop in the green */}
                 <div className="relative mt-1 h-3.5 w-full overflow-hidden rounded-full border-2 border-outline" data-testid="tea-gauge" data-fill={s.cup ? s.cup.fill.toFixed(3) : '0'}>
                   <div
@@ -696,9 +804,13 @@ export function BubbleTeaGame({ rank, strikes, onDone }: { rank: number; strikes
 
 function Summary({ o, rank, onClose }: { o: TeaOutcome; rank: number; onClose: () => void }) {
   const wage = teaWage(o, rank)
+  const box = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    if (!o.quit && o.meter >= 66) burst(box.current, 'big')
+  }, [o])
   return (
     <div className="absolute inset-0 z-10 grid place-items-center bg-ink/45 p-5">
-      <div className="panel animate-pop relative w-full max-w-xs p-5 pt-7 text-ink" data-testid="tea-summary">
+      <div ref={box} className="panel animate-pop relative w-full max-w-xs p-5 pt-7 text-ink" data-testid="tea-summary">
         <h2 className="absolute -top-5 left-1/2 -translate-x-1/2 rounded-full ribbon px-6 py-1 text-xl whitespace-nowrap">{o.quit ? 'Nghỉ ca sớm' : 'Hết ca!'}</h2>
         <div className="mb-3 grid grid-cols-3 gap-2 text-center">
           <div className="rounded-2xl bg-mint/60 p-2">

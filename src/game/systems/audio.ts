@@ -6,8 +6,30 @@ import { canPlayMusicFiles, MUSIC, trackForTime, type MusicTrack } from './music
  * Audio. Music: the user's two tracks (systems/musicTracks.ts) — "ngày nắng" from 6:00 to 18:30 game
  * time, "đêm mưa" at night — streamed through <audio> elements into the music bus and cross-faded
  * when day turns to night. Browsers that can't play Ogg keep the small synthesised tune per country.
- * SFX: short synthesized blips. The AudioContext starts on the first tap/key (browser autoplay rules).
+ * SFX: short synthesized blips; since 1.24 most of them are CC0 recordings by Kenney (assets/audio/sfx,
+ * "sfx-<name>.ogg"), decoded once, with the synth as fallback (not decoded yet / no Ogg support).
+ * The AudioContext starts on the first tap/key (browser autoplay rules).
  */
+
+const SAMPLE_URLS = import.meta.glob('../../assets/audio/sfx/sfx-*.ogg', { query: '?url', import: 'default', eager: true }) as Record<string, string>
+const samples = new Map<string, AudioBuffer>()
+let samplesRequested = false
+/** Decode the recorded effects once the AudioContext exists (silently keeps the synth on failure). */
+function loadSamples(c: AudioContext) {
+  if (samplesRequested) return
+  samplesRequested = true
+  for (const [path, url] of Object.entries(SAMPLE_URLS)) {
+    const name = /sfx-([a-z]+).ogg$/.exec(path)?.[1]
+    if (!name) continue
+    fetch(url)
+      .then((r) => r.arrayBuffer())
+      .then((b) => c.decodeAudioData(b))
+      .then((buf) => samples.set(name, buf))
+      .catch(() => {})
+  }
+}
+/** Per-sample loudness (the recordings differ). */
+const SAMPLE_GAIN: Partial<Record<SfxName, number>> = { click: 0.5, pickup: 0.8, coin: 0.9, till: 0.8, door: 0.7, stamp: 1, ding: 0.9 }
 
 export type SfxName = 'click' | 'right' | 'wrong' | 'coin' | 'pickup' | 'success' | 'fail' | 'honk' | 'door' | 'stamp' | 'sip' | 'bell' | 'beep' | 'ding' | 'whistle' | 'till'
 export type MusicTheme = 'vn' | 'de' | 'indoor' | null
@@ -47,6 +69,7 @@ function ensureContext() {
   musicBus.connect(master)
   sfxBus.connect(master)
   applyVolumes()
+  loadSamples(ctx)
   return ctx
 }
 
@@ -113,6 +136,18 @@ export function playSfx(name: SfxName) {
   if (!ctx || ctx.state !== 'running') return
   const t = ctx.currentTime + 0.005
   const b = sfxBus
+  const sample = samples.get(name)
+  if (sample) {
+    const src = ctx.createBufferSource()
+    src.buffer = sample
+    // A little pitch variety so repeated taps don't sound like a machine gun
+    src.playbackRate.value = 0.96 + Math.random() * 0.08
+    const g = ctx.createGain()
+    g.gain.value = SAMPLE_GAIN[name] ?? 0.85
+    src.connect(g).connect(b)
+    src.start(t)
+    return
+  }
   switch (name) {
     case 'click':
       tone(1200, t, 0.04, 'sine', 0.12, b)

@@ -1,5 +1,30 @@
 # Changelog
 
+## 1.24.0 — Bubble tea and Circle K: prettier and juicier
+
+### Changed — Tiệm Trà Sữa
+- The shop behind the customer: a chalk **menu board**, string lights, a shelf of pearl jars and stacked cups, a
+  hanging pothos and a window onto the Old Quarter's tube houses.
+- Customers **step up** to the counter (and are bigger on tall phones); a little **reaction** floats up when they get
+  their cup (😍 with a tip, 😋 perfect, 🙂 okay, 😤 wrong, 😡 gave up waiting).
+- Toppings **drop into the cup** when you scoop them. A perfect cup bursts a little confetti (gold coins with a tip),
+  a good shift ends with a big confetti shower.
+
+### Changed — Circle K
+- Same game feel: customers step in, react when served, coins fly from the till on the right change, confetti for
+  a good shift. A shop-door "ting" instead of the school bell for a new customer.
+
+### Changed — sounds
+- Real recorded sound effects (Kenney, CC0) for clicks, scooping, right / wrong, coins, the cash drawer, sealing,
+  success / fail, doors and the microwave "ting" — everywhere in the game, with a little pitch variety. Browsers
+  that cannot decode Ogg keep the old synthesised blips. About 120 KB, cached offline.
+
+### Manual test checklist (phone, sound on)
+- [ ] Tea shift: the shop backdrop, customers stepping up, toppings dropping into the cup, reactions, confetti on a
+      perfect cup, big confetti at the end of a good shift; sounds are recorded, not beeps.
+- [ ] Circle K shift: walk-in, reactions, coins on the right change, ding for new customers, confetti at the end.
+- [ ] Settings → sound effects off: silent.
+
 ## 1.23.0 — Vietnamese fabric prints, prettier characters, hoa giấy
 
 ### Added — fabric prints ("sprites" for clothes)
