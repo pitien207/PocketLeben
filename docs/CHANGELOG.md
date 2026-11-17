@@ -1,5 +1,28 @@
 # Changelog
 
+## 1.25.0 — Real-looking portraits, 3D icons in the job games
+
+### Changed — portraits
+- The faces in dialogues, character creation, the shops and the mini-game queues were drawn 2D shapes; now they are
+  **photos of the real 3D chibi** — the same anime face, hair, clothes (with their prints) and ink outline as in
+  the street. Each outfit is photographed once in the background and cached; the drawn face shows for a moment
+  until then (and stays on devices without WebGL).
+
+### Changed — the three job mini-games
+- Cute **3D icons** (Microsoft Fluent Emoji, MIT) instead of flat drawings:
+  - **Circle K**: every product is a 3D item (mì ly, sữa hộp, kem ốc quế, cơm nắm, bánh bao, xúc xích, bánh mì kẹp,
+    bỏng ngô, kẹo, sô-cô-la, trà xanh, cà phê…), spinning in the microwave; 3D faces react; stopwatch, party popper.
+  - **Trà sữa**: 3D reactions, money bag for tips, stopwatch, a bubble tea on the menu board and a plant in the shop,
+    bubble tea + party popper on the summary.
+  - **Grab**: the scooter is a 3D motor scooter facing where it rides, with the food it carries floating above; food
+    shops are 3D phở / bánh mì / trà sữa / cà phê / bún chả / chè, the drop is a little house, trees are 3D trees,
+    traffic jams are real little cars; money bag and stopwatch in the app bar.
+
+### Manual test checklist (phone)
+- [ ] New character: the boy / girl choice shows the real 3D chibi faces.
+- [ ] Talk to Mẹ, Thầy Minh, Cô Hoa: 3D portraits (Cô Hoa's lotus áo dài shows).
+- [ ] Circle K, trà sữa, Grab: 3D icons everywhere, reactions are 3D faces; nothing blank.
+
 ## 1.24.0 — Bubble tea and Circle K: prettier and juicier
 
 ### Changed — Tiệm Trà Sữa

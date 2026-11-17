@@ -8,6 +8,7 @@ import { playSfx } from '../systems/audio'
 import { setFlag } from '../systems/conditions'
 import { circleKWage } from '../systems/jobs'
 import { burst, Reaction } from './juice'
+import { Icon3d, SvgIcon3d } from '../../ui/Icon3d'
 
 /**
  * A shift at the corner convenience store (story 2.1 §11.1), full screen like the bubble-tea game:
@@ -44,20 +45,25 @@ interface Item {
   shelf: ShelfId
   /** Microwave seconds, when the customer may ask to heat it. */
   hot?: number
+  /** 3D icon (ui/Icon3d). */
+  icon: string
 }
 const ITEMS: Item[] = [
-  { id: 'miLy', name: 'Mì ly', price: 12_000, shelf: 'noodle' },
-  { id: 'nuoc', name: 'Nước suối', price: 6_000, shelf: 'drinks' },
-  { id: 'suaChua', name: 'Sữa chua', price: 8_000, shelf: 'fridge' },
-  { id: 'kem', name: 'Kem que', price: 15_000, shelf: 'freezer' },
-  { id: 'banhQuy', name: 'Bánh quy', price: 22_000, shelf: 'snacks' },
-  { id: 'caPhe', name: 'Cà phê lon', price: 14_000, shelf: 'drinks' },
-  { id: 'comNam', name: 'Cơm nắm', price: 18_000, shelf: 'fridge', hot: 40 },
-  { id: 'banhBao', name: 'Bánh bao', price: 25_000, shelf: 'freezer', hot: 50 },
-  { id: 'xucXich', name: 'Xúc xích', price: 15_000, shelf: 'fridge', hot: 30 },
-  { id: 'snack', name: 'Snack khoai tây', price: 12_000, shelf: 'snacks' },
-  { id: 'suaTuoi', name: 'Sữa tươi', price: 9_000, shelf: 'fridge' },
-  { id: 'nuocNgot', name: 'Nước ngọt', price: 11_000, shelf: 'drinks' },
+  { id: 'miLy', name: 'Mì ly', price: 12_000, shelf: 'noodle', icon: 'steaming-bowl' },
+  { id: 'suaHop', name: 'Sữa hộp', price: 8_000, shelf: 'fridge', icon: 'beverage-box' },
+  { id: 'suaTuoi', name: 'Sữa tươi', price: 9_000, shelf: 'fridge', icon: 'glass-of-milk' },
+  { id: 'kem', name: 'Kem ốc quế', price: 15_000, shelf: 'freezer', icon: 'soft-ice-cream' },
+  { id: 'banhQuy', name: 'Bánh quy', price: 22_000, shelf: 'snacks', icon: 'cookie' },
+  { id: 'caPhe', name: 'Cà phê nóng', price: 18_000, shelf: 'drinks', icon: 'hot-beverage' },
+  { id: 'traXanh', name: 'Trà xanh', price: 10_000, shelf: 'drinks', icon: 'teacup-without-handle' },
+  { id: 'nuocNgot', name: 'Nước ngọt', price: 11_000, shelf: 'drinks', icon: 'cup-with-straw' },
+  { id: 'comNam', name: 'Cơm nắm', price: 18_000, shelf: 'fridge', hot: 40, icon: 'rice-ball' },
+  { id: 'banhBao', name: 'Bánh bao', price: 25_000, shelf: 'freezer', hot: 50, icon: 'dumpling' },
+  { id: 'xucXich', name: 'Xúc xích', price: 15_000, shelf: 'fridge', hot: 30, icon: 'hot-dog' },
+  { id: 'banhMiKep', name: 'Bánh mì kẹp', price: 22_000, shelf: 'fridge', hot: 35, icon: 'sandwich' },
+  { id: 'bongNgo', name: 'Bỏng ngô', price: 20_000, shelf: 'snacks', icon: 'popcorn' },
+  { id: 'keo', name: 'Kẹo', price: 5_000, shelf: 'snacks', icon: 'candy' },
+  { id: 'socola', name: 'Sô-cô-la', price: 16_000, shelf: 'snacks', icon: 'chocolate-bar' },
 ]
 const SHELVES: { id: ShelfId; name: string }[] = [
   { id: 'fridge', name: 'Tủ mát' },
@@ -209,145 +215,8 @@ function newCrate(rank: number): Crate {
 // --------------------------------------------------------------------------------------- art
 
 export function ItemArt({ id, className }: { id: string; className?: string }) {
-  const sw = { stroke: INK, strokeWidth: 1.6, strokeLinejoin: 'round' as const }
-  let body: ReactNode
-  switch (id) {
-    case 'miLy':
-      body = (
-        <>
-          <path d="M9 13h22l-3.5 22h-15z" fill="#fffaf0" {...sw} />
-          <path d="M10.3 19h19.4l-.9 6H11.2z" fill="#e2574c" />
-          <path d="M14 21.5h12" stroke="#ffe08a" strokeWidth="1.6" strokeLinecap="round" />
-          <ellipse cx="20" cy="12.5" rx="12" ry="3" fill="#f4c04e" {...sw} />
-        </>
-      )
-      break
-    case 'nuoc':
-      body = (
-        <>
-          <path d="M16 9h8v3l2.5 4v19a2 2 0 0 1-2 2h-9a2 2 0 0 1-2-2V16l2.5-4z" fill="#d9f0fb" {...sw} />
-          <rect x="16.5" y="4.5" width="7" height="5" rx="1.2" fill="#4f86d9" {...sw} />
-          <rect x="13.5" y="21" width="13" height="7" fill="#4f86d9" />
-          <path d="M16 18v14" stroke="#ffffff" strokeWidth="1.6" strokeLinecap="round" opacity="0.8" />
-        </>
-      )
-      break
-    case 'suaChua':
-      body = (
-        <>
-          <path d="M10 17h20l-2.5 16h-15z" fill="#ffffff" {...sw} />
-          <ellipse cx="20" cy="17" rx="10.5" ry="3.4" fill="#f8a5b4" {...sw} />
-          <circle cx="20" cy="25" r="3.4" fill="#e8697d" />
-          <path d="M19 21.6l1-1.6 1 1.6" stroke="#5f9e57" strokeWidth="1.2" fill="none" />
-        </>
-      )
-      break
-    case 'kem':
-      body = (
-        <>
-          <rect x="17.5" y="26" width="5" height="11" rx="2" fill="#e0b77a" {...sw} />
-          <path d="M12 12a8 8 0 0 1 16 0v14a2 2 0 0 1-2 2H14a2 2 0 0 1-2-2z" fill="#ff9fb2" {...sw} />
-          <path d="M12 17c3 2 6-1 8 1s5 0 8-1" stroke="#ffffff" strokeWidth="2" fill="none" opacity="0.7" />
-          <circle cx="27" cy="9" r="3" fill="#fbe9c9" />
-        </>
-      )
-      break
-    case 'banhQuy':
-      body = (
-        <>
-          <rect x="6" y="11" width="28" height="21" rx="3" fill="#4f86d9" {...sw} />
-          <rect x="6" y="11" width="28" height="5" fill="#ffe08a" stroke={INK} strokeWidth="1.2" />
-          {[
-            [14, 23],
-            [23, 21],
-            [27, 27],
-          ].map(([x, y], k) => (
-            <g key={k}>
-              <circle cx={x} cy={y} r="4.6" fill="#d9a05b" stroke={INK} strokeWidth="1.1" />
-              <circle cx={x - 1.4} cy={y - 1} r="0.9" fill={INK} />
-              <circle cx={x + 1.5} cy={y + 1} r="0.9" fill={INK} />
-            </g>
-          ))}
-        </>
-      )
-      break
-    case 'caPhe':
-      body = (
-        <>
-          <rect x="12.5" y="8" width="15" height="27" rx="3" fill="#7a4a2e" {...sw} />
-          <rect x="12.5" y="15" width="15" height="9" fill="#e8dcc4" />
-          <circle cx="20" cy="19.5" r="2.6" fill="#7a4a2e" />
-          <ellipse cx="20" cy="8.5" rx="7.5" ry="2" fill="#c9ccd2" {...sw} />
-        </>
-      )
-      break
-    case 'comNam':
-      body = (
-        <>
-          <path d="M20 6c2 0 3 1 4 3l9.5 19c1.4 3 .3 6-3 6h-21c-3.3 0-4.4-3-3-6L16 9c1-2 2-3 4-3z" fill="#ffffff" {...sw} />
-          <rect x="14" y="22" width="12" height="12" rx="1" fill="#2f3a2f" />
-          <circle cx="17" cy="15" r="0.9" fill="#d9cdb5" />
-          <circle cx="23" cy="17" r="0.9" fill="#d9cdb5" />
-        </>
-      )
-      break
-    case 'banhBao':
-      body = (
-        <>
-          <path d="M6 31c0-12 6-19 14-19s14 7 14 19z" fill="#fff6ea" {...sw} />
-          <path d="M20 12c-1 3-4 4-6 5M20 12c1 3 4 4 6 5M20 12v5" stroke="#d9c9b0" strokeWidth="1.4" fill="none" strokeLinecap="round" />
-          <circle cx="20" cy="22" r="1.6" fill="#e2574c" />
-          <ellipse cx="20" cy="32" rx="15" ry="2.2" fill="#f3d6a4" stroke={INK} strokeWidth="1.2" />
-        </>
-      )
-      break
-    case 'xucXich':
-      body = (
-        <>
-          <path d="M8 31L32 12" stroke="#e0b77a" strokeWidth="2.2" strokeLinecap="round" />
-          <rect x="6" y="17" width="28" height="9" rx="4.5" fill="#d9603b" transform="rotate(-38 20 21.5)" {...sw} />
-          <path d="M14 25l2-1.5M19 21l2-1.5M24 17l2-1.5" stroke="#f39a6b" strokeWidth="1.4" strokeLinecap="round" />
-        </>
-      )
-      break
-    case 'snack':
-      body = (
-        <>
-          <path d="M10 8l2.5 2 2.5-2 2.5 2 2.5-2 2.5 2 2.5-2 2.5 2 2.5-2-1.5 26 1.5 2-2.5-2-2.5 2-2.5-2-2.5 2-2.5-2-2.5 2-2.5-2-2.5 2 1.5-2z" fill="#f39a2b" {...sw} />
-          <ellipse cx="20" cy="21" rx="6" ry="5" fill="#ffe08a" stroke={INK} strokeWidth="1.1" />
-          <path d="M16.5 19.5c1.5 1 5.5 1 7 0" stroke="#d9a05b" strokeWidth="1.1" fill="none" />
-        </>
-      )
-      break
-    case 'suaTuoi':
-      body = (
-        <>
-          <path d="M12 14l4-6h8l4 6v21H12z" fill="#ffffff" {...sw} />
-          <path d="M12 14h16" stroke={INK} strokeWidth="1.4" />
-          <path d="M12 22c3-2 5 2 8 0s5 2 8 0v8H12z" fill="#7fb8e8" />
-          <circle cx="20" cy="17.5" r="1.8" fill="#7fb8e8" />
-        </>
-      )
-      break
-    case 'nuocNgot':
-      body = (
-        <>
-          <path d="M17 10h6v3c3 2 4 4 4 7v14a2 2 0 0 1-2 2H15a2 2 0 0 1-2-2V20c0-3 1-5 4-7z" fill="#e2574c" {...sw} />
-          <rect x="16.5" y="5" width="7" height="5" rx="1.2" fill="#f4f4f4" {...sw} />
-          <path d="M13 24c4-2 10 2 14 0" stroke="#ffffff" strokeWidth="2" fill="none" />
-          <path d="M16 18v13" stroke="#ffffff" strokeWidth="1.4" strokeLinecap="round" opacity="0.6" />
-        </>
-      )
-      break
-    default:
-      body = <rect x="8" y="8" width="24" height="24" rx="4" fill="#ffe08a" {...sw} />
-  }
-  return (
-    <svg viewBox="0 0 40 40" className={className} aria-hidden="true">
-      <ellipse cx="20" cy="37" rx="12" ry="2" fill={INK} opacity="0.12" />
-      {body}
-    </svg>
-  )
+  const item = ITEMS.find((i) => i.id === id)
+  return <Icon3d name={item?.icon ?? 'shopping-bags'} className={`drop-shadow-[0_2px_0_rgba(74,50,38,0.25)] ${className ?? ''}`} />
 }
 
 const NOTE_COLORS: Record<number, [string, string]> = {
@@ -441,11 +310,9 @@ function MicrowaveArt({ item, t, running, done }: { item: Item | null; t: number
       {running && <rect x="11" y="11" width="94" height="68" rx="6" fill="#fff2b8" className="animate-pulse" opacity="0.6" />}
       <ellipse cx="58" cy="66" rx="34" ry="7" fill="#ffffff" opacity={running ? 0.85 : 0.35} />
       {item && (
-        <svg x="36" y="22" width="44" height="44" viewBox="0 0 40 40">
-          <g transform={running ? `rotate(${(t * 40) % 360} 20 24)` : undefined}>
-            <ItemArt id={item.id} />
-          </g>
-        </svg>
+        <g transform={running ? `rotate(${(t * 40) % 360} 58 46)` : undefined}>
+          <SvgIcon3d name={item.icon} x={38} y={24} size={40} />
+        </g>
       )}
       {done && (
         <g stroke="#ffffff" strokeWidth="2.5" strokeLinecap="round" fill="none" opacity="0.9">
@@ -630,7 +497,7 @@ export function CircleKGame({ night, rank, onDone }: { night: boolean; rank: num
     s.served++
     s.meter = Math.max(0, Math.min(100, s.meter + (good && !c.slip ? 7 : -10)))
     s.say = { who: c.who.outfit, text, good: good && !c.slip, left: good ? 1.1 : 1.6 }
-    s.react = { text: good && !c.slip ? pick(['😊', '😋', '👍', '🥰']) : '😠', key: ++s.n }
+    s.react = { text: good && !c.slip ? pick(['smiling-face-with-smiling-eyes', 'face-savoring-food', 'smiling-face-with-hearts', 'smiling-face-with-heart-eyes']) : 'pouting-face', key: ++s.n }
     s.cust = null
     s.tray = []
     s.micro = { t: 0, running: false, done: false }
@@ -917,7 +784,10 @@ export function CircleKGame({ night, rank, onDone }: { night: boolean; rank: num
               {s.deduct > 0 && <b className="text-lacquer"> · −{vnd(s.deduct)}</b>}
             </div>
           </div>
-          <span data-testid="ck-time" className={`rounded-full border-2 border-outline px-2 py-0.5 text-sm font-black tabular-nums ${secs <= 10 ? 'animate-pulse bg-lacquer text-gold-light' : 'bg-white'}`}>{secs}s</span>
+          <span data-testid="ck-time" className={`rounded-full border-2 border-outline px-2 py-0.5 text-sm font-black tabular-nums ${secs <= 10 ? 'animate-pulse bg-lacquer text-gold-light' : 'bg-white'}`}>
+            <Icon3d name="stopwatch" className="-my-1 mr-0.5 inline-block h-5 w-5 align-[-3px]" />
+            {secs}s
+          </span>
           <button type="button" data-testid="ck-quit" aria-label="Nghỉ ca" onClick={() => setConfirm(true)} className="grid h-8 w-8 place-items-center rounded-full border-2 border-outline bg-cream text-base font-black shadow-[0_2px_0_var(--color-outline)] active:translate-y-0.5">
             ✕
           </button>
@@ -932,7 +802,7 @@ export function CircleKGame({ night, rank, onDone }: { night: boolean; rank: num
               <span
                 key={s.custKey}
                 ref={faceRef}
-                className="animate-walk-in relative h-[60px] w-[60px] shrink-0 rounded-full border-2 border-outline bg-cream shadow-[0_3px_0_var(--color-outline)] [@media(min-height:740px)]:h-[104px] [@media(min-height:740px)]:w-[104px] [&>svg]:h-full [&>svg]:w-full"
+                className="animate-walk-in relative h-[60px] w-[60px] shrink-0 rounded-full border-2 border-outline bg-cream shadow-[0_3px_0_var(--color-outline)] [@media(min-height:740px)]:h-[104px] [@media(min-height:740px)]:w-[104px] [&>*]:h-full [&>*]:w-full"
               >
                 {s.react && <Reaction key={s.react.key} text={s.react.text} className="-top-3 -right-2" />}
                 <Portrait outfit={{ ...speaker, expression: s.say ? (s.say.good ? 'happy-closed' : 'sad') : patience < 0.3 ? 'sad' : speaker.expression }} size={60} />
@@ -1257,8 +1127,10 @@ function Summary({ o, night, rank, onClose }: { o: ShiftOutcome; night: boolean;
     <div className="absolute inset-0 z-10 grid place-items-center bg-ink/45 p-5">
       <div ref={box} className="panel animate-pop relative w-full max-w-xs p-5 pt-7 text-ink" data-testid="ck-summary">
         <h2 className="absolute -top-5 left-1/2 -translate-x-1/2 rounded-full ribbon px-6 py-1 text-xl whitespace-nowrap">{quit ? 'Nghỉ ca sớm' : 'Hết ca!'}</h2>
+        {!quit && score >= 0.5 && <Icon3d name="party-popper" className="animate-pop absolute -top-8 -right-4 h-16 w-16 rotate-12" />}
         <div className="mb-3 grid grid-cols-3 gap-2 text-center">
           <div className="rounded-2xl bg-mint/60 p-2">
+            <Icon3d name="shopping-bags" className="mx-auto -mt-1 h-7 w-7" />
             <div className="text-xl font-black tabular-nums">{o.served}</div>
             <div className="text-xs font-bold">Khách</div>
           </div>

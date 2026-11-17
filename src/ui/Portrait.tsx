@@ -2,11 +2,14 @@ import { useMemo } from 'react'
 import { Color } from 'three'
 import type { HairStyle, Outfit } from '../data/npcs'
 import { isFilePattern, patternDataUrl, PATTERNS } from '../game/components/chibi/patterns'
+import { usePortraitShot } from '../game/components/chibi/portraitShot'
 
 /** A tiny face drawn from the same outfit data as the 3D chibi, for dialogue boxes and the wardrobe. */
 let gradientId = 0
 
 export function Portrait({ outfit, size = 64 }: { outfit: Outfit; size?: number }) {
+  // 1.25: a photo of the real 3D chibi; the drawing below shows until it is taken (or without WebGL).
+  const shot = usePortraitShot(outfit)
   const { skin, hair, hairStyle, accessory, shirt } = outfit
   const eye = outfit.eye ?? '#5a3424'
   const expression = outfit.expression ?? 'neutral'
@@ -18,6 +21,20 @@ export function Portrait({ outfit, size = 64 }: { outfit: Outfit; size?: number 
   // Fabric print on the shirt (1.23): the same SVG as on the 3D model, tiled at about the same scale.
   const print = isFilePattern(outfit.pattern) ? patternDataUrl(outfit.pattern, outfit.patternColor ?? '#ffffff') : null
   const tile = isFilePattern(outfit.pattern) ? PATTERNS[outfit.pattern].size * 90 : 0
+  if (shot) {
+    return (
+      <img
+        src={shot}
+        width={size}
+        height={size}
+        alt=""
+        draggable={false}
+        data-portrait="3d"
+        className="block rounded-full select-none"
+        style={{ background: 'radial-gradient(circle at 50% 38%, #fffaf0 0%, #ffe9c7 70%, #f7d9a8 100%)' }}
+      />
+    )
+  }
   return (
     <svg viewBox="0 0 64 64" width={size} height={size} aria-hidden="true">
       <circle cx="32" cy="32" r="31" fill="#fff6e3" />

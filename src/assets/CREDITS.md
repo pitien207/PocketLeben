@@ -23,6 +23,11 @@ Every asset must be CC0 or our own (plan §2, §9). List each one here with its 
   **CC0 1.0** (public domain). Renamed only. Thank you, Kenney!
 - The other effects (scanner beep, whistle, honk, school bell, sip, rain…) are still synthesised in code.
 
+## 3D icons (1.25)
+- `src/assets/icons3d/*.webp` (food, drinks, vehicles, trees, house, faces, stopwatch, money bag, party popper…) are
+  **Fluent Emoji 3D** by Microsoft — https://github.com/microsoft/fluentui-emoji — **MIT licence**
+  (Copyright (c) Microsoft Corporation). Shrunk to 128 px WebP; otherwise unchanged.
+
 ## Libraries
 - **canvas-confetti** (Kirill Shestakov, ISC licence, https://github.com/catdad/canvas-confetti) for the confetti in
   the job mini-games.

@@ -261,6 +261,28 @@ export interface ChibiModelProps {
   silhouette?: boolean
 }
 
+/**
+ * A standing chibi for still pictures (1.25: the portraits are photos of the real 3D character).
+ * Arms hang relaxed like the idle pose. Uses the same cached geometry as the scene. Call dispose().
+ */
+export function buildChibiRig(o: Outfit, detail: ChibiDetail = 'high') {
+  const key = `${JSON.stringify(o)}||${detail}|false`
+  const rig = createRig(chibiGeometry(key, o, null, detail, false), o)
+  rig.bones[B.armL].rotation.set(0.05, 0, 0.22)
+  rig.bones[B.foreL].rotation.set(-0.25, 0, 0)
+  rig.bones[B.armR].rotation.set(0.05, 0, -0.22)
+  rig.bones[B.foreR].rotation.set(-0.25, 0, 0)
+  rig.group.updateMatrixWorld(true)
+  return {
+    group: rig.group,
+    dispose: () => {
+      rig.skeleton.dispose()
+      rig.faceMaterial.dispose()
+      rig.printMaterial?.dispose()
+    },
+  }
+}
+
 export function ChibiModel({ motion, outfit = PLAYER_OUTFIT, carry = null, detail = 'low', silhouette = false }: ChibiModelProps) {
   const key = `${JSON.stringify(outfit)}|${carry ?? ''}|${detail}|${silhouette}`
   const rig = useMemo(

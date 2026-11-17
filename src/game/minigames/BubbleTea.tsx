@@ -8,6 +8,7 @@ import { Portrait } from '../../ui/Portrait'
 import { playSfx } from '../systems/audio'
 import { teaWage } from '../systems/jobs'
 import { burst, Reaction } from './juice'
+import { Icon3d, SvgIcon3d } from '../../ui/Icon3d'
 
 /**
  * The shift at Tiệm Trà Sữa Phố Cổ: customers queue under the awning and order a cup — size,
@@ -317,7 +318,7 @@ function TeaBackdrop() {
           {t}
         </text>
       ))}
-      <path d="M78 26l3-3 3 3-3 3z" fill="#ff8fab" />
+      <SvgIcon3d name="bubble-tea" x={70} y={18} size={18} />
       </g>
       {/* Shelf with jars of pearls and stacked cups */}
       <rect x="108" y="56" width="96" height="5" rx="1" fill="#b98a5a" />
@@ -332,6 +333,7 @@ function TeaBackdrop() {
         <path key={k} d={`M${186 - 3} ${55 - k * 4}h12l-1.5 4h-9z`} fill="#fffaf0" stroke={INK} strokeWidth="0.8" />
       ))}
       <g transform="translate(100 0)">
+      <SvgIcon3d name="potted-plant" x={190} y={68} size={26} />
       {/* Hanging pothos */}
       <path d="M104 0v16" stroke={INK} strokeWidth="1" />
       <path d="M96 16h16l-2 9h-12z" fill="#e8735a" stroke={INK} strokeWidth="1.2" />
@@ -400,7 +402,7 @@ export function BubbleTeaGame({ rank, strikes, onDone }: { rank: number; strikes
       s.failed++
       s.meter = Math.max(0, s.meter - 12)
       s.say = { who: order.who, text: bad, good: false, left: 1.5 }
-      s.react = { text: '😤', key: ++s.n }
+      s.react = { text: 'face-with-steam-from-nose', key: ++s.n }
       playSfx('wrong')
     } else {
       const perfect = cup.fill >= GOOD[0] && cup.fill < GOOD[1]
@@ -410,7 +412,7 @@ export function BubbleTeaGame({ rank, strikes, onDone }: { rank: number; strikes
       s.tips += tip
       s.meter = Math.min(100, s.meter + (perfect ? 8 : 4))
       s.say = { who: order.who, text: perfect ? order.who.thanks + (tip ? ` (+${vnd(tip)})` : '') : `Hơi ${cup.fill >= GOOD[1] ? 'đầy' : 'vơi'} một chút, nhưng được rồi.`, good: true, left: 1.2 }
-      s.react = { text: tip ? '😍' : perfect ? '😋' : '🙂', key: ++s.n }
+      s.react = { text: tip ? 'smiling-face-with-heart-eyes' : perfect ? 'face-savoring-food' : 'slightly-smiling-face', key: ++s.n }
       if (perfect) burst(faceRef.current, tip ? 'coins' : 'small')
       playSfx(tip ? 'coin' : 'right')
     }
@@ -456,7 +458,7 @@ export function BubbleTeaGame({ rank, strikes, onDone }: { rank: number; strikes
           s.failed++
           s.meter = Math.max(0, s.meter - 15)
           s.say = { who: s.order.who, text: 'Lâu quá… thôi không mua nữa!', good: false, left: 1.4 }
-          s.react = { text: '😡', key: ++s.n }
+          s.react = { text: 'pouting-face', key: ++s.n }
           s.order = null
           playSfx('wrong')
         }
@@ -596,10 +598,13 @@ export function BubbleTeaGame({ rank, strikes, onDone }: { rank: number; strikes
               </div>
             </div>
             <div className="mt-0.5 text-[11px] font-bold text-ink/70">
-              Đã bán <b className="text-ink">{s.served}</b> · Hỏng <b className="text-ink">{s.failed}</b> · Tip <b className="text-ink">{vnd(s.tips)}</b>
+              Đã bán <b className="text-ink">{s.served}</b> · Hỏng <b className="text-ink">{s.failed}</b> · <Icon3d name="money-bag" className="-my-1 inline-block h-4 w-4 align-[-2px]" /> <b className="text-ink">{vnd(s.tips)}</b>
             </div>
           </div>
-          <span data-testid="tea-time" className={`rounded-full border-2 border-outline px-2 py-0.5 text-sm font-black tabular-nums ${secs <= 10 ? 'animate-pulse bg-lacquer text-gold-light' : 'bg-white'}`}>{secs}s</span>
+          <span data-testid="tea-time" className={`rounded-full border-2 border-outline px-2 py-0.5 text-sm font-black tabular-nums ${secs <= 10 ? 'animate-pulse bg-lacquer text-gold-light' : 'bg-white'}`}>
+            <Icon3d name="stopwatch" className="-my-1 mr-0.5 inline-block h-5 w-5 align-[-3px]" />
+            {secs}s
+          </span>
           <button type="button" data-testid="tea-quit" aria-label="Nghỉ ca" onClick={() => setConfirm(true)} className="grid h-8 w-8 place-items-center rounded-full border-2 border-outline bg-cream text-base font-black shadow-[0_2px_0_var(--color-outline)] active:translate-y-0.5">
             ✕
           </button>
@@ -613,7 +618,7 @@ export function BubbleTeaGame({ rank, strikes, onDone }: { rank: number; strikes
               <span
                 key={s.custKey}
                 ref={faceRef}
-                className="animate-walk-in relative h-[62px] w-[62px] shrink-0 rounded-full border-2 border-outline bg-cream shadow-[0_3px_0_var(--color-outline)] [@media(min-height:740px)]:h-[96px] [@media(min-height:740px)]:w-[96px] [&>svg]:h-full [&>svg]:w-full"
+                className="animate-walk-in relative h-[62px] w-[62px] shrink-0 rounded-full border-2 border-outline bg-cream shadow-[0_3px_0_var(--color-outline)] [@media(min-height:740px)]:h-[96px] [@media(min-height:740px)]:w-[96px] [&>*]:h-full [&>*]:w-full"
               >
                 {s.react && <Reaction key={s.react.key} text={s.react.text} className="-top-3 -right-2" />}
                 <Portrait outfit={{ ...speaker.outfit, expression: s.say ? (s.say.good ? 'happy-closed' : 'sad') : patience < 0.3 ? 'sad' : speaker.outfit.expression }} size={62} />
@@ -812,6 +817,8 @@ function Summary({ o, rank, onClose }: { o: TeaOutcome; rank: number; onClose: (
     <div className="absolute inset-0 z-10 grid place-items-center bg-ink/45 p-5">
       <div ref={box} className="panel animate-pop relative w-full max-w-xs p-5 pt-7 text-ink" data-testid="tea-summary">
         <h2 className="absolute -top-5 left-1/2 -translate-x-1/2 rounded-full ribbon px-6 py-1 text-xl whitespace-nowrap">{o.quit ? 'Nghỉ ca sớm' : 'Hết ca!'}</h2>
+        <Icon3d name="bubble-tea" className="animate-pop absolute -top-8 -left-4 h-16 w-16 -rotate-12" />
+        {!o.quit && o.meter >= 50 && <Icon3d name="party-popper" className="animate-pop absolute -top-8 -right-4 h-16 w-16 rotate-12" />}
         <div className="mb-3 grid grid-cols-3 gap-2 text-center">
           <div className="rounded-2xl bg-mint/60 p-2">
             <div className="text-xl font-black tabular-nums">{o.served}</div>

@@ -11,6 +11,7 @@ import { bumpFlag, flagNumber, getFlag, setFlag } from '../systems/conditions'
 import { grabNet } from '../systems/jobs'
 import { weekdayIndex } from '../systems/time'
 import { shuffle } from './common'
+import { Icon3d, SvgIcon3d } from '../../ui/Icon3d'
 
 /**
  * Chạy Grab (story 2.1 §11.1), rebuilt in 1.21 as a real-time ride on a top-down map of the Old
@@ -234,72 +235,12 @@ export interface GrabOutcome {
 
 // ---------------------------------------------------------------------------------------- art
 
+const SHOP_ICON: Record<string, string> = { pho: 'steaming-bowl', banhMi: 'baguette-bread', traSua: 'bubble-tea', caPhe: 'hot-beverage', bunCha: 'oden', che: 'shaved-ice' }
+
 function ShopIcon({ id, size = 18 }: { id: string; size?: number }) {
-  const sw = { stroke: INK, strokeWidth: 1.4, strokeLinejoin: 'round' as const }
-  let g: ReactNode
-  switch (id) {
-    case 'pho':
-      g = (
-        <>
-          <path d="M3 10h18c0 5-4 8-9 8s-9-3-9-8z" fill="#ffffff" {...sw} />
-          <path d="M5 10c2-1 4 1 7 0s5-1 7 0" stroke="#f4c04e" strokeWidth="1.6" fill="none" />
-          <path d="M15 3l-4 7M18 4l-5 6" stroke="#c49a6c" strokeWidth="1.4" strokeLinecap="round" />
-        </>
-      )
-      break
-    case 'banhMi':
-      g = (
-        <>
-          <path d="M3 14c0-4 5-7 10-7s8 2 8 5-4 6-10 6-8-1-8-4z" fill="#e8b25e" {...sw} />
-          <path d="M8 10l2 3M12 9l2 3M16 9l2 3" stroke="#b97a35" strokeWidth="1.3" strokeLinecap="round" />
-        </>
-      )
-      break
-    case 'traSua':
-      g = (
-        <>
-          <path d="M6 7h12l-1.5 13h-9z" fill="#d8ab7e" {...sw} />
-          <rect x="5" y="5" width="14" height="2.6" rx="1" fill="#ff8fab" {...sw} />
-          <path d="M13 5l2-4" stroke={INK} strokeWidth="1.6" strokeLinecap="round" />
-          <circle cx="10" cy="17" r="1.3" fill={INK} />
-          <circle cx="13.5" cy="17.5" r="1.3" fill={INK} />
-        </>
-      )
-      break
-    case 'caPhe':
-      g = (
-        <>
-          <path d="M4 9h13v6a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5z" fill="#fff6ea" {...sw} />
-          <path d="M17 11h2a2 2 0 0 1 0 4h-2" fill="none" {...sw} />
-          <ellipse cx="10.5" cy="9" rx="6.5" ry="1.8" fill="#f4d58a" />
-          <path d="M8 6c-1-1 1-2 0-3M12 6c-1-1 1-2 0-3" stroke="#c9ccd2" strokeWidth="1.2" fill="none" />
-        </>
-      )
-      break
-    case 'bunCha':
-      g = (
-        <>
-          <rect x="3" y="11" width="18" height="7" rx="2" fill="#5d6170" {...sw} />
-          <path d="M4 11l2-3M9 11l2-3M14 11l2-3M19 11l1-2" stroke={INK} strokeWidth="1" />
-          <ellipse cx="8" cy="9" rx="3" ry="2" fill="#a8603a" {...sw} />
-          <ellipse cx="15" cy="9" rx="3" ry="2" fill="#a8603a" {...sw} />
-          <path d="M7 4c-1-1 1-2 0-3M15 4c-1-1 1-2 0-3" stroke="#c9ccd2" strokeWidth="1.2" fill="none" />
-        </>
-      )
-      break
-    default:
-      g = (
-        <>
-          <path d="M6 4h12l-2 16H8z" fill="#ffffff" {...sw} />
-          <path d="M6.6 9h10.8l-.5 4H7.1z" fill="#a8d86b" />
-          <path d="M7.2 13h9.6l-.6 5H7.8z" fill="#f4c04e" />
-          <circle cx="10" cy="7" r="1.2" fill="#e2574c" />
-        </>
-      )
-  }
   return (
-    <svg viewBox="0 0 24 22" width={size} height={size} aria-hidden="true">
-      {g}
+    <svg viewBox="0 0 24 24" width={size} height={size} aria-hidden="true">
+      <SvgIcon3d name={SHOP_ICON[id] ?? 'shopping-bags'} x={0} y={0} size={24} />
     </svg>
   )
 }
@@ -342,12 +283,7 @@ function StaticMap({ weekend }: { weekend: boolean }) {
         <g key={`b${x}${y}`}>
           <rect x={x0 - 2} y={y0 - 2} width={w + 4} height={w + 4} rx="5" fill="#e9dcc4" />
           {houses}
-          {tree && (
-            <g>
-              <circle cx={x0 + w / 2} cy={y0 + w / 2} r="6.5" fill="#6fae5f" stroke={INK} strokeWidth="0.9" />
-              <circle cx={x0 + w / 2 - 2} cy={y0 + w / 2 - 2} r="2.2" fill="#9fd3b4" />
-            </g>
-          )}
+          {tree && <SvgIcon3d name={hash(x, y, 5) > 0.5 ? 'deciduous-tree' : 'evergreen-tree'} x={x0 + w / 2 - 9} y={y0 + w / 2 - 10} size={18} />}
         </g>,
       )
     }
@@ -427,19 +363,16 @@ function StaticMap({ weekend }: { weekend: boolean }) {
   )
 }
 
-/** Bố's blue Wave from above, the rider in the green helmet; a food box or a passenger behind. */
-function Scooter({ load, passenger }: { load: boolean; passenger: string | null }) {
+/** Bố's Wave as the 3D motor scooter, bobbing a little; the order rides along above it. */
+function Scooter({ load, passenger, east }: { load: string | null; passenger: string | null; east: boolean }) {
   return (
     <g>
-      <ellipse cx="0" cy="2" rx="13" ry="6" fill={INK} opacity="0.2" />
-      <rect x="-12" y="-4.5" width="24" height="9" rx="4.5" fill="#7fb8e8" stroke={INK} strokeWidth="1.4" />
-      <rect x="7" y="-8" width="2.6" height="16" rx="1.3" fill="#3b4252" stroke={INK} strokeWidth="0.8" />
-      <circle cx="12.5" cy="0" r="1.8" fill="#fff6c8" stroke={INK} strokeWidth="0.6" />
-      {load && <rect x="-16" y="-6" width="9" height="12" rx="1.5" fill="#3fae72" stroke={INK} strokeWidth="1.2" />}
-      {load && <path d="M-14 -2h5M-14 1h5" stroke="#ffffff" strokeWidth="1" />}
-      {passenger && <circle cx="-7" cy="0" r="4.8" fill={passenger} stroke={INK} strokeWidth="1.2" />}
-      <circle cx="1" cy="0" r="5.4" fill="#3fae72" stroke={INK} strokeWidth="1.3" />
-      <path d="M3.5 -3a4 4 0 0 1 0 6" stroke="#ffffff" strokeWidth="1.3" fill="none" opacity="0.8" />
+      <ellipse cx="0" cy="9" rx="12" ry="3.6" fill={INK} opacity="0.22" />
+      <g className="animate-bob">
+        <SvgIcon3d name="motor-scooter" x={-15} y={-20} size={30} flip={east} />
+        {load && <SvgIcon3d name={load} x={-7} y={-33} size={14} />}
+        {passenger && <circle cx="0" cy="-26" r="5" fill={passenger} stroke={INK} strokeWidth="1.2" />}
+      </g>
     </g>
   )
 }
@@ -801,9 +734,11 @@ export function GrabGame({ rain, rank, onComplete }: { rain: boolean; rank: numb
               </span>
             </span>
             <span className="ml-auto rounded-full border-2 border-outline bg-white px-2 py-0.5 text-[13px] font-black text-ink tabular-nums" data-testid="grab-earned">
+              <Icon3d name="money-bag" className="-my-1 mr-0.5 inline-block h-5 w-5 align-[-4px]" />
               {vnd(Math.max(0, earned))}
             </span>
             <span data-testid="grab-time" className={`rounded-full border-2 border-outline px-2 py-0.5 text-[13px] font-black tabular-nums ${secs <= 10 ? 'animate-pulse bg-lacquer text-gold-light' : 'bg-white text-ink'}`}>
+              <Icon3d name="stopwatch" className="-my-1 mr-0.5 inline-block h-5 w-5 align-[-4px]" />
               {secs}s
             </span>
             <button type="button" data-testid="grab-quit" aria-label="Tắt app" onClick={() => setConfirm(true)} className="grid h-7 w-7 place-items-center rounded-full border-2 border-outline bg-cream text-sm font-black text-ink shadow-[0_2px_0_var(--color-outline)] active:translate-y-0.5">
@@ -894,14 +829,13 @@ export function GrabGame({ rain, rank, onComplete }: { rain: boolean; rank: numb
             {static_}
             {s.jams.map((k) => {
               const [a2, b2] = k.split('-').map((p) => p.split(',').map(Number))
-              const horiz = a2[1] === b2[1]
               return (
                 <g key={`j${k}`}>
                   <line x1={px(a2[0])} y1={px(a2[1])} x2={px(b2[0])} y2={px(b2[1])} stroke="#e8463b" strokeWidth="8" strokeLinecap="round" opacity="0.55" />
                   {[0.3, 0.5, 0.7].map((f, i) => {
                     const cx = px(a2[0] + (b2[0] - a2[0]) * f)
                     const cy = px(a2[1] + (b2[1] - a2[1]) * f)
-                    return <rect key={i} x={cx - (horiz ? 5 : 3)} y={cy - (horiz ? 3 : 5)} width={horiz ? 10 : 6} height={horiz ? 6 : 10} rx="1.5" fill={['#f4c04e', '#ffffff', '#4f86d9'][i]} stroke={INK} strokeWidth="0.8" />
+                    return <SvgIcon3d key={i} name={['automobile', 'taxi', 'sport-utility-vehicle'][i]} x={cx - 7} y={cy - 9} size={14} />
                   })}
                 </g>
               )
@@ -915,13 +849,13 @@ export function GrabGame({ rain, rank, onComplete }: { rain: boolean; rank: numb
             )}
             {o && (
               <Pin at={o.offer.to} color={o.leg === 'drop' ? '#d6336c' : '#c9ccd2'} pulse={o.leg === 'drop'}>
-                <path d="M3 9l5-5 5 5v6H3z" fill="#fff3d6" stroke={INK} strokeWidth="1.2" strokeLinejoin="round" />
+                <SvgIcon3d name="house" x={0} y={0} size={16} />
               </Pin>
             )}
             {!o && s.offers && s.offers.map((of, i) => <circle key={i} cx={px(of.from.x)} cy={px(of.from.y)} r="6" fill={of.shop?.color ?? '#3fae72'} stroke={INK} strokeWidth="1.2" opacity="0.8" />)}
-            <g transform={`translate(${bx} ${by}) rotate(${b.face * 90})`} data-testid="grab-bike">
-              <Scooter load={!!o && o.leg === 'drop' && o.offer.kind === 'food'} passenger={passengerColor} />
-              {dusk && <path d="M13 0l26 -9v18z" fill="#fff6c8" opacity="0.35" />}
+            <g transform={`translate(${bx} ${by})`} data-testid="grab-bike">
+              {dusk && <circle r="16" fill="#fff6c8" opacity="0.3" />}
+              <Scooter load={o && o.leg === 'drop' && o.offer.kind === 'food' ? (SHOP_ICON[o.offer.shop?.id ?? ''] ?? null) : null} passenger={passengerColor} east={b.face === 0} />
             </g>
             {b.want !== null && (
               <text x={bx} y={by - 15} textAnchor="middle" fontSize="13" fontWeight="900" fill="#3f7fe0" style={{ paintOrder: 'stroke', stroke: '#ffffff', strokeWidth: 3 }}>
@@ -1031,6 +965,8 @@ function GrabSummary({ o, rank, onClose }: { o: GrabOutcome; rank: number; onClo
     <div className="absolute inset-0 z-10 grid place-items-center bg-ink/45 p-5">
       <div className="panel animate-pop relative w-full max-w-xs p-5 pt-7 text-ink" data-testid="grab-summary">
         <h2 className="absolute -top-5 left-1/2 -translate-x-1/2 rounded-full ribbon px-6 py-1 text-xl whitespace-nowrap">Hết giờ chạy!</h2>
+        <Icon3d name="motor-scooter" className="animate-pop absolute -top-9 -left-5 h-16 w-16 -rotate-6" />
+        {avg >= 4 && <Icon3d name="glowing-star" className="animate-pop absolute -top-8 -right-4 h-14 w-14 rotate-12" />}
         <div className="mb-3 grid grid-cols-2 gap-2 text-center">
           <div className="rounded-2xl bg-mint/60 p-2">
             <div className="text-xl font-black tabular-nums">{o.delivered}</div>

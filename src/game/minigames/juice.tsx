@@ -1,4 +1,5 @@
 import confetti from 'canvas-confetti'
+import { Icon3d, ICON3D } from '../../ui/Icon3d'
 
 /**
  * Game feel for the job mini-games (1.24): confetti bursts (canvas-confetti, ISC licence) and small
@@ -38,5 +39,9 @@ export function burst(from: Element | null | undefined, kind: 'small' | 'coins' 
 
 /** An emoji / short text that floats up and fades (re-mount with a new `key` to play again). */
 export function Reaction({ text, className = '' }: { text: string; className?: string }) {
-  return <span className={`animate-float-up pointer-events-none absolute z-10 text-2xl font-black drop-shadow-[0_2px_0_rgba(74,50,38,0.35)] ${className}`}>{text}</span>
+  return (
+    <span className={`animate-float-up pointer-events-none absolute z-10 text-2xl font-black drop-shadow-[0_2px_0_rgba(74,50,38,0.35)] ${className}`}>
+      {ICON3D[text] ? <Icon3d name={text} className="h-9 w-9" /> : text}
+    </span>
+  )
 }
