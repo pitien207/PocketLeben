@@ -9,6 +9,7 @@ import { useWorld } from './store/worldStore'
 import { useUI } from './store/uiStore'
 import { startNet } from './net/client'
 import { startSocial } from './net/social'
+import { startPickleball } from './game/systems/pickleball'
 import { startSecrets } from './game/systems/secrets'
 import { SECRETS_ENABLED } from './data/secrets'
 import { startStory } from './game/systems/story'
@@ -34,6 +35,7 @@ startGuide()
 initAudio()
 // Signed in: multiplayer room + cloud save (does nothing offline / without an account).
 startSocial()
+startPickleball()
 startNet()
 if (SECRETS_ENABLED) startSecrets()
 startStory()

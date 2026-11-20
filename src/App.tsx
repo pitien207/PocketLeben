@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, type ReactNode } from 'react'
 import { Game } from './game/Game'
 import { installDebugHooks } from './game/systems/debug'
 import { bindKeyboard } from './game/systems/input'
@@ -30,6 +30,8 @@ import { LoadingScreen } from './ui/LoadingScreen'
 import { SettingsPanel } from './ui/SettingsPanel'
 import { ShopPanel } from './ui/ShopPanel'
 import { GoldPanel } from './ui/GoldPanel'
+import { PickleInvites, PickleLobby } from './ui/PickleLobby'
+import { useMinigame } from './store/minigameStore'
 import { SleepOverlay } from './ui/SleepOverlay'
 import { Toasts } from './ui/Toasts'
 import { RotateHint } from './ui/RotateHint'
@@ -37,6 +39,12 @@ import { WorkPanel } from './ui/WorkPanel'
 import { WorkResults } from './ui/WorkResults'
 
 installDebugHooks()
+
+/** 1.39: the pickleball match shows the 3D world with its own controls on top — the normal HUD steps aside. */
+function OutsideMatch({ children }: { children: ReactNode }) {
+  const match = useMinigame((s) => s.active?.kind === 'pickleball')
+  return match ? null : <>{children}</>
+}
 
 export default function App() {
   const language = useSettings((s) => s.language)
@@ -51,15 +59,19 @@ export default function App() {
       <Game />
       {/* DOM overlay. Containers ignore pointers so drags fall through to the 3D view. */}
       <div className="pointer-events-none absolute inset-0">
-        <CompassBar />
-        <QuestCelebration />
-        <HUD />
-        <LocationCard />
+        <OutsideMatch>
+          <CompassBar />
+          <QuestCelebration />
+          <HUD />
+          <LocationCard />
+        </OutsideMatch>
         <WorkPanel />
         <CarePanel />
-        <Joystick />
-        <RideButton />
-        <ActionButtons />
+        <OutsideMatch>
+          <Joystick />
+          <RideButton />
+          <ActionButtons />
+        </OutsideMatch>
         <DialogueBox />
         <Toasts />
         <WorkResults />
@@ -76,6 +88,8 @@ export default function App() {
         <MapPanel />
         <PhonePanel />
         <VehicleShop />
+        <PickleLobby />
+        <PickleInvites />
         <CharacterCreate />
         <SecretCard />
         <ChapterCard />

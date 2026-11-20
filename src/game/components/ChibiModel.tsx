@@ -37,7 +37,9 @@ export interface MotionState {
   arms?: number
   /** Left-leg kick (đá cầu). */
   kick?: number
-  held?: 'glass' | 'fan' | null
+  held?: 'glass' | 'fan' | 'paddle' | null
+  /** 1.39 a paddle swing in progress, 0…1 (0 = ready stance). Needs `held: 'paddle'` and carry 'paddle'. */
+  swing?: number
 }
 
 /**
@@ -371,6 +373,28 @@ export function ChibiModel({ motion, outfit = PLAYER_OUTFIT, carry = null, detai
     rxR += (-1.0 - rxR) * a.fan
     elbowR += (-1.0 - elbowR) * a.fan
     rzR += a.fan * (0.1 + Math.sin(a.time * 11) * 0.3)
+    if (m?.held === 'paddle') {
+      // 1.39 pickleball: paddle ready in front, a quick backswing, then through the ball and up
+      const p = m.swing ?? 0
+      let rx = -0.55
+      let rz = -0.42
+      let el = -0.75
+      if (p > 0 && p < 0.3) {
+        const k = p / 0.3
+        rx = -0.55 + 1.25 * k
+        rz = -0.42 - 0.4 * k
+        el = -0.75 + 0.35 * k
+      } else if (p >= 0.3) {
+        const k = (p - 0.3) / 0.7
+        const e = 1 - (1 - k) * (1 - k)
+        rx = 0.7 - 2.5 * e
+        rz = -0.82 + 0.62 * e
+        el = -0.4 - 0.45 * e
+      }
+      rxR = rx + swing * 0.2
+      rzR = rz
+      elbowR = el
+    }
     bone[B.armL].rotation.set(-swing * 0.9 * forward - 1.0 * a.arms, 0, 0.22)
     bone[B.foreL].rotation.set(-(0.2 + 0.3 * s) - 0.55 * a.arms, 0, 0)
     bone[B.armR].rotation.set(rxR, 0, rzR)
@@ -397,8 +421,10 @@ export function ChibiModel({ motion, outfit = PLAYER_OUTFIT, carry = null, detai
     glass.quaternion.copy(_qi).multiply(_q2.setFromAxisAngle(_v.set(1, 0, 0), -0.75 * a.sip))
     glass.scale.setScalar(m?.held === 'glass' ? 1 : 0.0001)
     const fan = bone[B.fan]
-    fan.quaternion.copy(_qi)
-    fan.scale.setScalar(m?.held === 'fan' ? 1 : 0.0001)
+    // the fan stays upright in the hand; the paddle follows the forearm
+    if (m?.held === 'paddle') fan.quaternion.identity()
+    else fan.quaternion.copy(_qi)
+    fan.scale.setScalar(m?.held === 'fan' || m?.held === 'paddle' ? 1 : 0.0001)
 
     bone[B.torso].scale.set(1 - breathe * 0.01, 1 + breathe * 0.025, 1)
     const head = bone[B.head]

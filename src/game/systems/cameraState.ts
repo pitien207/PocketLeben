@@ -33,7 +33,8 @@ export const cameraState = {
   /** Player-chosen downward angle (drag up/down), degrees. */
   pitchDeg: view.pitch,
   /** Dev only: a fixed camera for inspecting models (`__vh.look(from, at)`, null = follow the player). */
-  free: null as null | { from: [number, number, number]; at: [number, number, number]; fov?: number },
+  /** `fade` (1.39): things between the camera and `at` fade like in the normal view (pickleball match camera). */
+  free: null as null | { from: [number, number, number]; at: [number, number, number]; fov?: number; fade?: boolean },
 }
 
 /** Turn and zoom the camera for an interaction; call `resetCameraFocus()` afterwards. */

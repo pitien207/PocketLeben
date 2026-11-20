@@ -51,6 +51,9 @@ export const SCENE_MAPS: Partial<Record<SceneId, SceneMap>> = {
       { x0: 3.5, z0: 87.2, x1: 8.5, z1: 136.2, color: ROAD },
       { x0: -44, z0: 101.2, x1: 1.5, z1: 134.2, color: '#9fd27e', soft: true },
       { x0: -16, z0: 101.2, x1: -6.2, z1: 111.2, color: '#e2d2ae' },
+      // 1.39 Sân pickleball (HangKhay/layout.ts PICKLE)
+      { x0: -43.3, z0: 103.6, x1: -25.9, z1: 112.8, color: '#4f9a6a' },
+      { x0: -41.3, z0: 105.15, x1: -27.9, z1: 111.25, color: '#3e7fc1' },
       { x0: -43.6, z0: 91.7, x1: -36.8, z1: 98.8, color: '#d7c7a6' },
       { x0: -36.6, z0: 91.7, x1: -17.4, z1: 99.3, color: '#e8b9a6' },
       { x0: -17.2, z0: 91.7, x1: -11.2, z1: 98.7, color: '#f2c46d' },
@@ -128,6 +131,7 @@ export const SCENE_MAPS: Partial<Record<SceneId, SceneMap>> = {
       { x: -10, z: 82.2, kind: 'street', text: { vi: 'Phố Hàng Khay', en: 'Hàng Khay Street' } },
       { x: 6, z: 116.2, kind: 'street', text: { vi: 'Phố Bà Triệu', en: 'Bà Triệu Street' } },
       { x: -24, z: 127.2, kind: 'area', text: { vi: 'Vườn hoa Hàng Khay', en: 'Hàng Khay garden' } },
+      { x: -34.6, z: 101.8, kind: 'area', text: { vi: 'Sân pickleball', en: 'Pickleball court' } },
       { x: 20, z: -11.3, kind: 'area', text: { vi: 'Đình làng', en: 'Communal house', de: 'Gemeindehaus' } },
       { x: 23.6, z: 17.6, kind: 'area', text: { vi: 'Chợ đêm', en: 'Night market', de: 'Nachtmarkt' } },
       { x: 11.8, z: -16.5, kind: 'street', text: { vi: 'Phố Hàng Bông', en: 'Hàng Bông street', de: 'Hàng-Bông-Straße' } },

@@ -12,6 +12,7 @@ import { WebSocketServer } from 'ws'
 import { openStore } from './store.mjs'
 import { GOOGLE_CLIENT_ID, verifyGoogleToken } from './google.mjs'
 import { createSocial } from './social.mjs'
+import { createPickleball } from './pickleball.mjs'
 
 const scrypt = promisify(scryptCb)
 const PORT = Number(process.env.PORT ?? 8787)
@@ -214,7 +215,7 @@ const routes = {
     send(res, 200, {})
   },
   async 'GET /api/health'(_req, res) {
-    send(res, 200, { ok: true, store: store.kind.split(' ')[0], online: clients.size })
+    send(res, 200, { ok: true, store: store.kind.split(' ')[0], online: clients.size, pickleball: pickleball.stats() })
   },
   async 'GET /api/online'(_req, res) {
     const scenes = {}
@@ -319,6 +320,8 @@ const broadcastAll = (msg) => {
 // Friends, private messages, world chat (server/social.mjs)
 const social = createSocial({ store, auth, keyOf, readBody, send, clientOf, broadcastAll })
 Object.assign(routes, social.routes)
+// 1.39 pickleball lobby + match relay (server/pickleball.mjs)
+const pickleball = createPickleball({ clients })
 
 http.on('upgrade', (req, socket, head) => {
   if (!req.url.startsWith('/ws')) return socket.destroy()
@@ -354,7 +357,8 @@ function cleanSnap(s) {
       fan: num(m.fan, 0, 1),
       arms: num(m.arms, 0, 1),
       kick: num(m.kick, 0, 1),
-      held: m.held === 'glass' || m.held === 'fan' ? m.held : null,
+      held: m.held === 'glass' || m.held === 'fan' || m.held === 'paddle' ? m.held : null,
+      swing: m.swing === undefined ? undefined : num(m.swing, 0, 1),
     },
     outfit,
     veh: str(s.veh, 16) ?? null,
@@ -469,6 +473,7 @@ wss.on('connection', (ws) => {
       return
     }
     const now = Date.now()
+    if (pickleball.onMessage(c, msg)) return
     if (msg.t === 'chat' || msg.t === 'dm') {
       await social.onMessage(c, msg).catch((e) => console.error('chat', e))
       return
@@ -504,6 +509,7 @@ wss.on('connection', (ws) => {
     clearTimeout(timeout)
     if (!c) return
     leaveRoom(c)
+    pickleball.onClose(c)
     clients.delete(c.id)
     if (!clientOf(c.user)) void social.presence(c.user, false)
   })

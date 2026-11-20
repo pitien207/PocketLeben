@@ -1,5 +1,52 @@
 # Changelog
 
+## 1.39.0 — Less lag, pickleball court with 1v1 matches
+
+### Changed (performance — user: "giảm giật lag")
+- **Scenery is no longer always drawn as see-through.** Since 1.38 every building, tree and prop used a translucent
+  material so it could fade when it stands between the camera and you. Now only what is near the lens or near the line
+  of sight to you uses it (checked every frame per object); everything else is drawn solid. Phones can skip hidden
+  pixels again, and the ambient-occlusion effect no longer re-draws the whole street twice per frame (it did because it
+  saw translucent materials, and it also walked the whole scene three times per frame → garbage → regular hitches).
+  Measured at the same spots, quality "Cao": draw calls −33 %, triangles drawn per frame −45 % (Hàng Gai 1.61 M → 0.89 M),
+  translucent draws −65…75 %.
+- **A phone that cannot keep up** (the automatic check that already lowered the resolution) now also drops ambient
+  occlusion, tilt-shift and MSAA for the rest of the session.
+- **New players on phones / tablets** start on quality "Thấp" (switch in Settings). Saved settings are not changed.
+- NPCs no longer create a new object every frame (less garbage collection).
+
+### Added
+- **Sân pickleball Hàng Khay** in the north-west corner of Vườn hoa Hàng Khay (south of the lake, next to the
+  fountain): a blue court with kitchens, net, a low fence with a gate, benches, a ball basket, a paddle rack and a sign;
+  on the map too. At the gate (or by the net) the button **"Chơi pickleball"** opens the lobby.
+- **Lobby**: your room (who is in it, join requests with Đồng ý / Không, "Bắt đầu trận!", "Rời phòng"), **all rooms**
+  on the server with **"Xin vào"**, **"Mời người chơi"** (players around you and friends online) and **"Đấu với máy"**
+  (anh Bảo: Dễ / Vừa / Khó). Offline / without an account only the computer opponent is offered. Stats: matches, wins
+  against people, wins against the computer (no money — nothing to farm).
+- **Invitations and join requests pop up anywhere** in Hà Nội (card at the top: "Vào chơi" / "Thôi"); accepting takes
+  you to the court. From Germany you cannot accept (the court is in Hà Nội).
+- **The match is played in 3D on the real court** with the same chibi characters as the rest of the game (each holds a
+  paddle and swings it), the same light, shadows and effects; the camera stands behind your baseline so you always play
+  "from the bottom". On top: score, short messages, a stick (left), **ĐÁNH / Bỏ nhỏ / Lốp** (right), "Bỏ cuộc". Keys:
+  WASD / arrows, Space or J, K, L. Rally scoring to 11, win by 2; the serve and the return must bounce first; no volley
+  inside the kitchen — friendly version: the swing waits for the legal moment instead of a fault. A yellow ring shows
+  where an incoming ball will land; while you do not touch the stick your player steps sideways toward the ball.
+  Other players nearby see both of you running on the court with paddles.
+- After a match you are back in the lobby (rematch in the same room).
+- Server: `server/pickleball.mjs` (rooms in memory, requests, invitations, relays the match messages: whoever the ball
+  flies to judges it, so your own hits never wait for the network). `/api/health` shows the rooms.
+
+### Manual test checklist (phone)
+- [ ] Walk around Hàng Gai and the lake for a few minutes: smoother than 1.38, no regular hitches; trees / walls in front of you still fade.
+- [ ] Find the court (map: "Sân pickleball", south of the lake in the park), go through the gate, tap "Chơi pickleball".
+- [ ] Offline / not signed in: the lobby says how to play online; "Đấu với máy — Dễ": play a few points with the stick and ĐÁNH, try Bỏ nhỏ and Lốp.
+- [ ] The match is in 3D on the court (your own clothes, paddle in hand, the opponent at the far end); phone sideways and upright.
+- [ ] "Bỏ cuộc" → result card → "Xong" → back in the lobby; the HUD comes back.
+- [ ] Two phones signed in: A "Tạo phòng mới", B "Xin vào" → A "Đồng ý" → A "Bắt đầu trận!" → both play, same score on both (mirrored).
+- [ ] A invites B from "Mời người chơi" while B walks elsewhere in Hà Nội → B gets the card, "Vào chơi" → B is at the court in A's room.
+- [ ] A third player nearby sees A and B running on the court with paddles.
+- [ ] Close the app during a match → the other player wins ("đã rời trận").
+
 ## 1.38.0 — Smooth see-through, no more flicker on phones
 
 ### Changed

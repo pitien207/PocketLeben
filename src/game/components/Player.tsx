@@ -185,7 +185,10 @@ export function Player({ visualRef }: PlayerProps) {
     }
     rb.setLinvel({ x: v.x, y: current.y, z: v.z }, true)
     // Riding, the whole body is turned already.
-    if (facing.current) facing.current.rotation.y = vdef ? 0 : heading.current
+    if (facing.current) {
+      facing.current.rotation.y = vdef ? 0 : heading.current
+      facing.current.visible = !playerState.hidden
+    }
 
     // Animate from real velocity so walking into a wall looks like standing.
     const m = motion.current

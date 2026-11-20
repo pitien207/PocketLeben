@@ -11,6 +11,7 @@ import { ChibiModel, type MotionState } from './ChibiModel'
 import { isVehicleId, VEHICLES } from '../../data/vehicles'
 import { rideAnchorsOf } from '../scenes/shared/ownVehicles'
 import { VehicleMesh } from './PlayerVehicle'
+import { matchHiddenRemotes } from '../minigames/pickleball/session'
 
 /** What each emote shows above the head (emoji are fine in content). */
 export const EMOTES: Record<EmoteId, { icon: string; text?: Localized }> = {
@@ -142,16 +143,21 @@ function RemotePlayer({ id, name }: { id: number; name: string }) {
   const vehDef = isVehicleId(veh) ? VEHICLES[veh] : null
   const vehKey = useRef<string | null>(null)
   vehKey.current = veh ?? null
+  // 1.39 holding a pickleball paddle (a match on the court): the model carries one
+  const paddle = r0?.snap.motion.held === 'paddle'
+  const paddleKey = useRef(false)
+  paddleKey.current = paddle
 
   useFrame((_, rawDt) => {
     const r = remotes.get(id)
     const g = root.current
     if (!r || !g) return
-    g.visible = shownRemotes.has(id)
+    // (1.39: my pickleball opponent is drawn by the match view)
+    g.visible = shownRemotes.has(id) && !matchHiddenRemotes.has(id)
     const wantName = namedRemotes.has(id)
     if (wantName !== named) setNamed(wantName)
     // Outfit changed (they bought clothes): rebuild the model (geometry is cached per outfit).
-    if (r.outfitKey !== outfitKey.current || (r.snap.veh ?? null) !== vehKey.current) rerender()
+    if (r.outfitKey !== outfitKey.current || (r.snap.veh ?? null) !== vehKey.current || (r.snap.motion.held === 'paddle') !== paddleKey.current) rerender()
     const dt = Math.min(rawDt, 0.1)
     const far = Math.hypot(r.snap.x - r.x, r.snap.z - r.z) > 4
     r.x = far ? r.snap.x : damp(r.x, r.snap.x, 10, dt)
@@ -167,7 +173,7 @@ function RemotePlayer({ id, name }: { id: number; name: string }) {
       <group ref={facing}>
         {vehDef && <VehicleMesh def={vehDef} shadows={false} />}
         <group position={[0, 0, vehDef ? (rideAnchorsOf(vehDef)?.riderZ ?? 0) : 0]} visible={vehDef?.kind !== 'car'}>
-          <ChibiModel motion={motion} outfit={r0?.outfit} />
+          <ChibiModel motion={motion} outfit={r0?.outfit} carry={paddle ? 'paddle' : null} />
         </group>
       </group>
       {named && <NamePlate name={name} />}

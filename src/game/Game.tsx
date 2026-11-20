@@ -22,6 +22,8 @@ import { LocalEmote, RemotePlayers } from './components/RemotePlayers'
 import { SecretGlints } from './components/SecretGlints'
 import { SECRETS_ENABLED } from '../data/secrets'
 import { FancyLook } from './fx/FancyLook'
+import { useFxAuto } from './fx/fxState'
+import { PickleMatchView } from './minigames/pickleball/PickleMatchView'
 
 /** Physics steps after the player sets its velocity (-100) and before the camera (0). */
 const PHYSICS_PRIORITY = -50
@@ -53,6 +55,12 @@ function GlobalGround() {
 /** Mini-games that cover the whole screen: the 3D view is not drawn meanwhile (1.34, smoother UI on phones). */
 const FULL_SCREEN_GAMES = new Set(['bubbleTea', 'circleK', 'grab'])
 
+/** 1.39: struggling device → lower resolution AND the lighter post effects, once (no flip-flop). */
+const slowDevice = (setDprCap: (n: number) => void) => () => {
+  setDprCap(1)
+  useFxAuto.setState({ lite: true })
+}
+
 export function Game() {
   const quality = useSettings((s) => s.quality)
   const covered = useMinigame((s) => FULL_SCREEN_GAMES.has(s.active?.kind ?? ''))
@@ -77,7 +85,7 @@ export function Game() {
         <fog attach="fog" args={[PALETTE.fog, 30, 80]} />
         {/* 1.36: lower the resolution once and stay there. Switching back and forth resized the canvas and the post
             effects' buffers, and each switch flashed the screen bright for a frame (user: "nháy sáng"). */}
-        <PerformanceMonitor flipflops={1} onDecline={() => setDprCap(1)} onFallback={() => setDprCap(1)} />
+        <PerformanceMonitor flipflops={1} onDecline={slowDevice(setDprCap)} onFallback={slowDevice(setDprCap)} />
         <Lighting />
         <Suspense fallback={null}>
           <Physics gravity={[0, CONFIG.world.gravity, 0]} updatePriority={PHYSICS_PRIORITY}>
@@ -87,6 +95,8 @@ export function Game() {
             <CameraRig target={playerVisual} />
             <RemotePlayers />
             <LocalEmote />
+            {/* 1.39 a pickleball match, played in 3D on the Hàng Khay court */}
+            <PickleMatchView />
             {SECRETS_ENABLED && <SecretGlints />}
             <GuideSystem />
             <InteractionSystem />

@@ -20,4 +20,5 @@ export interface PlayerSnapshot {
 }
 
 /** Written by the Player every frame (cheap: no allocation). */
-export const localSnapshot: { yaw: number; motion: MotionState | null; veh: string | null } = { yaw: 0, motion: null, veh: null }
+/** `override` (1.39 pickleball): while a match runs, others see my match figure on the court instead of my body. */
+export const localSnapshot: { yaw: number; motion: MotionState | null; veh: string | null; override: { x: number; z: number; yaw: number; motion: MotionState } | null } = { yaw: 0, motion: null, veh: null, override: null }

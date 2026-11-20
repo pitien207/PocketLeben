@@ -31,6 +31,8 @@ import { currentObjective } from './watchers'
 import { remotes } from '../../net/client'
 import { pullCloudSave, pushCloudSave } from '../../net/auth'
 import { useNet } from '../../store/netStore'
+import { usePickle } from '../../net/pickleball'
+import { useFxAuto } from '../fx/fxState'
 
 /**
  * Dev-only console helpers (stripped from production builds):
@@ -73,6 +75,10 @@ export function installDebugHooks() {
       /** Multiplayer: other players as last received, and the account / cloud-save helpers. */
       remotes: () => [...remotes.values()],
       net: useNet,
+      /** 1.39 pickleball lobby state (rooms, my room, invites, match). */
+      pickle: usePickle,
+      /** 1.39 lighter post effects after a slow-device decline ({ lite }). */
+      fxAuto: useFxAuto,
       cloud: { push: pushCloudSave, pull: pullCloudSave },
       /** What a multiplayer client would send for this player (see systems/netState.ts). */
       snapshot: () => ({

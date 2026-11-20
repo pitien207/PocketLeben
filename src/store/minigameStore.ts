@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import type { QaSetId } from '../data/interviews'
 import type { ClauseDocId, LetterSetId } from '../data/paperwork'
+import type { PickleOutcome } from '../game/minigames/pickleball/Pickleball'
 
 export interface MinigameResult {
   correct: number
@@ -16,6 +17,8 @@ export interface MinigameResult {
   fraction?: number
   /** The bubble-tea shift. */
   tea?: TeaOutcome
+  /** 1.39 a pickleball match. */
+  pickle?: PickleOutcome
 }
 
 export interface TeaOutcome {
@@ -52,6 +55,8 @@ export type MinigameSpec =
   /** The shift at the bubble-tea shop; `strikes` = early walk-outs so far. */
   | { kind: 'bubbleTea'; rank: number; strikes: number }
   | { kind: 'listen'; level: number; count: number }
+  /** 1.39 Pickleball 1v1: online (the match from net/pickleball.ts) or against the computer (level 0–2). */
+  | { kind: 'pickleball'; mode: 'online' | 'bot'; level: number }
 
 export type B1Module = 'lesen' | 'hoeren' | 'schreiben' | 'sprechen'
 

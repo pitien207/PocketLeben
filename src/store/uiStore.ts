@@ -19,6 +19,8 @@ export type Panel =
   | { type: 'gold'; mode: 'buy' | 'sell' }
   /** 1.35 Showroom Xe Phố Cổ (systems/vehicles.ts). */
   | { type: 'vehicles' }
+  /** 1.39 Pickleball lobby (ui/PickleLobby.tsx). */
+  | { type: 'pickleball' }
 
 /** Full-screen fade between scenes, with an optional caption ("✈ Bay sang Đức…"). */
 export interface Transition {

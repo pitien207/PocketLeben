@@ -31,6 +31,8 @@ export const playerState = {
   pose: null as PlayerPose | null,
   /** Consumed by the Player on the next frame. */
   teleportTo: null as PointXZ | null,
+  /** 1.39: the body is not drawn (a pickleball match shows its own figure on the court). */
+  hidden: false,
 }
 
 /** Lock input and walk the player along waypoints; `onArrive` fires at the last one. */

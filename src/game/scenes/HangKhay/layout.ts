@@ -29,6 +29,13 @@ export const ROW_FRONT = OZ + 20.5
 export const BA_TRIEU = { px0: 2, x0: 3.5, x1: 8.5, px1: 10, z0: OZ + 16, z1: PLAY.maxZ }
 export const PARK = { x0: -44, x1: 1.5, z0: OZ + 30, z1: OZ + 63, fountain: { x: -22, z: OZ + 47 } }
 export const SCHOOL_YARD = { x0: -16, x1: -6.2, z0: OZ + 30, z1: OZ + 40 }
+/**
+ * 1.39 Sân pickleball (PickleCourt.tsx) in the north-west corner of the park: centre, fence half sizes (long side
+ * along x), and the x of the gate on the park side (+z). registry.ts spawn `pickleball` stands in front of the gate.
+ */
+export const PICKLE = { x: -34.6, z: OZ + 37, hx: 8.7, hz: 4.6, gate: -30 }
+/** Inside the court's fence (plus a margin): no trees, lamps or benches there. */
+export const inPickleCourt = (x: number, z: number, r = 0) => Math.abs(x - PICKLE.x) < PICKLE.hx + r + 0.6 && Math.abs(z - PICKLE.z) < PICKLE.hz + r + 0.6
 
 export const TRAFFIC: Lane[] = [
   { z: OZ + 7.3, dir: -1 },

@@ -12,7 +12,8 @@ import { B, FORE, HEAD_R as R } from './rig'
  * (cloth.ts `limbGeometries`). The head sphere itself is the separately textured face (ChibiModel).
  */
 
-export type Carry = 'pole' | null
+/** Carried things built into the body: the đòn gánh, or (1.39) a pickleball paddle in the right hand (on the fan bone). */
+export type Carry = 'pole' | 'paddle' | null
 const shade = lightness
 
 const v3 = (x: number, y: number, z: number): [number, number, number] => [x, y, z]
@@ -114,6 +115,16 @@ export const FAN: ShapeItem[] = [
   { cyl: [0.012, 0.012, 0.14, 5], at: [0, 0.05, 0], color: '#b98a64' },
   { cyl: [0.16, 0.16, 0.012, 14], at: [0, 0.2, 0], rot: [Math.PI / 2, 0, 0], scale: [1, 1, 0.75], color: '#ff9b8f' },
 ]
+/**
+ * 1.39 Pickleball paddle, on the fan bone (at the right hand). Unlike the fan it is not kept upright: it follows the
+ * forearm, so the grip continues the arm and the face swings with it (ChibiModel, motion `held: 'paddle'`, `swing`).
+ */
+export const PADDLE: ShapeItem[] = [
+  { cyl: [0.02, 0.022, 0.14, 8], at: [0, -0.06, 0.02], color: '#3b2a22' },
+  { cyl: [0.135, 0.135, 0.014, 18], at: [0, -0.28, 0.02], rot: [Math.PI / 2, 0, 0], scale: [1, 1, 1.25], color: '#3b2a22' },
+  { cyl: [0.125, 0.125, 0.026, 18], at: [0, -0.28, 0.02], rot: [Math.PI / 2, 0, 0], scale: [1, 1, 1.25], color: '#ff7a59' },
+  { cyl: [0.05, 0.05, 0.03, 12], at: [0, -0.3, 0.02], rot: [Math.PI / 2, 0, 0], color: '#ffe08a' },
+]
 /** Đòn gánh: a bamboo pole on the right shoulder with a basket of bánh mì at each end. */
 const POLE: ShapeItem[] = (() => {
   const s: ShapeItem[] = [{ cyl: [0.025, 0.025, 1.75, 6], at: [-0.22, 0.27, 0], rot: [Math.PI / 2, 0, 0], color: '#d9b878' }]
@@ -151,7 +162,7 @@ export function bodyParts(o: Outfit, carry: Carry, k = 1): [number, ShapeItem[]]
     [B.foreL, hand(1)],
     [B.foreR, hand(-1)],
     [B.glass, GLASS],
-    [B.fan, FAN],
+    [B.fan, carry === 'paddle' ? PADDLE : FAN],
   ]
 }
 

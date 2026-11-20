@@ -5,6 +5,7 @@ import { useGuide, type GuidePointRef } from '../../store/guideStore'
 import { useInteraction } from '../../store/interactionStore'
 import { useSettings } from '../../store/settingsStore'
 import { useUI } from '../../store/uiStore'
+import { useMinigame } from '../../store/minigameStore'
 import { playerState } from '../systems/playerState'
 import { cameraState } from '../systems/cameraState'
 import { COMPASS_PX } from '../../ui/CompassBar'
@@ -72,7 +73,7 @@ export function GuideSystem() {
     const edge = cp
     const { guide, tour } = useGuide.getState()
     const ui = useUI.getState()
-    const enabled = useSettings.getState().guideArrows && !ui.transition && !ui.sleeping
+    const enabled = useSettings.getState().guideArrows && !ui.transition && !ui.sleeping && useMinigame.getState().active?.kind !== 'pickleball'
     const found = enabled ? resolve(guide?.point ?? null, _target) : null
     const g = group.current
     if (!g) return

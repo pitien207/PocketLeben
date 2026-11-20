@@ -20,7 +20,8 @@ import { ActiveArea } from '../../components/ActiveArea'
 import { LampPools } from '../VietnamStreet/LampPools'
 import { GoldCounter } from './GoldCounter'
 import type { Vec3 } from '../../../data/config'
-import { BA_TRIEU, BUILDINGS, FLOWER_MARKET, OZ, PARK, PLAY, PROMENADE, ROAD, SCHOOL_YARD, SHORE_Z, SOUTH_PAVE, TRAFFIC, WALKERS, type Building } from './layout'
+import { BA_TRIEU, BUILDINGS, FLOWER_MARKET, inPickleCourt, OZ, PARK, PLAY, PROMENADE, ROAD, SCHOOL_YARD, SHORE_Z, SOUTH_PAVE, TRAFFIC, WALKERS, type Building } from './layout'
+import { PickleCourt } from './PickleCourt'
 
 /**
  * Phố Hàng Khay (1.33; part of the Hàng Gai scene since 1.34): the south shore of Hồ Gươm — a lakeside promenade, a four-lane street, a row of functional
@@ -140,6 +141,7 @@ function propShapes(): { solid: ShapeItem[]; glow: ShapeItem[]; lamps: [number, 
   // 1.34: nothing may stand inside something else — every tree / lamp / bench / bush takes a circle
   const taken: [number, number, number][] = []
   const free = (x: number, z: number, r: number) => {
+    if (inPickleCourt(x, z, r)) return false
     if (taken.some(([tx, tz, tr]) => Math.hypot(tx - x, tz - z) < tr + r)) return false
     taken.push([x, z, r])
     return true
@@ -345,6 +347,7 @@ export const HangKhay = memo(function HangKhay() {
       <LampPools spots={props.lamps} />
       <Signs />
       <GoldCounter />
+      <PickleCourt />
       {BUILDINGS.map((b) => (
         <CityDoor key={`${b.model}-${b.x}-${b.z}`} b={b} />
       ))}

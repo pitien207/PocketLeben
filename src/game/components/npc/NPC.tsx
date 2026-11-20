@@ -174,7 +174,12 @@ export function NPC({ def, at, yaw = 0, seatY, activity = null, arms = 0, ride, 
       liveZone.x = s.x
       liveZone.z = s.z
     }
-    npcPositions.set(def.id, { x: s.x, z: s.z })
+    // reuse the entry (no new object every frame per NPC → less garbage, fewer GC hitches)
+    const pos = npcPositions.get(def.id)
+    if (pos) {
+      pos.x = s.x
+      pos.z = s.z
+    } else npcPositions.set(def.id, { x: s.x, z: s.z })
     if (walking) body.current?.setNextKinematicTranslation({ x: s.x, y: 0, z: s.z })
   })
 

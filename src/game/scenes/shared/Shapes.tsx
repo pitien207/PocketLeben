@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import type { ThreeElements } from '@react-three/fiber'
 import {
   BoxGeometry,
@@ -14,10 +14,11 @@ import {
   TorusGeometry,
   Vector3,
   type Material,
+  type Mesh,
 } from 'three'
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js'
 import type { Vec3 } from '../../../data/config'
-import { vertexColorMaterial } from './materials'
+import { trackFade, vertexColorMaterial } from './materials'
 
 /**
  * Declarative low-poly primitives that get merged into ONE mesh with per-vertex colors.
@@ -151,7 +152,10 @@ export interface ShapesProps extends MeshProps {
 export function Shapes({ shapes, material = vertexColorMaterial, castShadow = true, receiveShadow = true, ...props }: ShapesProps) {
   const geometry = useMemo(() => buildShapes(shapes), [shapes])
   useEffect(() => () => geometry.dispose(), [geometry])
+  const ref = useRef<Mesh>(null)
+  // 1.39: the default scene material is swapped for its opaque twin when nothing can fade (materials.ts)
+  useEffect(() => (material === vertexColorMaterial && ref.current ? trackFade(ref.current) : undefined), [material])
   return (
-    <mesh {...props} geometry={geometry} material={material} castShadow={castShadow} receiveShadow={receiveShadow} />
+    <mesh ref={ref} {...props} geometry={geometry} material={material} castShadow={castShadow} receiveShadow={receiveShadow} />
   )
 }

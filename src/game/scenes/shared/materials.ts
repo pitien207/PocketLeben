@@ -1,4 +1,4 @@
-import { Color, MeshBasicMaterial, MeshLambertMaterial, Vector3, type Material } from 'three'
+import { Color, MeshBasicMaterial, MeshLambertMaterial, Vector3, type Material, type Mesh } from 'three'
 import { fxUniforms } from '../../fx/fxState'
 
 /**
@@ -85,18 +85,67 @@ if (uNight > 0.001) {
 }
 `
 
-/** Default for merged scene props and buildings. */
-export const vertexColorMaterial = new MeshLambertMaterial({ vertexColors: true, transparent: true })
 const winColors = WINDOW_GLASS.map((c) => new Color(c))
-vertexColorMaterial.onBeforeCompile = (shader) => {
-  occlusionFade(shader)
-  shader.uniforms.uNight = fxUniforms.uNight
-  shader.uniforms.uWin = { value: winColors }
-  shader.fragmentShader = shader.fragmentShader
-    .replace('#include <common>', `#include <common>\nuniform float uNight;\nuniform vec3 uWin[${WINDOW_GLASS.length}];`)
-    .replace('#include <opaque_fragment>', `${WINDOW_FRAGMENT}\n#include <opaque_fragment>`)
+function sceneMaterial(transparent: boolean) {
+  const m = new MeshLambertMaterial({ vertexColors: true, transparent })
+  m.onBeforeCompile = (shader) => {
+    occlusionFade(shader)
+    shader.uniforms.uNight = fxUniforms.uNight
+    shader.uniforms.uWin = { value: winColors }
+    shader.fragmentShader = shader.fragmentShader
+      .replace('#include <common>', `#include <common>\nuniform float uNight;\nuniform vec3 uWin[${WINDOW_GLASS.length}];`)
+      .replace('#include <opaque_fragment>', `${WINDOW_FRAGMENT}\n#include <opaque_fragment>`)
+  }
+  m.customProgramCacheKey = () => 'vh-scene-windows'
+  return m
 }
-vertexColorMaterial.customProgramCacheKey = () => 'vh-scene-windows'
+
+/** Default for merged scene props and buildings (the see-through version; see `trackFade`). */
+export const vertexColorMaterial = sceneMaterial(true)
+/**
+ * 1.39 (lag): the same material without blending. Blending on every building cost a lot on phones (no hidden-surface
+ * removal, everything sorted and drawn back to front, and N8AO rendered the whole street twice more because it saw
+ * transparent materials). Meshes tracked by `trackFade` use this one unless they are near the lens or the line of
+ * sight to the player, where the fade can actually show.
+ */
+export const vertexColorOpaque = sceneMaterial(false)
+
+const fadeMeshes = new Set<Mesh>()
+/** Swap this mesh between the faded and the opaque scene material every frame (Shapes does it). Returns untrack. */
+export function trackFade(mesh: Mesh) {
+  fadeMeshes.add(mesh)
+  return () => {
+    fadeMeshes.delete(mesh)
+  }
+}
+
+const _c = new Vector3()
+const _d = new Vector3()
+const _p = new Vector3()
+/**
+ * Called by the CameraRig after it moved the camera: each tracked mesh whose bounding sphere may touch the fade
+ * regions of OCCLUSION_FRAGMENT (3.2 m round the lens, the tube of radius ≤ 2.2 m toward the look point) gets the
+ * transparent material, all others the opaque one. Conservative, so nothing that should fade stays solid.
+ */
+export function updateFadeSwap(camera: Vector3, target: Vector3) {
+  _d.subVectors(target, camera)
+  const len2 = _d.lengthSq()
+  for (const mesh of fadeMeshes) {
+    if (mesh.material !== vertexColorMaterial && mesh.material !== vertexColorOpaque) continue
+    const geo = mesh.geometry
+    if (!geo.boundingSphere) geo.computeBoundingSphere()
+    const s = geo.boundingSphere!
+    _c.copy(s.center).applyMatrix4(mesh.matrixWorld)
+    const r = s.radius * mesh.matrixWorld.getMaxScaleOnAxis() + 0.5
+    let near = _c.distanceTo(camera) < 3.2 + r
+    if (!near && len2 > 4) {
+      const t = Math.max(0, Math.min(1, _p.subVectors(_c, camera).dot(_d) / len2))
+      _p.copy(camera).addScaledVector(_d, t)
+      near = _p.distanceTo(_c) < 2.2 + r
+    }
+    mesh.material = near ? vertexColorMaterial : vertexColorOpaque
+  }
+}
 
 /** For ground-level geometry (roads, markings) that must never fade. */
 export const groundMaterial = new MeshLambertMaterial({ vertexColors: true })

@@ -70,14 +70,15 @@ function upsert(id: number, name: string | undefined, s: PlayerSnapshot | null) 
 }
 
 function snapshot(): PlayerSnapshot {
-  const p = playerState.position
-  const m = localSnapshot.motion ?? { speed: 0 }
+  const o = localSnapshot.override
+  const p = o ?? playerState.position
+  const m = o?.motion ?? localSnapshot.motion ?? { speed: 0 }
   return {
     scene: useWorld.getState().scene,
     x: Math.round(p.x * 100) / 100,
     z: Math.round(p.z * 100) / 100,
-    yaw: Math.round(localSnapshot.yaw * 100) / 100,
-    motion: { speed: Math.round(m.speed * 100) / 100, sit: m.sit, seatY: m.seatY, ride: m.ride ?? null, pedal: m.pedal, sip: m.sip, held: m.held ?? null },
+    yaw: Math.round((o?.yaw ?? localSnapshot.yaw) * 100) / 100,
+    motion: { speed: Math.round(m.speed * 100) / 100, sit: m.sit, seatY: m.seatY, ride: m.ride ?? null, pedal: m.pedal, sip: m.sip, held: m.held ?? null, swing: m.swing ? Math.round(m.swing * 100) / 100 : undefined },
     outfit: usePlayer.getState().outfit,
     veh: localSnapshot.veh,
   }

@@ -38,7 +38,8 @@ export const useSettings = create<SettingsState>()(
     (set) => ({
       musicOn: true,
       sfxOn: true,
-      quality: 'high',
+      // 1.39: new players on phones / tablets start on the lighter setting (they can switch to high in Settings)
+      quality: typeof matchMedia === 'function' && matchMedia('(pointer: coarse)').matches ? 'low' : 'high',
       language: 'vi',
       timeSpeed: 'normal',
       guideArrows: true,

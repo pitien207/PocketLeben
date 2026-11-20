@@ -20,6 +20,7 @@ import { QaGame } from './QaGame'
 import { SentenceBuilder } from './SentenceBuilder'
 import { TerminHunt } from './TerminHunt'
 import { VocabQuiz } from './VocabQuiz'
+import { PickleballGame } from './pickleball/Pickleball'
 
 /** Shows the active mini-game, then its result screen; "Tiếp tục" reports back to the caller. */
 export function MinigameHost() {
@@ -121,6 +122,9 @@ export function MinigameHost() {
         break
       case 'tutor':
         game = <TutorGame key={active.id} rank={active.rank} onComplete={complete(localize({ vi: 'Buổi kèm học', en: 'Tutoring', de: 'Nachhilfe' }), 0.5)} />
+        break
+      case 'pickleball':
+        game = <PickleballGame key={active.id} mode={active.mode} level={active.level} onDone={(r) => finish({ ...makeResult(r.won ? 1 : 0, 1, 1), pickle: r })} />
         break
       case 'bubbleTea':
         game = (

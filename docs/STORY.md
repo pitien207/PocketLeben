@@ -434,6 +434,15 @@ Trò chơi: Bin làm bài, bạn phải tìm lỗi sai trong lời giải trư�
 - Giá: xe đạp Hoa Sữa 1,8 tr · xe số Ong Vàng 110 19,5 tr · xe ga Mây Trắng 125 34 tr · xe ga cổ Én Bạc 68 tr · xe ga Phong Lưu 150 92 tr · ô tô mini Hạt Đậu 260 tr · Phố Cổ 5 chỗ 480 tr · SUV Gia Đình 7 chỗ 890 tr · xe thể thao Chớp Đỏ 1,65 tỷ. Bán lại được 60 %.
 - Mua xong có biển số Hà Nội, đầy bình. Đi xe ở Hàng Gai, khu phố bắc và Hàng Khay; hết xăng phải xuống dắt bộ; anh bơm xăng đổ 24.000đ/lít.
 
+### Sân pickleball Hàng Khay (1.39, không bắt buộc)
+
+- Góc tây bắc Vườn hoa Hàng Khay, cạnh đài phun nước. Biển: „SÂN PICKLEBALL — Đấu 1–1 · Mời bạn bè · Thắng anh Bảo“.
+- Ở cổng sân bấm **Chơi pickleball** → phòng chờ: tạo phòng, xin vào phòng người khác, mời người đang ở gần / bạn bè online, hoặc **đấu với máy — anh Bảo** (Dễ / Vừa / Khó).
+- Trận đấu diễn ra ngay trên sân 3D, nhân vật chibi cầm vợt; người chơi khác đi ngang thấy hai bạn đang đánh.
+- Luật nhanh: tính điểm mỗi pha, tới 11 (hơn 2 điểm, tối đa 15); người thắng pha giao bóng tiếp; giao chéo sân, qua vùng bếp; bóng giao và bóng trả đầu tiên phải nảy rồi mới đánh; đứng trong vùng bếp (2,13 m sát lưới) không đánh bóng chưa nảy.
+- Thông báo trong trận: „Bạn giao bóng — bấm ĐÁNH“, „Đối thủ giao bóng…“, „Chờ bóng nảy đã! (luật 2 lần nảy)“, „Trong vùng bếp không được đánh bóng chưa nảy!“, „Điểm cho bạn! — đối thủ đánh ra ngoài / vào lưới / không đỡ kịp / giao bóng hỏng“, „Đẹp!“ khi đánh rất chuẩn. Kết thúc: „Bạn thắng!“ / „Thua rồi…“.
+- Không có tiền thưởng (tránh cày tiền); chỉ đếm số trận, thắng người, thắng máy. Ở Đức không nhận lời mời được (sân ở Hà Nội).
+
 ## 2c. Nhân vật ở phần Việt Nam
 
 | Tên | Ở đâu | Vai trò |

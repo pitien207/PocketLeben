@@ -1,3 +1,4 @@
+import { create } from 'zustand'
 import { useSettings } from '../../store/settingsStore'
 import { useWorld } from '../../store/worldStore'
 import { SCENES } from '../scenes/registry'
@@ -39,3 +40,9 @@ export function nightAt(hour: number): number {
   if (h < 12) return 1 - smooth(4.8, 6.2, h)
   return smooth(17.8, 19.5, h)
 }
+
+/**
+ * 1.39 (lag): set once when the device cannot hold its frame rate (Game.tsx PerformanceMonitor): the post effects drop
+ * ambient occlusion, tilt-shift and MSAA for the rest of the session, as on "low" quality.
+ */
+export const useFxAuto = create<{ lite: boolean }>()(() => ({ lite: false }))

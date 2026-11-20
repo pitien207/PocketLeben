@@ -4,7 +4,7 @@ import { useRapier } from '@react-three/rapier'
 import { PerspectiveCamera, Vector3, type Object3D } from 'three'
 import { CONFIG } from '../../data/config'
 import { cameraState, tiltCamera, zoomCamera } from '../systems/cameraState'
-import { occlusion } from '../scenes/shared/materials'
+import { occlusion, updateFadeSwap } from '../scenes/shared/materials'
 import { CAMERA_RAY_GROUPS } from '../systems/collisionGroups'
 import { damp, dampAngle, dampFactor } from '../systems/math'
 
@@ -108,8 +108,16 @@ export function CameraRig({ target }: { target: RefObject<Object3D | null> }) {
         camera.fov = fov
         camera.updateProjectionMatrix()
       }
-      occlusion.target.value.copy(camera.position)
-      occlusion.feet.value = -1000
+      if (cameraState.free.fade) {
+        _look.set(...cameraState.free.at)
+        occlusion.target.value.copy(_look)
+        occlusion.feet.value = 0
+        updateFadeSwap(camera.position, _look)
+      } else {
+        occlusion.target.value.copy(camera.position)
+        occlusion.feet.value = -1000
+        updateFadeSwap(camera.position, camera.position)
+      }
       return
     }
     const dt = Math.min(rawDt, 0.1)
@@ -201,6 +209,7 @@ export function CameraRig({ target }: { target: RefObject<Object3D | null> }) {
     camera.lookAt(lookAt.current)
     occlusion.target.value.copy(_look)
     occlusion.feet.value = _target.y
+    updateFadeSwap(camera.position, _look)
   })
 
   return null

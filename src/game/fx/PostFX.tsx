@@ -1,10 +1,10 @@
-import { useRef, type ReactElement } from 'react'
+import { useLayoutEffect, useRef, type ReactElement } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { Bloom, BrightnessContrast, EffectComposer, HueSaturation, N8AO, SMAA, TiltShift2 } from '@react-three/postprocessing'
 import type { BloomEffect } from 'postprocessing'
 import { HalfFloatType } from 'three'
 import { useSettings } from '../../store/settingsStore'
-import { fxState } from './fxState'
+import { fxState, useFxAuto } from './fxState'
 
 /**
  * 1.32 post effects for the fancy look (mounted by Game only while `useFancy()`):
@@ -17,8 +17,19 @@ import { fxState } from './fxState'
  */
 export function PostFX() {
   const quality = useSettings((s) => s.quality)
-  const high = quality === 'high'
+  // 1.39: a phone that cannot hold its frame rate drops the costly effects for the session (Game.tsx)
+  const lite = useFxAuto((s) => s.lite)
+  const high = quality === 'high' && !lite
   const bloom = useRef<BloomEffect>(null)
+  // 1.39 (lag): N8AO saw the (fading) transparent scene materials and then rendered the whole scene twice more every
+  // frame, traversing it three times (garbage → hitches). Faded parts may simply get AO like solid ones.
+  const ao = useRef<{ autoDetectTransparency: boolean; configuration: { transparencyAware: boolean } } | null>(null)
+  useLayoutEffect(() => {
+    const e = ao.current
+    if (!e) return
+    e.autoDetectTransparency = false
+    e.configuration.transparencyAware = false
+  }, [high])
   useFrame(() => {
     const b = bloom.current
     if (!b) return
@@ -31,6 +42,7 @@ export function PostFX() {
     effects.push(
       <N8AO
         key="ao"
+        ref={ao as never}
         halfRes
         depthAwareUpsampling
         aoRadius={1.4}

@@ -31,7 +31,7 @@ function loadSamples(c: AudioContext) {
 /** Per-sample loudness (the recordings differ). */
 const SAMPLE_GAIN: Partial<Record<SfxName, number>> = { click: 0.5, pickup: 0.8, coin: 0.9, till: 0.8, door: 0.7, stamp: 1, ding: 0.9 }
 
-export type SfxName = 'click' | 'right' | 'wrong' | 'coin' | 'pickup' | 'success' | 'fail' | 'honk' | 'door' | 'stamp' | 'sip' | 'bell' | 'beep' | 'ding' | 'whistle' | 'till'
+export type SfxName = 'click' | 'right' | 'wrong' | 'coin' | 'pickup' | 'success' | 'fail' | 'honk' | 'door' | 'stamp' | 'sip' | 'bell' | 'beep' | 'ding' | 'whistle' | 'till' | 'pock' | 'bounce'
 export type MusicTheme = 'vn' | 'de' | 'indoor' | null
 
 let ctx: AudioContext | null = null
@@ -207,6 +207,14 @@ export function playSfx(name: SfxName) {
       // Traffic police whistle (a trill)
       for (let i = 0; i < 8; i++) tone(i % 2 ? 2350 : 2600, t + i * 0.04, 0.05, 'sine', 0.22, b)
       tone(2500, t + 0.34, 0.35, 'sine', 0.22, b)
+      break
+    case 'pock':
+      // 1.39 pickleball paddle: a hollow plastic "póc"
+      tone(620, t, 0.06, 'square', 0.16, b, 380)
+      noise(t, 0.03, 0.35, 3200)
+      break
+    case 'bounce':
+      tone(260, t, 0.07, 'sine', 0.22, b, 150)
       break
     case 'till':
       // Cash drawer sliding open + coins
