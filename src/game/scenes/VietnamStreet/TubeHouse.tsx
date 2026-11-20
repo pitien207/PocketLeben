@@ -3,7 +3,7 @@ import { CuboidCollider, RigidBody } from '@react-three/rapier'
 import type { Vec3 } from '../../../data/config'
 import { BUILDING_GROUPS } from '../../systems/collisionGroups'
 import { PALETTE as P } from '../shared/palette'
-import { place, plantShapes, stoolShapes } from '../shared/props'
+import { place, softPlantShapes, stoolShapes } from '../shared/props'
 import { Shapes, type ShapeItem } from '../shared/Shapes'
 import { SignBoard } from '../shared/SignBoard'
 import type { SignOptions } from '../shared/textures'
@@ -173,8 +173,8 @@ function tubeHouseShapes(o: TubeHouseOptions): ShapeItem[] {
       }
     }
 
-    s.push(place(plantShapes(), [-w / 2 + 0.45, y + 0.09, f + 0.5], 0, 0.85))
-    s.push(place(plantShapes(P.leafDark, c.accent), [w / 2 - 0.45, y + 0.09, f + 0.5], 0.6, 0.75))
+    s.push(place(softPlantShapes(), [-w / 2 + 0.45, y + 0.09, f + 0.5], 0, 0.85))
+    s.push(place(softPlantShapes(P.leafDark, c.accent), [w / 2 - 0.45, y + 0.09, f + 0.5], 0.6, 0.75))
   }
 
   const topY = (floors - 1) * FLOOR_H
@@ -239,7 +239,7 @@ function tubeHouseShapes(o: TubeHouseOptions): ShapeItem[] {
       }
     }
     s.push({ box: [1.4, 0.06, 0.8], at: [tx, H + 0.56, tz], color: P.darkSteel })
-    s.push(place(plantShapes(P.leaf, c.accent), [-w / 2 + 0.6, H, f - 0.8], 0, 1.1))
+    s.push(place(softPlantShapes(P.leaf, c.accent), [-w / 2 + 0.6, H, f - 0.8], 0, 1.1))
   }
 
   return s

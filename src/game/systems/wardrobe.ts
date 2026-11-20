@@ -42,14 +42,21 @@ export function buyClothing(id: string) {
   return true
 }
 
+/** The outfit with this item put on (also the shop's try-on pictures, 1.34). */
+export function withItem(outfit: Outfit, id: string): Outfit {
+  const item = getClothing(id)
+  if (!item) return outfit
+  // A new top / bottom replaces the old one's print, apron and socks (they used to stay on).
+  const next: Outfit = { ...outfit }
+  for (const k of WORN_WITH[item.slot] ?? []) delete next[k]
+  return { ...next, ...item.apply }
+}
+
 export function wear(id: string) {
   const item = getClothing(id)
   const p = usePlayer.getState()
   if (!item || !p.wardrobe.includes(id)) return
-  // A new top / bottom replaces the old one's print, apron and socks (they used to stay on).
-  const next: Outfit = { ...p.outfit }
-  for (const k of WORN_WITH[item.slot] ?? []) delete next[k]
-  p.setOutfit({ ...next, ...item.apply })
+  p.setOutfit(withItem(p.outfit, id))
 }
 
 /** Details that belong to the garment, not to the person: cleared when another item of the slot is worn. */

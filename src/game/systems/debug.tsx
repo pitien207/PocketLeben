@@ -130,7 +130,7 @@ export function DebugBridge() {
       const out: Record<string, { meshes: number; tris: number; shadow: number }> = {}
       get().scene.traverseVisible((o) => {
         const m = o as unknown as { isMesh?: boolean; isSkinnedMesh?: boolean; isInstancedMesh?: boolean; geometry?: { index: { count: number } | null; attributes: { position: { count: number } } }; castShadow: boolean; count?: number }
-        if (!m.isMesh || !m.geometry) return
+        if (!m.isMesh || !m.geometry?.attributes?.position) return
         const g = m.geometry
         const tris = ((g.index ? g.index.count : g.attributes.position.count) / 3) * (m.isInstancedMesh ? (m.count ?? 1) : 1)
         const kind = m.isSkinnedMesh ? 'character' : m.isInstancedMesh ? 'instanced' : tris > 20000 ? `big:${o.parent?.type ?? ''}` : 'mesh'

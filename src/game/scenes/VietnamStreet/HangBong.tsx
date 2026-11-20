@@ -8,7 +8,7 @@ import { ActionSpot, type SpotAction } from '../../components/ActionSpot'
 import { NPC } from '../../components/npc/NPC'
 import { BUILDING_GROUPS } from '../../systems/collisionGroups'
 import { PALETTE as P } from '../shared/palette'
-import { place, plantShapes } from '../shared/props'
+import { place, softPlantShapes } from '../shared/props'
 import { Shapes, type ShapeItem } from '../shared/Shapes'
 import { SignBoard } from '../shared/SignBoard'
 import type { SignOptions } from '../shared/textures'
@@ -63,8 +63,8 @@ function maiShapes(): ShapeItem[] {
   for (const sz of [-1, 1]) s.push({ box: [0.06, 1.6, 0.6], at: [f + 0.05, 7.9, cz + sz * 0.75], color: '#3f7d5c' })
   s.push({ box: [0.6, 0.1, d - 0.8], at: [f + 0.3, 7.05, cz], color: '#fff3d6' })
   for (let i = 0; i <= 8; i++) s.push({ box: [0.03, 0.75, 0.03], at: [f + 0.58, 7.45, M.z0 + 0.6 + i * ((d - 1.2) / 8)], color: '#2c5c43' })
-  s.push(place(plantShapes(P.leafDark, P.terracotta), [f + 0.3, 7.1, cz - 1.4], 0, 0.6))
-  s.push(place(plantShapes(P.blossom, P.terracotta), [f + 0.3, 7.1, cz + 1.4], 0, 0.6))
+  s.push(place(softPlantShapes(P.leafDark, P.terracotta), [f + 0.3, 7.1, cz - 1.4], 0, 0.6))
+  s.push(place(softPlantShapes(P.blossom, P.terracotta), [f + 0.3, 7.1, cz + 1.4], 0, 0.6))
   return s
 }
 

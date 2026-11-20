@@ -74,7 +74,7 @@ export function CareResults() {
 
   if (!session || !reward) return null
   return (
-    <div className="pointer-events-auto absolute inset-0 z-30 modal-scroll bg-ink/30 p-4 backdrop-blur-sm">
+    <div className="pointer-events-auto absolute inset-0 z-30 modal-scroll bg-ink/30 p-4">
       <div role="dialog" aria-modal="true" className="panel animate-pop relative w-full max-w-xs p-5 pt-7 text-ink">
         <h2 className="absolute -top-5 left-1/2 -translate-x-1/2 rounded-full ribbon px-6 py-1 text-2xl whitespace-nowrap">{t('results.feierabend')}</h2>
         <div className="mb-3 grid grid-cols-3 gap-2 text-center">

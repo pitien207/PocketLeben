@@ -1,6 +1,7 @@
 import { ExtrudeGeometry, Shape as Profile, Vector2, type BufferGeometry } from 'three'
 import type { Vec3 } from '../../../data/config'
 import { PALETTE as P } from './palette'
+import { modelShapes, pickBy } from './models'
 import type { ShapeGroup, ShapeItem } from './Shapes'
 
 /**
@@ -12,9 +13,73 @@ export function place(group: ShapeItem[], at: Vec3, rotY = 0, scale = 1): ShapeG
   return { group, at, rot: [0, rotY, 0], scale: [scale, scale, scale] }
 }
 
-export type TreeVariant = 'green' | 'blossom' | 'linden'
+export type TreeVariant = 'green' | 'blossom' | 'linden' | 'palm' | 'willow' | 'pine' | 'birch'
 
-export function treeShapes(variant: TreeVariant = 'green'): ShapeItem[] {
+const frac = (seed: number) => Math.abs(Math.sin(seed * 91.37 + 17.3) * 1000) % 1
+/** Leaf colours [lit, shade] of the street trees: sấu, xà cừ, bàng… in several greens. */
+const GREENS: [string, string][] = [
+  ['#7cc263', '#5aa354'],
+  ['#8fd06f', '#69b25d'],
+  ['#6db85c', '#4d9650'],
+  ['#9bd47a', '#76ba63'],
+  ['#86c25a', '#5f9c4a'],
+]
+/** Flowering trees of Hà Nội: phượng vĩ (red), bằng lăng (purple), hoa ban / đào (pink), muồng hoàng yến (yellow). */
+const BLOSSOMS: [string, string][] = [
+  ['#f2643a', '#d64b2d'],
+  ['#b88de2', '#9a70cc'],
+  ['#ff9fca', '#ef7fb1'],
+  ['#f7cf3e', '#e3ad2a'],
+]
+const TRUNK = '#7c5b45'
+const LEAF_GRAD: [number, number] = [0.72, 1.14]
+
+/**
+ * 1.33: trees from the Quaternius nature pack (CC0) instead of balls on a stick — several species, painted
+ * per variant and seed (the same seed always gives the same tree). Null while the pack is not loaded.
+ * `detail` 1 = the very simple far-away trees (backdrops). Heights are metres at scale 1 (old trees ≈ 3.5 m).
+ */
+export function libraryTree(variant: TreeVariant, seed = 0, detail: 1 | 2 = 2): ShapeItem[] | null {
+  const f = frac(seed)
+  const size = 0.9 + 0.22 * frac(seed + 7.7)
+  const leaves = (lit: string, shade: string) => ({ Green: lit, DarkGreen: shade, Leaves: lit, Wood: TRUNK, Tree: TRUNK })
+  const grad = { Green: LEAF_GRAD, DarkGreen: LEAF_GRAD, Leaves: LEAF_GRAD }
+  if (detail === 1) {
+    const [lit, shade] = variant === 'blossom' ? pickBy(BLOSSOMS, seed) : pickBy(GREENS, seed)
+    return modelShapes(pickBy(['simple1', 'simple2', 'simple3', 'simple4'], seed), { height: 4.6 * size, maxWidth: 3.4, paint: leaves(lit, shade), grad })
+  }
+  switch (variant) {
+    case 'palm':
+      return modelShapes(pickBy(['palm1', 'palm2', 'palm3', 'palm4'], seed), { height: 5.2 * size, maxWidth: 3.2, paint: { Wood: '#8a6a50', Green: '#7cc061', DarkGreen: '#5c9c4c', Coconuts: '#8a6a3a' }, grad })
+    case 'willow':
+      return modelShapes(pickBy(['willow1', 'willow2', 'willow3', 'willow4', 'willow5'], seed), { height: 4.8 * size, maxWidth: 3.4, paint: { Wood: '#7a6150', DarkGreen: pickBy(['#a6d66e', '#9ccc62', '#b2dc7a'], seed + 1) }, grad: { DarkGreen: [0.7, 1.12] } })
+    case 'pine':
+      return modelShapes(pickBy(['pine1', 'pine2', 'pine3'], seed), { height: 5.4 * size, maxWidth: 2.8, paint: { Wood: TRUNK, Green: '#4f9a5f' }, grad: { Green: LEAF_GRAD } })
+    case 'birch':
+      return modelShapes(pickBy(['birch1', 'birch2', 'birch3'], seed), { height: 5.6 * size, maxWidth: 3.0, paint: { White: '#ece6da', Black: '#3a3433', Green: '#8cc66a', DarkGreen: '#69a85a' }, grad })
+    default: {
+      const [lit, shade] = variant === 'blossom' ? pickBy(BLOSSOMS, seed) : variant === 'linden' ? (f < 0.5 ? ['#7cb87a', '#5fa06a'] : ['#86c07e', '#649f68']) : pickBy(GREENS, seed)
+      return modelShapes(pickBy(['common1', 'common2', 'common3', 'common4', 'common5'], seed + 3), { height: (variant === 'linden' ? 5.0 : 4.3) * size, maxWidth: 3.0, paint: leaves(lit, shade), grad })
+    }
+  }
+}
+
+/** Potted plants (1.33): the eight house plants of the Quaternius interior pack, the pot painted `pot`. */
+export function libraryPot(seed: number, pot: string, height = 0.95): ShapeItem[] | null {
+  const name = pickBy(['pot1', 'pot2', 'pot3', 'pot4', 'pot5', 'pot6', 'pot7', 'pot8'], seed)
+  return modelShapes(name, {
+    height: height * (name === 'pot8' ? 1.4 : name === 'pot2' || name === 'pot5' ? 0.7 : 1),
+    maxWidth: 0.62,
+    paint: { Black: pot, Grey: pot, Brown: '#5a4030', Plant_Green: '#6dbb5a', DarkGreen: '#4f9a4f', LightOrange: '#e9a35a', Wood: '#8a6a50' },
+    grad: { Plant_Green: LEAF_GRAD, DarkGreen: LEAF_GRAD },
+  })
+}
+const colorSeed = (a: string, b: string) => [...(a + b)].reduce((s, c) => s * 31 + c.charCodeAt(0), 7) % 997
+
+export function treeShapes(variant: TreeVariant = 'green', seed = 0): ShapeItem[] {
+  const lib = libraryTree(variant, seed)
+  if (lib) return lib
+
   const [main, light, dark] =
     variant === 'blossom'
       ? [P.blossom, P.blossomLight, P.leaf]
@@ -31,7 +96,52 @@ export function treeShapes(variant: TreeVariant = 'green'): ShapeItem[] {
   ]
 }
 
-export function plantShapes(leaf: string = P.leaf, pot: string = P.terracotta): ShapeItem[] {
+/**
+ * 1.32 soft tree (Việt Nam scenes): a cluster of smooth leaf balls, darker underneath and sunlit on top,
+ * on a tapered trunk with two branches. `detail` 1 for far backdrops (fewer triangles).
+ */
+export function fluffyTreeShapes(variant: TreeVariant = 'green', detail: 1 | 2 = 2, seed = 0): ShapeItem[] {
+  const lib = libraryTree(variant, seed, detail)
+  if (lib) return lib
+  const [main, light, dark] =
+    variant === 'blossom'
+      ? ['#ff8fc4', '#ffb8da', '#7cc27a']
+      : variant === 'linden'
+        ? ['#7cb87a', '#9ccf8a', '#5fa06a']
+        : ['#86cc78', '#a6de8e', '#68b46c']
+  const big = detail
+  const small: 1 | 2 = 1
+  const leaf = (r: number, at: Vec3, color: string, d: number): ShapeItem => ({ ico: [r, d], at, color, grad: [0.66, 1.12] })
+  return [
+    { cyl: [0.1, 0.19, 1.7, 8], at: [0, 0.85, 0], color: P.trunk, grad: [0.72, 1.0] },
+    { cyl: [0.04, 0.07, 0.75, 6], at: [0.24, 1.45, 0.02], rot: [0, 0, -0.75], color: P.trunk },
+    { cyl: [0.035, 0.06, 0.6, 6], at: [-0.2, 1.55, -0.05], rot: [0.15, 0, 0.7], color: P.trunk },
+    leaf(0.95, [0, 2.2, 0], main, big),
+    leaf(0.72, [0.66, 2.02, 0.18], main, big),
+    leaf(0.7, [-0.64, 2.08, -0.12], dark, big),
+    leaf(0.6, [0.12, 2.02, 0.68], light, small),
+    leaf(0.58, [-0.16, 2.06, -0.66], main, small),
+    leaf(0.6, [0.12, 2.9, 0.04], light, small),
+    leaf(0.42, [0.52, 2.62, -0.42], light, small),
+  ]
+}
+
+/** 1.32 soft potted plant (Việt Nam scenes): smooth leaf balls with a lit top. */
+export function softPlantShapes(leaf: string = P.leaf, pot: string = P.terracotta, seed = colorSeed(leaf, pot)): ShapeItem[] {
+  const lib = libraryPot(seed, pot)
+  if (lib) return lib
+  return [
+    { cyl: [0.22, 0.16, 0.36, 12], at: [0, 0.18, 0], color: pot, grad: [0.8, 1.05] },
+    { cyl: [0.24, 0.24, 0.06, 12], at: [0, 0.36, 0], color: pot },
+    { ico: [0.3, 1], at: [0, 0.62, 0], color: leaf, grad: [0.68, 1.1] },
+    { ico: [0.2, 1], at: [0.13, 0.82, 0.06], color: P.leafLight, grad: [0.75, 1.12] },
+    { ico: [0.17, 1], at: [-0.14, 0.78, -0.05], color: leaf, grad: [0.72, 1.1] },
+  ]
+}
+
+export function plantShapes(leaf: string = P.leaf, pot: string = P.terracotta, seed = colorSeed(leaf, pot)): ShapeItem[] {
+  const lib = libraryPot(seed, pot)
+  if (lib) return lib
   return [
     { cyl: [0.22, 0.16, 0.36, 10], at: [0, 0.18, 0], color: pot },
     { cyl: [0.24, 0.24, 0.06, 10], at: [0, 0.36, 0], color: pot },

@@ -79,7 +79,7 @@ function Clock() {
       onClick={() => openPanel({ type: 'clock' })}
       data-tour="clock"
       aria-label={`${formatClock(minutes)} — ${t('clock.title')}`}
-      className="pointer-events-auto flex h-7 shrink-0 items-center gap-1 rounded-full border border-white/25 bg-[#2f6b52]/90 pr-2.5 pl-1.5 text-left text-white shadow-[0_2px_6px_rgba(40,25,15,0.25)] backdrop-blur-sm transition active:scale-95"
+      className="pointer-events-auto flex h-7 shrink-0 items-center gap-1 rounded-full border border-white/25 bg-[#2f6b52]/90 pr-2.5 pl-1.5 text-left text-white shadow-[0_2px_6px_rgba(40,25,15,0.25)] transition active:scale-95"
     >
       <span className="text-[14px] text-gold-light">{raining ? <RainIcon /> : daytime ? <SunIcon /> : <MoonIcon />}</span>
       <span className="font-display text-[14px] leading-none font-extrabold tabular-nums">{formatClock(minutes)}</span>
@@ -160,7 +160,7 @@ function Wallet({ id, label, value, text, icon }: { id: string; label: string; v
       <span className={`relative z-10 -mr-3 h-7 w-7 shrink-0 drop-shadow-[0_1px_0_rgba(40,25,15,0.35)] ${gain ? 'animate-coin' : ''}`} key={`coin${gain?.key ?? 0}`}>
         {icon}
       </span>
-      <span className="flex h-[1.4rem] items-center rounded-full border border-white/25 bg-[#3a2a22]/80 pr-2 pl-4 font-display text-[13px] leading-none font-extrabold text-[#fff6dc] tabular-nums shadow-[0_2px_6px_rgba(40,25,15,0.25)] backdrop-blur-sm">
+      <span className="flex h-[1.4rem] items-center rounded-full border border-white/25 bg-[#3a2a22]/80 pr-2 pl-4 font-display text-[13px] leading-none font-extrabold text-[#fff6dc] tabular-nums shadow-[0_2px_6px_rgba(40,25,15,0.25)]">
         {text}
       </span>
       {gain && (

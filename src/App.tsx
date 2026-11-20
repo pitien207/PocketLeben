@@ -12,13 +12,16 @@ import { QuestLog } from './ui/QuestLog'
 import { EndingPanel } from './ui/EndingPanel'
 import { MapPanel } from './ui/MapView'
 import { PhonePanel } from './ui/PhonePanel'
+import { RideButton, VehicleShop } from './ui/VehicleShop'
 import { CharacterCreate } from './ui/CharacterCreate'
 import { SecretCard } from './ui/SecretCard'
 import { ChapterCard } from './ui/ChapterCard'
 import { TransitionOverlay } from './ui/TransitionOverlay'
 import { VisaPanel } from './ui/VisaPanel'
 import { ClockPanel } from './ui/ClockPanel'
-import { GuideCard, GuideEdgeArrow, GuideUiPulse, Onboarding } from './ui/Guide'
+import { GuideCard, GuideUiPulse, Onboarding } from './ui/Guide'
+import { CompassBar } from './ui/CompassBar'
+import { QuestCelebration } from './ui/QuestCelebration'
 import { FastForwardOverlay, LocationCard, NewDayCard } from './ui/TimeOverlays'
 import { DialogueBox } from './ui/DialogueBox'
 import { HUD } from './ui/HUD'
@@ -26,6 +29,7 @@ import { Joystick } from './ui/Joystick'
 import { LoadingScreen } from './ui/LoadingScreen'
 import { SettingsPanel } from './ui/SettingsPanel'
 import { ShopPanel } from './ui/ShopPanel'
+import { GoldPanel } from './ui/GoldPanel'
 import { SleepOverlay } from './ui/SleepOverlay'
 import { Toasts } from './ui/Toasts'
 import { RotateHint } from './ui/RotateHint'
@@ -47,18 +51,21 @@ export default function App() {
       <Game />
       {/* DOM overlay. Containers ignore pointers so drags fall through to the 3D view. */}
       <div className="pointer-events-none absolute inset-0">
-        <GuideEdgeArrow />
+        <CompassBar />
+        <QuestCelebration />
         <HUD />
         <LocationCard />
         <WorkPanel />
         <CarePanel />
         <Joystick />
+        <RideButton />
         <ActionButtons />
         <DialogueBox />
         <Toasts />
         <WorkResults />
         <CareResults />
         <ShopPanel />
+        <GoldPanel />
         <ClothesPanel />
         <BagPanel />
         <QuestLog />
@@ -68,6 +75,7 @@ export default function App() {
         <EndingPanel />
         <MapPanel />
         <PhonePanel />
+        <VehicleShop />
         <CharacterCreate />
         <SecretCard />
         <ChapterCard />

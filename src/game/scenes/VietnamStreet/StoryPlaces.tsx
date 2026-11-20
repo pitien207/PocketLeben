@@ -3,7 +3,7 @@ import { CuboidCollider, CylinderCollider, RigidBody } from '@react-three/rapier
 import { NPCS } from '../../../data/npcs'
 import { NPC } from '../../components/npc/NPC'
 import { PALETTE as P } from '../shared/palette'
-import { bicycleShapes, cycloShapes, flowerBikeShapes, motorbikeShapes, place, plantShapes, RIDES, stoolShapes } from '../shared/props'
+import { bicycleShapes, cycloShapes, flowerBikeShapes, motorbikeShapes, place, RIDES, softPlantShapes, stoolShapes } from '../shared/props'
 import { ActionSpot, type SpotAction } from '../../components/ActionSpot'
 import { PROP_GROUPS } from '../../systems/collisionGroups'
 import { BUILDING_BACK_Z, HOME, SOUTH } from './layout'
@@ -89,8 +89,8 @@ function centerShapes(): ShapeItem[] {
     s.push({ box: [0.5, 1.9, 0.06], at: [x + sx * 0.78, 4.3, f + 0.04], color: '#3f7d5c' })
     for (let l = 0; l < 7; l++) s.push({ box: [0.42, 0.025, 0.02], at: [x + sx * 0.78, 3.5 + l * 0.25, f + 0.08], color: '#2c5c43' })
   }
-  s.push(place(plantShapes(P.leafDark, P.terracotta), [x - 1.0, 3.36, f + 0.35], 0, 0.7))
-  s.push(place(plantShapes(P.blossom, P.terracotta), [x + 1.0, 3.36, f + 0.35], 0.5, 0.7))
+  s.push(place(softPlantShapes(P.leafDark, P.terracotta), [x - 1.0, 3.36, f + 0.35], 0, 0.7))
+  s.push(place(softPlantShapes(P.blossom, P.terracotta), [x + 1.0, 3.36, f + 0.35], 0.5, 0.7))
   // Students' bicycles parked by the door
   s.push(place(bicycleShapes('#4f86d9'), [x - 1.65, 0, f + 0.6], Math.PI / 2 - 0.15))
   s.push(place(bicycleShapes('#ff9fb2'), [x + 1.7, 0, f + 0.6], Math.PI / 2 + 0.1))

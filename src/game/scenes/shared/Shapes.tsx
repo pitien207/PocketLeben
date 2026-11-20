@@ -30,7 +30,11 @@ interface Transform {
   scale?: Vec3
 }
 
-export type Shape = Transform & { color: string } & (
+export type Shape = Transform & {
+  color: string
+  /** 1.32: brightness from the bottom to the top of the shape (local Y), e.g. [0.7, 1.15] for a canopy lit from above. */
+  grad?: [number, number]
+} & (
     | { box: Vec3 }
     /** [radiusTop, radiusBottom, height, radialSegments?] */
     | { cyl: [number, number, number, number?] }
@@ -100,15 +104,24 @@ function collect(items: ShapeItem[], parent: Matrix4, out: BufferGeometry[]) {
       g.dispose()
       g = flat
     }
-    g.applyMatrix4(matrix)
     _color.set(item.color) // sRGB hex → linear, matching material colors
     const count = g.attributes.position.count
     const colors = new Float32Array(count * 3)
-    for (let i = 0; i < count; i++) {
-      colors[i * 3] = _color.r
-      colors[i * 3 + 1] = _color.g
-      colors[i * 3 + 2] = _color.b
+    let y0 = 0
+    let span = 0
+    if (item.grad) {
+      g.computeBoundingBox()
+      y0 = g.boundingBox!.min.y
+      span = Math.max(1e-6, g.boundingBox!.max.y - y0)
     }
+    const pos = g.attributes.position
+    for (let i = 0; i < count; i++) {
+      const k = item.grad ? item.grad[0] + (item.grad[1] - item.grad[0]) * ((pos.getY(i) - y0) / span) : 1
+      colors[i * 3] = _color.r * k
+      colors[i * 3 + 1] = _color.g * k
+      colors[i * 3 + 2] = _color.b * k
+    }
+    g.applyMatrix4(matrix)
     g.setAttribute('color', new Float32BufferAttribute(colors, 3))
     for (const name of Object.keys(g.attributes)) {
       if (name !== 'position' && name !== 'normal' && name !== 'color') g.deleteAttribute(name)

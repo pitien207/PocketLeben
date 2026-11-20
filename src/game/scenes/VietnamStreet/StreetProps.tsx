@@ -1,13 +1,6 @@
 import { useMemo } from 'react'
 import { CuboidCollider, CylinderCollider, RigidBody } from '@react-three/rapier'
-import {
-  benchShapes,
-  cafeTableSetShapes,
-  motorbikeShapes,
-  place,
-  plantShapes,
-  treeShapes,
-} from '../shared/props'
+import { benchShapes, cafeTableSetShapes, fluffyTreeShapes, motorbikeShapes, place, softPlantShapes } from '../shared/props'
 import { Shapes, type ShapeItem } from '../shared/Shapes'
 import { BENCHES, CAFE_TABLES, MOTORBIKES, PLANTS, TREES } from './layout'
 
@@ -15,8 +8,8 @@ import { BENCHES, CAFE_TABLES, MOTORBIKES, PLANTS, TREES } from './layout'
 export function StreetProps() {
   const shapes = useMemo<ShapeItem[]>(
     () => [
-      ...TREES.map((t, i) => place(treeShapes(t.variant), t.at, i * 1.3, t.scale ?? 1)),
-      ...PLANTS.map((at, i) => place(plantShapes(), at, i * 0.9)),
+      ...TREES.map((t, i) => place(fluffyTreeShapes(t.variant, 2, i), t.at, i * 1.3, t.scale ?? 1)),
+      ...PLANTS.map((at, i) => place(softPlantShapes(), at, i * 0.9)),
       ...MOTORBIKES.map((m) => place(motorbikeShapes(m.color), m.at, m.rotY)),
       ...CAFE_TABLES.map((t) => place(cafeTableSetShapes(t.stools), t.at, 0.3)),
       ...BENCHES.map((b) => place(benchShapes(), b.at, b.rotY)),

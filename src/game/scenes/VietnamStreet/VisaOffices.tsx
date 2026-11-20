@@ -3,7 +3,7 @@ import { CuboidCollider, RigidBody } from '@react-three/rapier'
 import { NPCS } from '../../../data/npcs'
 import { NPC } from '../../components/npc/NPC'
 import { PROP_GROUPS } from '../../systems/collisionGroups'
-import { place, plantShapes } from '../shared/props'
+import { place, softPlantShapes } from '../shared/props'
 import { PALETTE as P } from '../shared/palette'
 import { Shapes, type ShapeItem } from '../shared/Shapes'
 import type { SignOptions } from '../shared/textures'
@@ -61,7 +61,7 @@ function propShapes(): ShapeItem[] {
   s.push({ box: [0.6, 1.6, 0.45], at: [bank.x - 1.7, 0.8, f + 0.3], color: '#2f8c7f' })
   s.push({ box: [0.4, 0.3, 0.02], at: [bank.x - 1.7, 1.25, f + 0.53], color: '#bfe6ff' })
   s.push({ box: [0.3, 0.08, 0.04], at: [bank.x - 1.7, 0.95, f + 0.54], color: '#2a2a30' })
-  s.push(place(plantShapes(P.leafDark, '#c49a6c'), [bank.x + 1.8, 0, f + 0.6], 0, 0.9))
+  s.push(place(softPlantShapes(P.leafDark, '#c49a6c'), [bank.x + 1.8, 0, f + 0.6], 0, 0.9))
   // APS: a desk with two chairs, black-red-gold stripe over the door, a plaque
   s.push({ box: [1.4, 0.06, 0.6], at: [aps.x - 0.6, 0.75, fa + 0.5], color: '#c9b79c' })
   for (const dx of [-1.25, 0.05]) s.push({ box: [0.05, 0.72, 0.5], at: [aps.x + dx, 0.36, fa + 0.5], color: '#8a7a64' })

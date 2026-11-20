@@ -484,7 +484,7 @@ export function PhonePanel() {
 
   return (
     <div
-      className="pointer-events-auto absolute inset-0 z-30 flex items-end justify-center bg-ink/30 p-3 backdrop-blur-[2px] sm:items-center"
+      className="pointer-events-auto absolute inset-0 z-30 flex items-end justify-center bg-ink/30 p-3 sm:items-center"
       style={{ paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom))' }}
       onPointerDown={(e) => {
         if (e.target === e.currentTarget) closePanel()

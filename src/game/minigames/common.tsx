@@ -63,7 +63,7 @@ export type MinigameTheme = 'paper' | 'chalk' | 'exam' | 'notebook'
 export const MinigameThemeContext = createContext<MinigameTheme>('paper')
 
 const FRAME: Record<MinigameTheme, { backdrop: string; section: string }> = {
-  paper: { backdrop: 'bg-ink/40 backdrop-blur-sm', section: 'panel text-ink' },
+  paper: { backdrop: 'bg-ink/40', section: 'panel text-ink' },
   chalk: { backdrop: 'bg-ink/25', section: 'chalkboard mg-chalk rounded-3xl text-[#f4f1e6]' },
   exam: { backdrop: 'bg-ink/30', section: 'exam-paper rounded-2xl text-ink' },
   notebook: { backdrop: 'bg-ink/30', section: 'notebook-paper rounded-2xl text-ink' },

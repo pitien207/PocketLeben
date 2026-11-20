@@ -7,7 +7,7 @@ import { BUILDING_GROUPS } from '../../systems/collisionGroups'
 import { playerState } from '../../systems/playerState'
 import { glowMaterial, shadowOnlyMaterial, withOcclusionFade } from '../shared/materials'
 import { PALETTE as P } from '../shared/palette'
-import { cafeTableSetShapes, place, plantShapes } from '../shared/props'
+import { cafeTableSetShapes, place, softPlantShapes } from '../shared/props'
 import { Shapes, type ShapeItem } from '../shared/Shapes'
 import { makeSignTexture, makeStripeTexture, SIGN_FONT_FAMILY } from '../shared/textures'
 import { CAFE_INTERIOR } from './layout'
@@ -109,8 +109,8 @@ function cafeShapes(): ShapeItem[] {
   }
 
   s.push(place(cafeTableSetShapes([P.butter, P.mint]), [TABLE.x, 0, TABLE.z]))
-  s.push(place(plantShapes(P.leaf, P.mint), [-W / 2 + 0.55, 0, F - 0.6], 0, 1.15))
-  s.push(place(plantShapes(P.leafDark, P.peach), [W / 2 - 0.55, 0, F - 0.6], 0.8, 1.15))
+  s.push(place(softPlantShapes(P.leaf, P.mint), [-W / 2 + 0.55, 0, F - 0.6], 0, 1.15))
+  s.push(place(softPlantShapes(P.leafDark, P.peach), [W / 2 - 0.55, 0, F - 0.6], 0.8, 1.15))
 
   // Chalkboard A-frame stand out front
   s.push({ box: [0.6, 0.85, 0.04], at: [W / 2 - 0.9, 0.42, F + 0.75], rot: [-0.2, 0, 0], color: '#4f6360' })

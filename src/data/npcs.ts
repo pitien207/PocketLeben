@@ -275,6 +275,14 @@ export const NPCS = {
     outfit: { skin: '#f5cfb0', hair: '#2b2222', hairStyle: 'ponytail', shirt: '#d4202a', shorts: '#2f3a4d', shoe: '#ffffff', bag: null, accessory: 'cap', accent: '#d4202a', bottom: 'pants' },
     dialogueId: 'circleK',
   },
+  // 1.35 Showroom Xe Phố Cổ, next to the petrol station
+  chiThuyXe: {
+    id: 'chiThuyXe',
+    name: { vi: 'Chị Thủy', en: 'Thủy' },
+    title: { vi: 'Bán xe', en: 'Car & bike dealer' },
+    outfit: { skin: '#f3c9a8', hair: '#2a1f1f', hairStyle: 'ponytail', shirt: '#ffffff', shorts: '#2c3a5a', shoe: '#2a2a30', bag: null, accessory: null, accent: '#c8322b', bottom: 'skirt', top: 'jacket', neck: 'scarf', neckColor: '#c8322b', lashes: true, expression: 'happy' },
+    dialogueId: 'chiThuyXe',
+  },
   anhXang: {
     id: 'anhXang',
     name: { vi: 'Anh bơm xăng', en: 'Pump attendant', de: 'Tankwart' },
@@ -617,6 +625,38 @@ export const NPCS = {
     name: { vi: 'Cô sinh viên', en: 'Student', de: 'Studentin' },
     outfit: { skin: '#f9d4b8', hair: '#2b2222', hairStyle: 'long', shirt: '#fbfaf5', shorts: '#f6f1e7', shoe: '#d9b38c', bag: null, accessory: 'nonLa', top: 'aoDai', shoeType: 'loafer', lashes: true, expression: 'happy' },
   },
+  // --- Phố Hàng Khay, south of the lake (1.33) ---
+  bacTapDuong: {
+    id: 'bacTapDuong',
+    name: { vi: 'Bác Hưng', en: 'Uncle Hưng' },
+    outfit: { skin: '#e8b994', hair: '#d9d6dc', hairStyle: 'short', shirt: '#ffffff', shorts: '#2f3a4d', shoe: '#ffffff', bag: null, accessory: null, top: 'tee', bottom: 'pants', shoeType: 'sneaker' },
+  },
+  coBanHoa: {
+    id: 'coBanHoa',
+    name: { vi: 'Cô Mận', en: 'Auntie Mận' },
+    title: { vi: 'Bán hoa', en: 'Flower seller' },
+    outfit: { skin: '#f0c8a8', hair: '#2b2222', hairStyle: 'bun', shirt: '#7fb8a8', shorts: '#2a2628', shoe: '#c97b63', bag: null, accessory: 'nonLa', top: 'baba', bottom: 'pants', shoeType: 'sandal', lashes: true },
+  },
+  anhChayBo: {
+    id: 'anhChayBo',
+    name: { vi: 'Anh Quân', en: 'Quân' },
+    outfit: { skin: '#f0c8a8', hair: '#1c1818', hairStyle: 'spiky', shirt: '#ff8a5c', shorts: '#2f3a4d', shoe: '#7fd0ff', bag: null, accessory: 'headphones', top: 'sleeveless', bottom: 'shorts', shoeType: 'sneaker' },
+  },
+  chiDiDao: {
+    id: 'chiDiDao',
+    name: { vi: 'Chị Hà', en: 'Hà' },
+    outfit: { skin: '#f9d4b8', hair: '#3d2c2c', hairStyle: 'ponytail', shirt: '#ffd1dc', shorts: '#6b7cb8', shoe: '#ffffff', bag: '#d98ba0', accessory: 'sunglasses', top: 'tee', bottom: 'pants', shoeType: 'sneaker', lashes: true },
+  },
+  baoVeTruong: {
+    id: 'baoVeTruong',
+    name: { vi: 'Bác bảo vệ', en: 'The caretaker' },
+    outfit: { skin: '#e8b994', hair: '#4a4448', hairStyle: 'short', shirt: '#6f8a5a', shorts: '#4f5a3f', shoe: '#2a2a2a', bag: null, accessory: 'cap', accent: '#4f5a3f', top: 'long', bottom: 'pants', shoeType: 'boot' },
+  },
+  coDoanhNhan: {
+    id: 'coDoanhNhan',
+    name: { vi: 'Chị Ngọc', en: 'Ngọc' },
+    outfit: { skin: '#f6d6bc', hair: '#2a2020', hairStyle: 'bob', shirt: '#2f3a4d', shorts: '#2f3a4d', shoe: '#2a2a2a', bag: null, accessory: null, top: 'jacket', bottom: 'skirt', shoeType: 'loafer', lashes: true },
+  },
   // --- Stadtpark (1.7) ---
   omaGerda: {
     id: 'omaGerda',
@@ -641,6 +681,14 @@ export const NPCS = {
     id: 'parkKid',
     name: { vi: 'Emma', en: 'Emma', de: 'Emma' },
     outfit: { skin: '#fbe2d0', hair: '#e0b45e',   shoe: '#ffffff', bag: null, accessory: null, accent: '#ffe08a',  eye: '#4f86d9', top: 'dirndl', shirt: '#2f6b4f', shorts: '#c9465a', apron: '#f4c6cf', hairStyle: 'braid', hairTie: '#c9465a', lashes: true, expression: 'happy' },
+  },
+  // --- 1.34 Tiệm Vàng Kim Thành, Hàng Khay (systems/gold.ts) ---
+  chuNang: {
+    id: 'chuNang',
+    name: { vi: 'Chú Năng', en: 'Uncle Năng' },
+    title: { vi: 'Tiệm vàng Kim Thành', en: 'Kim Thành gold shop' },
+    outfit: { skin: '#eec39f', hair: '#3a3436', hairStyle: 'short', shirt: '#fff6e3', shorts: '#3a3f4e', shoe: '#2a2626', bag: null, accessory: 'glasses', top: 'long', bottom: 'pants', shoeType: 'loafer', neck: 'tie', neckColor: '#c8322b', expression: 'happy' },
+    dialogueId: 'chuNang',
   },
 } satisfies Record<string, NpcDef>
 

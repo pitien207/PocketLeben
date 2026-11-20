@@ -325,7 +325,7 @@ export function SettingsPanel() {
   const t = useT()
   const open = useUI((s) => s.settingsOpen)
   const setOpen = useUI((s) => s.setSettingsOpen)
-  const { musicOn, toggleMusic, sfxOn, toggleSfx, quality, setQuality,  timeSpeed, setTimeSpeed, guideArrows, setGuideArrows, guideHints, setGuideHints } = useSettings()
+  const { musicOn, toggleMusic, sfxOn, toggleSfx, quality, setQuality,  timeSpeed, setTimeSpeed, guideArrows, setGuideArrows, guideHints, setGuideHints, fancy, setFancy } = useSettings()
   const fullscreen = useFullscreen()
   const taps = useRef({ n: 0, at: 0 })
 
@@ -350,7 +350,7 @@ export function SettingsPanel() {
 
   return (
     <div
-      className="pointer-events-auto absolute inset-0 z-30 modal-scroll bg-ink/30 p-4 backdrop-blur-sm"
+      className="pointer-events-auto absolute inset-0 z-30 modal-scroll bg-ink/30 p-4"
       onPointerDown={(e) => {
         if (e.target === e.currentTarget) setOpen(false)
       }}
@@ -416,6 +416,9 @@ export function SettingsPanel() {
               ]}
               onChange={setQuality}
             />
+          </Row>
+          <Row label={t('settings.fancy')}>
+            <Segmented value={fancy ? 'on' : 'off'} options={[...onOff]} onChange={(v) => setFancy(v === 'on')} />
           </Row>
           {fullscreen.supported && (
             <Row label={t('settings.fullscreen')}>

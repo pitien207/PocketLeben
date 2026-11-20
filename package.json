@@ -1,7 +1,7 @@
 {
   "name": "pocket-leben",
   "private": true,
-  "version": "1.31.0",
+  "version": "1.38.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -14,9 +14,11 @@
   "dependencies": {
     "@react-three/drei": "^10.7.9",
     "@react-three/fiber": "^9.8.2",
+    "@react-three/postprocessing": "^3.2.2",
     "@react-three/rapier": "^2.2.0",
     "canvas-confetti": "^1.9.4",
     "motion": "^14.14.0",
+    "postprocessing": "^6.39.6",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
     "sonner": "^2.0.8",

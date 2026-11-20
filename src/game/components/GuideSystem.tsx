@@ -6,17 +6,18 @@ import { useInteraction } from '../../store/interactionStore'
 import { useSettings } from '../../store/settingsStore'
 import { useUI } from '../../store/uiStore'
 import { playerState } from '../systems/playerState'
+import { cameraState } from '../systems/cameraState'
+import { COMPASS_PX } from '../../ui/CompassBar'
 import { npcPositions } from '../systems/registry'
 
 /**
  * The guide's pointer in the world (plan: step-by-step guide): a bobbing gold arrow and a
  * pulsing ring at the current target, drawn through walls (2 draw calls). The same frame
- * loop places the on-screen edge arrow (ui/GuideEdgeArrow) when the target is off-screen.
+ * loop moves the compass strip and its objective pin (ui/CompassBar, 1.36).
  */
 
 const GOLD = '#ffc531'
 const _target = new Vector3()
-const _ndc = new Vector3()
 
 /** Where the guide points right now, in world space (null = nothing in this scene). */
 function resolve(point: GuidePointRef | null, out: Vector3): { height: number } | null {
@@ -37,9 +38,6 @@ function resolve(point: GuidePointRef | null, out: Vector3): { height: number } 
   return { height: 2.1 }
 }
 
-/** Screen-space margins the edge arrow stays inside (HUD on top, joystick/buttons below). */
-const EDGE = { side: 34, top: 172, bottom: 196 }
-
 export function GuideSystem() {
   const group = useRef<Group>(null)
   const arrow = useRef<Mesh>(null)
@@ -54,11 +52,24 @@ export function GuideSystem() {
     return { cone, disc, material }
   }, [])
 
-  // The edge arrow element, looked up once (not every frame) and again only if it was replaced.
-  const edgeRef = useRef<HTMLElement | null>(null)
-  useFrame(({ camera, clock, size }) => {
-    if (!edgeRef.current?.isConnected) edgeRef.current = document.getElementById('guide-edge')
-    const edge = edgeRef.current
+  // 1.36: the compass strip (ui/CompassBar) — elements looked up once, its width cached per screen size.
+  const compass = useRef<{ bar: HTMLElement; strip: HTMLElement; mark: HTMLElement; label: HTMLElement; w: number; sw: number } | null>(null)
+  useFrame(({ clock, size }) => {
+    if (!compass.current?.bar.isConnected) {
+      const bar = document.getElementById('compass-bar')
+      const strip = document.getElementById('compass-strip')
+      const mark = document.getElementById('compass-mark')
+      compass.current = bar && strip && mark ? { bar, strip, mark, label: mark.lastElementChild as HTMLElement, w: bar.clientWidth, sw: -1 } : null
+    }
+    const cp = compass.current
+    if (cp && cp.sw !== size.width) {
+      cp.w = cp.bar.clientWidth
+      cp.sw = size.width
+    }
+    // Where the camera looks, in degrees clockwise from north (−z): the strip slides under the centre notch.
+    const heading = ((((-cameraState.yaw * 180) / Math.PI) % 360) + 360) % 360
+    if (cp) cp.strip.style.transform = `translateX(${(cp.w / 2 - (heading + 360) * COMPASS_PX).toFixed(1)}px)`
+    const edge = cp
     const { guide, tour } = useGuide.getState()
     const ui = useUI.getState()
     const enabled = useSettings.getState().guideArrows && !ui.transition && !ui.sleeping
@@ -67,7 +78,7 @@ export function GuideSystem() {
     if (!g) return
     if (!found || tour === 'move' || tour === 'camera') {
       g.visible = false
-      if (edge) edge.style.opacity = '0'
+      if (edge) edge.mark.style.opacity = '0'
       return
     }
 
@@ -89,32 +100,18 @@ export function GuideSystem() {
     }
     material.opacity = 0.75 + Math.sin(t * 3.2) * 0.2
 
-    // Edge arrow when the target is off-screen
+    // The objective on the compass: its bearing relative to the view, held at the strip's ends when beside / behind.
     if (!edge) return
-    _ndc.copy(_target).setY(1.2).project(camera)
-    const behind = _ndc.z > 1
-    let x = behind ? -_ndc.x : _ndc.x
-    let y = behind ? -_ndc.y : _ndc.y
-    const onScreen = !behind && Math.abs(x) < 0.92 && y > -0.62 && y < 0.6
-    if (onScreen || near || ui.panel || useGuide.getState().tour === 'done') {
-      edge.style.opacity = '0'
-      return
-    }
-    if (behind && Math.abs(x) < 0.05 && Math.abs(y) < 0.05) y = -1 // straight behind: point down
-    const px = (x * size.width) / 2
-    const py = (-y * size.height) / 2
-    const halfW = size.width / 2 - EDGE.side
-    const limitY = py < 0 ? size.height / 2 - EDGE.top : size.height / 2 - EDGE.bottom
-    const k = Math.min(halfW / Math.max(1e-3, Math.abs(px)), Math.max(10, limitY) / Math.max(1e-3, Math.abs(py)))
-    x = size.width / 2 + px * k
-    y = size.height / 2 + py * k
-    edge.style.opacity = '1'
-    edge.style.transform = `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px)`
-    const pointer = edge.firstElementChild as HTMLElement | null
-    if (pointer) pointer.style.transform = `rotate(${Math.atan2(py, px)}rad)`
-    const label = edge.lastElementChild as HTMLElement | null
-    const text = `${Math.round(dist)} m`
-    if (label && label.textContent !== text) label.textContent = text
+    const dx = _target.x - playerState.position.x
+    const dz = _target.z - playerState.position.z
+    const bearing = (Math.atan2(dx, -dz) * 180) / Math.PI
+    const rel = ((((bearing - heading) % 360) + 540) % 360) - 180
+    const half = edge.w / 2 - 14
+    const px = Math.max(-half, Math.min(half, rel * COMPASS_PX))
+    edge.mark.style.opacity = near ? '0' : '1'
+    edge.mark.style.transform = `translateX(${(edge.w / 2 + px - 14).toFixed(1)}px)`
+    const text = Math.abs(rel * COMPASS_PX) > half ? `${rel < 0 ? '◀ ' : ''}${Math.round(dist)} m${rel > 0 ? ' ▶' : ''}` : `${Math.round(dist)} m`
+    if (edge.label.textContent !== text) edge.label.textContent = text
   })
 
   return (

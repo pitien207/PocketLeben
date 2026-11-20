@@ -56,7 +56,8 @@ export interface MotionState {
  * everyone else, and coarser still for the outline (only its silhouette matters).
  */
 export type ChibiDetail = 'high' | 'low'
-const DETAIL: Record<ChibiDetail, number> = { high: 0.8, low: 0.45 }
+// 1.34: a little finer (the user wants more detailed characters after trying the library people in 1.33).
+const DETAIL: Record<ChibiDetail, number> = { high: 1.0, low: 0.5 }
 const OUTLINE_DETAIL = 0.32
 const OUTLINE_RANGE_SQ = 26 * 26
 /** Beyond this the pose is a few pixels tall: animate on every 3rd frame only (1.21). */

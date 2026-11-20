@@ -39,7 +39,7 @@ export function WorkResults() {
   const skillName = t(SKILLS[task.skill].nameKey)
 
   return (
-    <div className="pointer-events-auto absolute inset-0 z-30 modal-scroll bg-ink/30 p-4 backdrop-blur-sm">
+    <div className="pointer-events-auto absolute inset-0 z-30 modal-scroll bg-ink/30 p-4">
       <div
         role="dialog"
         aria-modal="true"

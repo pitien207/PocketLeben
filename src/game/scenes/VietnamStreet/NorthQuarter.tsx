@@ -5,13 +5,18 @@ import { NPC } from '../../components/npc/NPC'
 import { BUILDING_GROUPS, PROP_GROUPS } from '../../systems/collisionGroups'
 import { glowMaterial } from '../shared/materials'
 import { PALETTE as P } from '../shared/palette'
-import { benchShapes, bicycleShapes, cycloShapes, motorbikeShapes, place, plantShapes, treeShapes } from '../shared/props'
+import { benchShapes, bicycleShapes, cycloShapes, fluffyTreeShapes, motorbikeShapes, place, softPlantShapes } from '../shared/props'
 import { Shapes, type ShapeItem } from '../shared/Shapes'
 import { SignBoard } from '../shared/SignBoard'
 import type { SignOptions } from '../shared/textures'
 import { decorHouse, planRow, seeded, type DecorLot } from './decorHouses'
 import { ActionSpot, type SpotAction } from '../../components/ActionSpot'
 import { Traffic } from '../../components/npc/Traffic'
+import { ActiveArea } from '../../components/ActiveArea'
+
+/** 1.34: the avenue's cars run only while you are in the north half of the map. */
+const nearAvenue = (_x: number, z: number) => z < 15
+import { Showroom, SHOWROOM } from './Showroom'
 import { AVENUE_LANES, BUILDING_CENTER_Z, BUILDING_DEPTH, NORTH, OFFICES, PLAY, VACATED, WEST, type Lot } from './layout'
 
 /**
@@ -61,10 +66,10 @@ const ROWS_C2: Row[] = [
   { x0: cross[0].x1, x1: plaza.x0, seed: 73 },
   { x0: plaza.x1, x1: cross[1].x0, seed: 79 },
 ]
-/** Row D, north of the avenue; fronts face south. Gaps: the petrol station, the APS office, the post office. */
+/** Row D, north of the avenue; fronts face south. Gaps: the petrol station, the vehicle showroom (1.35), the APS office, the post office. */
 const ROWS_D: Row[] = [
   { x0: PLAY.minX, x1: gas.x0, seed: 83 },
-  { x0: gas.x1, x1: APS0, seed: 89 },
+  { x0: SHOWROOM.x1, x1: APS0, seed: 89 },
   { x0: APS1, x1: clock.x0, seed: 97 },
   { x0: clock.x1, x1: PLAY.maxX, seed: 101 },
 ]
@@ -221,7 +226,7 @@ const TREE_XS = (() => {
   return xs
 })()
 const MID_Z = (walk.z0 + walk.z1) / 2
-const LAMP_XS = [-38, -26, -14, -2, 22, 31]
+export const LAMP_XS = [-38, -26, -14, -2, 22, 31]
 const BIKES: [number, number, number, string, boolean][] = [
   [-36.5, rowC.front + 1.0, 0.2, P.rose, true],
   [-24.2, rowC.front + 1.0, -0.15, P.mint, true],
@@ -257,7 +262,7 @@ function propShapes(): { solid: ShapeItem[]; glow: ShapeItem[] } {
   TREE_XS.forEach((x, i) => {
     s.push({ cyl: [0.75, 0.82, 0.42, 14], at: [x, 0.21, MID_Z], color: '#cfc8bb' })
     s.push({ cyl: [0.66, 0.66, 0.05, 14], at: [x, 0.43, MID_Z], color: P.soil })
-    s.push(place(treeShapes(i % 3 === 1 ? 'blossom' : 'green'), [x, 0.3, MID_Z], i * 1.7, 1.25))
+    s.push(place(fluffyTreeShapes(i % 3 === 1 ? 'blossom' : 'green', 2, i + 100), [x, 0.3, MID_Z], i * 1.7, 1.25))
   })
   for (const [x, z, rot] of BENCHES) s.push(place(benchShapes(), [x, 0, z], rot))
   // Street lamps on both pavements
@@ -293,7 +298,7 @@ function propShapes(): { solid: ShapeItem[]; glow: ShapeItem[] } {
     if (x > hangBong.x0 - 1 && x < hangBong.x1 + 1) continue
     const north = i % 2 === 0
     if (north && x > plaza.x0 - 1 && x < plaza.x1 + 1) continue
-    s.push(place(plantShapes(i % 3 ? P.leaf : P.leafDark, ['#c97b63', '#d9b878', '#ffffff', '#7fb8e8'][i % 4]), [x, 0, north ? rowC.front + 0.5 : rowB.front - 0.5], r() * 3, 0.8 + r() * 0.4))
+    s.push(place(softPlantShapes(i % 3 ? P.leaf : P.leafDark, ['#c97b63', '#d9b878', '#ffffff', '#7fb8e8'][i % 4]), [x, 0, north ? rowC.front + 0.5 : rowB.front - 0.5], r() * 3, 0.8 + r() * 0.4))
   }
   s.push(place(cycloShapes(), [hangBong.x1 + 1.6, 0, walk.z0 - 1.4], -Math.PI / 2 - 0.2))
 
@@ -312,7 +317,7 @@ function propShapes(): { solid: ShapeItem[]; glow: ShapeItem[] } {
   }
   for (const [x, z] of PLAZA_TREES) {
     s.push({ box: [1.6, 0.3, 1.6], at: [x, 0.15, z], color: '#cfc8bb' })
-    s.push(place(treeShapes('blossom'), [x, 0.2, z], x, 1.2))
+    s.push(place(fluffyTreeShapes('blossom', 2, Math.round(x * 3 + z)), [x, 0.2, z], x, 1.2))
     for (let i = 0; i < 6; i++) s.push({ ico: [0.2, 0], at: [x + Math.sin(i) * 0.55, 0.38, z + Math.cos(i * 1.7) * 0.55], color: i % 2 ? '#ffd166' : '#ff9fb2' })
   }
   // The balloon seller's bunch
@@ -328,7 +333,7 @@ function propShapes(): { solid: ShapeItem[]; glow: ShapeItem[] } {
   s.push({ box: [1.3, 1.5, 1.3], at: [walk.x0 + 2.4, 0.75, MID_Z], color: '#c9c3b8' })
   s.push({ cyl: [0.26, 0.34, 1.5, 10], at: [walk.x0 + 2.4, 2.25, MID_Z], color: '#eeeae2' })
   s.push({ sphere: [0.24, 10, 8], at: [walk.x0 + 2.4, 3.2, MID_Z], color: '#eeeae2' })
-  for (const z of [walk.z0 - 2.2, walk.z1 + 2.2]) s.push(place(treeShapes('green'), [walk.x0 + 0.9, 0, z], z, 1.6))
+  for (const z of [walk.z0 - 2.2, walk.z1 + 2.2]) s.push(place(fluffyTreeShapes('green', 2, Math.round(z)), [walk.x0 + 0.9, 0, z], z, 1.6))
   // The lanes: washing lines, plants and a bike, like any ngõ
   lanes.forEach((lane, i) => {
     const mid = (lane.x0 + lane.x1) / 2
@@ -339,14 +344,14 @@ function propShapes(): { solid: ShapeItem[]; glow: ShapeItem[] } {
         s.push({ box: [0.3, 0.42, 0.03], at: [x, 2.67, z], rot: [0, 0, (k % 2 ? 1 : -1) * 0.07], color: c })
       })
     }
-    s.push(place(plantShapes(P.leafDark, '#c97b63'), [lane.x1 - 0.3, 0, -14.4], i, 0.8))
-    s.push(place(plantShapes(P.leaf, '#d9b878'), [lane.x0 + 0.3, 0, -17.2], i + 1, 0.9))
-    s.push(place(plantShapes(P.blossom, '#ffffff'), [lane.x1 - 0.3, 0, -19.6], i + 2, 0.7))
+    s.push(place(softPlantShapes(P.leafDark, '#c97b63'), [lane.x1 - 0.3, 0, -14.4], i, 0.8))
+    s.push(place(softPlantShapes(P.leaf, '#d9b878'), [lane.x0 + 0.3, 0, -17.2], i + 1, 0.9))
+    s.push(place(softPlantShapes(P.blossom, '#ffffff'), [lane.x1 - 0.3, 0, -19.6], i + 2, 0.7))
   })
   // Hàng Bông's new stretch: trees and a row of parked bikes on the wide pavements
   for (const z of [-15, -18.5]) {
-    s.push(place(treeShapes('green'), [hangBong.x0 + 1.0, 0, z], z, 0.95))
-    s.push(place(treeShapes(z < -16 ? 'blossom' : 'green'), [hangBong.x1 - 1.0, 0, z], z + 1, 0.95))
+    s.push(place(fluffyTreeShapes('green', 2, Math.round(z) + 200), [hangBong.x0 + 1.0, 0, z], z, 0.95))
+    s.push(place(fluffyTreeShapes(z < -16 ? 'blossom' : 'green', 2, Math.round(z) + 210), [hangBong.x1 - 1.0, 0, z], z + 1, 0.95))
   }
   s.push(place(motorbikeShapes(P.rose), [hangBong.x1 - 0.9, 0, -16.7], Math.PI / 2 + 0.1))
   // Posts of the street-name plaques (the plaques themselves are SignBoards)
@@ -412,9 +417,9 @@ function gasShapes(): ShapeItem[] {
   // Fire buckets, an air pump, flower tubs
   for (let i = 0; i < 3; i++) s.push({ cyl: [0.16, 0.12, 0.3, 8], at: [gas.x0 + 1.0 + i * 0.4, 0.15, rowD.back + 2.9], color: '#d4473b' })
   s.push({ box: [0.4, 1.1, 0.3], at: [gas.x0 + 0.8, 0.55, f - 2.0], color: '#3fae72' })
-  s.push(place(plantShapes(P.leafDark, '#ffffff'), [gas.x0 + 0.9, 0, f - 0.5], 0, 1.2))
+  s.push(place(softPlantShapes(P.leafDark, '#ffffff'), [gas.x0 + 0.9, 0, f - 0.5], 0, 1.2))
   // Avenue: trees and tall lamps
-  AVE_TREES.forEach(([x, z], i) => s.push(place(treeShapes(i % 4 === 1 ? 'blossom' : 'green'), [x, 0, z], i * 1.3, 1.25)))
+  AVE_TREES.forEach(([x, z], i) => s.push(place(fluffyTreeShapes(i % 4 === 1 ? 'blossom' : 'green', 2, i + 300), [x, 0, z], i * 1.3, 1.25)))
   for (let x = PLAY.minX + 8.5; x < PLAY.maxX; x += 18) {
     for (const [z, dir] of [[ave.z0 + 0.5, -1], [ave.z1 - 0.5, 1]] as const) {
       s.push({ cyl: [0.07, 0.11, 6.4, 6], at: [x, 3.2, z], color: '#5d6170' })
@@ -429,8 +434,8 @@ function gasShapes(): ShapeItem[] {
       s.push({ box: [lane.x1 - lane.x0, 0.015, 0.015], at: [mid, 2.9, z], color: P.wire })
       ;['#ffe08a', '#ffffff', '#a9d6ff', '#ff9fb2'].forEach((c, k) => s.push({ box: [0.3, 0.42, 0.03], at: [lane.x0 + 0.5 + k * ((lane.x1 - lane.x0 - 1) / 3), 2.67, z], color: c }))
     }
-    s.push(place(plantShapes(P.leaf, '#c97b63'), [lane.x0 + 0.35, 0, -40 - i], i, 0.9))
-    s.push(place(plantShapes(P.leafDark, '#d9b878'), [lane.x1 - 0.35, 0, -48 - i], i + 1, 0.8))
+    s.push(place(softPlantShapes(P.leaf, '#c97b63'), [lane.x0 + 0.35, 0, -40 - i], i, 0.9))
+    s.push(place(softPlantShapes(P.leafDark, '#d9b878'), [lane.x1 - 0.35, 0, -48 - i], i + 1, 0.8))
   })
   return s
 }
@@ -493,7 +498,10 @@ export const NorthQuarter = memo(function NorthQuarter() {
       <SignBoard options={AVE_SIGN} width={0.95} position={[plaza.x0 + 0.4, 2.95, plaza.z1 - 0.45]} rotation={[0, Math.PI, 0]} />
       <ActionSpot id="vn-gas" name={{ vi: 'Cây xăng Phố Cổ', en: 'Petrol station' }} zone={{ x: GAS_X, z: rowD.front - 2.6, halfX: 5, halfZ: 2.2 }} actions={REFUEL} />
       <NPC def={NPCS.anhXang} at={{ x: GAS_X, z: rowD.front - 1.3 }} yaw={0} />
-      <Traffic lanes={AVENUE_LANES} perLane={1} kinds={['car', 'motorbike', 'motorbike', 'car']} />
+      <Showroom />
+      <ActiveArea when={nearAvenue}>
+        <Traffic lanes={AVENUE_LANES} perLane={1} kinds={['car', 'motorbike', 'motorbike', 'car']} />
+      </ActiveArea>
 
       <RigidBody type="fixed" colliders={false}>
         {/* One block per row segment: nobody walks between these houses, and the camera stays out. */}

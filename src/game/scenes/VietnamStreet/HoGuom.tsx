@@ -1,7 +1,10 @@
 import { memo, useMemo } from 'react'
-import { place } from '../shared/props'
+import { CuboidCollider, RigidBody } from '@react-three/rapier'
+import { PROP_GROUPS } from '../../systems/collisionGroups'
+import { libraryTree, place } from '../shared/props'
+import { modelShapes } from '../shared/models'
 import { Shapes, type ShapeItem } from '../shared/Shapes'
-import { NGOC_SON, PLAY } from './layout'
+import { LAKE, NGOC_SON, PLAY } from './layout'
 
 /**
  * Hồ Gươm (Hoàn Kiếm Lake) just across the far sidewalk: a stone embankment with an
@@ -38,7 +41,7 @@ function willowShapes(): ShapeItem[] {
 }
 
 /** Tháp Rùa: a weathered three-tier tower with arched openings, on a grassy islet. */
-function turtleTowerShapes(): ShapeItem[] {
+export function turtleTowerShapes(): ShapeItem[] {
   const s: ShapeItem[] = []
   const stone = '#ddd0b2'
   const moss = '#a4ad84'
@@ -74,39 +77,80 @@ function lakeShapes(): ShapeItem[] {
   const width = maxX - minX + 1.2
   const cx = (minX + maxX) / 2
   // Stone embankment, iron railing (painted dark green), shoreline path
-  s.push({ box: [140, 0.36, 0.5], at: [0, 0.16, SHORE_Z], color: '#cfc8bb' })
-  s.push({ box: [140, 0.04, 0.55], at: [0, 0.35, SHORE_Z], color: '#e3ddd1' })
+  // (1.34: up to the path along the east shore, which leads round to Hàng Khay)
+  const ex = (LAKE.east - 70) / 2
+  s.push({ box: [70 + LAKE.east, 0.36, 0.5], at: [ex, 0.16, SHORE_Z], color: '#cfc8bb' })
+  s.push({ box: [70 + LAKE.east, 0.04, 0.55], at: [ex, 0.35, SHORE_Z], color: '#e3ddd1' })
   // Railing posts and bars, with an opening for the Thê Húc bridge
   const gap0 = NGOC_SON.bridge.x - NGOC_SON.bridge.width / 2 - 0.1
   const gap1 = NGOC_SON.bridge.x + NGOC_SON.bridge.width / 2 + 0.1
   for (let x = -width / 2; x <= width / 2 + 0.01; x += 0.6) {
-    if (cx + x > gap0 && cx + x < gap1) continue
+    if ((cx + x > gap0 && cx + x < gap1) || cx + x > LAKE.east) continue
     s.push({ box: [0.05, 0.75, 0.05], at: [cx + x, 0.72, SHORE_Z], color: '#2c4a3a' })
   }
   const left = gap0 - (cx - width / 2)
-  const right = cx + width / 2 - gap1
+  const right = LAKE.east - gap1
   for (const [y, t] of [[1.08, 0.06], [0.6, 0.05]] as const) {
     s.push({ box: [left, t, t], at: [cx - width / 2 + left / 2, y, SHORE_Z], color: '#2c4a3a' })
     s.push({ box: [right, t, t], at: [gap1 + right / 2, y, SHORE_Z], color: '#2c4a3a' })
   }
   // Water, with a few lighter streaks of reflected sky
-  s.push({ box: [160, 0.03, 80], at: [0, -0.005, SHORE_Z + 40.3], color: WATER })
-  for (let i = 0; i < 18; i++) {
-    const x = ((i * 37) % 60) - 30
-    const z = SHORE_Z + 3 + ((i * 13) % 30)
+  // Water from the north shore to Hàng Khay (1.34), west of the east path
+  s.push({ box: [80 + LAKE.east, 0.03, LAKE.south - SHORE_Z + 0.6], at: [(LAKE.east - 80) / 2, -0.005, (SHORE_Z + LAKE.south) / 2], color: WATER })
+  for (let i = 0; i < 30; i++) {
+    const x = ((i * 37) % 76) - 46
+    const z = SHORE_Z + 3 + ((i * 13) % (LAKE.south - SHORE_Z - 6))
     s.push({ box: [2 + (i % 4), 0.01, 0.12], at: [x, 0.015, z], color: '#b5dbd3' })
   }
   // Willows leaning over the water, just past the railing
   for (let i = 0; i < 12; i++) {
     const x = -42 + i * 6 + (i % 2) * 1.2
-    s.push(place(willowShapes(), [x, 0, SHORE_Z + 1.0 + (i % 3) * 0.4], i * 0.7, 1 + (i % 3) * 0.12))
+    s.push(place(libraryTree('willow', i) ?? willowShapes(), [x, 0, SHORE_Z + 1.0 + (i % 3) * 0.4], i * 0.7, 1 + (i % 3) * 0.12))
   }
-  s.push(place(turtleTowerShapes(), [-6, 0, SHORE_Z + 10], 0.15, 0.8))
+  // Lotus leaves with pink flowers drifting near the shore (1.33)
+  for (let i = 0; i < 16; i++) {
+    const pad = modelShapes('lilypad', { scale: 0.8 + (i % 3) * 0.25, paint: { Green: '#5f9f58', Pink: '#f59ac0' } })
+    if (pad) s.push(place(pad, [-40 + ((i * 53) % 68), 0.0, SHORE_Z + 2.2 + ((i * 7) % 5) * 0.9], i * 1.9))
+  }
+  s.push(place(turtleTowerShapes(), [LAKE.tower.x, 0, LAKE.tower.z], 0.15, 0.8))
   return s
 }
 
 /** Memoized: the lake never changes. */
+/**
+ * 1.36 (user: you must not walk on the lake): invisible blocks fill the water everywhere except the Thê Húc bridge's
+ * lane and Jade Island (which has its own ring wall). [x0, x1, z0, z1] each.
+ */
+function waterBlocks(): [number, number, number, number][] {
+  const { north, south, east } = LAKE
+  const I = NGOC_SON.island
+  const B = NGOC_SON.bridge
+  const ix0 = I.x - I.rx - 0.4
+  const ix1 = I.x + I.rx + 0.4
+  const lane0 = B.x - B.width / 2 - 0.05
+  const lane1 = B.x + B.width / 2 + 0.05
+  const n = north + 0.45
+  const s = south - 0.45
+  return [
+    [-80, ix0, n, s],
+    [ix1, east - 0.35, n, s],
+    [ix0, lane0, n, I.z - I.rz + 0.4],
+    [lane1, ix1, n, I.z - I.rz + 0.4],
+    [ix0, ix1, I.z + I.rz - 0.4, s],
+  ]
+}
+
 export const HoGuom = memo(function HoGuom() {
   const shapes = useMemo(lakeShapes, [])
-  return <Shapes shapes={shapes} receiveShadow={false} />
+  const blocks = useMemo(waterBlocks, [])
+  return (
+    <>
+      <Shapes shapes={shapes} receiveShadow={false} />
+      <RigidBody type="fixed" colliders={false}>
+        {blocks.map(([x0, x1, z0, z1]) => (
+          <CuboidCollider key={`${x0}-${z0}`} args={[(x1 - x0) / 2, 2, (z1 - z0) / 2]} position={[(x0 + x1) / 2, 2, (z0 + z1) / 2]} collisionGroups={PROP_GROUPS} />
+        ))}
+      </RigidBody>
+    </>
+  )
 })

@@ -18,7 +18,7 @@ const shade = lightness
 const v3 = (x: number, y: number, z: number): [number, number, number] => [x, y, z]
 
 // --- Hats & face accessories ---------------------------------------------------------------
-function accessory(o: Outfit): ShapeItem[] {
+export function accessory(o: Outfit): ShapeItem[] {
   const acc = o.accent
   switch (o.accessory) {
     case 'nonLa': // conical hat with a strap

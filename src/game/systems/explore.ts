@@ -8,10 +8,6 @@ import { playSfx } from './audio'
 import { bumpFlag, getFlag, registerTests, setFlag } from './conditions'
 import { openDialogue } from './dialogue'
 import { spendTime } from './time'
-import { say as sayGas } from './say'
-
-const pushGasNote = () => sayGas({ vi: 'Anh bơm xăng: „Chưa có xe thì đổ vào đâu em? Khi nào có xe thì ghé nhé!" (Chức năng lái xe sẽ có sau.)', en: 'No vehicle to fill up yet. Driving comes later.' }, 'info')
-
 /**
  * Things to do in the new districts (1.7): draw a fortune stick at the đình, read at the
  * old bookshop, swing in the Stadtpark, feed the ducks, learn words from Oma Gerda.
@@ -131,10 +127,4 @@ registerTests({
   'park.wordsToday': () => doneToday('park.wordsDay'),
 })
 
-// 1.19: the petrol station on Phố Tràng Tiền. Driving is not in the game yet.
-registerActions({
-  'place.gas': () => {
-    pushGasNote()
-    return true
-  },
-})
+// 1.19 petrol station: action place.gas now lives in vehicles.ts (1.35, refuelling your own vehicle).

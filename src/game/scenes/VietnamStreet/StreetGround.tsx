@@ -149,7 +149,8 @@ export function StreetGround() {
 
       {/* Physical floor */}
       <RigidBody type="fixed" colliders={false}>
-        <CuboidCollider args={[130, 0.5, 130]} position={[0, -0.5, 0]} />
+        {/* 1.36: big enough for the whole lake and Hàng Khay (it ended at z 130 — the south of Hàng Khay fell through) */}
+        <CuboidCollider args={[200, 0.5, 200]} position={[0, -0.5, 30]} />
       </RigidBody>
     </>
   )

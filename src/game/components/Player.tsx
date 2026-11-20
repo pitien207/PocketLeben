@@ -1,8 +1,12 @@
 import { useRef, type RefObject } from 'react'
 import { useFrame } from '@react-three/fiber'
-import { CapsuleCollider, CoefficientCombineRule, RigidBody, type RapierRigidBody } from '@react-three/rapier'
+import { CapsuleCollider, CoefficientCombineRule, RigidBody, RoundCuboidCollider, type RapierRigidBody } from '@react-three/rapier'
 import type { Group } from 'three'
 import { CONFIG } from '../../data/config'
+import { VEHICLES } from '../../data/vehicles'
+import { rideAnchorsOf, rideKindOf, vehicleHalf } from '../scenes/shared/ownVehicles'
+import { burnFuel, dismount, rideAllowed, useRide } from '../systems/vehicles'
+import { VehicleMesh } from './PlayerVehicle'
 import { usePlayer } from '../../store/playerStore'
 import { useUI } from '../../store/uiStore'
 import { useMinigame } from '../../store/minigameStore'
@@ -17,6 +21,8 @@ import { localSnapshot } from '../systems/netState'
 
 const CAPSULE_RADIUS = 0.32
 const CAPSULE_HALF_HEIGHT = 0.42
+/** Rounded edges of the vehicle collider (slides off corners and kerbs). */
+const RIDE_ROUND = 0.08
 /** Distance at which an auto-walk waypoint counts as reached. */
 const WAYPOINT_REACHED = 0.15
 /** Auto-walk slows down within this distance of a waypoint. */
@@ -61,6 +67,14 @@ export function Player({ visualRef }: PlayerProps) {
   const velocity = useRef({ x: 0, z: 0 })
   const sipClock = useRef(0)
   const outfit = usePlayer((s) => s.outfit)
+  // 1.35 riding your own vehicle: the body turns with the vehicle (its box collider must), `heading` is the
+  // direction you face either way, `rideSpeed` the vehicle's forward speed.
+  const riding = useRide((s) => s.riding)
+  const rideDef = riding ? VEHICLES[riding] : null
+  const rideHalf = rideDef ? vehicleHalf(rideDef) : null
+  const heading = useRef(0)
+  const rideSpeed = useRef(0)
+  const bodyTurned = useRef(false)
 
   useFrame((_, rawDt) => {
     const rb = body.current
@@ -84,6 +98,14 @@ export function Player({ visualRef }: PlayerProps) {
 
     const pos = rb.translation()
     playerState.position.set(pos.x, pos.y, pos.z)
+
+    // Get off where riding is not allowed, for scripted walks and when sitting down.
+    let ride = useRide.getState().riding
+    if (ride && (!rideAllowed() || (playerState.locked && playerState.path.length > 0) || playerState.pose)) {
+      dismount()
+      ride = null
+    }
+    const vdef = ride ? VEHICLES[ride] : null
 
     let moveX = 0
     let moveZ = 0
@@ -122,25 +144,54 @@ export function Player({ visualRef }: PlayerProps) {
     }
 
     const v = velocity.current
-    const k = dampFactor(cfg.accelSharpness, dt)
-    v.x += (moveX * cfg.walkSpeed * speedScale - v.x) * k
-    v.z += (moveZ * cfg.walkSpeed * speedScale - v.z) * k
     const current = rb.linvel()
-    rb.setLinvel({ x: v.x, y: current.y, z: v.z }, true)
-
-    if (facing.current) {
+    const planarSpeed = Math.hypot(current.x, current.z)
+    if (vdef) {
+      // A vehicle goes where it points: steer toward the stick, speed up along the heading.
+      const mag = Math.min(1, Math.hypot(moveX, moveZ))
+      let want = 0
+      if (mag > 0.05) {
+        const target = Math.atan2(moveX, moveZ)
+        let diff = target - heading.current
+        diff = Math.atan2(Math.sin(diff), Math.cos(diff))
+        const step = vdef.turn * dt
+        heading.current += Math.max(-step, Math.min(step, diff))
+        want = cfg.walkSpeed * vdef.speed * mag * (0.25 + 0.75 * Math.max(0, Math.cos(diff)))
+      }
+      // Pressing into a wall does not build up speed.
+      rideSpeed.current = Math.min(rideSpeed.current, planarSpeed + 1.5)
+      rideSpeed.current = damp(rideSpeed.current, want, want < rideSpeed.current ? vdef.accel * 1.7 : vdef.accel, dt)
+      v.x = Math.sin(heading.current) * rideSpeed.current
+      v.z = Math.cos(heading.current) * rideSpeed.current
+      const h = heading.current / 2
+      rb.setRotation({ x: 0, y: Math.sin(h), z: 0, w: Math.cos(h) }, true)
+      bodyTurned.current = true
+      burnFuel(planarSpeed * dt)
+    } else {
+      rideSpeed.current = 0
+      if (bodyTurned.current) {
+        rb.setRotation({ x: 0, y: 0, z: 0, w: 1 }, true)
+        bodyTurned.current = false
+      }
+      const k = dampFactor(cfg.accelSharpness, dt)
+      v.x += (moveX * cfg.walkSpeed * speedScale - v.x) * k
+      v.z += (moveZ * cfg.walkSpeed * speedScale - v.z) * k
       if (Math.hypot(moveX, moveZ) > 0.05) {
         const target = Math.atan2(moveX, moveZ) // model faces +Z
-        facing.current.rotation.y = dampAngle(facing.current.rotation.y, target, cfg.turnSharpness, dt)
+        heading.current = dampAngle(heading.current, target, cfg.turnSharpness, dt)
       } else if (playerState.faceYaw !== null) {
-        facing.current.rotation.y = dampAngle(facing.current.rotation.y, playerState.faceYaw, cfg.turnSharpness * 0.6, dt)
+        heading.current = dampAngle(heading.current, playerState.faceYaw, cfg.turnSharpness * 0.6, dt)
       }
     }
+    rb.setLinvel({ x: v.x, y: current.y, z: v.z }, true)
+    // Riding, the whole body is turned already.
+    if (facing.current) facing.current.rotation.y = vdef ? 0 : heading.current
 
     // Animate from real velocity so walking into a wall looks like standing.
-    const planarSpeed = Math.hypot(current.x, current.z)
     const m = motion.current
-    m.speed = damp(m.speed, Math.min(cfg.runMultiplier, planarSpeed / cfg.walkSpeed), 10, dt)
+    m.speed = vdef ? 0 : damp(m.speed, Math.min(cfg.runMultiplier, planarSpeed / cfg.walkSpeed), 10, dt)
+    m.ride = vdef ? rideKindOf(vdef) : null
+    if (vdef?.kind === 'bicycle') m.pedal = (m.pedal ?? 0) - planarSpeed * dt * 2.6
 
     // Sitting down for a drink etc.
     const pose = playerState.pose
@@ -150,7 +201,8 @@ export function Player({ visualRef }: PlayerProps) {
     sipClock.current = pose?.sipping ? sipClock.current + dt : 0
     m.sip = pose?.sipping && sipClock.current % 1.8 > 0.5 && sipClock.current % 1.8 < 1.4 ? 1 : 0
     localSnapshot.motion = m
-    localSnapshot.yaw = facing.current?.rotation.y ?? 0
+    localSnapshot.yaw = heading.current
+    localSnapshot.veh = ride
   }, PLAYER_FRAME_PRIORITY)
 
   return (
@@ -162,16 +214,31 @@ export function Player({ visualRef }: PlayerProps) {
       canSleep={false}
       ccd
     >
-      <CapsuleCollider
-        args={[CAPSULE_HALF_HEIGHT, CAPSULE_RADIUS]}
-        position={[0, CAPSULE_HALF_HEIGHT + CAPSULE_RADIUS, 0]}
-        friction={0}
-        frictionCombineRule={CoefficientCombineRule.Min}
-        collisionGroups={PLAYER_GROUPS}
-      />
+      {rideHalf ? (
+        <RoundCuboidCollider
+          key={riding}
+          args={[rideHalf[0] - RIDE_ROUND, rideHalf[1] - RIDE_ROUND, rideHalf[2] - RIDE_ROUND, RIDE_ROUND]}
+          position={[0, rideHalf[1], 0]}
+          friction={0}
+          frictionCombineRule={CoefficientCombineRule.Min}
+          collisionGroups={PLAYER_GROUPS}
+        />
+      ) : (
+        <CapsuleCollider
+          args={[CAPSULE_HALF_HEIGHT, CAPSULE_RADIUS]}
+          position={[0, CAPSULE_HALF_HEIGHT + CAPSULE_RADIUS, 0]}
+          friction={0}
+          frictionCombineRule={CoefficientCombineRule.Min}
+          collisionGroups={PLAYER_GROUPS}
+        />
+      )}
       <group ref={visualRef}>
         <group ref={facing}>
-          <ChibiModel motion={motion} outfit={outfit} detail="high" silhouette />
+          {rideDef && <VehicleMesh def={rideDef} />}
+          {/* On a two-wheeler the rider sits at the vehicle's anchor; in a car nobody is seen. */}
+          <group position={[0, 0, rideDef ? (rideAnchorsOf(rideDef)?.riderZ ?? 0) : 0]} visible={rideDef?.kind !== 'car'}>
+            <ChibiModel motion={motion} outfit={outfit} detail="high" silhouette />
+          </group>
         </group>
       </group>
     </RigidBody>

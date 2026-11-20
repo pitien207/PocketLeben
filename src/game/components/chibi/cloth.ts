@@ -194,6 +194,16 @@ function topGeo(cut: TopCut, bulk: number, radial: number, n: number) {
   prof.push([rh - 0.002, yh - 0.006], [rh - 0.018, yh - 0.004], [rh - 0.03, yh + 0.01])
   return lathe(prof, radial)
 }
+const PELVIS: [number, number][] = [[0.2, -0.06], [0.222, -0.11], [0.226, -0.16], [0.214, -0.21], [0.185, -0.255], [0.13, -0.29]]
+/** Radius of the trousers' seat at a height (same profile as pelvisGeo). */
+function pelvisR(y: number, bulk: number) {
+  for (let i = 1; i < PELVIS.length; i++) {
+    const [r1, y1] = PELVIS[i]
+    const [r0, y0] = PELVIS[i - 1]
+    if (y >= y1) return lerp(r0, r1, (y - y0) / (y1 - y0)) * (i < 4 ? bulk : 1)
+  }
+  return PELVIS[PELVIS.length - 1][0]
+}
 /** Shorts / trousers top: from under the shirt down round the seat (the legs come out below). */
 function pelvisGeo(radial: number, bulk: number) {
   const prof: [number, number][] = [[0.2 * bulk, -0.06], [0.222 * bulk, -0.11], [0.226 * bulk, -0.16], [0.214 * bulk, -0.21], [0.185, -0.255], [0.13, -0.29], [0.05, -0.305], [0.001, -0.307]]
@@ -415,14 +425,14 @@ export function limbGeometries(o: Outfit, k: number): BufferGeometry[] {
       sleeve = { to: 0.585, color: o.patternColor ?? '#ffffff', ease: (y) => 0.012 + 0.032 * Math.sin(clamp01((0.67 - y) / 0.085) * Math.PI), lip: -0.012 }
       break
     default: // tee, dress
-      sleeve = { to: 0.575, color: shirt, ease: (y) => 0.015 + 0.01 * smooth(0.64, 0.575, y), lip: 0.003 }
+      sleeve = { to: 0.575, color: shirt, ease: (y) => 0.015 + 0.01 * smooth(0.64, 0.575, y), cuff: { h: 0.014, color: shade(shirt, -0.08), extra: 0.002 } }
   }
   // Legs
   let leg: Cover | null
   const bands: Band[] = []
   switch (bottom) {
     case 'pants':
-      leg = { to: 0.072, color: pants, ease: (y) => 0.012 + 0.006 * smooth(0.14, 0.08, y), lip: 0.004 }
+      leg = { to: 0.072, color: pants, ease: (y) => 0.012 + 0.006 * smooth(0.14, 0.08, y), cuff: { h: 0.018, color: shade(pants, -0.09), extra: 0.003 } }
       break
     case 'widePants':
       leg = { to: 0.072, color: pants, ease: (y) => 0.018 + 0.03 * smooth(0.26, 0.08, y), lip: 0.003 }
@@ -435,7 +445,7 @@ export function limbGeometries(o: Outfit, k: number): BufferGeometry[] {
       leg = { to: 0.2, color: pants, ease: (y) => 0.014 + 0.008 * smooth(0.26, 0.2, y), cuff: { h: 0.018, color: shade(pants, -0.15), extra: 0.003 } }
       break
     default: // shorts
-      leg = { to: 0.2, color: pants, ease: (y) => 0.013 + 0.012 * smooth(0.27, 0.2, y), lip: 0.004 }
+      leg = { to: 0.2, color: pants, ease: (y) => 0.013 + 0.012 * smooth(0.27, 0.2, y), cuff: { h: 0.016, color: shade(pants, -0.09), extra: 0.003 } }
   }
   // Ragged clothes (the family in debt): patched elbows and knees, frayed short trouser hems.
   const rag = o.ragged ?? 0
@@ -684,6 +694,26 @@ export function torsoShapes(input: Outfit, k: number): ShapeItem[] {
       break
     default: // tee, dress
       neckRib(shade(shirt, -0.1))
+  }
+  // 1.34 details: a chest pocket on tees and shirts (left side), a darker stitched hem band
+  if ((top === 'tee' || top === 'long') && !o.pattern) {
+    P('chestPocketTee', { top: 0.1, bottom: 0.035, left: () => 0.045, right: () => 0.115, surf: shirtR, lift: 0.002, thick: 0.004, nu: 3, nv: 2 }, shade(shirt, -0.05))
+    if (fine) P('chestPocketEdge', { top: 0.102, bottom: 0.094, left: () => 0.045, right: () => 0.115, surf: shirtR, lift: 0.004, thick: 0.003, nu: 2, nv: 1 }, shade(shirt, -0.14))
+  }
+  if (top === 'tee' || top === 'long' || top === 'sleeveless' || top === 'scrubs') {
+    s.push({ geometry: cached(`hemBand${top}${kk}`, () => ring(shirtR(cut.hem + 0.012) + 0.001, cut.hem + 0.012, 0.0055, radial, 1.4)), color: shade(shirt, -0.09) })
+  }
+
+  // ---- trousers / shorts on the seat: waistband, fly, front pocket openings, back pockets (1.34)
+  if (bottom !== 'skirt' && bottom !== 'dirndl') {
+    const pr = (y: number) => pelvisR(y, bulk) + 0.002
+    const yTop = Math.min(cut.hem - 0.006, -0.12)
+    P('fly', { top: yTop, bottom: -0.235, left: () => -0.006, right: () => 0.006, surf: pr, lift: 0.0015, thick: 0.003, nu: 1, nv: 4 }, shade(pants, -0.13))
+    for (const side of [-1, 1]) {
+      P(`frontPocket${side}`, { top: yTop, bottom: yTop - 0.06, left: (y) => side * lerp(0.15, 0.12, smooth(yTop, yTop - 0.06, y)) - 0.005, right: (y) => side * lerp(0.15, 0.12, smooth(yTop, yTop - 0.06, y)) + 0.005, surf: pr, lift: 0.0015, thick: 0.003, nu: 1, nv: 3 }, shade(pants, -0.16))
+      P(`backPocket${side}`, { top: -0.15, bottom: -0.215, centre: Math.PI, left: () => side * 0.11 - 0.04, right: () => side * 0.11 + 0.04, surf: pr, lift: 0.003, thick: 0.004, nu: 3, nv: 3 }, shade(pants, -0.07))
+    }
+    if (fine) s.push({ geometry: cached(`seatBelt${bulk}${kk}`, () => ring(pr(cut.hem - 0.004) + 0.002, cut.hem - 0.004, 0.0065, radial, 1.2)), color: shade(pants, -0.18) })
   }
 
   // ---- skirts

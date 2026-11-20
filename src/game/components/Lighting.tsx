@@ -1,6 +1,7 @@
 import { useRef } from 'react'
+import { playerState } from '../systems/playerState'
 import { useFrame, useThree } from '@react-three/fiber'
-import { Color, Fog, type DirectionalLight, type HemisphereLight } from 'three'
+import { Color, Fog, Vector3, type DirectionalLight, type HemisphereLight } from 'three'
 import { CONFIG } from '../../data/config'
 import { useSettings } from '../../store/settingsStore'
 import { useTime } from '../../store/timeStore'
@@ -9,6 +10,8 @@ import { SCENES } from '../scenes/registry'
 import { createSkyState, skyAt } from '../systems/daylight'
 import { setRainAmbience } from '../systems/audio'
 import { petalAmount, rainStrength, weatherAt, weatherState } from '../systems/weather'
+import { fancyOn, fxState, fxUniforms, nightAt } from '../fx/fxState'
+import { glowMaterial } from '../scenes/shared/materials'
 
 // Indoors: a warm, fixed light and a dark "diorama" backdrop around the room.
 const INDOOR = {
@@ -19,6 +22,11 @@ const INDOOR = {
 }
 
 const SHADOW_EXTENT = 22
+const _up = new Vector3(0, 1, 0)
+const _lx = new Vector3()
+const _ly = new Vector3()
+const _lz = new Vector3()
+const _c = new Vector3()
 
 // Rainy days: a flat grey sky, closer fog, a weaker sun.
 const RAIN_SKY = new Color('#a9b4c2')
@@ -57,6 +65,13 @@ export function Lighting() {
   useFrame((_, rawDt) => {
     const indoor = SCENES[useWorld.getState().scene].indoor
     updateWeather(Math.min(rawDt, 0.1), indoor)
+    // 1.32 fancy look: night amount drives lit windows, lamp pools and how bright glowing bulbs are
+    // (above 1 → they bloom). Outside the fancy look everything stays exactly as before.
+    const fancy = fancyOn()
+    const night = nightAt(useTime.getState().minutes / 60)
+    fxState.night = night
+    fxUniforms.uNight.value = fancy && !indoor ? night : 0
+    glowMaterial.color.setScalar(fancy ? 1 + (indoor ? 0.3 : 0.85) * night : 1)
     if (indoor) {
       if (scene.background instanceof Color) scene.background.copy(INDOOR.background)
       if (scene.fog instanceof Fog) {
@@ -90,12 +105,27 @@ export function Lighting() {
     if (hemi.current) {
       hemi.current.color.copy(s.hemiSky)
       hemi.current.groundColor.copy(s.hemiGround)
-      hemi.current.intensity = s.hemi * (1 - rain * 0.18 - cloud * 0.08)
+      // Fancy nights are a little darker, so lamps, lanterns and windows carry the scene.
+      hemi.current.intensity = s.hemi * (1 - rain * 0.18 - cloud * 0.08) * (fancy ? 1 - night * 0.2 : 1)
     }
     if (sun.current) {
       sun.current.color.copy(s.sun)
       sun.current.intensity = s.sunI * (1 - Math.min(0.75, rain * 0.6 + cloud * 0.4))
-      sun.current.position.set(...s.lightPos)
+      // The shadow box (±SHADOW_EXTENT) follows the player (1.34: before, only the area round the origin had shadows).
+      // 1.38: its centre is snapped to whole shadow-map texels along the light's own axes, so shadow edges stay put
+      // while you walk — the 2 m steps made them jump and flicker (user, phone view).
+      _lz.set(s.lightPos[0], s.lightPos[1], s.lightPos[2]).normalize()
+      _lx.crossVectors(_up, _lz).normalize()
+      _ly.crossVectors(_lz, _lx)
+      const texel = (2 * SHADOW_EXTENT) / mapSize
+      const p = playerState.position
+      const u = Math.round(p.dot(_lx) / texel) * texel
+      const v = Math.round(p.dot(_ly) / texel) * texel
+      const w = p.dot(_lz)
+      _c.copy(_lx).multiplyScalar(u).addScaledVector(_ly, v).addScaledVector(_lz, w)
+      sun.current.target.position.copy(_c)
+      sun.current.position.copy(_c).addScaledVector(_lz, 24)
+      sun.current.target.updateMatrixWorld()
       sun.current.shadow.intensity = 0.55 * (1 - Math.min(0.8, rain * 0.6 + cloud * 0.5))
     }
   })

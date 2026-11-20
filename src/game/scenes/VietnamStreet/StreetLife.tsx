@@ -7,11 +7,14 @@ import { ChatterDirector } from '../../components/npc/ChatterDirector'
 import { DaCauKids } from '../../components/npc/DaCauKids'
 import { NPC } from '../../components/npc/NPC'
 import { Traffic } from '../../components/npc/Traffic'
+import { ActiveArea } from '../../components/ActiveArea'
 import { PALETTE as P } from '../shared/palette'
 import { place, stoolShapes } from '../shared/props'
 import { Shapes } from '../shared/Shapes'
 import { HomeDoor } from './HomeDoor'
-import { GROCERY, KIDS, TRAFFIC_LANES, VENDOR_PATH, WALKER_PATHS } from './layout'
+import { GROCERY, KIDS, LAKE, TRAFFIC_LANES, VENDOR_PATH, WALKER_PATHS } from './layout'
+
+const nearHangGai = (_x: number, z: number) => z < LAKE.south - 25
 import { TraDaStall } from './TraDaStall'
 
 const STOOL_TOP = 0.33
@@ -49,7 +52,10 @@ export function StreetLife() {
       <NPC def={NPCS.chiLan} at={WALKER_PATHS.chiLan[0]} path={{ points: WALKER_PATHS.chiLan, pauseSec: [0.5, 2.5] }} />
 
       <DaCauKids a={KIDS.a} b={KIDS.b} kidA={NPCS.beTi} kidB={NPCS.beNa} />
-      <Traffic lanes={TRAFFIC_LANES} perLane={2} />
+      {/* 1.34: one big map — the street's traffic only runs while you are on this side of the lake */}
+      <ActiveArea when={nearHangGai}>
+        <Traffic lanes={TRAFFIC_LANES} perLane={2} />
+      </ActiveArea>
 
       <ChatterDirector groups={['traDa']} solos={['chuBay', 'coBa', 'coHoa', 'anhKhoa', 'chiLan']} />
     </>

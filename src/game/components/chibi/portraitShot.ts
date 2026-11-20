@@ -14,7 +14,7 @@ import { HEAD_R, HEAD_Y } from './rig'
 const SIZE = 224
 const cache = new Map<string, string>()
 const waiting = new Map<string, ((url: string | null) => void)[]>()
-const queue: { key: string; outfit: Outfit }[] = []
+const queue: { key: string; outfit: Outfit; frame: ShotFrame }[] = []
 let renderer: WebGLRenderer | null | undefined
 let busy = false
 
@@ -32,9 +32,11 @@ function getRenderer() {
   return renderer
 }
 
-export const portraitKey = (o: Outfit) => JSON.stringify(o)
+/** 'face' = head and shoulders (dialogue), 'body' = the whole character (shop try-on, 1.34). */
+export type ShotFrame = 'face' | 'body'
+export const portraitKey = (o: Outfit, frame: ShotFrame = 'face') => (frame === 'face' ? '' : frame + '|') + JSON.stringify(o)
 
-function shoot(o: Outfit): string | null {
+function shoot(o: Outfit, frame: ShotFrame): string | null {
   const r = getRenderer()
   if (!r) return null
   const rig = buildChibiRig(o)
@@ -45,9 +47,10 @@ function shoot(o: Outfit): string | null {
   scene.add(sun)
   scene.add(rig.group)
   // Head and shoulders, seen a little from the side and above.
-  const cy = HEAD_Y - HEAD_R * 0.3
+  const cy = frame === 'body' ? 0.74 : HEAD_Y - HEAD_R * 0.3
   const cam = new PerspectiveCamera(22, 1, 0.1, 30)
-  cam.position.set(0.75, cy + 0.32, 3.3)
+  if (frame === 'body') cam.position.set(1.0, cy + 0.45, 4.9)
+  else cam.position.set(0.75, cy + 0.32, 3.3)
   cam.lookAt(0, cy, 0)
   r.render(scene, cam)
   const url = r.domElement.toDataURL('image/png')
@@ -63,7 +66,7 @@ function pump() {
     const job = queue.shift()!
     let url: string | null = null
     try {
-      url = shoot(job.outfit)
+      url = shoot(job.outfit, job.frame)
     } catch (e) {
       console.warn('portrait', e)
     }
@@ -79,8 +82,8 @@ function pump() {
 }
 
 /** A photo of this outfit's chibi (from the cache, or taken soon). */
-export function requestPortrait(o: Outfit): Promise<string | null> {
-  const key = portraitKey(o)
+export function requestPortrait(o: Outfit, frame: ShotFrame = 'face'): Promise<string | null> {
+  const key = portraitKey(o, frame)
   const hit = cache.get(key)
   if (hit) return Promise.resolve(hit)
   return new Promise((resolve) => {
@@ -88,15 +91,15 @@ export function requestPortrait(o: Outfit): Promise<string | null> {
     if (list) list.push(resolve)
     else {
       waiting.set(key, [resolve])
-      queue.push({ key, outfit: o })
+      queue.push({ key, outfit: o, frame })
       pump()
     }
   })
 }
 
 /** React: the photo URL once it exists (null until then, or when there is no WebGL). */
-export function usePortraitShot(o: Outfit): string | null {
-  const key = portraitKey(o)
+export function usePortraitShot(o: Outfit, frame: ShotFrame = 'face'): string | null {
+  const key = portraitKey(o, frame)
   const [state, setState] = useState<{ key: string; url: string | null }>(() => ({ key, url: cache.get(key) ?? null }))
   useEffect(() => {
     let alive = true
@@ -105,7 +108,7 @@ export function usePortraitShot(o: Outfit): string | null {
       setState({ key, url: hit })
       return
     }
-    void requestPortrait(o).then((url) => alive && setState({ key, url }))
+    void requestPortrait(o, frame).then((url) => alive && setState({ key, url }))
     return () => {
       alive = false
     }

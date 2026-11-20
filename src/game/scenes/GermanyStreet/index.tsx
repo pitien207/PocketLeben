@@ -116,7 +116,7 @@ function streetShapes(): ShapeItem[] {
     [12.2, 13.2],
     ...WEST_TREES,
   ]) {
-    s.push(place(treeShapes('linden'), [x, 0, z], x * 0.7, 1.15))
+    s.push(place(treeShapes(Math.round(x * 7 + z) % 5 === 0 ? 'birch' : 'linden', Math.round(x * 7 + z)), [x, 0, z], x * 0.7, 1.15))
   }
   // Classic lamp posts
   for (const x of [-27, -19.5, -8, 3.8, 10.8]) {

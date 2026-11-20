@@ -426,6 +426,14 @@ Trò chơi: Bin làm bài, bạn phải tìm lỗi sai trong lời giải trư�
 
 ---
 
+### Showroom Xe Phố Cổ (1.35, không bắt buộc)
+
+- Ở Phố Tràng Tiền, ngay cạnh cây xăng, mở 8h–21h. **Chị Thủy** bán xe: „Chào em! Showroom Xe Phố Cổ đây — xe đạp, xe số, xe ga, ô tô, có đủ hết. Em xem chiếc nào?“
+  - Hỏi trả góp: „Trả góp thì chưa có em ạ — tiền tươi thóc thật thôi. Đi làm để dành đủ rồi quay lại, chị giữ màu đẹp cho!“
+  - Hỏi xe đỡ tốn xăng: „Xe đạp thì khỏi xăng luôn! Xe số Ong Vàng một bình đi cả tuần. Ô tô thì… bình to, đổ một lần cũng xót ví đấy.“
+- Giá: xe đạp Hoa Sữa 1,8 tr · xe số Ong Vàng 110 19,5 tr · xe ga Mây Trắng 125 34 tr · xe ga cổ Én Bạc 68 tr · xe ga Phong Lưu 150 92 tr · ô tô mini Hạt Đậu 260 tr · Phố Cổ 5 chỗ 480 tr · SUV Gia Đình 7 chỗ 890 tr · xe thể thao Chớp Đỏ 1,65 tỷ. Bán lại được 60 %.
+- Mua xong có biển số Hà Nội, đầy bình. Đi xe ở Hàng Gai, khu phố bắc và Hàng Khay; hết xăng phải xuống dắt bộ; anh bơm xăng đổ 24.000đ/lít.
+
 ## 2c. Nhân vật ở phần Việt Nam
 
 | Tên | Ở đâu | Vai trò |

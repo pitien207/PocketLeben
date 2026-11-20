@@ -1,5 +1,5 @@
 import { PALETTE as P } from '../shared/palette'
-import { place, plantShapes } from '../shared/props'
+import { place, softPlantShapes } from '../shared/props'
 import type { ShapeItem } from '../shared/Shapes'
 
 /**
@@ -147,8 +147,8 @@ function modern(w: number, d: number, r: Rng): ShapeItem[] {
   s.push({ box: [w, 0.5, 0.14], at: [0, H + 0.25, f - 0.07], color: wall })
   for (let i = 0; i < 4; i++) s.push({ box: [w - 0.4, 0.07, 0.1], at: [0, H + 2.1, f - 0.5 - i * 0.6], color: '#8e5a34' })
   for (const side of [-1, 1]) s.push({ box: [0.09, 2.1, 0.09], at: [side * (w / 2 - 0.3), H + 1.05, f - 0.5], color: '#8e5a34' })
-  s.push(place(plantShapes(P.leafDark, '#e9e6df'), [-w / 2 + 0.7, H, f - 0.9], 0.3, 1.5))
-  s.push(place(plantShapes(P.leaf, accent), [w / 2 - 0.8, H, f - 1.3], 1.2, 1.2))
+  s.push(place(softPlantShapes(P.leafDark, '#e9e6df'), [-w / 2 + 0.7, H, f - 0.9], 0.3, 1.5))
+  s.push(place(softPlantShapes(P.leaf, accent), [w / 2 - 0.8, H, f - 1.3], 1.2, 1.2))
   return s
 }
 
@@ -187,7 +187,7 @@ function tapThe(w: number, d: number, r: Rng): ShapeItem[] {
       for (const side of [-1, 1]) s.push({ box: [0.03, 1.75, 0.78], at: [x + side * (bw - 0.3) / 2, y + 1.4, f + 0.4], color: cage })
       // washing, a plant, sometimes an AC unit
       if (r() < 0.7) for (let k = 0; k < 3; k++) s.push({ box: [0.3, 0.4, 0.02], at: [x - 0.4 + k * 0.38, y + 1.85, f + 0.6], rot: [0, 0, (k % 2 ? 1 : -1) * 0.06], color: pick(r, cloth) })
-      if (r() < 0.5) s.push(place(plantShapes(P.leaf, '#c97b63'), [x + bw * 0.25, y + 0.54, f + 0.5], r() * 3, 0.7))
+      if (r() < 0.5) s.push(place(softPlantShapes(P.leaf, '#c97b63'), [x + bw * 0.25, y + 0.54, f + 0.5], r() * 3, 0.7))
       if (r() < 0.35) s.push({ box: [0.6, 0.4, 0.26], at: [x - bw * 0.2, y + 0.75, f + 0.5], color: '#f4f4f4' })
     }
   }
@@ -284,7 +284,7 @@ function pastel(w: number, d: number, r: Rng): ShapeItem[] {
     s.push({ box: [w * 0.4, 2.0, 0.06], at: [0, y + 1.15, f + 0.02], color: '#8fb8c8' })
     s.push({ box: [0.04, 2.0, 0.07], at: [0, y + 1.15, f + 0.025], color: trim })
     for (const side of [-1, 1]) s.push({ box: [w * 0.2, 2.0, 0.05], at: [side * w * 0.32, y + 1.15, f + 0.03], color: shutter })
-    if (r() < 0.6) s.push(place(plantShapes(P.leaf, pick(r, ['#c97b63', '#d9b878', '#ffffff'])), [(r() < 0.5 ? -1 : 1) * (w / 2 - 0.45), y + 0.07, f + 0.42], r() * 3, 0.8))
+    if (r() < 0.6) s.push(place(softPlantShapes(P.leaf, pick(r, ['#c97b63', '#d9b878', '#ffffff'])), [(r() < 0.5 ? -1 : 1) * (w / 2 - 0.45), y + 0.07, f + 0.42], r() * 3, 0.8))
     if (r() < 0.3) s.push({ box: [0.66, 0.44, 0.26], at: [w / 2 - 0.5, y + 2.45, f + 0.14], color: '#f4f4f4' })
   }
   // Top: pediment or a water tank
@@ -315,7 +315,7 @@ function hotel(w: number, d: number, r: Rng): ShapeItem[] {
   for (const x of [-(w - 0.8) / 4, 0, (w - 0.8) / 4]) s.push({ box: [0.05, 2.3, 0.08], at: [x, 1.15, f + 0.03], color: '#c9a84a' })
   s.push({ box: [w - 0.2, 0.16, 1.1], at: [0, 2.6, f + 0.5], color: blade })
   s.push({ box: [w - 0.2, 0.3, 0.05], at: [0, 2.85, f + 1.02], color: '#ffe08a' })
-  for (const side of [-1, 1]) s.push(place(plantShapes(P.leafDark, '#ffffff'), [side * (w / 2 - 0.45), 0, f + 0.5], side, 1.1))
+  for (const side of [-1, 1]) s.push(place(softPlantShapes(P.leafDark, '#ffffff'), [side * (w / 2 - 0.45), 0, f + 0.5], side, 1.1))
   const cols = Math.max(2, Math.round((w - 1.2) / 1.5))
   for (let fl = 1; fl < floors; fl++) {
     const y = fl * FH

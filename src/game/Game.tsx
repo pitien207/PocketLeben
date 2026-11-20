@@ -5,6 +5,7 @@ import { CuboidCollider, Physics, RigidBody } from '@react-three/rapier'
 import type { Group } from 'three'
 import { CONFIG } from '../data/config'
 import { useSettings } from '../store/settingsStore'
+import { useMinigame } from '../store/minigameStore'
 import { useWorld, type SceneId } from '../store/worldStore'
 import { CameraRig } from './components/CameraRig'
 import { InteractionSystem } from './components/Interactable'
@@ -20,6 +21,7 @@ import { DebugBridge } from './systems/debug'
 import { LocalEmote, RemotePlayers } from './components/RemotePlayers'
 import { SecretGlints } from './components/SecretGlints'
 import { SECRETS_ENABLED } from '../data/secrets'
+import { FancyLook } from './fx/FancyLook'
 
 /** Physics steps after the player sets its velocity (-100) and before the camera (0). */
 const PHYSICS_PRIORITY = -50
@@ -48,8 +50,12 @@ function GlobalGround() {
   )
 }
 
+/** Mini-games that cover the whole screen: the 3D view is not drawn meanwhile (1.34, smoother UI on phones). */
+const FULL_SCREEN_GAMES = new Set(['bubbleTea', 'circleK', 'grab'])
+
 export function Game() {
   const quality = useSettings((s) => s.quality)
+  const covered = useMinigame((s) => FULL_SCREEN_GAMES.has(s.active?.kind ?? ''))
   const playerVisual = useRef<Group>(null)
   // Lowered automatically if the device can't hold its frame rate.
   const [dprCap, setDprCap] = useState(Number.POSITIVE_INFINITY)
@@ -59,6 +65,7 @@ export function Game() {
   return (
     <div className="absolute inset-0">
       <Canvas
+        frameloop={covered ? 'never' : 'always'}
         shadows="percentage"
         flat // no tone mapping: keeps pastel colors exactly as authored
         dpr={[1, maxDpr]}
@@ -68,12 +75,9 @@ export function Game() {
       >
         <color attach="background" args={[PALETTE.sky]} />
         <fog attach="fog" args={[PALETTE.fog, 30, 80]} />
-        <PerformanceMonitor
-          flipflops={3}
-          onDecline={() => setDprCap(1)}
-          onIncline={() => setDprCap(Number.POSITIVE_INFINITY)}
-          onFallback={() => setDprCap(1)}
-        />
+        {/* 1.36: lower the resolution once and stay there. Switching back and forth resized the canvas and the post
+            effects' buffers, and each switch flashed the screen bright for a frame (user: "nháy sáng"). */}
+        <PerformanceMonitor flipflops={1} onDecline={() => setDprCap(1)} onFallback={() => setDprCap(1)} />
         <Lighting />
         <Suspense fallback={null}>
           <Physics gravity={[0, CONFIG.world.gravity, 0]} updatePriority={PHYSICS_PRIORITY}>
@@ -90,6 +94,7 @@ export function Game() {
           </Physics>
           <Weather />
           <SceneReady />
+          <FancyLook />
           {import.meta.env.DEV && <DebugBridge />}
         </Suspense>
       </Canvas>

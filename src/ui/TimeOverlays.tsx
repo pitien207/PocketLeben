@@ -74,7 +74,7 @@ export function NewDayCard() {
   const moneyText = s && s.money !== 0 ? `${s.money > 0 ? '+' : '−'}${formatMoney(Math.abs(s.money), currency)}` : '±0'
 
   return (
-    <div className="pointer-events-auto absolute inset-0 z-40 modal-scroll bg-linear-to-b from-[#ffd9a8]/85 via-[#ffe9cc]/80 to-[#bfe3ff]/80 p-4 backdrop-blur-sm">
+    <div className="pointer-events-auto absolute inset-0 z-40 modal-scroll bg-linear-to-b from-[#ffd9a8]/85 via-[#ffe9cc]/80 to-[#bfe3ff]/80 p-4">
       <div role="dialog" aria-modal="true" className="panel animate-pop relative w-full max-w-xs p-5 pt-8 text-center text-ink">
         <span className="absolute -top-6 left-1/2 grid h-12 w-12 -translate-x-1/2 place-items-center rounded-full bg-gold text-3xl shadow-[0_3px_0_#c9962a]">
           {rainy ? '🌧' : '🌅'}

@@ -19,6 +19,8 @@ interface SettingsState {
   testMode: boolean
   /** Signed in: connect to the multiplayer server and see other players. */
   online: boolean
+  /** 1.32 "đồ họa đẹp": sky dome, post effects (AO, bloom, grade), night glow — Việt Nam scenes only for now. */
+  fancy: boolean
   toggleMusic: () => void
   toggleSfx: () => void
   setQuality: (quality: QualityLevel) => void
@@ -27,6 +29,7 @@ interface SettingsState {
   setGuideHints: (on: boolean) => void
   setTestMode: (on: boolean) => void
   setOnline: (on: boolean) => void
+  setFancy: (on: boolean) => void
 }
 
 /** Player preferences. Persisted to localStorage. */
@@ -42,6 +45,7 @@ export const useSettings = create<SettingsState>()(
       guideHints: true,
       testMode: false,
       online: true,
+      fancy: true,
       toggleMusic: () => set((s) => ({ musicOn: !s.musicOn })),
       toggleSfx: () => set((s) => ({ sfxOn: !s.sfxOn })),
       setQuality: (quality) => set({ quality }),
@@ -50,13 +54,14 @@ export const useSettings = create<SettingsState>()(
       setGuideHints: (guideHints) => set({ guideHints }),
       setTestMode: (testMode) => set({ testMode }),
       setOnline: (online) => set({ online }),
+      setFancy: (fancy) => set({ fancy }),
     }),
     {
       name: 'visa-hunter-settings',
       version: 2,
       // Older saves may still say 'en' / 'de'.
       migrate: (state) => ({ ...(state as object), language: 'vi' }) as never,
-      partialize: ({ musicOn, sfxOn, quality, language, timeSpeed, guideArrows, guideHints, testMode, online }) => ({
+      partialize: ({ musicOn, sfxOn, quality, language, timeSpeed, guideArrows, guideHints, testMode, online, fancy }) => ({
         musicOn,
         sfxOn,
         quality,
@@ -66,6 +71,7 @@ export const useSettings = create<SettingsState>()(
         guideHints,
         testMode,
         online,
+        fancy,
       }),
     },
   ),

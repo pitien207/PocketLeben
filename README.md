@@ -56,7 +56,9 @@ node tools/loadtest.mjs --bots 49 --stay         # keep bots online, then open t
 | Folder | What |
 |---|---|
 | `src/main.tsx`, `src/boot.tsx` | Entry (title screen only) → the game, loaded after "▶ Chơi" |
-| `src/game/scenes/` | One folder per scene + `registry.ts` (spawns, plaques, lazy loading) and `interiors.ts` (seats/positions used by game logic). `shared/` has merged low-poly shapes, props, materials, `Room` (interiors), `Decor` (wall clock, fan, tear-off calendar) |
+| `src/game/scenes/` | One folder per scene (`HangKhay` = the district south of the lake with the functional buildings of `data/cityPlaces.ts`, mounted inside the Hàng Gai scene since 1.36) + `registry.ts` (spawns, plaques, lazy loading) and `interiors.ts` (seats/positions used by game logic). `shared/` has merged low-poly shapes, props, materials, `Room` (interiors), `Decor` (wall clock, fan, tear-off calendar) |
+| `src/assets/models/` + `tools/glb2*.mjs` | Library models (Quaternius CC0) converted to compact packs: `nature` (trees, plants), `city` (buildings, street furniture), `cars`; loaded by `scenes/shared/models.ts` / `carModels.ts` |
+| `src/game/fx/` | 1.32 "đồ họa đẹp" (setting "Hiệu ứng ánh sáng", Việt Nam scenes only for now): sky dome, post effects (AO, bloom, grade, tilt-shift), night amount + shared uniforms |
 | `src/game/components/` | Player, ChibiModel, CameraRig, Lighting (day/night/rain), Weather (particles), GuideSystem (guide arrow/ring + edge arrow), ActionSpot, Interactable, WorkStation… |
 | `src/game/components/npc/` | NPC (walk/sit/talk), Traffic (motorbikes, cars, bikes), ChatterDirector, SpeechBubble, NpcMarker |
 | `src/game/minigames/` | Vocabulary, der/die/das, sentence builder, exam (B1 in four modules), listening (browser voice), Termin hunt, Q&A interview, paperwork (German letters, Auslandsportal form, contract clauses), side jobs (Circle K, Grab map, tutoring) |

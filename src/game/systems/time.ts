@@ -24,7 +24,7 @@ export function formatDuration(minutes: number) {
 }
 
 /** 0 = Monday … 6 = Sunday. Day 1 is a Monday. */
-export const weekdayIndex = (day: number) => (((day - 1) % 7) + 7) % 7
+export { weekdayIndex } from './weekday'
 
 /** The clock stops while menus, conversations, shifts or sleep are on screen. */
 export function isTimePaused() {

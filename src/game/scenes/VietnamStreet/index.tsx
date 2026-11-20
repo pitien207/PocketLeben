@@ -29,6 +29,9 @@ import { NgocSon } from './NgocSon'
 import { VisaOffices } from './VisaOffices'
 import { HangBong } from './HangBong'
 import { NorthQuarter } from './NorthQuarter'
+import { LampPools } from './LampPools'
+import { LakeEast } from './LakeEast'
+import { HangKhay } from '../HangKhay'
 
 /** "Vàng Hà Nội": ochre walls, green wooden shutters, dark green ironwork. */
 const HOME_PALETTE: HousePalette = {
@@ -106,6 +109,10 @@ export const VietnamStreet = memo(function VietnamStreet() {
       <VisaOffices />
       <HangBong />
       <NorthQuarter />
+      <LampPools />
+      <LakeEast />
+      {/* 1.34: the far shore of the lake is part of this map */}
+      <HangKhay />
       <Backdrop lake colors={HANOI_BACKDROP} roof="#c8653d" clear={PLAY} />
     </group>
   )

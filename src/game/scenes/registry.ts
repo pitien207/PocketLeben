@@ -2,6 +2,13 @@ import type { ComponentType } from 'react'
 import type { Localized } from '../../i18n/localized'
 import type { Condition } from '../../data/conditions'
 import type { SceneId } from '../../store/worldStore'
+import { loadModelPacks, type ModelPack } from './shared/models'
+
+/** 1.33: a scene's code chunk and the model packs it draws with, fetched together. */
+const withModels =
+  (packs: ModelPack[], load: () => Promise<{ default: ComponentType }>) =>
+  (): Promise<{ default: ComponentType }> =>
+    Promise.all([load(), loadModelPacks(packs)]).then(([m]) => m)
 
 export interface SpawnPoint {
   x: number
@@ -39,7 +46,7 @@ export const SCENES: Record<SceneId, SceneInfo> = {
       center: { x: -1.1, z: -11.0, yaw: 0 },
       maiDoor: { x: 10.7, z: -10.6, yaw: Math.PI / 2 },
     },
-    load: () => import('./VietnamStreet'),
+    load: withModels(['nature', 'city'], () => import('./VietnamStreet')),
   },
   home: {
     id: 'home',
@@ -49,7 +56,7 @@ export const SCENES: Record<SceneId, SceneInfo> = {
     plaque: { style: 'room', title: { vi: 'Nhà mình', en: 'Home', de: 'Zuhause' }, subtitle: { vi: 'Số 12, ngõ Hàng Gai', en: 'No. 12, Hàng Gai lane', de: 'Nr. 12, Hàng-Gai-Gasse' } },
     spawns: { default: { x: 3.4, z: 2.4, yaw: 0 }, bed: { x: -2.2, z: -0.7, yaw: 0 } },
     cameraZoom: 0.8,
-    load: () => import('./Home'),
+    load: withModels(['nature'], () => import('./Home')),
   },
   maiOffice: {
     id: 'maiOffice',
@@ -59,7 +66,7 @@ export const SCENES: Record<SceneId, SceneInfo> = {
     plaque: { style: 'room', title: { vi: 'Văn phòng Mai Anh', en: 'Mai Anh office', de: 'Büro Mai Anh' }, subtitle: { vi: 'Tầng 2 · Phố Hàng Bông', en: '2nd floor · Hàng Bông street', de: '2. Stock · Hàng-Bông-Straße' } },
     spawns: { default: { x: 2.9, z: 1.7, yaw: 0 } },
     cameraZoom: 0.8,
-    load: () => import('./MaiOffice'),
+    load: withModels(['nature'], () => import('./MaiOffice')),
   },
   classroom: {
     id: 'classroom',
@@ -69,7 +76,7 @@ export const SCENES: Record<SceneId, SceneInfo> = {
     plaque: { style: 'room', title: { vi: 'Trung tâm Đức ngữ', en: 'German language centre', de: 'Deutsches Sprachzentrum' }, subtitle: { vi: 'Phòng 2 · Lớp Thầy Minh', en: 'Room 2 · Teacher Minh', de: 'Raum 2 · Lehrer Minh' } },
     spawns: { default: { x: 4.6, z: 2.7, yaw: 0 } },
     cameraZoom: 0.82,
-    load: () => import('./Classroom'),
+    load: withModels(['nature'], () => import('./Classroom')),
   },
   examHall: {
     id: 'examHall',
@@ -79,7 +86,7 @@ export const SCENES: Record<SceneId, SceneInfo> = {
     plaque: { style: 'room', title: { vi: 'Phòng thi', en: 'Exam room', de: 'Prüfungsraum' }, subtitle: { vi: 'Kỳ thi tiếng Đức · Deutschprüfung', en: 'German exam · Deutschprüfung', de: 'Deutschprüfung' } },
     spawns: { default: { x: 4.6, z: 2.7, yaw: 0 } },
     cameraZoom: 0.82,
-    load: () => import('./ExamHall'),
+    load: withModels(['nature'], () => import('./ExamHall')),
   },
   embassy: {
     id: 'embassy',
@@ -89,7 +96,7 @@ export const SCENES: Record<SceneId, SceneInfo> = {
     plaque: { style: 'room', title: { vi: 'Đại sứ quán Đức', en: 'German Embassy', de: 'Deutsche Botschaft' }, subtitle: { vi: 'Phòng visa · Hà Nội', en: 'Visa section · Hanoi', de: 'Visastelle · Hanoi' } },
     spawns: { default: { x: 0, z: 2.6, yaw: 0 } },
     cameraZoom: 0.8,
-    load: () => import('./Embassy'),
+    load: withModels(['nature'], () => import('./Embassy')),
   },
   airport: {
     id: 'airport',
@@ -99,7 +106,7 @@ export const SCENES: Record<SceneId, SceneInfo> = {
     plaque: { style: 'room', title: { vi: 'Sân bay Nội Bài', en: 'Nội Bài Airport', de: 'Flughafen Nội Bài' }, subtitle: { vi: 'Ga quốc tế T2', en: 'International terminal T2', de: 'Internationales Terminal T2' } },
     spawns: { default: { x: 0, z: 2.8, yaw: 0 } },
     cameraZoom: 0.85,
-    load: () => import('./Airport'),
+    load: withModels(['nature'], () => import('./Airport')),
   },
   germany: {
     id: 'germany',
@@ -113,7 +120,7 @@ export const SCENES: Record<SceneId, SceneInfo> = {
       buergeramt: { x: -2.0, z: -3.2, yaw: 0 },
       tram: { x: 3.4, z: 0.4, yaw: 0 },
     },
-    load: () => import('./GermanyStreet'),
+    load: withModels(['nature'], () => import('./GermanyStreet')),
   },
   buergeramt: {
     id: 'buergeramt',
@@ -123,7 +130,7 @@ export const SCENES: Record<SceneId, SceneInfo> = {
     plaque: { style: 'room', title: { vi: 'Bürgeramt', en: 'Bürgeramt', de: 'Bürgeramt' }, subtitle: { vi: 'Phòng đăng ký cư trú', en: 'Citizens’ office', de: 'Bürgerservice' } },
     spawns: { default: { x: 0, z: 2.6, yaw: 0 } },
     cameraZoom: 0.8,
-    load: () => import('./Buergeramt'),
+    load: withModels(['nature'], () => import('./Buergeramt')),
   },
   wg: {
     id: 'wg',
@@ -133,7 +140,7 @@ export const SCENES: Record<SceneId, SceneInfo> = {
     plaque: { style: 'room', title: { vi: 'Căn hộ WG', en: 'The WG', de: 'Die WG' }, subtitle: { vi: 'Lindenstraße 12, tầng 3', en: 'Lindenstraße 12, 3rd floor', de: 'Lindenstraße 12, 3. OG' }, alt: { if: { flag: 'de.ownFlat' }, title: { vi: 'Căn hộ của mình', en: 'My own flat', de: 'Meine Wohnung' }, subtitle: { vi: 'Lindenstraße 12, tầng 4', en: 'Lindenstraße 12, 4th floor', de: 'Lindenstraße 12, 4. OG' } } },
     spawns: { default: { x: 1.5, z: 2.4, yaw: 0 } },
     cameraZoom: 0.78,
-    load: () => import('./WgRoom'),
+    load: withModels(['nature'], () => import('./WgRoom')),
   },
   university: {
     id: 'university',
@@ -143,7 +150,7 @@ export const SCENES: Record<SceneId, SceneInfo> = {
     plaque: { style: 'room', title: { vi: 'Universität Lindenberg', en: 'Lindenberg University', de: 'Universität Lindenberg' }, subtitle: { vi: 'Hörsaal 2 · Khoa Điều dưỡng', en: 'Lecture hall 2 · Nursing', de: 'Hörsaal 2 · Pflege' } },
     spawns: { default: { x: 5.0, z: 3.6, yaw: 0 } },
     cameraZoom: 0.95,
-    load: () => import('./University'),
+    load: withModels(['nature'], () => import('./University')),
   },
   careHome: {
     id: 'careHome',
@@ -153,6 +160,6 @@ export const SCENES: Record<SceneId, SceneInfo> = {
     plaque: { style: 'room', title: { vi: 'Pflegeheim Sonnenhof', en: 'Sonnenhof care home', de: 'Pflegeheim Sonnenhof' } },
     spawns: { default: { x: 0, z: 3.0, yaw: 0 } },
     cameraZoom: 0.85,
-    load: () => import('./CareHome'),
+    load: withModels(['nature'], () => import('./CareHome')),
   },
 }

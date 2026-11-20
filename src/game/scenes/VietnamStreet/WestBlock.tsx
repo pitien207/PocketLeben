@@ -4,7 +4,7 @@ import { NPCS } from '../../../data/npcs'
 import { NPC } from '../../components/npc/NPC'
 import { PROP_GROUPS } from '../../systems/collisionGroups'
 import { PALETTE as P } from '../shared/palette'
-import { cafeTableSetShapes, place, stoolShapes, treeShapes } from '../shared/props'
+import { cafeTableSetShapes, fluffyTreeShapes, place, stoolShapes } from '../shared/props'
 import { Shapes, type ShapeItem } from '../shared/Shapes'
 import type { SignOptions } from '../shared/textures'
 import { BUILDING_DEPTH, BUILDING_FRONT_Z, houseFront, WEST } from './layout'
@@ -58,7 +58,7 @@ function propShapes(): ShapeItem[] {
   }
   // Banyan tree (cây đa) with a tiny red shrine at its roots
   const { x: bx, z: bz } = WEST.banyan
-  s.push(place(treeShapes('green'), [bx, 0, bz], 0.4, 1.9))
+  s.push(place(fluffyTreeShapes('green'), [bx, 0, bz], 0.4, 1.9))
   s.push({ cyl: [0.5, 0.75, 0.3, 10], at: [bx, 0.15, bz], color: '#cfc8bb' })
   s.push({ box: [0.45, 0.5, 0.35], at: [bx + 0.85, 0.55, bz + 0.2], color: '#c8322b' })
   s.push({ box: [0.55, 0.08, 0.45], at: [bx + 0.85, 0.83, bz + 0.2], color: '#f4c04e' })

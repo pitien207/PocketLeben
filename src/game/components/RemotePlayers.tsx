@@ -8,6 +8,9 @@ import { useNet, type EmoteId } from '../../store/netStore'
 import { damp, dampAngle } from '../systems/math'
 import { playerState } from '../systems/playerState'
 import { ChibiModel, type MotionState } from './ChibiModel'
+import { isVehicleId, VEHICLES } from '../../data/vehicles'
+import { rideAnchorsOf } from '../scenes/shared/ownVehicles'
+import { VehicleMesh } from './PlayerVehicle'
 
 /** What each emote shows above the head (emoji are fine in content). */
 export const EMOTES: Record<EmoteId, { icon: string; text?: Localized }> = {
@@ -134,6 +137,11 @@ function RemotePlayer({ id, name }: { id: number; name: string }) {
   const [, rerender] = useReducer((n: number) => n + 1, 0)
   const r0 = remotes.get(id)
   outfitKey.current = r0?.outfitKey ?? ''
+  // 1.35: the vehicle they ride (unknown ids from newer clients are ignored).
+  const veh = r0?.snap.veh
+  const vehDef = isVehicleId(veh) ? VEHICLES[veh] : null
+  const vehKey = useRef<string | null>(null)
+  vehKey.current = veh ?? null
 
   useFrame((_, rawDt) => {
     const r = remotes.get(id)
@@ -143,7 +151,7 @@ function RemotePlayer({ id, name }: { id: number; name: string }) {
     const wantName = namedRemotes.has(id)
     if (wantName !== named) setNamed(wantName)
     // Outfit changed (they bought clothes): rebuild the model (geometry is cached per outfit).
-    if (r.outfitKey !== outfitKey.current) rerender()
+    if (r.outfitKey !== outfitKey.current || (r.snap.veh ?? null) !== vehKey.current) rerender()
     const dt = Math.min(rawDt, 0.1)
     const far = Math.hypot(r.snap.x - r.x, r.snap.z - r.z) > 4
     r.x = far ? r.snap.x : damp(r.x, r.snap.x, 10, dt)
@@ -157,7 +165,10 @@ function RemotePlayer({ id, name }: { id: number; name: string }) {
   return (
     <group ref={root} position={[r0?.x ?? 0, 0, r0?.z ?? 0]}>
       <group ref={facing}>
-        <ChibiModel motion={motion} outfit={r0?.outfit} />
+        {vehDef && <VehicleMesh def={vehDef} shadows={false} />}
+        <group position={[0, 0, vehDef ? (rideAnchorsOf(vehDef)?.riderZ ?? 0) : 0]} visible={vehDef?.kind !== 'car'}>
+          <ChibiModel motion={motion} outfit={r0?.outfit} />
+        </group>
       </group>
       {named && <NamePlate name={name} />}
       <Bubbles emote={emote} chat={chat} />

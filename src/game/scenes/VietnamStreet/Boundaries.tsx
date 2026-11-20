@@ -4,7 +4,7 @@ import { PROP_GROUPS } from '../../systems/collisionGroups'
 import { PALETTE as P } from '../shared/palette'
 import { barrierShapes, coneShapes, place } from '../shared/props'
 import { Shapes, type ShapeItem } from '../shared/Shapes'
-import { NGOC_SON, NORTH, PLAY, ROAD } from './layout'
+import { LAKE, NGOC_SON, NORTH, PLAY, ROAD } from './layout'
 
 const WALL_H = 4
 const T = 0.5 // half thickness of the invisible walls
@@ -41,7 +41,7 @@ export function Boundaries() {
     s.push(...hedge([minX - 0.35, -4.2], [minX - 0.35, ROAD.minZ - 0.4]))
     s.push(...hedge([minX - 0.35, ROAD.maxZ + 0.4], [minX - 0.35, maxZ + 0.35]))
     // (the south edge is Hồ Gươm's railing, see HoGuom.tsx)
-    s.push(...hedge([maxX + 0.35, ROAD.maxZ + 0.4], [maxX + 0.35, maxZ + 0.35]))
+    s.push(...hedge([maxX + 0.35, ROAD.maxZ + 0.4], [maxX + 0.35, maxZ - 0.4]))
     s.push(...hedge([maxX + 0.35, -4.2], [maxX + 0.35, ROAD.minZ - 0.4]))
     // East end of the walking street: planters and a hedge (it goes on, but not for us)
     s.push(...hedge([maxX + 0.5, NORTH.walk.z1 + 0.6], [maxX + 0.5, NORTH.walk.z0 - 0.6]))
@@ -73,7 +73,8 @@ export function Boundaries() {
         <CuboidCollider args={[halfW, WALL_H, T]} position={[cx, WALL_H, minZ - T]} collisionGroups={PROP_GROUPS} />
         {/* South (lake railing) with a gap for the Thê Húc bridge */}
         <CuboidCollider args={[(gapL - minX) / 2 + T, WALL_H, T]} position={[(minX + gapL) / 2 - T, WALL_H, maxZ + T]} collisionGroups={PROP_GROUPS} />
-        <CuboidCollider args={[(maxX - gapR) / 2 + T, WALL_H, T]} position={[(gapR + maxX) / 2 + T, WALL_H, maxZ + T]} collisionGroups={PROP_GROUPS} />
+        {/* 1.34: open east of LAKE.east — the path along the east shore to Hàng Khay */}
+        <CuboidCollider args={[(LAKE.east - gapR) / 2, WALL_H, T]} position={[(gapR + LAKE.east) / 2, WALL_H, maxZ + T]} collisionGroups={PROP_GROUPS} />
       </RigidBody>
     </>
   )

@@ -126,17 +126,26 @@ export const OFFICES = {
  * Đền Ngọc Sơn (NgocSon.tsx): the Thê Húc bridge runs south from the lake railing (z ≈ 14.45)
  * to Jade Island. Walls in Boundaries.tsx leave a gap at the bridge.
  */
+/** 1.34: the bridge is longer (user), so the island and everything on it moved this much further out. */
+const BRIDGE_PLUS = 7
 export const NGOC_SON = {
-  bridge: { x: 10, z0: 14.2 + SOUTH, z1: 25.3 + SOUTH, width: 1.9, peak: 0.85 },
-  island: { x: 10, z: 31.2 + SOUTH, rx: 7, rz: 6.2 },
+  bridge: { x: 10, z0: 14.2 + SOUTH, z1: 25.3 + SOUTH + BRIDGE_PLUS, width: 1.9, peak: 1.05 },
+  island: { x: 10, z: 31.2 + SOUTH + BRIDGE_PLUS, rx: 7, rz: 6.2 },
   shoreGateZ: 12.9 + SOUTH,
   penTower: { x: 7.0, z: 13.0 + SOUTH },
-  gateZ: 26.5 + SOUTH,
-  urn: { x: 10, z: 28.9 + SOUTH },
-  banyan: { x: 5.4, z: 30.6 + SOUTH },
-  hall: { z: 34 + SOUTH, w: 7, d: 4.4 },
-  turtle: { x: 14.7, z: 29.8 + SOUTH },
+  gateZ: 26.5 + SOUTH + BRIDGE_PLUS,
+  urn: { x: 10, z: 28.9 + SOUTH + BRIDGE_PLUS },
+  banyan: { x: 5.4, z: 30.6 + SOUTH + BRIDGE_PLUS },
+  hall: { z: 34 + SOUTH + BRIDGE_PLUS, w: 7, d: 4.4 },
+  turtle: { x: 14.7, z: 29.8 + SOUTH + BRIDGE_PLUS },
 }
+
+/**
+ * 1.34 — Hồ Gươm in one piece with the other shore (user: one big map). North shore = Hàng Gai's far pavement
+ * (railing at `north`), south shore = Phố Hàng Khay (scenes/HangKhay, its z are offset to start here), a path along
+ * the east shore (x `east`…`path`) joins them, east of it the Lý Thái Tổ garden (to `park`).
+ */
+export const LAKE = { north: PLAY.maxZ + 0.45, south: 70, east: 30.4, path: 34.6, park: 48, tower: { x: -14, z: 44 } }
 
 /** East block (EastBlock.tsx). */
 export const EAST = {

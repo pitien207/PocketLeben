@@ -1,5 +1,255 @@
 # Changelog
 
+## 1.38.0 — Smooth see-through, no more flicker on phones
+
+### Changed
+- **What stands between the camera and you is now smoothly translucent** (user: the dotted look was odd): a tree's
+  crown and trunk and a wall in the way fade to about a quarter, without dots; the foot of the tree and the base of
+  the wall stay solid. Things very close to the camera fade out gently instead of popping away.
+
+### Fixed
+- **Flickering in the phone view**: the dotted see-through sparkled while moving, objects near the lens popped on and
+  off, and the moving shadow area jumped in 2 m steps so shadow edges jittered. Now: smooth fades, and the shadow area
+  follows you in whole shadow-map pixels along the sun's axes (edges stay still).
+
+### Manual test checklist (phone)
+- [ ] Walk under trees and behind houses: they turn see-through smoothly, no dots, tree feet stay.
+- [ ] Walk along the street for a minute: no flicker or flashes, shadows do not jitter.
+
+## 1.37.0 — See-through instead of zoom, new compass, quest celebration and journal, fixes
+
+### Changed
+- **Camera (user: the zoom at corners was hard to look at)**: outdoors the camera no longer dips or zooms in when a
+  house or tree is in the way — whatever stands between the camera and you turns see-through (a soft dither): a tree
+  keeps its foot, its trunk and crown go faint; a wall keeps its base. Rooms keep the old framing.
+- **Compass**: a compass strip at the top centre replaces the round arrow — B / Đ / N / T slide as you turn the
+  camera, the objective is a 3D pin with its distance (held at the end of the strip when it is beside or behind you).
+- **Finishing a quest / an achievement**: a celebration in the middle of the screen (golden rays, the 3D trophy or
+  medal springing in, a ribbon with the quest's name, confetti, a fanfare). It never blocks you.
+- **Notifications**: a new card — a glowing round 3D icon, a small title, the text and a thin bar that runs down while
+  it is shown; below the compass.
+- **Quest journal**: opens over the game with a lacquer-red header (chapter + progress), tabs "Đang làm / Đã xong",
+  the quests as a list on the left and the picked one on the right (big icon, progress ring, steps with "Chỉ đường").
+- **Laptops**: screens up to 640 px high (laptops with Windows scaling) now use the compact landscape layouts, so
+  the mini-games are no longer cut off at the bottom.
+
+### Fixed
+- **Signs floating in front of the new district's shops**: they now hang flat on the wall (the model's outline
+  includes its steps and canopies); the flower market and Vườn hoa Lý Thái Tổ signs stand on posts.
+- **Falling through the ground and respawning in Hàng Khay**: the ground's collider ended before the south of the
+  district.
+- **You can no longer walk on Hồ Gươm**: invisible walls fill the water except the bridge and Jade Island.
+- **The screen flashing bright now and then**: the automatic quality switch changed the resolution back and forth
+  (each switch flashed a frame); it now lowers it once and stays.
+
+### Manual test checklist
+- [ ] Walk behind a house / under a tree: the camera stays where it is; the house or tree in the way goes see-through,
+      the tree's foot stays solid.
+- [ ] Compass strip at the top: turning the camera slides the letters; the pin points to the objective with metres.
+- [ ] Finish a quest step that ends a quest: big celebration; other notices: new cards under the compass.
+- [ ] Quest journal: tabs, list, details, "Chỉ đường".
+- [ ] Laptop: Trà sữa, Circle K, Grab and the Auslandsportal form fit the window.
+- [ ] Hàng Khay: shop signs on the walls; walk to the very south end without falling.
+- [ ] Try to step into the lake anywhere: impossible; the bridge still works.
+- [ ] No more bright flashes while playing.
+
+## 1.36.0 — Chibi again (more detailed), one big map round Hồ Gươm, a clothes shop with pictures, smoother UI
+
+The user found the library people of 1.33 ugly, wanted the map really wider (the other side of the lake in the same
+map, a longer bridge), saw things stuck in each other, wanted the clothes shop sorted and showing the clothes, and
+asked for a less laggy interface.
+
+### Changed
+- **The chibi characters are back** (the Quaternius people are removed) — finer than before: rounder meshes
+  (more segments), and more detailed clothes: a woven fabric look on every plain top (knit) and bottom (twill /
+  denim), a chest pocket on T-shirts and shirts, stitched hem bands on tops, sleeve hems, trouser and shorts cuffs,
+  and on trousers / shorts a fly, front-pocket openings, back pockets and a waistband.
+- **One big map**: Phố Hàng Khay is no longer a separate place — it lies on the other side of Hồ Gươm in the same
+  map. Walk along the **new path on the east shore** (from the east end of the lake-side pavement on Hàng Gai, past
+  Vườn hoa Lý Thái Tổ with the king's statue, lawns, flower beds and many trees) down to the south shore. The lake is
+  much bigger, Tháp Rùa stands in the middle, and the **Thê Húc bridge is 7 m longer** (a higher arch).
+- **Nothing stuck in each other**: tree crowns are kept to street-tree size (they reached into balconies and signs),
+  potted plants stay pot-sized, the air-conditioner units on the old houses are gone (they sat inside the balconies),
+  and in the new district trees, lamps, benches and bushes keep their distance; potted plants no longer stand on
+  door steps.
+- **Shadows everywhere**: the sun's shadow area now follows you (before, only the middle of Hàng Gai had shadows).
+
+### Clothes shop
+- Categories as tabs: **Áo / Quần & váy / Giày dép / Mũ & phụ kiện / Kiểu tóc** (only those the shop sells).
+- Every item is shown as a **picture of your own character wearing it** (whole body; head for hats and hair). Tap
+  one to see it big on the left, then buy or wear it.
+
+### Performance
+- No more blurred glass behind the HUD, joystick and panels (the phone had to re-blur the 3D view every frame).
+- The 3D world is not drawn while a full-screen mini-game (trà sữa, Circle K, Grab) covers it.
+- Traffic and passers-by of each side of the lake only run while you are on that side.
+
+### Manual test checklist (phone)
+- [ ] Characters are chibis again; clothes show fabric texture, pockets, hems; prints still work.
+- [ ] East end of the lake-side pavement → walk south along the railing → Lý Thái Tổ garden → Hàng Khay; walk back.
+- [ ] Thê Húc bridge to the island: longer, walkable, temple still works (incense).
+- [ ] Trees and signs/balconies no longer cut into each other; no AC boxes inside balconies.
+- [ ] Shadows of trees and houses in the north quarter and in Hàng Khay.
+- [ ] Chị Hằng's clothes stall: tabs, pictures appear, tap → big picture, buy, wear.
+- [ ] Frame rate: walking around, opening panels, playing trà sữa / Circle K / Grab.
+
+## 1.35.0 — Showroom Xe Phố Cổ: buy, ride and refuel your own bicycle, motorbike or car
+
+### Added
+- **Showroom Xe Phố Cổ** on Phố Tràng Tiền, right next to the petrol station (a hole in row D, x −22…−10): open
+  front with bunting, scooters along both walls, a red sports car turning on a stand, chị Thủy at the counter (talk to
+  her or use the spot at the door → shop). Open 8h–21h. On the map as "Showroom xe".
+- **Shop** (`ui/VehicleShop.tsx`): tabs Xe máy & xe đạp / Ô tô / Xe của tôi, a turning 3D preview, speed and tank,
+  buy (tap twice), choose which one to ride, sell back for 60 % (tap twice). 9 vehicles (made-up names): bicycle
+  1,8 M; motorbikes 19,5 M – 92 M (step-through, scooter, retro scooter, big scooter); cars 260 M – 1,65 tỷ. Each
+  motor vehicle gets a Hà Nội plate.
+- **Riding**: ride button (touch: above the run button, with a fuel badge and a horn; desktop: bottom-left pill,
+  **F** = get on/off, **H** = horn). Only on the Hà Nội streets (Hàng Gai, Hàng Đào, Tràng Tiền, Hàng Khay); you get
+  off automatically indoors, when sitting down or when the game walks you somewhere. Vehicles steer like vehicles
+  (turn toward the stick, speed up along the heading) and collide with their real size; in a car the driver is
+  hidden. Other online players see your vehicle.
+- **Fuel**: motor vehicles use fuel with distance; a warning at 10 %, at 0 % you have to get off. The petrol station
+  ("Đổ xăng") now fills the tank (24.000đ/litre, or as much as your money allows).
+
+### Manual test checklist (phone)
+- [ ] Walk to Phố Tràng Tiền: the showroom stands next to the petrol station; chị Thủy talks; the door opens the shop.
+- [ ] Buy the Ong Vàng (needs 19,5 M — use test mode for money): money goes down, "Xe của tôi" shows plate + fuel.
+- [ ] Ride button appears; ride on Hàng Gai, into Hàng Khay and back; bump into walls / traffic.
+- [ ] Enter a building: you get off; outside the button is back.
+- [ ] Ride until fuel runs low / out, then fill up at the petrol station.
+- [ ] Buy a car, "Đi xe này", drive it; sell a vehicle back.
+- [ ] Shop layout on a phone held sideways (740 × 340) and in portrait.
+
+## 1.35.0 — Showroom Xe Phố Cổ: buy, ride and refuel your own vehicle
+
+### Added
+- **Showroom Xe Phố Cổ** on Phố Tràng Tiền, right next to the petrol station (open 8h–21h): open front with bunting,
+  scooters along both walls, a red sports car turning on a stand, **chị Thủy** at the counter (talk to her or use the
+  door spot "Xem xe"). On the map as "Showroom xe".
+- **9 vehicles** (made-up names): bicycle Hoa Sữa 1,8 tr; motorbikes Ong Vàng 110 (19,5 tr), Mây Trắng 125 (34 tr),
+  Én Bạc retro (68 tr), Phong Lưu 150 (92 tr); cars Hạt Đậu mini (260 tr), Phố Cổ 5 chỗ (480 tr), SUV Gia Đình (890 tr),
+  Chớp Đỏ sports car (1,65 tỷ). The shop shows the chosen one turning in 3D, speed, tank size; tabs two-wheelers / cars
+  / mine. Buy = tap twice; you get a Hà Nội number plate and a full tank. Sell back for 60 %. "Đi xe này" picks which
+  vehicle the ride button takes.
+- **Riding**: a ride button (touch: above the run button, with the fuel %; desktop: pill bottom-left, key **F**; **H**
+  / "Bíp" = horn) in Hàng Gai, the north quarter and Hàng Khay. Vehicles steer like vehicles (turn toward the stick,
+  speed up along the heading, wide U-turns), with a box collider that turns with them. On a two-wheeler you sit on it;
+  in a car you are hidden inside. You get off by yourself when you go indoors, sit down or the game walks you somewhere.
+  Online players see your vehicle.
+- **Fuel**: engines use fuel by distance; at 10 % a warning, at 0 % you have to get off. At the **petrol station**
+  ("Đổ xăng") the attendant fills your current vehicle (24.000đ/litre; as much as your money allows).
+
+### Manual test checklist (phone)
+- [ ] Phố Tràng Tiền: showroom next to the petrol station looks right by day and night; you can walk in.
+- [ ] Talk to chị Thủy → "Cho em xem xe" opens the shop; the door spot "Xem xe" too; after 21h it is closed.
+- [ ] Shop: tabs, 3D preview turns, buy needs two taps, money goes down, plate shown under "Xe của tôi".
+- [ ] Ride button appears; ride a motorbike, a bicycle (pedalling) and a car; steering feels OK on the joystick; no
+      getting stuck on walls or kerbs; traffic still stops for you.
+- [ ] Walk to Hàng Khay along the lake while riding; go into a house → you are on foot.
+- [ ] Ride until the fuel runs out (or set flag `veh.fuel.<id>` low in test mode) → warning, then off; refuel at the
+      petrol station; the ride button shows the new %.
+- [ ] Sell a vehicle back (two taps) → 60 % of the price.
+- [ ] Shop and ride button at 740 × 340 landscape and in portrait.
+
+## 1.34.0 — Tiệm Vàng Kim Thành: buy and sell gold by chỉ and cây
+
+### Added
+- **Gold shop on Phố Hàng Khay** (the east-end house, open 8h–20h): an open glass counter with gold bars and rings,
+  **chú Năng** behind it, a red lantern and a board "GIÁ VÀNG HÔM NAY" with today's price.
+- **Talk to chú Năng** (or enter the door): he quotes today's price and how it moved since yesterday; regulars hear
+  how much their gold is worth and the profit / loss. "Chỉ với cây khác nhau thế nào?" explains 1 cây = 10 chỉ,
+  1 chỉ = 3,75 g and why buying today and selling tomorrow usually loses (the shop buys back ~1,6 % lower).
+- **Buy / sell sheet**: price board (bán ra / mua vào per chỉ, ▲▼ change, 14-day chart), your gold + cash, tabs
+  Mua / Bán, unit Chỉ / Cây, − / + stepper, "Mua hết số tiền" / "Bán hết", total and confirm. Only đồng, only in
+  opening hours.
+- **Price changes every day**, the same for everyone on the same game day: ~12 M đ/chỉ at the start, a slow upward
+  trend with daily moves of about ±1 % (`CONFIG.gold`). Holdings in flags `gold.chi` / `gold.paid`.
+
+### Manual test checklist (phone)
+- [ ] Hàng Khay, east end: sign "TIỆM VÀNG KIM THÀNH", counter with gold, chú Năng, price board readable.
+- [ ] Talk to chú Năng → buy 1 chỉ, then 1 cây (money drops by 10 × the chỉ price); the sheet fits at 740 × 340.
+- [ ] Sell 1 chỉ → you get the "mua vào" price, toast shows profit / loss; "Bán hết" fills everything.
+- [ ] Next day: the board and chú's line show another price; talk again → "khách quen" line with your gold.
+- [ ] After 20h: door says closed, chú says the shop is closed, nothing can be bought.
+
+## 1.33.0 — Library models (people, trees, buildings) and a new district south of the lake
+
+The user found the primitive shapes ugly and asked for models from libraries, more kinds of trees, new characters
+and clothes, a bigger map and many functional buildings to hook ideas onto later. All models are CC0 by Quaternius
+(fetched from the GitHub mirror trebeljahr/quaternius-showcase, converted by our own tools).
+
+### Changed
+- **New characters (Quaternius "Ultimate Modular Men / Women")** for the player, every NPC, riders and online
+  players — real proportions instead of the chibi. Each person mixes four parts from the packs (head + hair,
+  top + arms, legs, feet), chosen from the existing Outfit (hair style → head, cut of the top → body, bottom → legs,
+  shoe type → feet) and painted in the outfit's colours, so shops, wardrobe, saves and online keep working. Fabric
+  prints still work. Animations are written in code (walk / run, sit on stools and chairs, ride a motorbike or bicycle
+  with hands on the grips and feet on the footrests, drink, fan, đá cầu kick). Hats, glasses, backpacks, the shoulder
+  pole and the áo dài flaps are added on top. Dialogue portraits are photos of the new people.
+  If the model file cannot be loaded (offline without cache) the old chibi is used.
+- **Trees from the library**: street trees in five shapes and several greens (sấu, xà cừ…), flowering trees in red
+  (phượng), purple (bằng lăng), pink and yellow; weeping willows and lotus leaves with pink flowers at Hồ Gươm;
+  palms, pines; birches and lindens in Germany; eight kinds of potted plants instead of the ball plants.
+- **Air-conditioner units** on the upper floors of the old-quarter houses.
+- Models were thinned out for phones (trees ≈ 750 triangles, a person ≈ 3,400).
+
+### Fixed
+- **The game stayed one colour at start**: an old import loop (say → time → workStore → jobs → family → say)
+  broke once new modules changed the load order (family.ts read `L` before say.ts had finished). `weekdayIndex` now
+  lives in its own file `systems/weekday.ts` (time.ts re-exports it), so say.ts imports nothing from the game.
+
+### Added
+- **Phố Hàng Khay (south shore of Hồ Gươm)** — a new area: walk to the east end of the lake-side pavement on Hàng
+  Gai (green sign "PHỐ HÀNG KHAY →") and take the path along the lake. A promenade with willows, benches, lamps and
+  flower beds and a view of Tháp Rùa; a four-lane street with traffic; Phố Bà Triệu going south; Vườn hoa Hàng Khay
+  (fountain, gazebo, many trees, flower market); a school yard with a flag and a basketball hoop. Lamps light up at
+  night. The way back is at the east end of the promenade. On the M map too.
+- **14 functional buildings** with a sign and a door: bank, supermarket, Tràng Tiền bookshop, cinema, restaurant,
+  hotel, phone shop, karaoke, gym, hospital, school, ward police, library, flower market. For now the door says what
+  you see there and that it opens soon (with opening hours). To give one a feature later: `action` in
+  `src/data/cityPlaces.ts`.
+- New passers-by there (jogger, an old man walking, the flower seller, the school caretaker…).
+
+### Manual test checklist (phone)
+- [ ] Start / continue a game: your character, Bố, Mẹ, NPCs and riders are the new people; male and female look right.
+- [ ] Walk, run, sit at the trà đá stall, ride with anh Tú (xe ôm): arms and legs look natural, no stretching.
+- [ ] Change clothes / hair at the shops: the person changes; prints still show.
+- [ ] Talk to someone: the portrait is a photo of the new person's face.
+- [ ] Hàng Gai, the walking street, the avenue: different trees and colours; willows and lotus at the lake.
+- [ ] East end of the lake pavement → "Đi bộ ven hồ" → Phố Hàng Khay; look around, enter buildings (note + hours),
+      the park and flower market; at night the lamps and windows light up; walk back.
+- [ ] Frame rate on your phone in Hàng Gai and Hàng Khay ("Đẹp" and "Mượt").
+
+## 1.32.0 — Prettier graphics, Việt Nam first ("đồ họa đẹp")
+
+The user wants the graphics more detailed and prettier. This first step changes only the Việt Nam scenes so it can
+be compared with Germany (unchanged) and judged before the rest follows.
+
+### Added
+- **Setting "Hiệu ứng ánh sáng"** (Settings, on by default): switches the new look on or off. It only applies in the
+  Việt Nam scenes for now.
+- **Sky**: a real sky dome instead of a flat colour — the keyed sky colour deepens overhead and fades into the haze
+  at the horizon, a soft sun / moon glow, drifting cartoon clouds with a lit top and a shaded belly (more on cloudy and
+  rainy days), twinkling stars on clear nights.
+- **Light and shadow (post effects, library `postprocessing` + `@react-three/postprocessing`)**: soft ambient occlusion
+  (N8AO) in corners, under balconies and awnings and around feet; bloom so lamps, lanterns, lit windows and the moon
+  glow at night (the bloom threshold follows the night amount, so sunlit walls never glow by day); a light colour grade
+  (a touch more saturation and contrast); a very light tilt-shift blur at the top and bottom edges (toy-diorama look).
+  "Mượt" graphics: no AO and no tilt-shift, SMAA instead of MSAA. The effect code loads only when it is first needed.
+- **Nights in Hà Nội**: windows light up warm (some stay dark), the street lamps throw warm pools of light on the road
+  and the pavement, lanterns and bulbs glow, and the night is a little darker so the lights carry the scene.
+- **Softer trees and potted plants** in all Việt Nam areas: smooth leaf balls, darker underneath and sunlit on top,
+  on a tapered trunk with branches (the faceted ones stay in Germany for now).
+
+### Manual test checklist (phone)
+- [ ] Hàng Gai by day: sky with clouds when you look along the street, soft shadows under balconies and around people.
+- [ ] Evening and night (wait or use test mode): windows light up, lamp pools on the road, lanterns on Phố đi bộ Hàng
+      Đào and the café bulbs glow; stars on a clear night.
+- [ ] Settings → "Hiệu ứng ánh sáng" Tắt / Bật switches the look at once; Germany looks as before.
+- [ ] Settings → Đồ họa "Mượt": still fine, game runs smoothly; "Đẹp": check the frame rate on your phone.
+- [ ] Walking behind a building still shows the blue silhouette of the player.
+- [ ] Inside the house: room looks normal (effects on, no sky).
+
 ## 1.31.0 — The game is now called **Pocket Leben**, with a new logo
 
 ### Changed

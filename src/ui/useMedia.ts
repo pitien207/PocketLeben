@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 
 /** Same queries as the `land:` / `short:` CSS variants in index.css (keep them in sync). */
 export const LAND_QUERY = '(orientation: landscape) and (min-width: 600px)'
-export const SHORT_QUERY = '(orientation: landscape) and (max-height: 540px)'
+export const SHORT_QUERY = '(orientation: landscape) and (max-height: 640px)'
 
 /** Live result of a media query (re-renders when the phone is turned). */
 export function useMedia(query: string) {

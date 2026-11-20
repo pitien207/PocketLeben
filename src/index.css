@@ -6,7 +6,8 @@
  * everything must fit in ~320–430 px and sit beside, not above, each other).
  */
 @custom-variant land (@media (orientation: landscape) and (min-width: 600px));
-@custom-variant short (@media (orientation: landscape) and (max-height: 540px));
+/* 1.36: up to 640 px high (was 540) — laptops with Windows scaling have ~560–640 px of browser height and their mini-games were cut off */
+@custom-variant short (@media (orientation: landscape) and (max-height: 640px));
 
 /*
  * Visual language — Hà Nội: warm "giấy dó" paper panels with a faint gạch bông (encaustic
@@ -305,14 +306,14 @@
 
 /* Slim HUD plate (1.14): the same paper + ink outline, half the bulk — keeps the 3D view open on phones. */
 @utility hud-slim {
-  background-color: rgb(255 249 236 / 0.92);
+  background-color: rgb(255 249 236 / 0.95);
   border: 1.5px solid rgb(74 50 38 / 0.75);
   border-radius: 0.7rem;
   box-shadow:
     inset 0 1px 0 #ffffff,
     0 1.5px 0 rgb(74 50 38 / 0.55),
     0 4px 10px rgb(60 40 30 / 0.12);
-  backdrop-filter: blur(6px);
+  /* (1.34: no backdrop-filter — blurring the live 3D view behind every HUD plate cost a lot on phones) */
 }
 
 /* One icon inside the grouped tool rail (1.18): no plate of its own. */
@@ -528,4 +529,19 @@ textarea {
 }
 .step-done-flash {
   animation: step-done 0.9s ease-out;
+}
+
+/* 1.36 toast card: the thin bar that runs down while the notice is shown */
+.toast-timer {
+  animation-name: toast-timer;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
+@keyframes toast-timer {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0);
+  }
 }

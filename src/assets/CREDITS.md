@@ -11,6 +11,14 @@ Every asset must be CC0 or our own (plan §2, §9). List each one here with its 
   `src/assets/models/cars.bin` + `cars.json` (scaled ×0.8, some material colours adjusted, body repainted per car).
   Thank you, Quaternius (https://www.patreon.com/quaternius).
 
+- **Trees, plants, buildings, street furniture** (1.33) by **Quaternius** — license **CC0 1.0**:
+  *Ultimate Nature*, *Simple Nature*, *Ultimate House Interior* (house plants), *Ultimate (Textured) Buildings*
+  (colour versions), *Modular Streets*, *Cyberpunk Game Kit* (AC units, antennas), *Medieval Village* (stalls, benches,
+  gazebo), *Survival* (bin) — https://quaternius.com. GLB files taken from the fan mirror
+  https://github.com/trebeljahr/quaternius-showcase (same CC0 files). Converted by
+  `tools/glb2props.mjs` into `src/assets/models/nature|city.bin/.json` (scaled, welded, simplified with
+  meshoptimizer, repainted per material in the game).
+
 ## Textures
 - Fabric prints in `src/assets/patterns/*.svg` (hoa sen, hoa mai, hoa đào, trống đồng, thổ cẩm, caro, sóng nước, hoa nhí,
   sao vàng, 1.23): original SVG artwork made for this game.
@@ -26,13 +34,16 @@ Every asset must be CC0 or our own (plan §2, §9). List each one here with its 
 ## 3D icons (1.25)
 - `src/assets/icons3d/*.webp` (food, drinks, vehicles, trees, house, faces, stopwatch, money bag, party popper…) are
   **Fluent Emoji 3D** by Microsoft — https://github.com/microsoft/fluentui-emoji — **MIT licence**
-  (Copyright (c) Microsoft Corporation). Shrunk to 128 px WebP; otherwise unchanged.
+  (Copyright (c) Microsoft Corporation). Shrunk to 128 px WebP; otherwise unchanged. 1.35 added bicycle, fuel-pump, key.
 
 ## Grab sprites (1.26)
 - `src/assets/grab/*.png` (top-down motorcycle, cars, cones, barrier, oil) from **Kenney**'s *Racing Pack* — https://kenney.nl —
   license **CC0 1.0**. Renamed only.
 
 ## Libraries
+- **postprocessing** (Raoul van Rüschen, zlib licence, https://github.com/pmndrs/postprocessing),
+  **@react-three/postprocessing** (Poimandres, MIT licence, https://github.com/pmndrs/react-postprocessing) and
+  **n8ao** (N8python, ISC licence, https://github.com/N8python/n8ao) for the 1.32 post effects (AO, bloom, grade).
 - **motion** (motion.dev, formerly Framer Motion, MIT licence, https://github.com/motiondivision/motion) for the quest animations.
 - **sonner** (Emil Kowalski, MIT licence, https://github.com/emilkowalski/sonner) for the notifications.
 - **canvas-confetti** (Kirill Shestakov, ISC licence, https://github.com/catdad/canvas-confetti) for the confetti in

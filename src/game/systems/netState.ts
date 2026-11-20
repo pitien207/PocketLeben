@@ -15,7 +15,9 @@ export interface PlayerSnapshot {
   yaw: number
   motion: MotionState
   outfit: Outfit
+  /** 1.35: the own vehicle they ride (data/vehicles.ts id), if any. */
+  veh?: string | null
 }
 
 /** Written by the Player every frame (cheap: no allocation). */
-export const localSnapshot: { yaw: number; motion: MotionState | null } = { yaw: 0, motion: null }
+export const localSnapshot: { yaw: number; motion: MotionState | null; veh: string | null } = { yaw: 0, motion: null, veh: null }

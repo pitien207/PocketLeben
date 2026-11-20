@@ -61,6 +61,13 @@ không nói chuyện được với 3.6, app sẽ báo Unhealthy):
 az cosmosdb show -n pocketleben-cosmos -g pocketleben-rg --query apiProperties.serverVersion -o tsv
 az cosmosdb update -n pocketleben-cosmos -g pocketleben-rg --server-version 7.0   # nếu ra 3.6
 ```
+**Kiểm tra throughput dùng chung** (phải ra `1000`). Nếu báo `NotFound` thì database đang không có throughput chung
+(ví dụ app đã tự tạo nó trước lệnh trên): khi đó mỗi collection tự lấy 400 RU/s riêng, tới collection thứ 3 thì vượt
+giới hạn 1000 của tài khoản → đăng ký báo lỗi "server" (log: `total throughput limit of 1000 RU/s`). Sửa = xoá database
+(lúc chưa có người chơi) rồi tạo lại bằng lệnh trên, sau đó restart revision của Container App:
+```powershell
+az cosmosdb mongodb database throughput show -a pocketleben-cosmos -g pocketleben-rg -n pocketleben --query resource.throughput -o tsv
+```
 Không tăng throughput quá 1000 RU/s (phần vượt sẽ tính tiền). Chỉ index TTL trên `_ts` được phép trong Cosmos (RU),
 nên token hết hạn được kiểm tra trong code (`server/store.mjs`).
 

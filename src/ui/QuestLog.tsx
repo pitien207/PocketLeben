@@ -13,7 +13,7 @@ import { pushToast } from '../store/toastStore'
 import { useUI } from '../store/uiStore'
 import { Icon3d } from './Icon3d'
 import { SecretList } from './SecretCard'
-import { Sheet } from './Sheet'
+
 import { SkipStepButton } from './TestTools'
 
 /**
@@ -174,70 +174,77 @@ function StepTimeline({ q, onGo }: { q: QuestDef; onGo: (stepId: string, text: s
   )
 }
 
-function QuestCard({ q, onGo, startOpen }: { q: QuestDef; onGo: (stepId: string, text: string) => void; startOpen: boolean }) {
+// ------------------------------------------------------------------------------ quest journal
+/**
+ * 1.36 (user: the quest board looked cheap): a journal over the game — a lacquer-red header, the chapter's banner
+ * with its progress, tabs (Đang làm / Đã xong), a list of quests on the left and the picked quest on the right
+ * (big 3D icon, progress ring, the steps with "Chỉ đường"). On a narrow portrait screen the details sit under the list.
+ */
+
+type JournalTab = 'now' | 'done'
+
+function QuestRow({ q, on, onPick }: { q: QuestDef; on: boolean; onPick: () => void }) {
   const localize = useLocalize()
-  const [open, setOpen] = useState(startOpen)
   const done = questComplete(q)
   const { steps, done: n } = stepsOf(q)
   const color = done ? JADE : q.side ? GOLD : '#d4473b'
   return (
-    <li className="overflow-hidden rounded-2xl border-2 border-outline bg-white shadow-[0_3px_0_var(--color-outline)]" data-testid={`quest-${q.id}`}>
-      <button type="button" onClick={() => setOpen((o) => !o)} className="relative flex w-full items-center gap-2.5 py-2 pr-2.5 pl-3 text-left">
+    <li>
+      <button
+        type="button"
+        onClick={onPick}
+        data-testid={`quest-${q.id}`}
+        className={`relative flex w-full items-center gap-2.5 overflow-hidden rounded-2xl py-2 pr-2.5 pl-3 text-left transition ${on ? 'bg-white shadow-[0_0_0_2.5px_var(--color-gold),0_6px_16px_rgba(74,50,38,0.18)]' : 'bg-white/70 shadow-[inset_0_0_0_1.5px_rgba(74,50,38,0.12)] hover:bg-white'}`}
+      >
         <span className="absolute inset-y-0 left-0 w-1.5" style={{ background: color }} />
-        <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl" style={{ background: `${color}1f` }}>
-          <Icon3d name={done ? 'trophy' : q.side ? 'star' : 'scroll'} className="h-8 w-8" />
-        </span>
+        <Icon3d name={done ? 'trophy' : q.side ? 'star' : 'scroll'} className="h-9 w-9 shrink-0" />
         <span className="min-w-0 flex-1">
-          <span className="mb-0.5 flex items-center gap-1">
-            <span className="rounded-full px-1.5 text-[9.5px] font-black tracking-wide text-white uppercase" style={{ background: color }}>
+          <span className="flex items-center gap-1.5">
+            <span className="rounded-full px-1.5 text-[9px] leading-[1.5] font-black tracking-wide text-white uppercase" style={{ background: color }}>
               {done ? 'Đã xong' : q.side ? 'Phụ' : 'Chính'}
             </span>
+            <span className="text-[10.5px] font-black text-ink/45 tabular-nums">
+              {n}/{steps.length}
+            </span>
           </span>
-          <span className={`block text-[15px] leading-tight font-black ${done ? 'text-ink/55' : 'text-ink'}`}>{localize(q.title)}</span>
+          <span className={`mt-0.5 block truncate text-[14px] leading-tight font-black ${done ? 'text-ink/55' : 'text-ink'}`}>{localize(q.title)}</span>
+          <span className="mt-1 block h-1.5 overflow-hidden rounded-full bg-ink/10">
+            <m.span className="block h-full rounded-full" style={{ background: color }} initial={false} animate={{ width: `${steps.length ? (n / steps.length) * 100 : 0}%` }} transition={{ duration: 0.5 }} />
+          </span>
         </span>
-        <Ring value={steps.length ? n / steps.length : 0} size={40} color={color}>
-          <span className="text-[10.5px] font-black text-ink tabular-nums">
-            {n}/{steps.length}
-          </span>
-        </Ring>
-        <m.svg viewBox="0 0 16 16" className="h-4 w-4 shrink-0 text-ink/45" animate={{ rotate: open ? 180 : 0 }} aria-hidden="true">
-          <path d="M3.5 6l4.5 4.5L12.5 6" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
-        </m.svg>
       </button>
-      <AnimatePresence initial={false}>
-        {open && (
-          <m.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.25, ease: 'easeOut' }} className="overflow-hidden">
-            <div className="border-t-2 border-dashed border-ink/10 px-3 pt-2 pb-3">
-              <StepTimeline q={q} onGo={onGo} />
-            </div>
-          </m.div>
-        )}
-      </AnimatePresence>
     </li>
   )
 }
 
-function Fold({ label, count, children, startOpen = false }: { label: string; count: number; children: ReactNode; startOpen?: boolean }) {
-  const [open, setOpen] = useState(startOpen)
+function QuestDetail({ q, onGo }: { q: QuestDef; onGo: (stepId: string, text: string) => void }) {
+  const localize = useLocalize()
+  const done = questComplete(q)
+  const { steps, done: n } = stepsOf(q)
+  const color = done ? JADE : q.side ? GOLD : '#d4473b'
   return (
-    <div className="mt-2">
-      <button type="button" onClick={() => setOpen((o) => !o)} className="flex w-full items-center gap-2 rounded-xl bg-ink/5 px-3 py-1.5 text-left text-[12.5px] font-black text-ink/60">
-        <Icon3d name="check-mark-button" className="h-4 w-4" />
-        <span className="flex-1">
-          {label} ({count})
-        </span>
-        <m.svg viewBox="0 0 16 16" className="h-4 w-4" animate={{ rotate: open ? 180 : 0 }} aria-hidden="true">
-          <path d="M3.5 6l4.5 4.5L12.5 6" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
-        </m.svg>
-      </button>
-      <AnimatePresence initial={false}>
-        {open && (
-          <m.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
-            <div className="pt-2">{children}</div>
-          </m.div>
-        )}
-      </AnimatePresence>
-    </div>
+    <AnimatePresence mode="wait" initial={false}>
+      <m.div key={q.id} initial={{ opacity: 0, x: 18 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -12 }} transition={{ duration: 0.22, ease: 'easeOut' }} className="flex min-h-0 flex-col" data-testid="quest-detail">
+        <div className="relative flex items-center gap-3 overflow-hidden rounded-2xl p-3 text-white shadow-[0_4px_0_rgba(74,50,38,0.35)]" style={{ background: `linear-gradient(135deg, ${color}, ${color}cc 60%, #4a3226)` }}>
+          <span className="pointer-events-none absolute -top-10 -right-6 h-32 w-32 rounded-full bg-white/15" />
+          <span className="grid h-16 w-16 shrink-0 place-items-center rounded-2xl bg-white/20 shadow-[inset_0_0_0_2px_rgba(255,255,255,0.35)]">
+            <Icon3d name={done ? 'trophy' : q.side ? 'star' : 'scroll'} className="h-12 w-12 drop-shadow-[0_3px_2px_rgba(0,0,0,0.25)]" />
+          </span>
+          <div className="min-w-0 flex-1">
+            <p className="text-[10.5px] font-black tracking-[0.12em] uppercase opacity-85">{done ? 'Đã hoàn thành' : q.side ? 'Nhiệm vụ phụ' : 'Nhiệm vụ chính'}</p>
+            <p className="font-display text-[19px] leading-tight font-extrabold drop-shadow-[0_1px_0_rgba(0,0,0,0.2)]">{localize(q.title)}</p>
+          </div>
+          <Ring value={steps.length ? n / steps.length : 0} size={48} color="#ffd76a">
+            <span className="text-[12px] font-black text-ink tabular-nums">
+              {n}/{steps.length}
+            </span>
+          </Ring>
+        </div>
+        <div className="mt-2.5 min-h-0 flex-1 overflow-y-auto rounded-2xl bg-white/80 px-3 py-2.5 shadow-[inset_0_0_0_1.5px_rgba(74,50,38,0.12)]">
+          <StepTimeline q={q} onGo={onGo} />
+        </div>
+      </m.div>
+    </AnimatePresence>
   )
 }
 
@@ -248,12 +255,28 @@ export function QuestLog() {
   const closePanel = useUI((s) => s.closePanel)
   useFlags((s) => s.flags)
   const setFocus = useGuide((s) => s.setFocus)
-  const [tab, setTab] = useState<'quests' | 'secrets'>('quests')
+  const [tab, setTab] = useState<JournalTab>('now')
+  const [pick, setPick] = useState<string | null>(null)
+  const [secrets, setSecrets] = useState(false)
+  useEffect(() => {
+    if (panel?.type !== 'quests') return
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && closePanel()
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [panel, closePanel])
   if (panel?.type !== 'quests') return null
 
   const visible = QUESTS.filter(questVisible)
   const chapters = [...new Set(visible.map((q) => q.chapter))].sort((a, b) => b - a)
   const current = chapters[0]
+  const inChapter = visible.filter((q) => q.chapter === current)
+  const all = inChapter.filter((q) => !q.side).flatMap((q) => questSteps(q))
+  const doneSteps = all.filter((s) => stepDone(s.id)).length
+  const open = visible.filter((q) => !questComplete(q)).sort((a, b) => Number(!!a.side) - Number(!!b.side) || b.chapter - a.chapter)
+  const finished = visible.filter((q) => questComplete(q)).sort((a, b) => b.chapter - a.chapter)
+  const list = tab === 'now' ? open : finished
+  const picked = list.find((q) => q.id === pick) ?? list[0] ?? null
+  const [prefix, name] = localize(CHAPTER_NAMES[current] ?? CHAPTER_NAMES[1]).split(' · ')
   const go = (stepId: string, text: string) => {
     setFocus(stepId)
     closePanel()
@@ -261,79 +284,83 @@ export function QuestLog() {
   }
 
   return (
-    <Sheet title={t('quests.title')} onClose={closePanel}>
+    <div className="pointer-events-auto absolute inset-0 z-30 flex items-center justify-center bg-[#2a1c16]/55 p-2 sm:p-4" onPointerDown={(e) => e.target === e.currentTarget && closePanel()}>
       <LazyMotion features={domAnimation}>
-        {SECRETS_ENABLED && (
-          <div className="mb-3 flex rounded-full border-2 border-outline bg-cream p-1">
-            {(['quests', 'secrets'] as const).map((id) => (
+        <m.div
+          role="dialog"
+          aria-modal="true"
+          aria-label={t('quests.title')}
+          initial={{ opacity: 0, y: 24, scale: 0.97 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+          className="relative flex max-h-full w-full max-w-[56rem] flex-col overflow-hidden rounded-[1.6rem] border-[3px] border-outline bg-[#fbf3e2] text-ink shadow-[0_6px_0_var(--color-outline),0_24px_60px_rgba(0,0,0,0.35)]"
+          data-testid="quest-journal"
+        >
+          {/* Header: lacquer ribbon with the chapter */}
+          <div className="relative flex items-center gap-3 bg-[linear-gradient(180deg,#d4473b,#a3261f)] px-4 py-2.5 text-white short:py-1.5">
+            <Icon3d name={CHAPTER_ICON[current] ?? 'scroll'} className="h-11 w-11 shrink-0 drop-shadow-[0_3px_0_rgba(0,0,0,0.25)] short:h-9 short:w-9" />
+            <div className="min-w-0 flex-1">
+              <p className="text-[10.5px] font-black tracking-[0.14em] text-[#ffe08a] uppercase">{prefix}</p>
+              <p className="font-display truncate text-[18px] leading-tight font-extrabold short:text-[16px]">{name ?? prefix}</p>
+              <div className="mt-1 flex items-center gap-2">
+                <div className="h-2 flex-1 overflow-hidden rounded-full bg-black/25">
+                  <m.div className="h-full rounded-full bg-[linear-gradient(90deg,#ffd76a,#ffefb0)]" initial={false} animate={{ width: `${all.length ? (doneSteps / all.length) * 100 : 0}%` }} transition={{ duration: 0.6 }} />
+                </div>
+                <span className="text-[11px] font-black tabular-nums opacity-90">
+                  {doneSteps}/{all.length}
+                </span>
+              </div>
+            </div>
+            <button type="button" onClick={closePanel} aria-label="Đóng" className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-white/20 text-[18px] font-black shadow-[inset_0_0_0_2px_rgba(255,255,255,0.4)] hover:bg-white/30">
+              ✕
+            </button>
+          </div>
+          {/* Tabs */}
+          <div className="flex gap-1.5 border-b-2 border-ink/10 px-3 pt-2 pb-2">
+            {(
+              [
+                ['now', `Đang làm · ${open.length}`],
+                ['done', `Đã xong · ${finished.length}`],
+              ] as const
+            ).map(([id, label]) => (
               <button
                 key={id}
                 type="button"
-                data-testid={`tab-${id}`}
-                onClick={() => setTab(id)}
-                className={`flex-1 rounded-full px-2 py-1.5 text-[13px] font-extrabold transition ${tab === id ? 'bg-lacquer text-gold-light shadow' : 'text-ink/60'}`}
+                data-testid={`journal-tab-${id}`}
+                onClick={() => {
+                  setTab(id)
+                  setSecrets(false)
+                  setPick(null)
+                }}
+                className={`rounded-full px-3.5 py-1 text-[13px] font-black transition ${tab === id && !secrets ? 'btn-lacquer' : 'bg-white/70 text-ink/60 shadow-[inset_0_0_0_1.5px_rgba(74,50,38,0.15)]'}`}
               >
-                {t(id === 'quests' ? 'quests.tabQuests' : 'quests.tabSecrets')}
+                {label}
               </button>
             ))}
+            {SECRETS_ENABLED && (
+              <button type="button" data-testid="tab-secrets" onClick={() => setSecrets(true)} className={`rounded-full px-3.5 py-1 text-[13px] font-black ${secrets ? 'btn-lacquer' : 'bg-white/70 text-ink/60'}`}>
+                {t('quests.tabSecrets')}
+              </button>
+            )}
           </div>
-        )}
-        {SECRETS_ENABLED && tab === 'secrets' && <SecretList />}
-        {(tab === 'quests' || !SECRETS_ENABLED) &&
-          chapters.map((ch) => {
-            const quests = visible.filter((q) => q.chapter === ch)
-            const main = quests.filter((q) => !q.side)
-            const all = main.flatMap((q) => questSteps(q))
-            const doneSteps = all.filter((s) => stepDone(s.id)).length
-            const open = quests.filter((q) => !questComplete(q)).sort((a, b) => Number(!!a.side) - Number(!!b.side))
-            const finished = quests.filter((q) => questComplete(q))
-            const [prefix, name] = localize(CHAPTER_NAMES[ch]).split(' · ')
-            const list = (qs: QuestDef[], openFirst: boolean) => (
-              <ul className="flex flex-col gap-2">
-                {qs.map((q, i) => (
-                  <QuestCard key={q.id} q={q} onGo={go} startOpen={openFirst && (i === 0 || !q.side)} />
-                ))}
-              </ul>
-            )
-            const banner = (
-              <div className="relative mb-2 flex items-center gap-3 overflow-hidden rounded-2xl border-2 border-outline bg-[linear-gradient(135deg,#fff3d6,#ffd9a8)] p-3 shadow-[0_3px_0_var(--color-outline)]">
-                <Icon3d name={CHAPTER_ICON[ch] ?? 'scroll'} className="h-14 w-14 shrink-0 drop-shadow-[0_3px_0_rgba(74,50,38,0.2)]" />
-                <div className="min-w-0 flex-1">
-                  <p className="text-[11px] font-black tracking-wide text-[#c2410c] uppercase">{prefix}</p>
-                  <p className="font-display text-[17px] leading-tight font-extrabold text-ink">{name ?? prefix}</p>
-                  <div className="mt-1.5 flex items-center gap-2">
-                    <div className="h-2.5 flex-1 overflow-hidden rounded-full border-2 border-outline bg-white">
-                      <m.div className="h-full rounded-full bg-[linear-gradient(90deg,#3fae72,#8fd3ae)]" initial={false} animate={{ width: `${all.length ? (doneSteps / all.length) * 100 : 0}%` }} transition={{ duration: 0.6 }} />
-                    </div>
-                    <span className="text-[11px] font-black text-ink/60 tabular-nums">
-                      {doneSteps}/{all.length}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            )
-            if (ch !== current) {
-              return (
-                <section key={ch} className="mb-3">
-                  <Fold label={localize(CHAPTER_NAMES[ch])} count={finished.length}>
-                    {list(quests, false)}
-                  </Fold>
-                </section>
-              )
-            }
-            return (
-              <section key={ch} className="mb-3" data-testid="quest-chapter">
-                {banner}
-                {open.length ? list(open, true) : <p className="py-3 text-center text-[13px] font-bold text-ink/50">Chương này xong hết rồi!</p>}
-                {finished.length > 0 && (
-                  <Fold label="Đã hoàn thành" count={finished.length}>
-                    {list(finished, false)}
-                  </Fold>
+          {secrets ? (
+            <div className="min-h-0 flex-1 overflow-y-auto p-3">
+              <SecretList />
+            </div>
+          ) : (
+            <div className="grid min-h-0 flex-1 gap-3 overflow-y-auto p-3 land:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] land:overflow-hidden" data-testid="quest-chapter">
+              <ul className="flex min-h-0 flex-col gap-1.5 land:overflow-y-auto land:pr-1">
+                {list.length ? (
+                  list.map((q) => <QuestRow key={q.id} q={q} on={picked?.id === q.id} onPick={() => setPick(q.id)} />)
+                ) : (
+                  <li className="py-6 text-center text-[13px] font-bold text-ink/50">{tab === 'now' ? 'Chương này xong hết rồi!' : 'Chưa có nhiệm vụ nào xong.'}</li>
                 )}
-              </section>
-            )
-          })}
+              </ul>
+              {picked && <QuestDetail q={picked} onGo={go} />}
+            </div>
+          )}
+        </m.div>
       </LazyMotion>
-    </Sheet>
+    </div>
   )
 }

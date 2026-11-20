@@ -471,7 +471,7 @@ export function MapPanel() {
   }
   return (
     <div
-      className="pointer-events-auto absolute inset-0 z-30 flex items-center justify-center bg-ink/40 p-2 backdrop-blur-[2px] sm:p-4"
+      className="pointer-events-auto absolute inset-0 z-30 flex items-center justify-center bg-ink/40 p-2 sm:p-4"
       style={{ paddingTop: 'max(0.5rem, env(safe-area-inset-top))', paddingBottom: 'max(0.5rem, env(safe-area-inset-bottom))' }}
       onPointerDown={(e) => e.target === e.currentTarget && closePanel()}
     >

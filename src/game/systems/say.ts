@@ -2,7 +2,7 @@ import { currentLanguage, localize, type Localized } from '../../i18n/localized'
 import { formatMoney } from '../../i18n/format'
 import { pushToast, type ToastTone } from '../../store/toastStore'
 import { useTime } from '../../store/timeStore'
-import { weekdayIndex } from './time'
+import { weekdayIndex } from './weekday'
 
 /** A toast with content text written in the data (Localized), e.g. story reactions. */
 export function say(text: Localized, tone: ToastTone = 'info', vars: Record<string, string | number> = {}) {

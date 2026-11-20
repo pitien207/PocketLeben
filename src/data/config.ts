@@ -396,6 +396,40 @@ export const CONFIG = {
     tutor: { pay: 450_000, payUp: 600_000, energy: 8, hours: [18, 21] as [number, number], minutes: 120, midterm: 8, midtermBonus: 500_000 },
   },
 
+  /**
+   * 1.34 Tiệm vàng (systems/gold.ts): gold by chỉ (3,75 g) and cây (= lượng = 10 chỉ). The price is the same for
+   * everyone on the same game day: a slow upward trend × a random walk that drifts back toward it.
+   * `sellPerChi` = what the shop sells for (bán ra) on day 1; the shop buys back (mua vào) `spread` lower.
+   */
+  gold: {
+    sellPerChi: 12_000_000,
+    spread: 0.016,
+    /** Daily change ≈ ±`volatility` (1 σ); `revert` < 1 pulls the walk back to the trend. */
+    volatility: 0.012,
+    revert: 0.97,
+    trendPerDay: 0.0004,
+    /** Prices are quoted rounded to this many đồng per chỉ. */
+    step: 10_000,
+    hours: [8, 20] as [number, number],
+    seed: 9999,
+  },
+
+  /** 1.35 Showroom Xe Phố Cổ: your own bicycle / motorbike / car (data/vehicles.ts, systems/vehicles.ts). */
+  vehicles: {
+    /** Selling back pays this share of the price. */
+    resale: 0.6,
+    /** Đồng per litre at Xăng Dầu Phố Cổ. */
+    fuelPrice: 24_000,
+    /** Fuel bills are rounded up to this. */
+    fuelStep: 1_000,
+    /** Outdoor scenes where you may ride (anywhere else you get off). */
+    rideScenes: ['vietnam', 'hangKhay'] as string[],
+    /** Opening hours of the showroom [from, to) in game hours. */
+    hours: [8, 21] as [number, number],
+    /** Fuel is saved to the flags after this share of a tank is used (and when you get off). */
+    saveStep: 0.05,
+  },
+
   jobs: {
     cafeBarista: {
       durationSec: 60,

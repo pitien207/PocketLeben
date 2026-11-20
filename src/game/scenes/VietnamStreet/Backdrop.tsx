@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { PALETTE as P } from '../shared/palette'
-import { place, treeShapes } from '../shared/props'
+import { fluffyTreeShapes, place } from '../shared/props'
 import { Shapes, type ShapeItem } from '../shared/Shapes'
 import { ROAD, SIDE_ROAD } from './layout'
 
@@ -55,7 +55,7 @@ function backdropShapes(colors: string[], roof: string, sideRoad: boolean, tree:
       s.push({ box: [w + 0.2, 0.3, d + 0.2], at: [x, h + 0.15, z], rot: [0, rotY, 0], color: roof })
       if (rand(seed++) > 0.5) {
         const variant = tree === 'linden' ? 'linden' : rand(seed++) > 0.7 ? 'blossom' : 'green'
-        s.push(place(treeShapes(variant), [x * 0.92, 0, z * 0.92], a, 1.3))
+        s.push(place(fluffyTreeShapes(variant, 1, seed), [x * 0.92, 0, z * 0.92], a, 1.3))
       }
     }
   }

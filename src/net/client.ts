@@ -79,6 +79,7 @@ function snapshot(): PlayerSnapshot {
     yaw: Math.round(localSnapshot.yaw * 100) / 100,
     motion: { speed: Math.round(m.speed * 100) / 100, sit: m.sit, seatY: m.seatY, ride: m.ride ?? null, pedal: m.pedal, sip: m.sip, held: m.held ?? null },
     outfit: usePlayer.getState().outfit,
+    veh: localSnapshot.veh,
   }
 }
 

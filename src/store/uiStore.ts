@@ -15,6 +15,10 @@ export type Panel =
   | { type: 'phone' }
   | { type: 'create' }
   | { type: 'secret'; id: string }
+  /** 1.34 Tiệm vàng (systems/gold.ts). */
+  | { type: 'gold'; mode: 'buy' | 'sell' }
+  /** 1.35 Showroom Xe Phố Cổ (systems/vehicles.ts). */
+  | { type: 'vehicles' }
 
 /** Full-screen fade between scenes, with an optional caption ("✈ Bay sang Đức…"). */
 export interface Transition {

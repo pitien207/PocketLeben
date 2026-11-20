@@ -22,7 +22,7 @@ const MAX_SAVE = 512 * 1024
 const ROOM_CAP = 25
 
 /** Scenes everyone shares. Homes, exams and interviews stay private (instances). */
-const PUBLIC_SCENES = new Set(['vietnam', 'germany', 'classroom', 'buergeramt', 'university', 'airport', 'careHome'])
+const PUBLIC_SCENES = new Set(['vietnam', 'hangKhay', 'germany', 'classroom', 'buergeramt', 'university', 'airport', 'careHome'])
 const ALL_SCENES = new Set([...PUBLIC_SCENES, 'home', 'examHall', 'embassy', 'wg'])
 const EMOTES = new Set(['wave', 'heart', 'laugh', 'wow', 'sad', 'dance', 'hello', 'thanks', 'luck', 'tschuess', 'follow', 'yes'])
 
@@ -357,6 +357,7 @@ function cleanSnap(s) {
       held: m.held === 'glass' || m.held === 'fan' ? m.held : null,
     },
     outfit,
+    veh: str(s.veh, 16) ?? null,
   }
 }
 

@@ -6,6 +6,8 @@ import { UNIVERSITY_DIALOGUES } from './dialogues/university'
 import { EXPLORE_DIALOGUES } from './dialogues/explore'
 import { OFFICE_DIALOGUES } from './dialogues/offices'
 import { VN21_DIALOGUES } from './dialogues/vn21'
+import { GOLD_DIALOGUES } from './dialogues/gold'
+import { VEHICLE_DIALOGUES } from './dialogues/vehicles'
 
 export type { DialogueChoice, DialogueDef, DialogueEffect, DialogueNode } from './dialogueTypes'
 
@@ -17,6 +19,8 @@ export const DIALOGUES: Record<string, DialogueDef> = {
   ...UNIVERSITY_DIALOGUES,
   ...EXPLORE_DIALOGUES,
   ...OFFICE_DIALOGUES,
+  ...GOLD_DIALOGUES,
+  ...VEHICLE_DIALOGUES,
   // Story 2.1 (Vietnam): overrides the older family / teacher / Mai / embassy lines.
   ...VN21_DIALOGUES,
 }

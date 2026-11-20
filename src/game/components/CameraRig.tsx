@@ -109,6 +109,7 @@ export function CameraRig({ target }: { target: RefObject<Object3D | null> }) {
         camera.updateProjectionMatrix()
       }
       occlusion.target.value.copy(camera.position)
+      occlusion.feet.value = -1000
       return
     }
     const dt = Math.min(rawDt, 0.1)
@@ -151,8 +152,11 @@ export function CameraRig({ target }: { target: RefObject<Object3D | null> }) {
       return hit ? hit.timeOfImpact - WALL_PADDING : wanted
     }
     const basePitch = cameraState.pitchDeg
+    // 1.36: outdoors the camera never dodges (user: zooming in at corners was hard to look at) — whatever is in the
+    // way fades instead (scenes/shared/materials.ts occlusion). Rooms keep the old behaviour.
+    const indoor = cameraState.baseZoom < 1
     let wantLift = 0
-    if (clearance(basePitch) < wanted * 0.85) {
+    if (indoor && clearance(basePitch) < wanted * 0.85) {
       let best = clearance(basePitch)
       for (const step of LIFT_STEPS) {
         if (basePitch + step > MAX_PITCH + 0.01 && step !== LIFT_STEPS[0]) break
@@ -167,7 +171,11 @@ export function CameraRig({ target }: { target: RefObject<Object3D | null> }) {
     // Rise fairly quickly, settle back down slowly (no bobbing at corners).
     lift.current = damp(lift.current, wantLift, wantLift > lift.current ? 4 : 1.5, dt)
     const pitchDeg = Math.min(MAX_PITCH, basePitch + lift.current)
-    wanted = Math.min(wanted, Math.max(cfg.minDistance, clearance(pitchDeg))) // also sets _dir
+    if (indoor) wanted = Math.min(wanted, Math.max(cfg.minDistance, clearance(pitchDeg))) // also sets _dir
+    else {
+      const p = (pitchDeg * Math.PI) / 180
+      _dir.set(Math.sin(yaw) * Math.cos(p), Math.sin(p), Math.cos(yaw) * Math.cos(p))
+    }
 
     // Ease in when blocked (quick but never a jump cut), ease back out when clear.
     distance.current = damp(distance.current, wanted, wanted < distance.current ? 7 : 2.5, dt)
@@ -192,6 +200,7 @@ export function CameraRig({ target }: { target: RefObject<Object3D | null> }) {
     }
     camera.lookAt(lookAt.current)
     occlusion.target.value.copy(_look)
+    occlusion.feet.value = _target.y
   })
 
   return null

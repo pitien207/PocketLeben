@@ -8,7 +8,7 @@ import { NPC } from '../../components/npc/NPC'
 import { BUILDING_GROUPS, PROP_GROUPS } from '../../systems/collisionGroups'
 import { groundMaterial } from '../shared/materials'
 import { PALETTE as P } from '../shared/palette'
-import { place, plantShapes, stoolShapes, treeShapes } from '../shared/props'
+import { fluffyTreeShapes, place, softPlantShapes, stoolShapes } from '../shared/props'
 import { Shapes, type ShapeItem } from '../shared/Shapes'
 import { SignBoard } from '../shared/SignBoard'
 import type { SignOptions } from '../shared/textures'
@@ -80,7 +80,7 @@ function dinhShapes(): ShapeItem[] {
     s.push({ cyl: [0, 0.4, 0.3, 4], at: [x, 1.45, F - 1.4], rot: [0, Math.PI / 4, 0], color: '#bdb5a5' })
   }
   // Frangipani (hoa sứ) in the courtyard corner
-  s.push(place(treeShapes('blossom'), [D.x0 + 1.0, 0, D.hallZ + 1.0], 0.6, 0.8))
+  s.push(place(fluffyTreeShapes('blossom', 2, 70), [D.x0 + 1.0, 0, D.hallZ + 1.0], 0.6, 0.8))
   // The keeper's old Peugeot leaning on the east wall (secret "xeDapCo")
   s.push(place(bicycleShapes('#2f6b8f'), [D.x1 - 0.55, 0, D.hallZ + 0.95], Math.PI / 2 + 0.15))
   // Hall: raised floor, red pillars, ochre walls with lacquered doors, a big tiled roof
@@ -116,8 +116,8 @@ function alleyShapes(): ShapeItem[] {
   // Washing line
   s.push({ box: [x1 - x0, 0.015, 0.015], at: [mid, 2.5, F - 3.2], color: P.wire })
   ;['#ff9fb2', '#a9d6ff', '#ffffff', '#ffe08a'].forEach((c, i) => s.push({ box: [0.32, 0.42, 0.03], at: [x0 + 0.3 + i * 0.4, 2.28, F - 3.2], rot: [0, 0, (i % 2 ? 1 : -1) * 0.06], color: c }))
-  s.push(place(plantShapes(P.leafDark, '#c97b63'), [x1 - 0.3, 0, F - 1.6], 0, 0.8))
-  s.push(place(plantShapes(P.leaf, '#d9b878'), [x0 + 0.3, 0, F - 6.6], 0, 0.7))
+  s.push(place(softPlantShapes(P.leafDark, '#c97b63'), [x1 - 0.3, 0, F - 1.6], 0, 0.8))
+  s.push(place(softPlantShapes(P.leaf, '#d9b878'), [x0 + 0.3, 0, F - 6.6], 0, 0.7))
   // Little altar on the wall
   s.push({ box: [0.4, 0.3, 0.25], at: [x0 + 0.05, 1.5, F - 5.2], color: RED })
   s.push({ box: [0.5, 0.05, 0.3], at: [x0 + 0.05, 1.33, F - 5.2], color: GOLD })
@@ -196,7 +196,7 @@ function marketShapes(): { s: ShapeItem[]; glow: ShapeItem[] } {
   for (const px of [x0, x1]) s.push({ cyl: [0.05, 0.06, 2.8, 6], at: [px, 1.4, z], color: P.darkSteel })
   // A plastic-stool corner for eating chè
   for (let i = 0; i < 4; i++) s.push(place(stoolShapes([P.coral, P.mint, P.sky2, P.butter][i]), [stalls[1] + 1.2 + (i % 2) * 0.6, 0, z - 1.9 + Math.floor(i / 2) * 0.6], i))
-  s.push(place(treeShapes('green'), [33.0, 0, 10.4 + SOUTH], 0.5, 1.0))
+  s.push(place(fluffyTreeShapes('green', 2, 71), [33.0, 0, 10.4 + SOUTH], 0.5, 1.0))
   return { s, glow }
 }
 

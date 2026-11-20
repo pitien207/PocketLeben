@@ -117,7 +117,7 @@ export function Joystick() {
     >
       <div
         ref={baseRef}
-        className={`relative h-[6.5rem] w-[6.5rem] rounded-full border-[3px] border-gold/80 bg-paper/40 shadow-lg backdrop-blur-sm transition-opacity ${
+        className={`relative h-[6.5rem] w-[6.5rem] rounded-full border-[3px] border-gold/80 bg-paper/40 shadow-lg transition-opacity ${
           engaged ? 'opacity-100' : 'opacity-75'
         }`}
       >

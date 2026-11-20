@@ -5,7 +5,7 @@ import { NPCS } from '../../../data/npcs'
 import { ActionSpot, type SpotAction } from '../../components/ActionSpot'
 import { NPC } from '../../components/npc/NPC'
 import { BUILDING_GROUPS, PROP_GROUPS } from '../../systems/collisionGroups'
-import { place, treeShapes } from '../shared/props'
+import { fluffyTreeShapes, place } from '../shared/props'
 import { Shapes, type ShapeItem } from '../shared/Shapes'
 import { SignBoard } from '../shared/SignBoard'
 import type { SignOptions } from '../shared/textures'
@@ -97,7 +97,7 @@ function islandShapes(): ShapeItem[] {
     s.push({ box: [0.6, 0.45, 0.6], at: [x + k * 2.6, 1.2, u.z + 0.6], color: '#e8e0cf' })
     s.push({ box: [0.3, 0.25, 0.61], at: [x + k * 2.6, 1.2, u.z + 0.6], color: '#ffe08a' })
   }
-  s.push(place(treeShapes('green'), [N.banyan.x, 0, N.banyan.z], 0.8, 1.8))
+  s.push(place(fluffyTreeShapes('green', 2, 51), [N.banyan.x, 0, N.banyan.z], 0.8, 1.8))
   s.push({ cyl: [0.6, 0.85, 0.35, 10], at: [N.banyan.x, 0.18, N.banyan.z], color: '#cfc8bb' })
   // Temple hall (Đền Ngọc Sơn): stone platform, red pillars, ochre walls, lacquered doors, altar
   const h = N.hall
@@ -123,7 +123,7 @@ function islandShapes(): ShapeItem[] {
   // Willows on the island edge
   for (let i = 0; i < 5; i++) {
     const a = 0.6 + i * 1.1
-    s.push(place(treeShapes('green'), [x + Math.cos(a) * (rx - 0.6), 0, z + Math.sin(a) * (rz - 0.6)], a, 0.85))
+    s.push(place(fluffyTreeShapes('willow', 2, i + 60), [x + Math.cos(a) * (rx - 0.6), 0, z + Math.sin(a) * (rz - 0.6)], a, 0.85))
   }
   return s
 }
