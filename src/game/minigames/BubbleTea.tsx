@@ -241,7 +241,7 @@ function DispenserArt({ color, pouring, locked }: { color: string; pouring: bool
 function TrayArt({ t, locked }: { t: Topping; locked: boolean }) {
   const dots: [number, number][] = [[12, 14], [22, 11], [32, 15], [16, 23], [27, 22], [36, 25], [10, 30], [22, 31], [32, 33]]
   return (
-    <svg viewBox="0 0 46 44" className="h-full w-full" aria-hidden="true">
+    <svg viewBox="0 0 46 44" preserveAspectRatio="xMidYMax meet" className="absolute inset-0 h-full w-full" aria-hidden="true">
       <rect x="1.5" y="1.5" width="43" height="41" rx="6" fill="#dfe2e8" stroke={INK} strokeWidth="1.8" />
       <rect x="5" y="5" width="36" height="34" rx="4" fill={locked ? '#efe9df' : '#f7f4ee'} stroke="#aab0bd" strokeWidth="1" />
       {!locked &&
@@ -573,7 +573,7 @@ export function BubbleTeaGame({ rank, strikes, onDone }: { rank: number; strikes
 
   return (
     <div className="pointer-events-auto absolute inset-0 z-40 flex justify-center bg-[#4a3226]/60 select-none" style={{ touchAction: 'none' }} onContextMenu={(e) => e.preventDefault()} data-testid="tea-game">
-      <section className="relative flex h-full w-full max-w-md flex-col overflow-hidden bg-[#fbe9c9] text-ink sx-safe land:grid land:max-w-[68rem] land:grid-cols-2 land:grid-rows-[auto_auto_auto_minmax(0,1fr)_auto]" role="dialog" aria-modal="true" aria-label="Tiệm trà sữa">
+      <section className="relative flex h-full w-full max-w-md flex-col overflow-hidden bg-[#fbe9c9] text-ink sx-safe land:grid land:max-w-[68rem] land:grid-cols-2 land:grid-rows-[auto_auto_auto_minmax(0,1fr)_auto] tall:my-auto tall:h-[min(100%,50rem)] tall:rounded-3xl tall:border-2 tall:border-outline" role="dialog" aria-modal="true" aria-label="Tiệm trà sữa">
         {/* Landscape (1.30): customer + tea taps on the left, the mixing station on the right. */}
         {/* Awning */}
         <div
@@ -619,12 +619,12 @@ export function BubbleTeaGame({ rank, strikes, onDone }: { rank: number; strikes
               <span
                 key={s.custKey}
                 ref={faceRef}
-                className="animate-walk-in relative h-[62px] w-[62px] shrink-0 rounded-full border-2 border-outline bg-cream shadow-[0_3px_0_var(--color-outline)] [@media(min-height:740px)]:h-[96px] [@media(min-height:740px)]:w-[96px] [&>*]:h-full [&>*]:w-full"
+                className="animate-walk-in relative h-[62px] w-[62px] shrink-0 rounded-full border-2 border-outline bg-cream shadow-[0_3px_0_var(--color-outline)] [@media(min-height:740px)]:h-[96px] [@media(min-height:740px)]:w-[96px] tall:h-[110px] tall:w-[110px] [&>*]:h-full [&>*]:w-full"
               >
                 {s.react && <Reaction key={s.react.key} text={s.react.text} className="-top-3 -right-2" />}
                 <Portrait outfit={{ ...speaker.outfit, expression: s.say ? (s.say.good ? 'happy-closed' : 'sad') : patience < 0.3 ? 'sad' : speaker.outfit.expression }} size={62} />
               </span>
-              <div className="relative min-w-0 flex-1 rounded-2xl border-2 border-outline bg-white px-3 py-2 text-[14px] leading-snug font-bold shadow-[0_3px_0_var(--color-outline)]" data-testid="tea-order">
+              <div className="relative min-w-0 flex-1 rounded-2xl border-2 border-outline bg-white px-3 py-2 text-[14px] leading-snug font-bold tall:px-4 tall:py-3 tall:text-[17px] shadow-[0_3px_0_var(--color-outline)]" data-testid="tea-order">
                 {s.say ? (
                   <span className={s.say.good ? 'text-[#2f8c5a]' : 'text-lacquer'}>{s.say.text}</span>
                 ) : s.order ? (
@@ -671,7 +671,7 @@ export function BubbleTeaGame({ rank, strikes, onDone }: { rank: number; strikes
                 type="button"
                 data-testid={`tea-cup-${size}`}
                 onClick={() => takeCup(size)}
-                className={`h-[4.4rem] w-[13%] shrink-0 rounded-xl border-2 p-0.5 active:translate-y-0.5 ${s.order && !s.cup && s.order.size === size ? 'border-[#3fae72] bg-[#e4f6ea]' : 'border-transparent'}`}
+                className={`h-[4.4rem] w-[13%] shrink-0 tall:h-[6rem] rounded-xl border-2 p-0.5 active:translate-y-0.5 ${s.order && !s.cup && s.order.size === size ? 'border-[#3fae72] bg-[#e4f6ea]' : 'border-transparent'}`}
               >
                 <StackArt size={size} />
               </button>
@@ -691,10 +691,10 @@ export function BubbleTeaGame({ rank, strikes, onDone }: { rank: number; strikes
                     }}
                     className={`relative flex min-w-0 flex-1 flex-col items-center rounded-lg border-2 pb-0.5 ${wanted ? 'border-[#e8697d] bg-[#ffe9ee]' : 'border-transparent'}`}
                   >
-                    <span className="block h-[3.4rem] w-full">
+                    <span className="block h-[3.4rem] w-full tall:h-[5rem]">
                       <DispenserArt color={t.color} pouring={s.pouring === t.id} locked={locked} />
                     </span>
-                    <span className={`flex h-[1.35rem] w-full items-center justify-center text-center text-[8.5px] leading-[1.05] font-black uppercase ${locked ? 'text-ink/35' : ''}`}>{t.name}</span>
+                    <span className={`flex h-[1.35rem] w-full items-center justify-center text-center text-[8.5px] leading-[1.05] font-black uppercase tall:text-[11px] ${locked ? 'text-ink/35' : ''}`}>{t.name}</span>
                     {locked && <LockIcon className="absolute top-5 left-1/2 -translate-x-1/2 text-sm text-[#d98a2b]" />}
                   </button>
                 )
@@ -707,17 +707,17 @@ export function BubbleTeaGame({ rank, strikes, onDone }: { rank: number; strikes
         <div className="flex min-h-0 flex-1 flex-col border-t-2 border-outline bg-[#f3d6a4] px-2 pt-1 pb-2 land:col-start-2 land:row-span-2 land:row-start-4 land:border-l-2">
           <div className="flex items-center gap-2">
             <Plate>PHA LY</Plate>
-            <span className="min-w-0 flex-1 truncate text-[12px] font-extrabold text-[#8a5a2b]" data-testid="tea-step">
+            <span className="min-w-0 flex-1 truncate text-[12px] font-extrabold text-[#8a5a2b] tall:text-[15px]" data-testid="tea-step">
               {hint ?? step}
             </span>
             <button type="button" data-testid="tea-trash" aria-label="Bỏ ly" onClick={trash} className={`grid h-9 w-9 place-items-center rounded-xl border-2 border-outline bg-[#c9ccd2] text-lg shadow-[0_2px_0_var(--color-outline)] active:translate-y-0.5 ${s.cup ? '' : 'opacity-40'}`}>
               <TrashIcon />
             </button>
           </div>
-          <div className="mt-1 flex min-h-0 flex-1 gap-2">
+          <div className="tea-station mt-1 flex min-h-0 flex-1 gap-2">
             <div className="flex w-[36%] shrink-0 flex-col gap-1.5">
               <div className="relative flex min-h-0 flex-1 flex-col items-center rounded-2xl border-2 border-outline bg-[#e9bf86] p-1.5 shadow-[0_3px_0_var(--color-outline)]">
-                <CupArt cup={s.cup} sealed={busy} className="min-h-0 w-full flex-1" />
+                <CupArt cup={s.cup} sealed={busy} className="min-h-0 w-full flex-1 tall:max-h-[22rem]" />
                 {s.plop && s.cup && (
                   <svg key={s.plop.key} viewBox="0 0 24 24" className="animate-plop pointer-events-none absolute top-1/3 left-1/2 -ml-3 h-6 w-6" aria-hidden="true">
                     {s.plop.shape === 'cream' ? (
@@ -744,16 +744,16 @@ export function BubbleTeaGame({ rank, strikes, onDone }: { rank: number; strikes
                 type="button"
                 data-testid="tea-seal"
                 onClick={seal}
-                className={`flex h-[3.6rem] shrink-0 items-center gap-1 rounded-2xl border-2 border-outline px-1.5 text-left text-[11px] leading-tight font-black shadow-[0_3px_0_var(--color-outline)] active:translate-y-0.5 active:shadow-none ${s.cup && s.cup.fill >= OK ? 'bg-[#ffd0da]' : 'bg-[#fff6e3]'}`}
+                className={`flex h-[3.6rem] shrink-0 items-center gap-1 rounded-2xl border-2 border-outline px-1.5 text-left text-[11px] tall:h-[4.6rem] tall:gap-2 tall:text-[14px] leading-tight font-black shadow-[0_3px_0_var(--color-outline)] active:translate-y-0.5 active:shadow-none ${s.cup && s.cup.fill >= OK ? 'bg-[#ffd0da]' : 'bg-[#fff6e3]'}`}
               >
-                <span className="h-full w-11 shrink-0 py-0.5">
+                <span className="h-full w-11 shrink-0 py-0.5 tall:w-14">
                   <SealerArt active={busy} />
                 </span>
                 DẬP NẮP
                 <br />& GIAO
               </button>
             </div>
-            <div className="grid min-w-0 flex-1 auto-rows-fr grid-cols-3 gap-1 rounded-2xl border-2 border-outline bg-[#c9ccd2] p-1 shadow-[0_3px_0_var(--color-outline)] max-sm:[@media(min-height:740px)]:grid-cols-2">
+            <div className="tea-toppings grid min-w-0 flex-1 auto-rows-fr grid-cols-3 gap-1 rounded-2xl border-2 border-outline bg-[#c9ccd2] p-1 shadow-[0_3px_0_var(--color-outline)] tall:gap-2 tall:p-2">
               {TOPPINGS.map((t) => {
                 const locked = t.rank > rank
                 const inCup = !!s.cup?.toppings.includes(t.id)
@@ -766,10 +766,10 @@ export function BubbleTeaGame({ rank, strikes, onDone }: { rank: number; strikes
                     onClick={() => addTopping(t)}
                     className={`relative flex min-h-0 flex-col items-center rounded-lg border-2 p-0.5 active:translate-y-0.5 ${wanted ? 'border-[#e8697d] bg-[#ffe9ee]' : inCup ? 'border-[#3fae72] bg-[#e4f6ea]' : 'border-transparent'}`}
                   >
-                    <span className="block min-h-0 w-full flex-1">
+                    <span className="relative block min-h-0 w-full flex-1">
                       <TrayArt t={t} locked={locked} />
                     </span>
-                    <span className={`flex h-[1.4rem] w-full shrink-0 items-center justify-center text-center text-[9.5px] leading-[1.05] font-black ${locked ? 'text-ink/35' : ''}`}>{t.name}</span>
+                    <span className={`flex h-[1.4rem] w-full shrink-0 items-center justify-center text-center text-[9.5px] leading-[1.05] font-black tall:h-[1.8rem] tall:text-[12px] ${locked ? 'text-ink/35' : ''}`}>{t.name}</span>
                     {locked && <LockIcon className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-3/4 text-base text-[#d98a2b]" />}
                   </button>
                 )

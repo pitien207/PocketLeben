@@ -8,6 +8,13 @@
 @custom-variant land (@media (orientation: landscape) and (min-width: 600px));
 /* 1.36: up to 640 px high (was 540) — laptops with Windows scaling have ~560–640 px of browser height and their mini-games were cut off */
 @custom-variant short (@media (orientation: landscape) and (max-height: 640px));
+/* 1.38: a big landscape screen (laptop / desktop / tablet): mini-games get bigger art and text */
+@custom-variant tall (@media (orientation: landscape) and (min-width: 900px) and (min-height: 700px));
+/* Bubble tea toppings: a tall, narrow station gets 2 columns (wide trays instead of stretched cells) */
+.tea-station { container: tea / size; }
+@container tea (max-aspect-ratio: 1.2) { .tea-toppings { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+/* …and a short, wide one (phone on its side) gets 4 columns, so the trays are not tiny */
+@container tea (min-aspect-ratio: 1.5) { .tea-toppings { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
 
 /*
  * Visual language — Hà Nội: warm "giấy dó" paper panels with a faint gạch bông (encaustic

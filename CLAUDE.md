@@ -184,7 +184,7 @@ Server: plain Node ESM `server/index.mjs` + `server/store.mjs` (MongoDB API — 
 - **Landscape first (1.30, user: phones/tablets on their side are how people play).** Must work at 740 × 340 (phone
   in a browser) up to tablets; portrait 360 px wide must still work. CSS variants in `index.css`: `land:` = landscape
   ≥ 600 px wide (side-by-side layouts: full-screen mini-games use `land:grid` with `col-start/row-start` per block),
-  `short:` = landscape ≤ 640 px high (1.37, was 540: also laptops with Windows scaling; phone sideways: compact sizes, 2-column answers, dialogue choices on the right).
+  `short:` = landscape ≤ 640 px high (1.37, was 540: also laptops with Windows scaling; phone sideways: compact sizes, 2-column answers, dialogue choices on the right), `tall:` = landscape ≥ 900 × 700 (laptop/desktop/tablet: bigger mini-game art + text; bubble tea becomes a centred card ≤ 50rem high). Bubble-tea toppings: `.tea-station` is a size container → `.tea-toppings` 2/3/4 columns by its aspect (index.css); tray SVGs are `absolute inset-0` + `xMidYMax` so they sit on their label (percent heights of flex children did not resolve).
   JS: `ui/useMedia.ts` (`useLandscape`, `useMedia(SHORT_QUERY)`; same queries). HUD: row 1 = clock left
   + money far right, row 2 = objective left + rail under the money; toasts on `short` = top-left under the objective; place plaque on
   `short` = bottom centre. Centred card overlays use the `modal-scroll` utility (scrolls instead of clipping), full-

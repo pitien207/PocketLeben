@@ -12,7 +12,13 @@
   off, and the moving shadow area jumped in 2 m steps so shadow edges jittered. Now: smooth fades, and the shadow area
   follows you in whole shadow-map pixels along the sun's axes (edges stay still).
 
+- **Bubble tea on a laptop / big screen**: the topping trays were small at the top of tall, empty cells with their names
+  far below. Now the game is a centred card (at most 50rem high) on big screens with bigger trays, taps and text; the
+  topping grid picks 2, 3 or 4 columns from the shape of the station (tall → 2, phone on its side → 4), and every tray
+  sits right on its name.
+
 ### Manual test checklist (phone)
+- [ ] Bubble tea on a laptop (browser window as big as possible) and on the phone sideways: trays big, names under them, everything reachable.
 - [ ] Walk under trees and behind houses: they turn see-through smoothly, no dots, tree feet stay.
 - [ ] Walk along the street for a minute: no flicker or flashes, shadows do not jitter.
 
