@@ -1,6 +1,7 @@
 // Tiny GLB reader for the asset converters (tools/glb2people.mjs, tools/glb2props.mjs).
 // Only what the Quaternius packs use: one binary buffer, float/uint accessors, node TRS / matrix.
 import fs from 'node:fs'
+import path from 'node:path'
 import { Matrix4, Quaternion, Vector3 } from 'three'
 
 export function readGlb(file) {
@@ -10,6 +11,19 @@ export function readGlb(file) {
   const json = JSON.parse(b.subarray(20, 20 + jsonLen).toString('utf8'))
   const binStart = 20 + jsonLen + 8
   const bin = b.subarray(binStart, binStart + b.readUInt32LE(20 + jsonLen))
+  return parseGltf(json, bin)
+}
+
+/** A .gltf with its one external .bin next to it (KayKit packs, 1.40). */
+export function readGltf(file) {
+  const json = JSON.parse(fs.readFileSync(file, 'utf8'))
+  const uri = json.buffers?.[0]?.uri
+  if (!uri || uri.startsWith('data:')) throw new Error(`${file}: expected one external .bin`)
+  const bin = fs.readFileSync(path.join(path.dirname(file), decodeURIComponent(uri)))
+  return parseGltf(json, bin)
+}
+
+function parseGltf(json, bin) {
   const COMPONENTS = { SCALAR: 1, VEC2: 2, VEC3: 3, VEC4: 4, MAT4: 16 }
   const TYPES = { 5120: Int8Array, 5121: Uint8Array, 5122: Int16Array, 5123: Uint16Array, 5125: Uint32Array, 5126: Float32Array }
 

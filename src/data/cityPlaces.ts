@@ -56,10 +56,12 @@ export const CITY_PLACES: Record<CityPlaceId, CityPlace> = {
   },
   restaurant: {
     id: 'restaurant',
-    name: { vi: 'Nhà hàng Phở Gánh', en: 'Phở Gánh restaurant' },
-    sign: sign('NHÀ HÀNG PHỞ GÁNH', 'Phở bò · Bún chả · Nem rán', '#8a3b1f', '#ffe7b0', '#ffd76a'),
-    blurb: { vi: 'Nồi nước dùng sôi lục bục. Bác chủ quán: „Thực đơn mới đang soạn, mai kia mời cháu ăn thử!"', en: 'The broth is simmering; a new menu is coming.' },
-    hours: [6, 22],
+    name: { vi: 'Nhà hàng Bờ Hồ', en: 'Lakeside restaurant' },
+    sign: sign('NHÀ HÀNG BỜ HỒ', 'Cơm gia đình · Nem cua bể · Lẩu', '#8a3b1f', '#ffe7b0', '#ffd76a'),
+    blurb: { vi: 'Mùi cá kho, canh cua bay ra tận cửa. Chú Thành đứng đón khách.', en: 'Smells of braised fish and crab soup.' },
+    hours: [10, 22],
+    // 1.40: a real restaurant now (systems/eateries.ts) and a Grab pick-up point
+    action: 'food.restaurant',
   },
   hotel: {
     id: 'hotel',

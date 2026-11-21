@@ -275,6 +275,63 @@ export const NPCS = {
     outfit: { skin: '#f5cfb0', hair: '#2b2222', hairStyle: 'ponytail', shirt: '#d4202a', shorts: '#2f3a4d', shoe: '#ffffff', bag: null, accessory: 'cap', accent: '#d4202a', bottom: 'pants' },
     dialogueId: 'circleK',
   },
+  // 1.40 the eateries (data/eateries.ts, dialogue 'quanAn')
+  chuPho: {
+    id: 'chuPho',
+    name: { vi: 'Chú Hùng', en: 'Hùng' },
+    title: { vi: 'Phở Gia Truyền', en: 'Phở shop' },
+    outfit: { skin: '#e8b994', hair: '#2a2020', hairStyle: 'short', shirt: '#ffffff', shorts: '#3f4a5c', shoe: '#5d6170', bag: null, accessory: null, bottom: 'pants', top: 'tee', apron: '#c8322b', shoeType: 'sandal', expression: 'happy' },
+    dialogueId: 'quanAn',
+  },
+  coLua: {
+    id: 'coLua',
+    name: { vi: 'Cô Lụa', en: 'Lụa' },
+    title: { vi: 'Bún chả than hoa', en: 'Bún chả' },
+    outfit: { skin: '#f0c8a8', hair: '#2b2222', hairStyle: 'bun', shirt: '#f4c6cf', shorts: '#2f3a4d', shoe: '#7aa6c9', bag: null, accessory: null, bottom: 'pants', top: 'baba', pattern: 'flowers', patternColor: '#ffffff', apron: '#3f7d5c', shoeType: 'sandal', lashes: true, expression: 'happy' },
+    dialogueId: 'quanAn',
+  },
+  baTam: {
+    id: 'baTam',
+    name: { vi: 'Bà Tám', en: 'Granny Tám' },
+    title: { vi: 'Bánh cuốn nóng', en: 'Rice rolls' },
+    outfit: { skin: '#eec4a2', hair: '#d9d6dc', hairStyle: 'elderBun', shirt: '#cfe0f4', shorts: '#2a2628', shoe: '#8a5a3c', bag: null, accessory: null, bottom: 'pants', top: 'baba', shoeType: 'sandal', lashes: true, expression: 'happy-closed' },
+    dialogueId: 'quanAn',
+  },
+  anhDung: {
+    id: 'anhDung',
+    name: { vi: 'Anh Dũng', en: 'Dũng' },
+    title: { vi: 'Lẩu nướng', en: 'Hotpot & grill' },
+    outfit: { skin: '#e0b08a', hair: '#1f1a1a', hairStyle: 'spiky', shirt: '#2a2a30', shorts: '#3f4a5c', shoe: '#2a2a30', bag: null, accessory: null, bottom: 'pants', top: 'tee', apron: '#a3262a', expression: 'happy' },
+    dialogueId: 'quanAn',
+  },
+  chiNgan: {
+    id: 'chiNgan',
+    name: { vi: 'Chị Ngân', en: 'Ngân' },
+    title: { vi: 'Bánh mì', en: 'Bánh mì' },
+    outfit: { skin: '#f5cfb0', hair: '#3a2a22', hairStyle: 'ponytail', shirt: '#ffe08a', shorts: '#2c3a5a', shoe: '#ffffff', bag: null, accessory: 'cap', accent: '#c8322b', bottom: 'pants', top: 'tee', apron: '#8a3b1f', lashes: true, expression: 'happy' },
+    dialogueId: 'quanAn',
+  },
+  baSauCom: {
+    id: 'baSauCom',
+    name: { vi: 'Bà Sáu', en: 'Granny Sáu' },
+    title: { vi: 'Cơm bình dân', en: 'Everyday rice' },
+    outfit: { skin: '#e8b994', hair: '#bdb6bd', hairStyle: 'bun', shirt: '#7fa8d8', shorts: '#2a2628', shoe: '#5d6170', bag: null, accessory: null, bottom: 'pants', top: 'baba', apron: '#ffffff', shoeType: 'sandal', lashes: true, expression: 'happy' },
+    dialogueId: 'quanAn',
+  },
+  coHien: {
+    id: 'coHien',
+    name: { vi: 'Cô Hiền', en: 'Hiền' },
+    title: { vi: 'Chè Bốn Mùa', en: 'Sweet soups' },
+    outfit: { skin: '#fbe2d0', hair: '#4a2f25', hairStyle: 'long', shirt: '#ffffff', shorts: '#ff9fb2', shoe: '#ffffff', bag: null, accessory: 'bow', accent: '#ff6f91', bottom: 'skirt', top: 'tee', apron: '#ff9fb2', lashes: true, expression: 'happy' },
+    dialogueId: 'quanAn',
+  },
+  chuNhaHang: {
+    id: 'chuNhaHang',
+    name: { vi: 'Chú Thành', en: 'Thành' },
+    title: { vi: 'Nhà hàng Bờ Hồ', en: 'Lakeside restaurant' },
+    outfit: { skin: '#e8b994', hair: '#3a3438', hairStyle: 'short', shirt: '#ffffff', shorts: '#2a2a30', shoe: '#2a2a30', bag: null, accessory: null, bottom: 'pants', top: 'long', neck: 'tie', neckColor: '#8a3b1f', expression: 'happy' },
+    dialogueId: 'quanAn',
+  },
   // 1.35 Showroom Xe Phố Cổ, next to the petrol station
   chiThuyXe: {
     id: 'chiThuyXe',

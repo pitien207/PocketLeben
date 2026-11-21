@@ -14,6 +14,7 @@ import { check, flagNumber, getFlag, germanXpNeeded, setFlag } from './condition
 import { playerState } from './playerState'
 import { formatClock } from './time'
 import { currentObjective, questApplies, questSteps, stepDone } from './watchers'
+import { grabTarget, useGrab } from './grab'
 
 /**
  * The step-by-step guide (data in data/guides.ts): which step is next, what blocks it,
@@ -101,7 +102,20 @@ function placeTarget(target: GuideTarget | undefined, scene: SceneId) {
   return out
 }
 
+/** 1.40: a Grab fare takes over the pointer (arrow, compass, map star) until it is delivered. */
+function withGrab(result: ActiveGuide | null): ActiveGuide | null {
+  const t = grabTarget()
+  if (!t) return result
+  const text = { vi: `Grab: ${t.label}`, en: `Grab: ${t.label}` }
+  const base: ActiveGuide = result ?? { stepId: 'grab', stepText: text, hint: text, blocked: null, point: null, ui: null, destination: null, via: null, chapter: 0, done: 0, total: 0 }
+  return { ...base, hint: text, blocked: null, point: { kind: 'at', at: [t.x, 1.6, t.z] }, ui: null, destination: null, via: null }
+}
+
 export function computeGuide(): ActiveGuide | null {
+  return withGrab(computeQuestGuide())
+}
+
+function computeQuestGuide(): ActiveGuide | null {
   const objective = currentObjective()
   if (!objective) return null
   const { quest, step } = objective
@@ -213,6 +227,9 @@ export function startGuide(): () => void {
     useWorld.subscribe(refresh),
     useGuide.subscribe((s, prev) => {
       if (s.tour !== prev.tour || s.focus !== prev.focus) refresh()
+    }),
+    useGrab.subscribe((s, prev) => {
+      if (s.online !== prev.online || s.order?.id !== prev.order?.id || s.order?.stage !== prev.order?.stage) refresh()
     }),
     useUI.subscribe((s, prev) => {
       if (s.sceneReady !== prev.sceneReady) refresh()

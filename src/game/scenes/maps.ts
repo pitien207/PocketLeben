@@ -1,5 +1,18 @@
 import type { Localized } from '../../i18n/localized'
 import type { SceneId } from '../../store/worldStore'
+import { EATERY_DEFS, EATERY_IDS } from '../../data/eateries'
+import { EATERIES } from './VietnamStreet/layout'
+
+/** 1.40 the eateries: an orange plot and the name on the big map. */
+const EATERY_RECTS: MapRect[] = EATERY_IDS.map((id) => {
+  const e = EATERIES[id]
+  const z1 = e.z - e.face * e.d
+  return { x0: e.x - e.w / 2, x1: e.x + e.w / 2, z0: Math.min(e.z, z1), z1: Math.max(e.z, z1), color: '#f6b26b' }
+})
+const EATERY_LABELS: MapLabel[] = EATERY_IDS.map((id) => {
+  const e = EATERIES[id]
+  return { x: e.x, z: e.z - e.face * e.d * 0.5, kind: 'area', minZoom: 2.6, text: { vi: EATERY_DEFS[id].short, en: EATERY_DEFS[id].name.en } }
+})
 
 /**
  * Top-down map data for the outdoor scenes (ui/MapView.tsx draws it). x → right,
@@ -31,6 +44,8 @@ export interface MapLabel {
   z: number
   text: Localized
   kind: 'street' | 'water' | 'area'
+  /** Drawn only from this zoom on (1.40: the eateries). */
+  minZoom?: number
 }
 
 const ROAD = '#9aa3b2'
@@ -114,6 +129,7 @@ export const SCENE_MAPS: Partial<Record<SceneId, SceneMap>> = {
       { x0: 25.9, z0: -46, x1: 30.5, z1: -38, color: '#cfe0c8' },
       { x0: -6.3, z0: -84, x1: -1.7, z1: -76, color: '#dfe6f2' },
       { x0: -22, z0: -84, x1: -10, z1: -76, color: '#f2c1b6' },
+      ...EATERY_RECTS,
     ],
     circles: [{ x: -22, z: 118.2, r: 6.5, color: '#e3d6bf' }, { x: 42.1, z: 44.7, r: 4.6, color: '#e3d6bf' }, 
       { x: 12, z: -46, r: 1.8, color: '#8cc2d8' },
@@ -153,6 +169,7 @@ export const SCENE_MAPS: Partial<Record<SceneId, SceneMap>> = {
       { x: 12, z: -50.5, kind: 'area', text: { vi: 'Vườn hoa', en: 'Square', de: 'Platz' } },
       { x: -30.8, z: -17, kind: 'area', text: { vi: 'Ngõ Cây Đa', en: 'Banyan lane', de: 'Banyan-Gasse' } },
       { x: -13.4, z: -17, kind: 'area', text: { vi: 'Ngõ Tạp Hóa', en: 'Grocery lane', de: 'Laden-Gasse' } },
+      ...EATERY_LABELS,
     ],
   },
   germany: {

@@ -18,6 +18,7 @@ import { damp, dampAngle, dampFactor } from '../systems/math'
 import { playerState } from '../systems/playerState'
 import { ChibiModel, type MotionState } from './ChibiModel'
 import { localSnapshot } from '../systems/netState'
+import { GRAB_PEOPLE, useGrab } from '../systems/grab'
 
 const CAPSULE_RADIUS = 0.32
 const CAPSULE_HALF_HEIGHT = 0.42
@@ -60,6 +61,31 @@ function arrive() {
   callback?.()
 }
 
+/** 1.40 Grab: who or what rides behind you — a passenger on the pillion, or the delivery box on the rack. */
+function Cargo({ cargo, z }: { cargo: string; z: number }) {
+  const motion = useRef<MotionState>({ speed: 0, sit: 1, seatY: 0.6, arms: 0.3 })
+  if (cargo.startsWith('who:')) {
+    return (
+      <group position={[0, 0.02, z - 0.46]}>
+        <ChibiModel motion={motion} outfit={GRAB_PEOPLE[Number(cargo.slice(4))]?.outfit} />
+      </group>
+    )
+  }
+  const food = cargo === 'food'
+  return (
+    <group position={[0, 0.76, z - 0.64]}>
+      <mesh castShadow>
+        <boxGeometry args={food ? [0.44, 0.4, 0.4] : [0.42, 0.3, 0.36]} />
+        <meshLambertMaterial color={food ? '#00b14f' : '#c89a64'} />
+      </mesh>
+      <mesh position={[0, food ? 0.205 : 0.155, 0]}>
+        <boxGeometry args={food ? [0.46, 0.03, 0.42] : [0.08, 0.02, 0.37]} />
+        <meshLambertMaterial color={food ? '#ffffff' : '#e8d2a0'} />
+      </mesh>
+    </group>
+  )
+}
+
 export function Player({ visualRef }: PlayerProps) {
   const body = useRef<RapierRigidBody>(null)
   const facing = useRef<Group>(null)
@@ -75,6 +101,7 @@ export function Player({ visualRef }: PlayerProps) {
   const heading = useRef(0)
   const rideSpeed = useRef(0)
   const bodyTurned = useRef(false)
+  const cargo = useGrab((s) => (s.order && s.order.stage === 'drop' ? (s.order.kind === 'ride' ? `who:${s.order.who}` : s.order.kind) : null))
 
   useFrame((_, rawDt) => {
     const rb = body.current
@@ -242,6 +269,7 @@ export function Player({ visualRef }: PlayerProps) {
           <group position={[0, 0, rideDef ? (rideAnchorsOf(rideDef)?.riderZ ?? 0) : 0]} visible={rideDef?.kind !== 'car'}>
             <ChibiModel motion={motion} outfit={outfit} detail="high" silhouette />
           </group>
+          {rideDef && rideDef.kind !== 'car' && cargo && <Cargo cargo={cargo} z={rideAnchorsOf(rideDef)?.riderZ ?? 0} />}
         </group>
       </group>
     </RigidBody>

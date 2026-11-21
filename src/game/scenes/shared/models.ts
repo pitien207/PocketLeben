@@ -3,6 +3,8 @@ import natureUrl from '../../../assets/models/nature.bin?url'
 import natureJson from '../../../assets/models/nature.json'
 import cityUrl from '../../../assets/models/city.bin?url'
 import cityJson from '../../../assets/models/city.json'
+import foodUrl from '../../../assets/models/food.bin?url'
+import foodJson from '../../../assets/models/food.json'
 import type { Vec3 } from '../../../data/config'
 import type { ShapeItem } from './Shapes'
 
@@ -17,7 +19,8 @@ import type { ShapeItem } from './Shapes'
  * hand-built shapes.
  */
 
-export type ModelPack = 'nature' | 'city'
+/** 1.40 "food" = KayKit Restaurant Bits (CC0, tools/kaykit2props.mjs): pots, bowls, stools, tables, crates, jars… */
+export type ModelPack = 'nature' | 'city' | 'food'
 interface Group {
   mat: string
   color: string
@@ -38,13 +41,14 @@ interface Manifest {
 const PACKS: Record<ModelPack, { url: string; data: Manifest }> = {
   nature: { url: natureUrl, data: natureJson as unknown as Manifest },
   city: { url: cityUrl, data: cityJson as unknown as Manifest },
+  food: { url: foodUrl, data: foodJson as unknown as Manifest },
 }
 
 const built = new Map<string, BufferGeometry[]>()
 const loading: Partial<Record<ModelPack, Promise<void>>> = {}
 const ready: Partial<Record<ModelPack, boolean>> = {}
 
-const packOf = (name: string): ModelPack | null => (name in PACKS.nature.data.models ? 'nature' : name in PACKS.city.data.models ? 'city' : null)
+const packOf = (name: string): ModelPack | null => (name in PACKS.nature.data.models ? 'nature' : name in PACKS.city.data.models ? 'city' : name in PACKS.food.data.models ? 'food' : null)
 
 export const modelPackReady = (pack: ModelPack) => !!ready[pack]
 

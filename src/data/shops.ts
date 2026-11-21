@@ -68,6 +68,55 @@ export const SHOPS = {
     items: ['spaghettiEis'],
     hours: [11, 20],
   },
+  // 1.40 the eateries (data/eateries.ts): talking to the owner opens these
+  phoGiaTruyen: {
+    id: 'phoGiaTruyen',
+    name: { vi: 'Phở Gia Truyền', en: 'Family phở shop' },
+    items: ['pho', 'phoGa', 'traDa'],
+    hours: [6, 22],
+  },
+  bunChaCoLua: {
+    id: 'bunChaCoLua',
+    name: { vi: 'Bún Chả Cô Lụa', en: 'Cô Lụa’s bún chả' },
+    items: ['bunCha', 'nemRan', 'traDa'],
+    hours: [10, 21],
+  },
+  banhCuonBaTam: {
+    id: 'banhCuonBaTam',
+    name: { vi: 'Bánh Cuốn Bà Tám', en: 'Bà Tám’s rice rolls' },
+    items: ['banhCuon', 'traDa'],
+    hours: [6, 14],
+  },
+  lauTrangTien: {
+    id: 'lauTrangTien',
+    name: { vi: 'Lẩu Nướng Tràng Tiền', en: 'Tràng Tiền hotpot' },
+    items: ['lauThai', 'nemRan', 'nuocMia'],
+    hours: [11, 23],
+  },
+  banhMi25: {
+    id: 'banhMi25',
+    name: { vi: 'Bánh Mì Phố Cổ 25', en: 'Bánh mì no. 25' },
+    items: ['banhMi', 'banhMiXiuMai', 'nuocMia'],
+    hours: [6, 22],
+  },
+  comBaSau: {
+    id: 'comBaSau',
+    name: { vi: 'Cơm Bình Dân Bà Sáu', en: 'Bà Sáu’s rice' },
+    items: ['comSuat', 'traDa'],
+    hours: [10, 20],
+  },
+  cheBonMua: {
+    id: 'cheBonMua',
+    name: { vi: 'Chè Bốn Mùa', en: 'Four Seasons chè' },
+    items: ['che', 'cheBuoi', 'kemTrangTien'],
+    hours: [9, 23],
+  },
+  nhaHangBoHo: {
+    id: 'nhaHangBoHo',
+    name: { vi: 'Nhà hàng Bờ Hồ', en: 'Lakeside restaurant' },
+    items: ['comSuat', 'nemRan', 'lauThai'],
+    hours: [10, 22],
+  },
 } satisfies Record<string, ShopDef>
 
 export type ShopId = keyof typeof SHOPS

@@ -138,7 +138,7 @@ Mở sau khi đậu A2. Chị Mai giới thiệu: viện dưỡng lão Sonnenhof
 - "Đình này thờ Thành hoàng làng, có từ thời phố còn là làng Hàng Gai, hơn ba trăm năm rồi đấy."
 - Chuyện phố: phố bán đay gai, dây thừng nên tên Hàng Gai; xe đạp Peugeot 1960 ông đạp chở bà đi khắp Hà Nội.
 - "Quẻ chỉ để mình vững lòng thôi cháu. Còn lại là do mình cố gắng cả."
-- 🆕 Các chuyện ông kể trở thành **câu đố của khách Tây khi chạy Grab** (mục 11.1): trả lời đúng được tip.
+- (Bản cũ: các chuyện ông kể là câu đố của khách Tây trong trò chơi Grab — trò chơi đó đã bỏ ở 1.40.)
 
 **Cụ Từ, Đền Ngọc Sơn** (qua cầu Thê Húc): giữ nguyên (sự tích hồ Gươm, Tháp Bút, Đài Nghiên, thắp hương +12 tâm trạng mỗi ngày).
 
@@ -166,7 +166,7 @@ Mở sau khi đậu A2. Chị Mai giới thiệu: viện dưỡng lão Sonnenhof
 | 0 | 0 ₫ | Bình thường: tivi, hoa tươi trên bàn thờ, đồng hồ treo tường, xe Wave dựng ở sân | Vui vẻ, mẹ hát khi nấu cơm |
 | 1 | ✏️ **vay dù chỉ 1 lần** (> 0 ₫) | **Nghèo thấy rõ ngay:** tường ố xám, sơn bong, chân tường và hai tường bên ẩm mốc, vệt ố chảy từ trần, một vết nứt nhỏ · **mạng nhện** to ở góc trần · dán báo che lỗ tường, cửa sổ nứt dán băng dính, gạch nền vỡ · mấy thùng mì tôm cạnh bếp, bóng đèn trần treo dây · **hóa đơn tiền điện đóng dấu đỏ** ghim cạnh tờ lịch · nồi hứng nước dột · **dây phơi quần áo vá giăng ngang phòng** · lọ hoa trên bàn thờ chỉ còn hoa khô, **đĩa ngũ quả chỉ còn một quả cam héo** · chăn vá | Mẹ cười gượng, bố ít nói · ✏️ **quần áo bố mẹ đã phải vá** (bạc màu, miếng vá ở ngực, khuỷu tay, đầu gối) |
 | 2 | ≥ 15 triệu | **Tivi biến mất** (bán), chỗ để tivi còn vết bụi hình chữ nhật · **tường nứt** một vệt dài · đồng hồ treo tường không còn · thêm chậu đỏ hứng dột, thêm gạch vỡ, tường càng ố | Bố ngồi ngoài hiên đến khuya · Mẹ đi rửa bát thuê buổi tối · hội thoại buồn hơn · quần áo bố mẹ vá chằng vá đụp |
-| 3 | ≥ 30 triệu | **Mảng tường vỡ**, lộ gạch · mái dột, có xô hứng nước giữa nhà · **xe Wave của bố bị bán** (không chạy Grab được nữa) · Na không đi học thêm nữa · thêm mảng gạch lộ có gạch vụn dưới chân, sàn ướt quanh nồi hứng dột, nến trên bàn nước (bị cắt điện), tấm bìa các-tông chỗ dựng xe | Mặt bố mẹ buồn rõ, mẹ có quầng thâm mắt · Na: "Nhà mình nghèo đi hả anh/chị?" · **quần áo bố mẹ rách rưới**: thêm miếng vá, tay áo và ống quần sờn cụt |
+| 3 | ≥ 30 triệu | **Mảng tường vỡ**, lộ gạch · mái dột, có xô hứng nước giữa nhà · **xe Wave của bố bị bán** (chạy Grab thì phải có xe riêng) · Na không đi học thêm nữa · thêm mảng gạch lộ có gạch vụn dưới chân, sàn ướt quanh nồi hứng dột, nến trên bàn nước (bị cắt điện), tấm bìa các-tông chỗ dựng xe | Mặt bố mẹ buồn rõ, mẹ có quầng thâm mắt · Na: "Nhà mình nghèo đi hả anh/chị?" · **quần áo bố mẹ rách rưới**: thêm miếng vá, tay áo và ống quần sờn cụt |
 | Đặc biệt | Thế chấp sổ đỏ (Studium, mục 2.2) | Cuốn sổ đỏ trong tủ kính biến mất, chỉ còn khung trống | Bố ngồi một mình trước bàn thờ |
 
 **Trả nợ thì nhà đẹp lại**, theo đúng thứ tự ngược lại:
@@ -177,7 +177,7 @@ Mở sau khi đậu A2. Chị Mai giới thiệu: viện dưỡng lão Sonnenhof
 
 **Ảnh hưởng lên cách chơi:**
 - Mức 2 trở lên: mỗi sáng ở nhà −3 tâm trạng ("nhìn tường nứt mà thấy có lỗi").
-- Mức 3: mất việc Grab (bố bán xe).
+- Mức 3: bố bán xe Wave → muốn chạy Grab phải có xe riêng; trả bớt nợ (dưới mức 3) thì bố lại cho mượn.
 - Dòng kết riêng nếu đã từng lên mức 3 rồi trả hết (ở phần kết thúc).
 
 ### Hoạt động khác ở Hà Nội ✏️ (giá mới)
@@ -351,7 +351,7 @@ Lương giờ ở Việt Nam bám theo **lương tối thiểu vùng I năm 2026
 |---|---|---|---|---|---|---|
 | **Pha trà sữa** 🆕 | Tiệm Trà Sữa Phố Cổ (chị Vy) | 7–22h | Từ đầu | 25–30k/giờ + tip | **450.000 ₫** + tip | −15 |
 | **Trông quán Circle K** | Circle K đầu phố Hàng Gai | Ca ngày 6–22h · Ca đêm 22–6h | ✏️ Từ đầu — gặp chị Hạnh là **được nhận luôn, không phỏng vấn** | ~25k/giờ | **400.000 ₫** (ca đêm **520.000 ₫**) | −15 (đêm −30, sáng hôm sau mệt) |
-| **Chạy Grab** | Khắp phố cổ | 6–23h | Đăng ký tài xế (xem dưới) | ~20–35k/cuốc sau chiết khấu | **300.000–700.000 ₫** tùy số cuốc và sao, trừ tiền xăng 40.000 ₫ | −20 |
+| **Chạy Grab** | ✏️ 1.40: chạy thật ngoài phố (không còn trò chơi riêng) | 6–23h | Có xe: mượn xe Wave của bố (miễn phí) hoặc xe tự mua | ~20–35k/cuốc sau chiết khấu | **~25.000–60.000 ₫ mỗi cuốc** (≈ 250.000–450.000 ₫ một giờ chạy), tự đổ xăng | — |
 | **Gia sư Toán lớp 8** | Nhà phụ huynh phố Hàng Bông | 18–21h, Thứ Hai–Sáu | Xong nhiệm vụ "Kèm em học" (Na giới thiệu học trò) | 150k/buổi 1,5 giờ | **450.000 ₫** | −8 |
 
 #### 🧋 Pha trà sữa (1.17 — thay cho quán cà phê)
@@ -394,27 +394,40 @@ Quán cà phê đầu phố đổi thành **Tiệm Trà Sữa Phố Cổ**, ch�
 **Sự kiện ca đêm** (ngẫu nhiên): nhóm sinh viên ôn thi mua 20 gói mì lúc 2h sáng · người say nằm ngủ trước cửa (gọi bảo vệ hay mang cho chai nước?) · mất điện, tính tiền bằng giấy bút · 🆕 Linh vào mua đồ lúc 3h vì học bài cả đêm (+cảnh trò chuyện, +XP cho cả hai).
 
 #### 🛵 Chạy Grab
-**Đăng ký tài xế** `job.grab` (một lần): mượn xe Wave của bố, mang bằng lái A1 và giấy tờ xe, mua áo + mũ đồng phục 300.000 ₫.
+✏️ **1.40 — chạy thật ngoài thành phố, không còn trò chơi riêng.**
 
-✏️ **1.26 — khó hơn nhiều:** bản đồ to hơn (8 × 9 ngã tư, thêm Kem Tràng Tiền, Xôi Yến), camera bám theo xe (1.27: đường to, đẹp kiểu bản đồ thành phố, không còn bản đồ nhỏ), mũi tên chỉ đích; ô tô chạy thật trên đường (va quẹt = dừng xe, trừ 1★), đường đang sửa chắn lối (đổi chỗ mỗi 15 giây), ETA gắt, trễ quá ×1,7 thì khách hủy đơn (1★, không có tiền), đơn chờ quá 9 giây thì chuyển cho tài xế khác. Ca dài 90 giây.
+**Mượn xe** `job.grab`: ở nhà hỏi bố „Bố cho con mượn xe Wave chạy Grab nhé?" → bố: „Ừ, xe của bố đấy, cầm lấy chìa khóa. Đi cẩn thận, đội mũ bảo hiểm vào. Hết xăng thì tự đổ nhé con." → **miễn phí, không cần áo đồng phục.** Xe Wave của bố (`boWave`) vào danh sách xe của bạn (không bán được, showroom không bán). Có xe tự mua (xe máy, ô tô, xe đạp) cũng chạy được. **Phải có xe mới bật được app.**
 
-✏️ **Trò chơi (1.21, giao hàng + chở khách, toàn màn hình):** bản đồ phố cổ nhìn từ trên xuống (dãy nhà ống, cây, Hồ Gươm có Tháp Rùa và cầu Thê Húc, tên phố Tràng Tiền, Hàng Bạc, Hàng Đào, Hàng Gai, Hàng Trống, Hàng Bông, Lê Thái Tổ, Đinh Tiên Hoàng…).
-- App báo **2 đơn** để chọn: **giao đồ ăn** (Phở Gia Truyền, Bánh mì Phố Cổ, Tiệm Trà Sữa, Cà phê trứng, Bún chả Hàng Mành, Chè Bốn Mùa) hoặc **chở khách**, có quãng đường và tiền cuốc.
-- Lái: bấm ← ↑ ↓ → (hoặc vuốt bản đồ): xe tự chạy thẳng và rẽ ở ngã tư kế tiếp; bấm hướng ngược lại để quay đầu.
-- Đường chấm xanh = **GPS**, nhưng GPS không biết **tắc đường** (đoạn đỏ có ô tô, đi rất chậm, 12 giây đổi chỗ một lần). **Phố một chiều** (mũi tên ») không đi ngược được.
-- Giao trước khi hết **ETA** → 5 sao + tip; trễ thì ít sao hơn.
-- **Cuối tuần Hàng Đào là phố đi bộ** (màu hồng, có người đi bộ): chạy vào là CSGT thổi còi, phạt 200.000 ₫.
-- Trời mưa: có mưa rơi trên bản đồ, xe chậm hơn, giá cuốc +30%. Sau 18h bản đồ tối dần, xe bật đèn pha.
-- Hết giờ: bảng tổng kết (đơn, sao trung bình, tiền cuốc, tip, phạt, thưởng hạng, trừ xăng 40.000 ₫).
+**Bật app:** điện thoại → Việc → „Bật app Grab" (6–23h, chỉ ngoài phố). Thẻ Grab xanh thay chỗ ô nhiệm vụ: điểm đánh giá, số cuốc, tiền ca này, „Tắt app". Cuốc mới hiện lên (tối đa 2, mỗi cuốc chờ ~16 giây): loại, tiền, điểm đón → điểm đến, khoảng cách. **Nhận / Bỏ** (máy tính: phím G nhận cuốc đầu).
 
-**Khách đặc biệt** (mỗi người xuất hiện vài lần, có hội thoại):
-- **Herr Jakob** 🆕: người Đức sống ở Tây Hồ, đang học tiếng Việt, quê ở **Lindenberg**. Mỗi cuốc là một đoạn trao đổi ngôn ngữ: bạn sửa tiếng Việt cho ông, ông sửa tiếng Đức cho bạn (+XP). Lần thứ 5: "Khi nào sang Lindenberg, nhớ đến tiệm bánh của em gái tôi!"
-- **Khách Tây hỏi về phố cổ**: câu đố lấy từ chuyện Ông Từ, Cụ Từ, chú Hưng. Đúng thì tip 50.000–100.000 ₫.
-- **Anh Khải (Hoàng Kim)**: ngồi sau xe, gọi điện liên tục "bao đậu visa, không cần B1". Nghe lén được thông tin → mở hội thoại cảnh báo Linh.
-- **Bà bán xôi** đi chợ Đồng Xuân lúc 5h sáng, trả bằng một gói xôi (+15 năng lượng, không có tiền).
-- Trời mưa: giá cuốc tăng 30%, nhưng trơn trượt.
+**Ba loại cuốc:**
+- **Chở khách** (xe máy / ô tô, không phải xe đạp): khách đứng vẫy tay ở lề đường. Dừng xe cạnh khách → khách **ngồi sau xe**; đang chở khách thì không xuống xe được („Đang chở khách — đến nơi rồi hãy xuống xe!"). Đến nơi, dừng lại → xong.
+- **Giao đồ ăn**: lấy ở một trong các quán ăn đang mở (mục „Quán ăn trong phố" bên dưới) — „2 suất bún chả + nem", „1 nồi lẩu thái 2 người"… Hộp giữ nhiệt xanh trên baga. Khách đứng chờ ở cửa.
+- **Giao hàng**: lấy ở **Bưu điện Bờ Hồ** (Phố Tràng Tiền, 7–19h): hộp quà sinh nhật, thùng sách, hồ sơ gấp, thùng hoa quả quê gửi lên… Thùng các-tông trên baga.
 
-⚠️ Nếu nợ bố mẹ lên **mức 3** (mục 1.8), bố phải bán xe Wave → **không chạy Grab được nữa** cho đến khi trả bớt nợ.
+**Chỉ đường:** mũi tên hướng dẫn chuyển sang **màu xanh Grab**, chỉ điểm đón rồi điểm đến (cả la bàn và ngôi sao trên bản đồ). 51 địa chỉ khắp bản đồ: Nhà thờ Lớn, Bưu điện, Cổng đền Ngọc Sơn, Chợ đêm, Circle K, các cửa hàng Hàng Khay, bệnh viện, nhà dân („Số 23 Hàng Đào", „Số 9 Tràng Tiền", „Số 14 Bà Triệu"…). Hai bờ hồ thì đi vòng đường ven hồ phía đông.
+
+**Tiền:** giá mở cửa + theo mét (chở khách 12.000 ₫ + 230 ₫/m, đồ ăn 15.000 ₫ + 180 ₫/m, hàng 18.000 ₫ + 160 ₫/m), trời mưa +30%, thưởng hạng (+10/+20%). Đến trong thời gian dự kiến (ETA) → 5★ + tip; chậm hơn → 4★, 3★, 2★; chậm quá (2,6× ETA) → khách hủy, 1★, không có tiền. Tự hủy cuốc → 1★. Mỗi cuốc xong được tính một lần làm việc (lên hạng sau 8 và 20 cuốc). Xăng tự trả ở cây xăng.
+
+**App tự tắt** khi vào nhà / sang cảnh khác, khi đi ngủ, hoặc sau 23h (lúc không chở cuốc nào).
+
+⚠️ Nếu nợ bố mẹ lên **mức 3** (mục 1.8), bố phải bán xe Wave → chỉ chạy Grab được bằng xe riêng, cho đến khi trả bớt nợ (bố chuộc lại xe).
+
+#### 🍜 Quán ăn trong phố (1.40)
+Bảy quán ăn xen kẽ trong phố cổ (tên hư cấu), nói chuyện với chủ quán → xem thực đơn, mua món vào túi. Quán nào cũng là điểm lấy đồ ăn khi chạy Grab (lúc đang mở cửa).
+
+| Quán | Ở đâu | Chủ quán | Giờ mở | Món |
+|---|---|---|---|---|
+| **Phở Gia Truyền** | Hàng Gai (quán cũ) | chú Hùng | 6–22h | Phở bò 55.000 ₫, phở gà 50.000 ₫, trà đá |
+| **Bún Chả Than Hoa Cô Lụa** | Hàng Gai, đầu phía tây | cô Lụa | 10–21h | Bún chả 50.000 ₫, nem cua bể 30.000 ₫, trà đá |
+| **Bánh Cuốn Nóng Bà Tám** | Phố đi bộ Hàng Đào | bà Tám | 6–14h | Bánh cuốn chả quế 40.000 ₫, trà đá |
+| **Lẩu Nướng Tràng Tiền** | Phố Tràng Tiền | anh Dũng | 11–23h | Lẩu thái 120.000 ₫, nem, nước mía |
+| **Bánh Mì Phố Cổ 25** | Phố Tràng Tiền | chị Ngân | 6–22h | Bánh mì thịt, bánh mì xíu mại, nước mía |
+| **Cơm Bình Dân Bà Sáu** | Phố Tràng Tiền (dãy bưu điện) | bà Sáu | 10–20h | Cơm suất 45.000 ₫, trà đá |
+| **Chè Bốn Mùa** | Phố Tràng Tiền (dãy bưu điện) | cô Hiền | 9–23h | Chè ba màu, chè bưởi, kem Tràng Tiền |
+| **Nhà hàng Bờ Hồ** | Phố Hàng Khay (thay „Phở Gánh") | chú Thành | 10–22h | Cơm suất, nem, lẩu thái |
+
+Lời chào (mỗi lần một câu), ví dụ cô Lụa: „Chả nướng than hoa thơm cả phố đây! Ngồi xuống cô làm cho suất bún chả." · bà Tám: „Bà mở từ sáng sớm, quá trưa là hết bột đấy nhé!" · ngoài giờ: „Quán nghỉ rồi cháu ơi, mai quay lại nhé — quán mở từ … giờ đến … giờ." · hỏi „Quán có giao Grab không ạ?": „Có chứ! Bật app Grab là thấy đơn của quán…"
 
 #### 📚 Gia sư Toán lớp 8
 Học trò: **bé Bin** (lớp 8, con nhà phụ huynh phố Hàng Bông, rất ghét phân số).
@@ -769,8 +782,8 @@ Bật lại bằng `SECRETS_ENABLED = true` trong `src/data/secrets.ts`. Khi b�
 - **Văn phòng làm hộ:** đặt ở Tuấn trong văn phòng hoặc bấm 💼 ngay trong Hồ sơ visa (Tuấn nghe điện thoại). Dịch thuật qua văn phòng vẫn cần lấy bản gốc ở nhà trước.
 - **Dịch thuật tự làm:** một lần đến cô Phương, mất ~4 giờ (không tách 2 lần đi lại).
 - **Đổi Euro (`dep.exchange`):** bước xong khi có ít nhất 200 € trong ví (tuần đầu cần ~600 €, bố mẹ cho thêm 400 € ở sân bay).
-- **Gia sư:** bấm "Sang dạy bé Bin" trên Bảng việc (chuyển cảnh ngắn), không có nhà bé Bin trên bản đồ. Grab cũng mở từ điện thoại.
-- **Herr Jakob, khách Tây, anh Khải, bà bán xôi** xuất hiện trong trò chơi Grab (thẻ khách + câu hỏi), không đi lại trên phố.
+- **Gia sư:** bấm "Sang dạy bé Bin" trên Bảng việc (chuyển cảnh ngắn), không có nhà bé Bin trên bản đồ. Grab bật app từ điện thoại rồi chạy thật ngoài phố (1.40).
+- **Khách Grab (1.40):** 8 khách hư cấu (chị Hà, anh Tuấn Anh, bác Bình, em Linh Chi, Mr. Jakob, cô Nga, anh Khoa, chị Mai Phương) đứng chờ ở lề đường / cửa nhà, chưa có hội thoại riêng. Anh Khải, bà bán xôi và câu đố phố cổ của trò chơi Grab cũ chưa được đưa lại.
 - **Chưa có:** xe buýt 8.000 ₫, cà phê nâu 30.000 ₫, tiếng mẹ hát khi nấu cơm, mâm cơm ít món (chỉ có lời thoại), cảnh Tết thêm khi góp tiền đều.
 - **Tên:** bé Na (trẻ con trên phố) đổi thành **Bé Ngân**, "Chị Lan" ở Đại sứ quán đổi thành **Chị Loan**, để không trùng em Na và cô Lan.
 - **Thương hiệu thật:** Circle K, Grab, Goethe-Institut, VFS Global, Deutsche Welle (Nicos Weg) đang dùng đúng tên như file của bạn. Nếu sau này phát hành công khai rộng, nên cân nhắc đổi sang tên hư cấu (ví dụ "Circle Q", "Grap") để tránh rắc rối thương hiệu.

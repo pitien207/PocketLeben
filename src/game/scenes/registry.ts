@@ -48,7 +48,7 @@ export const SCENES: Record<SceneId, SceneInfo> = {
       /** 1.39 the gate of the pickleball court in Vườn hoa Hàng Khay (HangKhay/layout.ts PICKLE). */
       pickleball: { x: -30, z: 114.2, yaw: 0 },
     },
-    load: withModels(['nature', 'city'], () => import('./VietnamStreet')),
+    load: withModels(['nature', 'city', 'food'], () => import('./VietnamStreet')),
   },
   home: {
     id: 'home',

@@ -50,7 +50,6 @@ export type MinigameSpec =
   /** Find the marked clauses in a document (contract reading, scam signs). */
   | { kind: 'clauses'; doc: ClauseDocId }
   | { kind: 'circleK'; night: boolean; rank: number }
-  | { kind: 'grab'; rain: boolean; rank: number; rider?: string }
   | { kind: 'tutor'; rank: number }
   /** The shift at the bubble-tea shop; `strikes` = early walk-outs so far. */
   | { kind: 'bubbleTea'; rank: number; strikes: number }

@@ -30,7 +30,7 @@ const TILE_DARK = '#b4552f'
 const SHUTTER_GREENS = ['#3f7d5c', '#4f8a8b', '#5d7a4a', '#2f6b6b']
 
 /** Terracotta roof sloping down to the street, with a few ribs and a ridge. */
-function tiledRoof(s: ShapeItem[], w: number, y: number, f: number, slope = 2.4, pitch = 0.42) {
+export function tiledRoof(s: ShapeItem[], w: number, y: number, f: number, slope = 2.4, pitch = 0.42) {
   const rz = f - slope * 0.42
   s.push({ box: [w + 0.3, 0.12, slope], at: [0, y + 0.5, rz], rot: [pitch, 0, 0], color: TILE })
   const ribs = Math.max(4, Math.round(w / 0.5))
@@ -39,7 +39,7 @@ function tiledRoof(s: ShapeItem[], w: number, y: number, f: number, slope = 2.4,
 }
 
 /** A window with a frame; `shutters` adds two louvred leaves folded open beside it. */
-function win(s: ShapeItem[], x: number, y: number, f: number, w: number, h: number, frame: string, glass: string, shutters?: string) {
+export function win(s: ShapeItem[], x: number, y: number, f: number, w: number, h: number, frame: string, glass: string, shutters?: string) {
   s.push({ box: [w + 0.14, h + 0.14, 0.05], at: [x, y, f + 0.01], color: frame })
   s.push({ box: [w, h, 0.06], at: [x, y, f + 0.02], color: glass })
   s.push({ box: [0.04, h, 0.07], at: [x, y, f + 0.025], color: frame })
@@ -52,7 +52,7 @@ function win(s: ShapeItem[], x: number, y: number, f: number, w: number, h: numb
 }
 
 /** A balcony slab with a simple railing. */
-function balcony(s: ShapeItem[], x: number, y: number, f: number, w: number, slab: string, rail: string, deep = 0.7) {
+export function balcony(s: ShapeItem[], x: number, y: number, f: number, w: number, slab: string, rail: string, deep = 0.7) {
   s.push({ box: [w, 0.12, deep], at: [x, y, f + deep / 2], color: slab })
   s.push({ box: [w, 0.06, 0.06], at: [x, y + 0.85, f + deep - 0.04], color: rail })
   const posts = Math.max(3, Math.round(w / 0.35))

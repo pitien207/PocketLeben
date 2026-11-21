@@ -7,7 +7,7 @@ import type { Localized } from '../i18n/localized'
  * Shared numbers (resale rate, fuel price, which scenes allow riding) live in CONFIG.vehicles.
  */
 
-export type VehicleId = 'xeDap' | 'ongVang' | 'mayTrang' | 'enBac' | 'phongLuu' | 'hatDau' | 'phoCo' | 'giaDinh' | 'chopDo'
+export type VehicleId = 'boWave' | 'xeDap' | 'ongVang' | 'mayTrang' | 'enBac' | 'phongLuu' | 'hatDau' | 'phoCo' | 'giaDinh' | 'chopDo'
 export type VehicleKind = 'bicycle' | 'motorbike' | 'car'
 /** How a two-wheeler is drawn (shared/ownVehicles.ts). */
 export type BikeStyle = 'bicycle' | 'cub' | 'scooter' | 'vespa' | 'big'
@@ -38,9 +38,29 @@ export interface VehicleDef {
   model?: string
   /** Icon3d name for the list. */
   icon: string
+  /** 1.40: lent, not bought (Bố's Wave for Grab): not in the showroom, cannot be sold. */
+  borrowed?: boolean
 }
 
 export const VEHICLES: Record<VehicleId, VehicleDef> = {
+  // 1.40 Bố lends it for Grab (systems/grab.ts): yours while job.grab is set and the house is not at level 3
+  boWave: {
+    id: 'boWave',
+    kind: 'motorbike',
+    name: { vi: 'Xe Wave của bố', en: 'Dad’s Wave' },
+    blurb: { vi: 'Xe số cũ của bố, chạy mười mấy năm vẫn nổ máy phát một. Bố cho mượn để chạy Grab.', en: 'Dad’s old step-through, lent for Grab.' },
+    price: 0,
+    color: '#b3242a',
+    color2: '#2a2a30',
+    speed: 2.6,
+    turn: 3.2,
+    accel: 2.5,
+    tank: 4,
+    range: 3000,
+    style: 'cub',
+    icon: 'motor-scooter',
+    borrowed: true,
+  },
   xeDap: {
     id: 'xeDap',
     kind: 'bicycle',
@@ -188,5 +208,7 @@ export const VEHICLES: Record<VehicleId, VehicleDef> = {
 }
 
 export const VEHICLE_LIST: VehicleDef[] = Object.values(VEHICLES)
+/** What the showroom sells (no borrowed vehicles). */
+export const SHOP_VEHICLES: VehicleDef[] = VEHICLE_LIST.filter((v) => !v.borrowed)
 
 export const isVehicleId = (id: unknown): id is VehicleId => typeof id === 'string' && id in VEHICLES

@@ -203,6 +203,11 @@ const ICONS: Record<ItemIconName, (props: Props) => JSX.Element> = {
   che: Che,
   banhTrang: BanhTrang,
   kem: Kem,
+  bunCha: BunCha,
+  nemRan: NemRan,
+  banhCuon: BanhCuon,
+  lau: Lau,
+  com: Com,
 }
 
 function Pho(props: Props) {
@@ -296,4 +301,73 @@ function Kem(props: Props) {
 export function ItemIcon({ name, ...props }: Props & { name: ItemIconName }) {
   const Icon = ICONS[name]
   return <Icon {...props} />
+}
+
+/** 1.40 Bún chả: a bowl of broth with grilled patties, a plate of white noodles beside it. */
+function BunCha(props: Props) {
+  return (
+    <Base {...props}>
+      <ellipse cx="11" cy="22" rx="8.5" ry="4.5" fill="#ffffff" stroke={INK} strokeWidth="1.8" />
+      <path d="M5.5 21c2-2 4 0 5.5-1.5s3.5 1 5.5-.5" fill="none" stroke="#e9e2d4" strokeWidth="2.2" />
+      <path d="M14 13h15a7.5 7.5 0 0 1-15 0z" fill="#ffffff" stroke={INK} strokeWidth="1.8" />
+      <ellipse cx="21.5" cy="13" rx="7.5" ry="1.8" fill="#e8a25a" stroke={INK} strokeWidth="1.2" />
+      <circle cx="19" cy="12.6" r="1.8" fill="#8a4a2a" />
+      <circle cx="23.5" cy="12.4" r="1.6" fill="#9a5432" />
+      <circle cx="26" cy="13.2" r=".9" fill="#7fc27a" />
+    </Base>
+  )
+}
+
+/** Nem rán: three golden spring rolls with a lettuce leaf. */
+function NemRan(props: Props) {
+  return (
+    <Base {...props}>
+      <path d="M4 20c4-6 12-9 20-8 3 .4 4 3 1 4.5L8 25c-3 1-6-1.5-4-5z" fill="#7fc27a" stroke={INK} strokeWidth="1.6" />
+      {[0, 1, 2].map((i) => (
+        <rect key={i} x={7 + i * 2} y={10 + i * 4} width="16" height="4.6" rx="2.3" transform={`rotate(-18 ${15 + i * 2} ${12 + i * 4})`} fill="#e8a243" stroke={INK} strokeWidth="1.5" />
+      ))}
+    </Base>
+  )
+}
+
+/** Bánh cuốn: thin white rolls on a plate, slices of chả and fried shallots. */
+function BanhCuon(props: Props) {
+  return (
+    <Base {...props}>
+      <ellipse cx="16" cy="19" rx="13" ry="7" fill="#dfe8f2" stroke={INK} strokeWidth="1.8" />
+      <rect x="6" y="13" width="15" height="5" rx="2.5" fill="#fbf8f2" stroke={INK} strokeWidth="1.4" />
+      <rect x="8" y="17.5" width="15" height="5" rx="2.5" fill="#fbf8f2" stroke={INK} strokeWidth="1.4" />
+      <circle cx="24.5" cy="15" r="2.6" fill="#f0d9a8" stroke={INK} strokeWidth="1.2" />
+      <circle cx="10" cy="15.2" r=".8" fill="#c97b2b" />
+      <circle cx="14" cy="19.6" r=".8" fill="#c97b2b" />
+      <circle cx="18" cy="15" r=".7" fill="#7fc27a" />
+    </Base>
+  )
+}
+
+/** Lẩu: a hotpot on a little gas burner, red broth, a prawn and greens. */
+function Lau(props: Props) {
+  return (
+    <Base {...props}>
+      <rect x="7" y="24" width="18" height="4" rx="1.5" fill="#5d6170" stroke={INK} strokeWidth="1.6" />
+      <path d="M4.5 12h23l-2 10a3 3 0 0 1-3 2.5H9.5a3 3 0 0 1-3-2.5z" fill="#b8bcc8" stroke={INK} strokeWidth="1.8" />
+      <ellipse cx="16" cy="12" rx="11.5" ry="3" fill="#d4473b" stroke={INK} strokeWidth="1.4" />
+      <path d="M10 11.5c1.5-2 4-2 5 0" fill="none" stroke="#f4a46b" strokeWidth="2" />
+      <circle cx="20" cy="11.8" r="1.6" fill="#7fc27a" />
+      <path d="M13 7c-1-1.5 1-2.5 0-4M18 7c-1-1.5 1-2.5 0-4" fill="none" stroke="#c9ced8" strokeWidth="1.4" />
+    </Base>
+  )
+}
+
+/** Cơm suất: a tray plate — rice, braised pork with egg, greens. */
+function Com(props: Props) {
+  return (
+    <Base {...props}>
+      <rect x="3" y="9" width="26" height="16" rx="3" fill="#dfe2e8" stroke={INK} strokeWidth="1.8" />
+      <ellipse cx="11" cy="17" rx="6" ry="5" fill="#ffffff" stroke={INK} strokeWidth="1.2" />
+      <rect x="18.5" y="11.5" width="8" height="5.5" rx="1.5" fill="#a85a3a" />
+      <circle cx="22.5" cy="14.2" r="1.8" fill="#fff3d6" stroke="#e8a25a" strokeWidth="1" />
+      <rect x="18.5" y="18" width="8" height="4.5" rx="1.5" fill="#7fc27a" />
+    </Base>
+  )
 }

@@ -34,11 +34,14 @@ Every asset must be CC0 or our own (plan §2, §9). List each one here with its 
 ## 3D icons (1.25)
 - `src/assets/icons3d/*.webp` (food, drinks, vehicles, trees, house, faces, stopwatch, money bag, party popper…) are
   **Fluent Emoji 3D** by Microsoft — https://github.com/microsoft/fluentui-emoji — **MIT licence**
-  (Copyright (c) Microsoft Corporation). Shrunk to 128 px WebP; otherwise unchanged. 1.35 added bicycle, fuel-pump, key.
+  (Copyright (c) Microsoft Corporation). Shrunk to 128 px WebP; otherwise unchanged. 1.35 added bicycle, fuel-pump, key; 1.40 package, takeout-box.
 
-## Grab sprites (1.26)
-- `src/assets/grab/*.png` (top-down motorcycle, cars, cones, barrier, oil) from **Kenney**'s *Racing Pack* — https://kenney.nl —
-  license **CC0 1.0**. Renamed only.
+## Restaurant props (1.40)
+- `src/assets/models/food.bin` + `food.json` (pots, bowls, plates, stools, tables, chairs, vegetable crates, jars,
+  burners, menu boards…) are converted from **KayKit Restaurant Bits** by **Kay Lousberg** —
+  https://github.com/KayKit-Game-Assets/KayKit-Restaurant-Bits-1.0 — license **CC0 1.0**. Converted by
+  `tools/kaykit2props.mjs` (atlas colours → flat colours per part, dense parts simplified); otherwise unchanged.
+  (The 1.26 Grab sprites from Kenney's Racing Pack were removed with the Grab mini-game in 1.40.)
 
 ## Libraries
 - **postprocessing** (Raoul van Rüschen, zlib licence, https://github.com/pmndrs/postprocessing),

@@ -5,14 +5,11 @@ import { usePlayer } from '../../store/playerStore'
 import { useTime } from '../../store/timeStore'
 import { pushToast } from '../../store/toastStore'
 import { useUI } from '../../store/uiStore'
-import { useWorld } from '../../store/worldStore'
 import { registerActions } from './actions'
 import { playSfx } from './audio'
 import { bumpFlag, flagNumber, getFlag, registerTests, setFlag } from './conditions'
-import { pay } from './effects'
-import { houseLevel } from './family'
 import { spendTime, weekdayIndex } from './time'
-import { isRaining } from './weather'
+import { ownedVehicles } from './vehicles'
 import { L, say, vnd } from './say'
 
 /**
@@ -55,7 +52,8 @@ export function jobUnlocked(job: VnJob) {
   if (job === 'cafe') return teaBanLeft() <= 0
   // Circle K takes anyone: talking to chị Hạnh (or starting a shift) hires you on the spot.
   if (job === 'circleK') return true
-  if (job === 'grab') return !!getFlag('job.grab') && houseLevel() < 3
+  // 1.40: any vehicle will do — your own, or Bố's Wave (systems/grab.ts)
+  if (job === 'grab') return ownedVehicles().length > 0
   return !!getFlag('job.tutor.unlocked')
 }
 
@@ -189,44 +187,7 @@ function circleKShift() {
   return true
 }
 
-// --- Grab -------------------------------------------------------------------------------------
-
-/** What a Grab shift leaves you: fares + tips − fines, the rank bonus, minus the fuel. */
-export function grabNet(earned: number, rank: number) {
-  return Math.max(0, Math.round((earned * (1 + J.rankBonus[rank])) / 1000) * 1000) - J.grab.fuel
-}
-
-/** Register as a driver: Bố's Wave, licence A1, uniform + helmet. Once. */
-function grabRegister() {
-  if (getFlag('job.grab')) return false
-  if (houseLevel() >= 3) {
-    say(L('Bố bán xe Wave rồi… không còn xe để chạy Grab.', 'Dad sold the Wave… there’s no bike to drive for Grab.'), 'bad')
-    return false
-  }
-  if (!pay(J.grab.uniform)) return false
-  setFlag('job.grab', true)
-  say(L('Đăng ký tài xế xong: xe Wave của bố, bằng A1, áo + mũ đồng phục ({m}). Mở app trên điện thoại để nhận cuốc!', 'Driver registered: Dad’s Wave, A1 licence, uniform + helmet ({m}). Open the app on your phone to take rides!'), 'good', { m: vnd(J.grab.uniform) })
-  return true
-}
-
-function grabShift() {
-  if (!getFlag('job.grab')) return say(L('Chưa đăng ký tài xế. Hỏi mượn xe Wave của bố trước đã.', 'Not registered yet. Ask Dad to lend you his Wave first.'), 'info'), false
-  if (houseLevel() >= 3) return say(L('Bố bán xe Wave rồi… phải trả bớt nợ thì bố mới chuộc lại xe.', 'Dad sold the Wave… repay some debt so he can buy it back.'), 'bad'), false
-  if (jobDoneToday('grab')) return alreadyToday(), false
-  if (useWorld.getState().scene !== 'vietnam' && useWorld.getState().scene !== 'home') return false
-  const [open, close] = J.grab.hours
-  if (hour() < open || hour() >= close) return say(L('App Grab: giờ này ít khách lắm (6–23h).', 'Grab app: hardly any rides at this hour (6–23).'), 'info'), false
-  if (usePlayer.getState().energy < J.grab.energy) return pushToast('toast.tooTired', 'bad'), false
-  const rain = isRaining(today(), useTime.getState().minutes, 'vn')
-  useMinigame.getState().start({ kind: 'grab', rain, rank: jobRank('grab') }, (r) => {
-    // r.value = fares + tips earned in the game (VND); fuel is paid out of it.
-    const earned = r.value ?? 0
-    const got = finishPay('grab', earned, J.grab.energy + (rain ? 10 : 0), J.grab.minutes)
-    usePlayer.getState().addMoney(-J.grab.fuel)
-    say(L('Chạy Grab xong: +{m} (đã trừ xăng {f})', 'Grab done: +{m} (fuel {f} paid)', 'Grab fertig: +{m} (Benzin {f})'), 'good', { m: vnd(got - J.grab.fuel), f: vnd(J.grab.fuel) })
-  })
-  return true
-}
+// --- Grab: live in the city since 1.40, see systems/grab.ts ------------------------------------------------------
 
 // --- Tutoring Bin -----------------------------------------------------------------------------
 
@@ -276,8 +237,6 @@ registerActions({
   'job.circleKHire': circleKHire,
   // Old saves / dialogues: the interview is gone, this just hires.
   'job.circleKInterview': circleKHire,
-  'job.grabRegister': grabRegister,
-  'job.grab': grabShift,
   'job.tutor': tutorShift,
 })
 

@@ -29,6 +29,7 @@ import { NgocSon } from './NgocSon'
 import { VisaOffices } from './VisaOffices'
 import { HangBong } from './HangBong'
 import { NorthQuarter } from './NorthQuarter'
+import { Eateries } from './Eateries'
 import { LampPools } from './LampPools'
 import { LakeEast } from './LakeEast'
 import { HangKhay } from '../HangKhay'
@@ -109,6 +110,7 @@ export const VietnamStreet = memo(function VietnamStreet() {
       <VisaOffices />
       <HangBong />
       <NorthQuarter />
+      <Eateries />
       <LampPools />
       <LakeEast />
       {/* 1.34: the far shore of the lake is part of this map */}

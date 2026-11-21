@@ -78,15 +78,29 @@ export function mount(id?: VehicleId): boolean {
   return true
 }
 
+/**
+ * 1.40 Grab (systems/grab.ts): with a passenger on the back you may not just get off (`blockGetOff` returns why);
+ * `onGetOff` hears every dismount, also the forced ones (out of fuel, a room, sitting down).
+ */
+export const rideHooks: { blockGetOff: (() => string | null) | null; onGetOff: (() => void) | null } = { blockGetOff: null, onGetOff: null }
+
 export function dismount() {
   if (!useRide.getState().riding) return
   saveFuel()
   useRide.setState({ riding: null })
+  rideHooks.onGetOff?.()
 }
 
 export function toggleRide() {
-  if (useRide.getState().riding) dismount()
-  else mount()
+  if (useRide.getState().riding) {
+    const why = rideHooks.blockGetOff?.()
+    if (why) {
+      playSfx('wrong')
+      say({ vi: why, en: why }, 'info')
+      return
+    }
+    dismount()
+  } else mount()
 }
 
 /** Called by the Player with the distance ridden this frame. */
@@ -151,7 +165,7 @@ export const resaleOf = (def: VehicleDef) => Math.round((def.price * CONFIG.vehi
 
 export function sellVehicle(id: VehicleId): boolean {
   const def = VEHICLES[id]
-  if (!ownsVehicle(id) || usePlayer.getState().currency !== 'VND') return false
+  if (def.borrowed || !ownsVehicle(id) || usePlayer.getState().currency !== 'VND') return false
   if (useRide.getState().riding === id) dismount()
   const pay = resaleOf(def)
   usePlayer.getState().addMoney(pay)

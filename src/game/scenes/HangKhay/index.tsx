@@ -20,7 +20,7 @@ import { ActiveArea } from '../../components/ActiveArea'
 import { LampPools } from '../VietnamStreet/LampPools'
 import { GoldCounter } from './GoldCounter'
 import type { Vec3 } from '../../../data/config'
-import { BA_TRIEU, BUILDINGS, FLOWER_MARKET, inPickleCourt, OZ, PARK, PLAY, PROMENADE, ROAD, SCHOOL_YARD, SHORE_Z, SOUTH_PAVE, TRAFFIC, WALKERS, type Building } from './layout'
+import { BA_TRIEU, BUILDINGS, FLOWER_MARKET, inPickleCourt, OZ, PARK, PLAY, PROMENADE, ROAD, ROW_FRONT, SCHOOL_YARD, SHORE_Z, SOUTH_PAVE, TRAFFIC, WALKERS, type Building } from './layout'
 import { PickleCourt } from './PickleCourt'
 
 /**
@@ -359,6 +359,8 @@ export const HangKhay = memo(function HangKhay() {
       <NPC def={NPCS.chiDiDao} at={WALKERS.chiDiDao[0]} path={{ points: WALKERS.chiDiDao, pauseSec: [1, 4] }} />
       <NPC def={NPCS.coDoanhNhan} at={WALKERS.coDoanhNhan[0]} path={{ points: WALKERS.coDoanhNhan, pauseSec: [1, 3] }} />
       <NPC def={NPCS.coBanHoa} at={{ x: fm.x + 2.2, z: fm.z0 + 4.2 }} yaw={Math.PI / 2} seatY={0.33} activity="fan" />
+      {/* 1.40 Nhà hàng Bờ Hồ: chú Thành welcomes guests at the door (talk = menu) */}
+      <NPC def={NPCS.chuNhaHang} at={{ x: -7.9 + 1.5, z: ROW_FRONT - 0.7 }} yaw={Math.PI} />
       <NPC def={NPCS.baoVeTruong} at={{ x: BA_TRIEU.px0 - 0.2, z: OZ + 41.2 }} yaw={Math.PI / 2} />
       </ActiveArea>
 

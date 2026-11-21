@@ -4,8 +4,8 @@ import { playSfx } from '../systems/audio'
 import { AnswerButton, MinigameFrame, shuffle } from './common'
 
 /**
- * Mini-game of tutoring Bin (story 2.1 §11.1): find the wrong step. Circle K and Grab have their
- * own full-screen games since 1.21 (CircleK.tsx, GrabRun.tsx).
+ * Mini-game of tutoring Bin (story 2.1 §11.1): find the wrong step. Circle K has its
+ * own full-screen game since 1.21 (CircleK.tsx); Grab is played in the city since 1.40 (systems/grab.ts).
  */
 
 const L = (vi: string, en: string, de?: string): Localized => ({ vi, en, de })

@@ -12,7 +12,6 @@ import { BubbleTeaGame } from './BubbleTea'
 import { DerDieDas } from './DerDieDas'
 import { B1_MODULE_NAMES, B1_MODULES, Exam } from './Exam'
 import { CircleKGame } from './CircleK'
-import { GrabGame } from './GrabRun'
 import { TutorGame } from './JobGames'
 import { ListenGame } from './ListenGame'
 import { ClauseHunt, LetterGame, PortalForm } from './Paperwork'
@@ -116,9 +115,6 @@ export function MinigameHost() {
             onDone={(o) => finish({ ...makeResult(o.ok, Math.max(1, o.all), 0.5), value: o.deduct, fraction: o.fraction })}
           />
         )
-        break
-      case 'grab':
-        game = <GrabGame key={active.id} rain={active.rain} rank={active.rank} onComplete={complete('Grab', 0, true)} />
         break
       case 'tutor':
         game = <TutorGame key={active.id} rank={active.rank} onComplete={complete(localize({ vi: 'Buổi kèm học', en: 'Tutoring', de: 'Nachhilfe' }), 0.5)} />

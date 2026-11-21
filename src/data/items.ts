@@ -26,6 +26,11 @@ export type ItemIconName =
   | 'che'
   | 'banhTrang'
   | 'kem'
+  | 'bunCha'
+  | 'nemRan'
+  | 'banhCuon'
+  | 'lau'
+  | 'com'
 
 export interface ItemDef {
   id: string
@@ -317,6 +322,95 @@ export const ITEMS = {
     energy: 12,
     mood: 5,
     minutes: 10,
+  },
+  // 1.40 the eateries (data/eateries.ts)
+  phoGa: {
+    id: 'phoGa',
+    weight: 0.8,
+    name: { vi: 'Phở gà', en: 'Chicken phở' },
+    icon: 'pho',
+    price: 50_000,
+    currency: 'VND',
+    energy: 35,
+    mood: 10,
+    minutes: 20,
+  },
+  bunCha: {
+    id: 'bunCha',
+    weight: 0.7,
+    name: { vi: 'Bún chả than hoa', en: 'Grilled pork with noodles' },
+    icon: 'bunCha',
+    price: 50_000,
+    currency: 'VND',
+    energy: 35,
+    mood: 10,
+    minutes: 20,
+  },
+  nemRan: {
+    id: 'nemRan',
+    weight: 0.3,
+    name: { vi: 'Nem cua bể', en: 'Crab spring rolls' },
+    icon: 'nemRan',
+    price: 30_000,
+    currency: 'VND',
+    energy: 35,
+    mood: 10,
+    minutes: 10,
+  },
+  banhCuon: {
+    id: 'banhCuon',
+    weight: 0.5,
+    name: { vi: 'Bánh cuốn chả quế', en: 'Steamed rice rolls' },
+    icon: 'banhCuon',
+    price: 40_000,
+    currency: 'VND',
+    energy: 35,
+    mood: 10,
+    minutes: 15,
+  },
+  lauThai: {
+    id: 'lauThai',
+    weight: 1.2,
+    name: { vi: 'Lẩu thái (suất 1 người)', en: 'Thai hotpot for one' },
+    icon: 'lau',
+    price: 120_000,
+    currency: 'VND',
+    energy: 35,
+    mood: 10,
+    minutes: 40,
+  },
+  comSuat: {
+    id: 'comSuat',
+    weight: 0.7,
+    name: { vi: 'Cơm suất bình dân', en: 'Rice with three dishes' },
+    icon: 'com',
+    price: 45_000,
+    currency: 'VND',
+    energy: 35,
+    mood: 10,
+    minutes: 20,
+  },
+  banhMiXiuMai: {
+    id: 'banhMiXiuMai',
+    weight: 0.3,
+    name: { vi: 'Bánh mì xíu mại', en: 'Meatball bánh mì' },
+    icon: 'banhMi',
+    price: 30_000,
+    currency: 'VND',
+    energy: 35,
+    mood: 10,
+    minutes: 8,
+  },
+  cheBuoi: {
+    id: 'cheBuoi',
+    weight: 0.35,
+    name: { vi: 'Chè bưởi', en: 'Pomelo sweet soup' },
+    icon: 'che',
+    price: 25_000,
+    currency: 'VND',
+    energy: 35,
+    mood: 10,
+    minutes: 8,
   },
 } satisfies Record<string, ItemDef>
 

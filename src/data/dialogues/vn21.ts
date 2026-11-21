@@ -38,7 +38,6 @@ const HOME_EVENING: Condition = { all: [{ scene: 'home' }, { test: 'family.eveni
 export const VN21_DIALOGUES: Record<string, DialogueDef> = {
   // ------------------------------------------------------------------------------------- Family
   bo: {
-    vars: () => ({ uniform: vnd(CONFIG.vnJobs.grab.uniform) }),
     start: [
       { if: { all: [{ flag: 'trip.away' }, { noFlag: 'trip.reunion' }] }, node: 'tet' },
       { if: { flag: 'trip.away' }, node: 'stay' },
@@ -86,9 +85,9 @@ export const VN21_DIALOGUES: Record<string, DialogueDef> = {
       lent: { text: L('Ừ, cầm lấy. Tiêu cho cẩn thận.', 'Here. Spend it carefully.') },
       lentTired: { text: L('Tháng này bố chưa trả được tiền điện… Thôi, cầm đi.', 'I haven’t paid the electricity bill this month… Never mind, take it.') },
       grab: {
-        text: L('Xe của bố đấy, đi cẩn thận. Mang theo bằng lái, giấy tờ xe, mua cái áo với mũ đồng phục cho đàng hoàng ({uniform}).', 'It’s my bike, ride carefully. Take your licence and the papers, and buy a proper uniform and helmet ({uniform}).'),
+        text: L('Ừ, xe của bố đấy, cầm lấy chìa khóa. Đi cẩn thận, đội mũ bảo hiểm vào. Hết xăng thì tự đổ nhé con.', 'Here are the keys. Ride carefully, wear a helmet. Fill it up yourself when it runs dry.'),
         choices: [
-          { text: L('Đăng ký tài xế Grab', 'Register as a Grab driver'), cost: CONFIG.vnJobs.grab.uniform, effect: { type: 'action', id: 'job.grabRegister' } },
+          { text: L('Con cảm ơn bố! (mượn xe Wave)', 'Thanks, Dad! (borrow the Wave)'), effect: { type: 'action', id: 'job.grabRegister' } },
           { text: L('Để sau ạ', 'Later') },
         ],
       },

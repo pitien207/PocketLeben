@@ -2,6 +2,7 @@ import { CONFIG } from '../data/config'
 import { runAction } from '../game/systems/actions'
 import { getFlag } from '../game/systems/conditions'
 import { debtTotal, houseLevel } from '../game/systems/family'
+import { useGrab } from '../game/systems/grab'
 import { jobCount, jobDoneToday, jobRank, jobUnlocked, RANK_NAMES, teaBanLeft, teaStrikes, VN_JOBS, type VnJob } from '../game/systems/jobs'
 import { formatMoney } from '../i18n/format'
 import { useT } from '../i18n'
@@ -38,10 +39,10 @@ const JOBS: Record<VnJob, { name: Localized; where: Localized; pay: string; hour
   },
   grab: {
     name: L('Chạy Grab', 'Grab driver', 'Grab-Fahrer'),
-    where: L('Khắp phố cổ (mở app)', 'All over the Old Quarter (open the app)'),
-    pay: `${vnd(J.grab.min)}–${vnd(J.grab.max)} − ${vnd(J.grab.fuel)}`,
+    where: L('Chạy thật ngoài phố: chở khách, giao đồ ăn, giao hàng bưu điện', 'In the real streets: passengers, food, parcels'),
+    pay: `${vnd(J.grab.min)}–${vnd(J.grab.max)}/giờ`,
     hours: `${J.grab.hours[0]}–${J.grab.hours[1]}h`,
-    lock: L('Hỏi mượn xe Wave của bố ở nhà, đăng ký tài xế.', 'Ask Dad (at home) to lend you his Wave and register.'),
+    lock: L('Cần có xe: hỏi mượn xe Wave của bố (ở nhà) hoặc mua xe ở Showroom.', 'You need a vehicle: borrow Dad’s Wave (at home) or buy one.'),
   },
   tutor: {
     name: L('Gia sư Toán lớp 8 (bé Bin)', 'Year-8 maths tutor (Bin)', 'Mathe-Nachhilfe (Bin)'),
@@ -58,6 +59,7 @@ export function JobBoard() {
   useFlags((s) => s.flags)
   useTime((s) => s.day)
   const scene = useWorld((s) => s.scene)
+  const grabOn = useGrab((s) => s.online)
   const closePanel = useUI((s) => s.closePanel)
   const inVietnam = scene !== 'germany' && !getFlag('de.arrived')
 
@@ -100,9 +102,9 @@ export function JobBoard() {
               {id === 'cafe' && !open ? ` (còn ${teaBanLeft()} ngày)` : ''}
               {id === 'cafe' && open && teaStrikes() > 0 ? ` · bỏ ca ${teaStrikes()}/${J.tea.maxQuits}` : ''}
             </p>
-            {open && !done && id === 'grab' && (
-              <button type="button" data-testid="job-grab-start" onClick={() => run('job.grab')} className="mt-1.5 w-full rounded-xl btn-jade py-1.5 text-[13px] font-extrabold">
-                {localize(L('Mở app, nhận cuốc', 'Open the app, take rides', 'App öffnen'))}
+            {open && id === 'grab' && (
+              <button type="button" data-testid="job-grab-start" onClick={() => run('job.grab')} className={`mt-1.5 w-full rounded-xl py-1.5 text-[13px] font-extrabold ${grabOn ? 'btn-lacquer' : 'btn-jade'}`}>
+                {grabOn ? localize(L('Tắt app Grab', 'Turn Grab off')) : localize(L('Bật app Grab, nhận cuốc', 'Turn on Grab, take fares'))}
               </button>
             )}
             {open && !done && id === 'tutor' && (

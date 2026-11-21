@@ -161,7 +161,9 @@ function draw(canvas: HTMLCanvasElement, view: View, time: number) {
   ctx.textAlign = 'center'
   ctx.textBaseline = 'middle'
   for (const l of map.labels ?? []) {
-    const size = l.kind === 'street' ? 14 : 13
+    // 1.40: small places (the eateries) only once you zoom in, or the old quarter is a pile of names
+    if (l.minZoom && view.zoom < l.minZoom) continue
+    const size = l.kind === 'street' ? 14 : l.minZoom ? 11 : 13
     ctx.font = `${l.kind === 'water' ? 'italic ' : ''}900 ${size}px Nunito, system-ui, sans-serif`
     const color = l.kind === 'water' ? '#2f6f8f' : l.kind === 'street' ? '#ffffff' : '#7a4a2a'
     const halo = l.kind === 'street' ? 'rgba(74,58,51,0.55)' : 'rgba(255,250,240,0.9)'

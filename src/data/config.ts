@@ -382,11 +382,38 @@ export const CONFIG = {
     rankBonus: [0, 0.1, 0.2],
     circleK: { day: 400_000, night: 520_000, energy: 15, nightEnergy: 30, dayHours: [6, 22] as [number, number], seconds: 90, minutes: 240 },
     /**
-     * Grab (1.21): a real-time ride on a top-down map of the Old Quarter, `seconds` long. Each order pays
-     * fareBase + farePerEdge × the shortest way (+rainBonus when it rains), +tip for 5 stars; speed in
-     * map blocks per second. min/max = what a shift usually earns (job board).
+     * Grab (1.40): live in the open city — no mini-game. The app (systems/grab.ts) offers fares while you are online:
+     * `ride` (carry a passenger), `food` (from an eatery) and `parcel` (from the post office). Fare = base +
+     * perMetre × the road distance (+rainBonus in the rain) × rank bonus; 5 stars (done within the ETA) adds a tip.
+     * ETA = distance / (vehicle top speed × etaSpeed) + etaExtra seconds; the customer gives up after giveUp × ETA.
+     * Seconds are real seconds of play (one game minute each). min/max = what an hour online usually earns (job board).
      */
-    grab: { min: 300_000, max: 700_000, fuel: 40_000, energy: 20, hours: [6, 23] as [number, number], uniform: 300_000, rainBonus: 0.3, fine: 200_000, minutes: 240, seconds: 90, speed: 1.6, fareBase: 24_000, farePerEdge: 6_000, tip: 15_000 },
+    grab: {
+      min: 250_000,
+      max: 450_000,
+      hours: [6, 23] as [number, number],
+      ride: { base: 12_000, perMetre: 230 },
+      food: { base: 15_000, perMetre: 180 },
+      parcel: { base: 18_000, perMetre: 160 },
+      /** Share of offers per kind (rides need a motorbike or a car). */
+      weights: { ride: 0.45, food: 0.4, parcel: 0.15 },
+      rainBonus: 0.3,
+      tip: 10_000,
+      /** A new offer every [min, max] seconds while you have fewer than maxOffers and no fare. */
+      offerGap: [2.5, 6] as [number, number],
+      offerTtl: 16,
+      maxOffers: 2,
+      /** Stop within `radius` metres for `holdSec` to pick up / drop off. */
+      radius: 3.6,
+      holdSec: 1.2,
+      /** Below this speed (m/s) you count as stopped. */
+      stopSpeed: 2.6,
+      etaSpeed: 0.5,
+      etaExtra: 12,
+      giveUp: 2.6,
+      /** Post office counter hours (parcels). */
+      postHours: [7, 19] as [number, number],
+    },
     /**
      * Tiệm trà sữa (1.17): a 90-second shift of the bubble-tea mini-game. Walking out early pays only
      * the share worked and counts as a strike; `maxQuits` strikes = fired for `banDays` days.

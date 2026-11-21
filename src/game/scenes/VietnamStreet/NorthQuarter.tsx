@@ -17,7 +17,7 @@ import { ActiveArea } from '../../components/ActiveArea'
 /** 1.34: the avenue's cars run only while you are in the north half of the map. */
 const nearAvenue = (_x: number, z: number) => z < 15
 import { Showroom, SHOWROOM } from './Showroom'
-import { AVENUE_LANES, BUILDING_CENTER_Z, BUILDING_DEPTH, NORTH, OFFICES, PLAY, VACATED, WEST, type Lot } from './layout'
+import { AVENUE_LANES, BUILDING_CENTER_Z, BUILDING_DEPTH, EATERIES, NORTH, OFFICES, PLAY, VACATED, WEST, type Lot } from './layout'
 
 /**
  * The north quarter (1.17): the map is no longer one straight street. Behind the Hàng Gai row a
@@ -39,13 +39,32 @@ interface Row {
   seed: number
 }
 
+/** 1.40: the eateries standing in a row (front line `front`) cut its segments into pieces. */
+function cut(rows: Row[], front: number): Row[] {
+  const holes = Object.values(EATERIES)
+    .filter((e) => !e.drawn && e.z === front)
+    .map((e) => [e.x - e.w / 2, e.x + e.w / 2] as const)
+  let out = rows
+  for (const [h0, h1] of holes) {
+    out = out.flatMap((r) =>
+      h1 <= r.x0 || h0 >= r.x1
+        ? [r]
+        : [
+            { ...r, x1: h0, from: r.from !== undefined && r.from < h0 ? r.from : undefined },
+            { ...r, x0: h1, from: undefined, seed: r.seed + 500 },
+          ].filter((p) => p.x1 - p.x0 > 0.5),
+    )
+  }
+  return out
+}
+
 /** Row B, between the lanes; its fronts face north. */
-const ROWS_B: Row[] = [
+const ROWS_B: Row[] = cut([
   { x0: PLAY.minX, x1: lanes[0].x0, from: -44, seed: 11 },
   { x0: lanes[0].x1, x1: lanes[1].x0, seed: 23 },
   { x0: lanes[1].x1, x1: hangBong.x0, seed: 37 },
   { x0: hangBong.x1, x1: PLAY.maxX, seed: 41 },
-]
+], rowB.front)
 /** Where a shop house that moved north stands in its row (see layout: OFFICES, WEST). */
 const hole = (h: Lot): [number, number] => [h.x - h.width / 2, h.x + h.width / 2]
 const [NOTARY0, NOTARY1] = hole(OFFICES.houses[1])
@@ -61,18 +80,18 @@ const ROWS_C: Row[] = [
 ]
 void PHARM1
 /** Row C2, back to back with row C; its fronts face north onto the avenue. */
-const ROWS_C2: Row[] = [
+const ROWS_C2: Row[] = cut([
   { x0: PLAY.minX, x1: cross[0].x0, seed: 71 },
   { x0: cross[0].x1, x1: plaza.x0, seed: 73 },
   { x0: plaza.x1, x1: cross[1].x0, seed: 79 },
-]
+], rowC2.front)
 /** Row D, north of the avenue; fronts face south. Gaps: the petrol station, the vehicle showroom (1.35), the APS office, the post office. */
-const ROWS_D: Row[] = [
+const ROWS_D: Row[] = cut([
   { x0: PLAY.minX, x1: gas.x0, seed: 83 },
   { x0: SHOWROOM.x1, x1: APS0, seed: 89 },
   { x0: APS1, x1: clock.x0, seed: 97 },
   { x0: clock.x1, x1: PLAY.maxX, seed: 101 },
-]
+], rowD.front)
 const VACATED_STYLES = ['oldLow', 'pastel', 'modern'] as const
 
 const lotsOf = (r: Row) => planRow(r.from ?? r.x0, r.x1, r.seed)

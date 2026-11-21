@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
 import type { Group } from 'three'
-import { VEHICLE_LIST, VEHICLES, type VehicleDef, type VehicleId } from '../data/vehicles'
+import { SHOP_VEHICLES, VEHICLES, type VehicleDef, type VehicleId } from '../data/vehicles'
 import { VehicleMesh } from '../game/components/PlayerVehicle'
 import { vehicleHalf } from '../game/scenes/shared/ownVehicles'
 import { buyVehicle, chooseVehicle, currentVehicle, fuelOf, mount, ownedVehicles, ownsVehicle, plateOf, resaleOf, rideAllowed, sellVehicle, toggleRide, useRide } from '../game/systems/vehicles'
@@ -99,7 +99,7 @@ export function VehicleShop() {
 
   if (!open) return null
   const owned = ownedVehicles()
-  const list = tab === 'mine' ? owned : VEHICLE_LIST.filter((v) => (tab === 'cars' ? v.kind === 'car' : v.kind !== 'car'))
+  const list = tab === 'mine' ? owned : SHOP_VEHICLES.filter((v) => (tab === 'cars' ? v.kind === 'car' : v.kind !== 'car'))
   const def = VEHICLES[pick]
   const mine = ownsVehicle(def.id)
   const isCurrent = currentVehicle()?.id === def.id
@@ -162,7 +162,7 @@ export function VehicleShop() {
             onClick={() => {
               setTab(id)
               setConfirm(null)
-              const first = id === 'mine' ? owned[0] : VEHICLE_LIST.find((v) => (id === 'cars' ? v.kind === 'car' : v.kind !== 'car'))
+              const first = id === 'mine' ? owned[0] : SHOP_VEHICLES.find((v) => (id === 'cars' ? v.kind === 'car' : v.kind !== 'car'))
               if (first) setPick(first.id)
             }}
             className={`truncate rounded-full px-2 py-1 ${tab === id ? 'bg-cream shadow-[0_2px_0_var(--color-outline)]' : 'text-ink/70'}`}
@@ -257,9 +257,11 @@ export function VehicleShop() {
                 >
                   {isCurrent ? t('vehicles.inUse') : t('vehicles.use')}
                 </button>
+                {!def.borrowed && (
                 <button type="button" data-testid="veh-sell" onClick={sell} className="rounded-xl bg-cream py-2 text-sm font-black shadow-[inset_0_0_0_2px_var(--color-outline)] active:translate-y-0.5">
                   {confirm === `sell-${def.id}` ? t('vehicles.confirmSell') : `${t('vehicles.sell')} · ${formatMoney(resaleOf(def), 'VND')}`}
                 </button>
+                )}
               </div>
             )}
             <p className="text-center text-[11px] leading-snug font-bold text-ink/60">{t('vehicles.hint')}</p>

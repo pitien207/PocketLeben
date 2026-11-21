@@ -63,7 +63,34 @@ export const CAFE = { x: 4.5, width: 7, depth: 6, z: BUILDING_FRONT_Z - 3 }
 export const houseFront = (h: Lot) => h.z ?? BUILDING_FRONT_Z
 
 /** Plots on Hàng Gai left empty by the shops that moved north (1.19): plain houses stand there now. */
-export const VACATED = [-39.7, -49.3, -21.9]
+export const VACATED = [-49.3, -21.9]
+
+/**
+ * 1.40 Quán ăn xen kẽ trong phố (Eateries.tsx, data/eateries.ts) — also the pick-up points of Grab food orders.
+ * x = centre of the front, z = the front line, w × d the plot; face 1 = the front faces +Z (south), −1 = −Z (north).
+ * `drawn` = the house is built by another file (the old Phở Gia Truyền in WestBlock); the rows of decor houses in
+ * NorthQuarter leave holes for the others.
+ */
+export type EateryId = 'pho' | 'bunCha' | 'banhCuon' | 'lau' | 'banhMi' | 'com' | 'che'
+export interface EateryLot {
+  x: number
+  z: number
+  w: number
+  d: number
+  face: 1 | -1
+  drawn?: boolean
+}
+export const EATERIES: Record<EateryId, EateryLot> = {
+  pho: { x: -17, z: BUILDING_FRONT_Z, w: 4.6, d: BUILDING_DEPTH, face: 1, drawn: true },
+  bunCha: { x: -39.7, z: BUILDING_FRONT_Z, w: 4.5, d: BUILDING_DEPTH, face: 1 },
+  banhCuon: { x: -22, z: -21, w: 5, d: 8, face: -1 },
+  lau: { x: -14, z: -54, w: 8, d: 8, face: -1 },
+  banhMi: { x: 24, z: -54, w: 4.4, d: 8, face: -1 },
+  com: { x: -45, z: ROW_D_FRONT, w: 5.5, d: 8, face: 1 },
+  che: { x: 25, z: ROW_D_FRONT, w: 4.6, d: 8, face: 1 },
+}
+/** A point on the pavement `out` metres in front of an eatery (where Grab drivers stop). */
+export const eateryKerb = (e: EateryLot, out = 1.6) => ({ x: e.x, z: e.z + e.face * out })
 
 /**
  * 1.19 — bigger again. North of row C: row C2 (back to back, faces north), then **Đại lộ Tràng Tiền**

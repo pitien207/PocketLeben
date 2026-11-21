@@ -1,5 +1,59 @@
 # Changelog
 
+## 1.40.0 — Quán ăn trong phố, Grab chạy thật ngoài đường
+
+### Added — quán ăn (user: "thêm vài nhà hàng, quán ăn xen kẽ trong thành phố, tìm thư viện đẹp")
+- **Six new eateries spread through the old quarter**, each a tube house whose ground floor is an open eatery: tiled
+  floor, striped awning with fairy lights, a sign, low plastic tables and stools on the pavement, a menu board, the
+  thần tài altar, a bead curtain to the kitchen, lamps that glow at night:
+  - **Bún Chả Than Hoa Cô Lụa** (Hàng Gai, west end) — charcoal brazier with patties on the pavement.
+  - **Bánh Cuốn Nóng Bà Tám** (Hàng Đào walking street) — bà Tám sits at her steamer; open 6–14h only.
+  - **Lẩu Nướng Tràng Tiền** (avenue, 8 m wide) — round tables with gas burners and hotpots, red lanterns, a drinks fridge.
+  - **Bánh Mì Phố Cổ 25** (avenue) — the red glass cart on the pavement.
+  - **Cơm Bình Dân Bà Sáu** (avenue, row D) — trays of the day's dishes, a rice pot.
+  - **Chè Bốn Mùa** (avenue, row D) — a counter of colourful jars.
+- The old **Phở Gia Truyền** on Hàng Gai is now a real eatery too (chú Hùng by the pot), and the Hàng Khay
+  restaurant became **Nhà hàng Bờ Hồ** (chú Thành at the door).
+- **Talk to the owner** (each has their own greeting) → **menu** (a normal shop: buy into the bag). New dishes with
+  their own icons: bún chả, nem cua bể, bánh cuốn, lẩu thái, cơm suất, phở gà, bánh mì xíu mại, chè bưởi.
+  Outside opening hours the owner tells you when to come back.
+- Props come from the CC0 library **KayKit Restaurant Bits** (pots, bowls, plates, stools, tables, chairs, vegetable
+  crates, jars, burners, shelves, menu boards), converted into the game's one-mesh style by `tools/kaykit2props.mjs`
+  (model pack `food`, 235 KB). All eateries together are 2 draw calls.
+- **Map**: eateries are orange plots; their names show once you zoom in.
+
+### Changed — Grab (user: "chạy grab ko mở mini game nữa mà nhận cuốc và chạy trực tiếp trong thành phố")
+- **No more mini-game.** Turn on the **Grab app** (phone → Việc → "Bật app Grab") and fares pop up in a card where the
+  quest tracker usually is (Nhận / Bỏ; desktop: **G** takes the first). Three kinds:
+  - **Chở khách** — the passenger waits at the kerb and waves; stop next to them, they **sit on the back of your
+    scooter**, ride them to where they want to go. With a passenger you cannot get off (F does nothing until you arrive).
+  - **Giao đồ ăn** — pick up at one of the eateries (only open ones), the green food box rides on your rack; the
+    customer waits at the door.
+  - **Giao hàng** — parcels from **Bưu điện Bờ Hồ** (7–19h), delivered to an address.
+- The **guide arrow turns Grab green** and points at the pick-up, then the drop-off (compass and map star too, even
+  with guide arrows switched off). Stop within ~3.5 m for a moment to pick up / drop off. 51 addresses all over the
+  map: landmarks, shops, homes ("Số 23 Hàng Đào"…), both sides of the lake.
+- **Pay**: base + metres (ride / food / parcel rates), +30 % in the rain, rank bonus; delivered within the ETA = 5★ +
+  tip. Too slow → fewer stars; far too slow → the customer cancels (1★). Cancelling yourself = 1★. Average rating on the card.
+- **You need a vehicle**: **Bố lends you his Wave for free** (no uniform any more — "Bố cho con mượn xe Wave chạy
+  Grab nhé?" at home), or ride your own. On a bicycle you only get food and parcel orders. You pay your own fuel at the
+  petrol station. At house level 3 Bố sells the Wave (it comes back when the debt goes down); the showroom never sells it.
+- The app switches itself off when you go indoors, sleep, or after 23h (when no fare is running).
+- Removed: the Grab mini-game (`GrabRun.tsx`) and its Kenney sprites.
+
+### Manual test checklist (phone)
+- [ ] Walk Hàng Gai west, Hàng Đào and Phố Tràng Tiền: the six new eateries look right by day and at night (lights, lanterns), nothing floats or clips, signs readable.
+- [ ] Talk to cô Lụa → "Cho cháu xem thực đơn" → buy a bún chả. Bà Tám after 14h says she is closed.
+- [ ] Nhà hàng Bờ Hồ (Hàng Khay): door or chú Thành → menu.
+- [ ] Map (M): zoom in → eatery names; zoomed out not cluttered.
+- [ ] At home ask Bố "mượn xe Wave chạy Grab" → free, keys; ride the Wave (F).
+- [ ] Phone → Việc → "Bật app Grab": the green card replaces the quest; offers come; "Nhận".
+- [ ] Ride to the waving passenger, stop → they sit behind you; F does not let you get off; drop them → money + stars.
+- [ ] A food order from an eatery and a parcel from the post office: the box shows on the rack; delivered → paid.
+- [ ] Card fits on a phone held sideways (740×340) and does not cover the tool rail; "Hủy" and "Tắt app" work.
+- [ ] Go into a building → the app turns off.
+
+
 ## 1.39.0 — Less lag, pickleball court with 1v1 matches
 
 ### Changed (performance — user: "giảm giật lag")

@@ -32,6 +32,8 @@ import { remotes } from '../../net/client'
 import { pullCloudSave, pushCloudSave } from '../../net/auth'
 import { useNet } from '../../store/netStore'
 import { usePickle } from '../../net/pickleball'
+import { useGrab, grabClock } from './grab'
+import { useRide } from './vehicles'
 import { useFxAuto } from '../fx/fxState'
 
 /**
@@ -77,6 +79,10 @@ export function installDebugHooks() {
       net: useNet,
       /** 1.39 pickleball lobby state (rooms, my room, invites, match). */
       pickle: usePickle,
+      /** 1.40 Grab app (offers, order) + its clock, and the vehicle you ride. */
+      grab: useGrab,
+      grabClock,
+      ride: useRide,
       /** 1.39 lighter post effects after a slow-device decline ({ lite }). */
       fxAuto: useFxAuto,
       cloud: { push: pushCloudSave, pull: pullCloudSave },

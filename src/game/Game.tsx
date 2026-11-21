@@ -14,6 +14,7 @@ import { Player } from './components/Player'
 import { SceneReady } from './components/SceneReady'
 import { TimeSystem } from './components/TimeSystem'
 import { Weather } from './components/Weather'
+import { GrabWorld } from './components/GrabWorld'
 import { GuideSystem } from './components/GuideSystem'
 import { PALETTE } from './scenes/shared/palette'
 import { SCENES } from './scenes/registry'
@@ -53,7 +54,7 @@ function GlobalGround() {
 }
 
 /** Mini-games that cover the whole screen: the 3D view is not drawn meanwhile (1.34, smoother UI on phones). */
-const FULL_SCREEN_GAMES = new Set(['bubbleTea', 'circleK', 'grab'])
+const FULL_SCREEN_GAMES = new Set(['bubbleTea', 'circleK'])
 
 /** 1.39: struggling device → lower resolution AND the lighter post effects, once (no flip-flop). */
 const slowDevice = (setDprCap: (n: number) => void) => () => {
@@ -99,6 +100,8 @@ export function Game() {
             <PickleMatchView />
             {SECRETS_ENABLED && <SecretGlints />}
             <GuideSystem />
+            {/* 1.40 Grab in the city: the app's clock, waiting customers */}
+            <GrabWorld />
             <InteractionSystem />
             <TimeSystem />
           </Physics>

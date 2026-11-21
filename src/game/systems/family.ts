@@ -57,7 +57,7 @@ function borrow(arg?: string) {
   setFlag('debt.peak', Math.max(flagNumber('debt.peak'), after))
   if (after >= 3) setFlag('debt.everLevel3', true)
   say(L('+{a} (nợ bố mẹ: {d})', '+{a} (owed to your parents: {d})', '+{a} (Schulden bei den Eltern: {d})'), 'info', { a: vnd(amount), d: vnd(debtTotal()) })
-  if (after > before && after >= 3) say(L('Bố phải bán chiếc xe Wave… Không chạy Grab được nữa.', 'Dad had to sell his Wave motorbike… No more Grab.'), 'bad')
+  if (after > before && after >= 3) say(L('Bố phải bán chiếc xe Wave… Muốn chạy Grab tiếp thì phải có xe riêng.', 'Dad had to sell his Wave… Grab now needs a vehicle of your own.'), 'bad')
   return true
 }
 

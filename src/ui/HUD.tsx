@@ -7,6 +7,8 @@ import { useUI } from '../store/uiStore'
 import { useFlags } from '../store/flagsStore'
 import { ActionIcon } from './ActionIcon'
 import { QuestTracker } from './QuestLog'
+import { GrabCard } from './GrabCard'
+import { useGrab } from '../game/systems/grab'
 import { bagCapacity, bagWeight } from '../game/systems/bag'
 import { useInventory } from '../store/inventoryStore'
 import { BagIcon, GearIcon, MapIcon, MoonIcon, RainIcon, SunIcon } from './icons'
@@ -228,6 +230,8 @@ export function HUD() {
   // in landscape (a column would run into the action button on a phone held sideways), a column in
   // portrait. No zoom buttons (pinch / wheel zooms).
   const land = useLandscape()
+  // 1.40: while the Grab app is on, its card takes the objective's place
+  const grab = useGrab((s) => s.online)
   return (
     <header className="pointer-events-none absolute inset-x-0 top-0 z-10 flex flex-col gap-1.5 px-safe pt-safe" data-layout={land ? 'land' : 'portrait'}>
       {/* Row 1: status line — clock left, money far right */}
@@ -239,7 +243,7 @@ export function HUD() {
       {/* Row 2: the objective on the left, the tools on the right under the money */}
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0 flex-1">
-          <QuestTracker />
+          {grab ? <GrabCard /> : <QuestTracker />}
         </div>
         <Rail row={land} />
       </div>

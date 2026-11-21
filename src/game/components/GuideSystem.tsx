@@ -18,6 +18,8 @@ import { npcPositions } from '../systems/registry'
  */
 
 const GOLD = '#ffc531'
+/** 1.40: the pointer turns Grab green while it shows a fare's pick-up / drop-off. */
+const GRAB = '#00b14f'
 const _target = new Vector3()
 
 /** Where the guide points right now, in world space (null = nothing in this scene). */
@@ -73,8 +75,13 @@ export function GuideSystem() {
     const edge = cp
     const { guide, tour } = useGuide.getState()
     const ui = useUI.getState()
-    const enabled = useSettings.getState().guideArrows && !ui.transition && !ui.sleeping && useMinigame.getState().active?.kind !== 'pickleball'
+    const enabled = (useSettings.getState().guideArrows || !!guide?.hint.vi.startsWith('Grab:')) && !ui.transition && !ui.sleeping && useMinigame.getState().active?.kind !== 'pickleball'
     const found = enabled ? resolve(guide?.point ?? null, _target) : null
+    const tint = guide?.stepId === 'grab' || guide?.hint.vi.startsWith('Grab:') ? GRAB : GOLD
+    if (material.userData.tint !== tint) {
+      material.userData.tint = tint
+      material.color.set(tint)
+    }
     const g = group.current
     if (!g) return
     if (!found || tour === 'move' || tour === 'camera') {
