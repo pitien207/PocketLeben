@@ -1,42 +1,24 @@
-import { useMemo } from 'react'
 import { CONFIG } from '../../../data/config'
 import { NPCS } from '../../../data/npcs'
-import type { ContextAction } from '../../../store/interactionStore'
-import { useUI } from '../../../store/uiStore'
 import { ChatterDirector } from '../../components/npc/ChatterDirector'
 import { DaCauKids } from '../../components/npc/DaCauKids'
 import { NPC } from '../../components/npc/NPC'
 import { Traffic } from '../../components/npc/Traffic'
 import { ActiveArea } from '../../components/ActiveArea'
-import { PALETTE as P } from '../shared/palette'
-import { place, stoolShapes } from '../shared/props'
-import { Shapes } from '../shared/Shapes'
 import { HomeDoor } from './HomeDoor'
-import { GROCERY, KIDS, LAKE, TRAFFIC_LANES, VENDOR_PATH, WALKER_PATHS } from './layout'
+import { KIDS, LAKE, TRAFFIC_LANES, VENDOR_PATH, WALKER_PATHS } from './layout'
 
 const nearHangGai = (_x: number, z: number) => z < LAKE.south - 25
 import { TraDaStall } from './TraDaStall'
 
-const STOOL_TOP = 0.33
-
-const SHOP_ACTION: ContextAction[] = [
-  { id: 'shop', labelKey: 'action.shop', icon: 'shop', onPress: () => useUI.getState().openPanel({ type: 'shop', shopId: 'taphoa' }) },
-]
-
-const COBA_STOOL = [place(stoolShapes(P.coral), [GROCERY.coBa.x, 0, GROCERY.coBa.z])]
-
 /** Everyone who makes the street feel alive. */
 export function StreetLife() {
-  const coBaStool = useMemo(() => COBA_STOOL, [])
-
   return (
     <>
       <TraDaStall />
       <HomeDoor />
 
-      {/* Cô Liên fans herself in front of her grocery */}
-      <Shapes shapes={coBaStool} />
-      <NPC def={NPCS.coBa} at={GROCERY.coBa} yaw={0.15} seatY={STOOL_TOP} activity="fan" zone={GROCERY.zone} extraActions={SHOP_ACTION} />
+      {/* 1.41 cô Liên sits in her grocery now (data/shopRooms.ts taphoa) */}
 
       {/* Chú Bình strolls with his shoulder pole of bánh mì */}
       <NPC
@@ -57,7 +39,7 @@ export function StreetLife() {
         <Traffic lanes={TRAFFIC_LANES} perLane={2} />
       </ActiveArea>
 
-      <ChatterDirector groups={['traDa']} solos={['chuBay', 'coBa', 'coHoa', 'anhKhoa', 'chiLan']} />
+      <ChatterDirector groups={['traDa']} solos={['chuBay', 'coHoa', 'anhKhoa', 'chiLan']} />
     </>
   )
 }

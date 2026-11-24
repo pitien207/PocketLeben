@@ -163,6 +163,8 @@ function faces(o: Outfit): { open: Texture; closed: Texture } {
     lashes: o.lashes ?? false,
     blush: true,
     browColor: lightness(o.hair, -0.05),
+    eyeShape: o.eyeShape,
+    mark: o.faceMark,
   }
   return { open: faceTexture(spec, false), closed: faceTexture(spec, true) }
 }

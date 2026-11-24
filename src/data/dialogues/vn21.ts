@@ -511,8 +511,8 @@ export const VN21_DIALOGUES: Record<string, DialogueDef> = {
 
   linh: {
     start: [
-      { if: { all: [{ scene: 'vietnam' }, { noFlag: 'linh.warned' }, { any: [{ flag: 'scam.spotted' }, { flag: 'khai.overheard' }] }] }, node: 'warn' },
-      { if: { scene: 'vietnam' }, node: 'atHk' },
+      { if: { all: [{ scene: 'shop.hoangKim' }, { noFlag: 'linh.warned' }, { any: [{ flag: 'scam.spotted' }, { flag: 'khai.overheard' }] }] }, node: 'warn' },
+      { if: { scene: 'shop.hoangKim' }, node: 'atHk' },
       { if: { all: [{ germanLevel: 2 }, { noFlag: 'linh.told' }] }, node: 'news' },
       { if: { all: [{ flag: 'linh.told' }, { noFlag: 'linh.warned' }, { any: [{ flag: 'scam.spotted' }, { flag: 'khai.overheard' }] }] }, node: 'warn' },
       { node: 'hello' },

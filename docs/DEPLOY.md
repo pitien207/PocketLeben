@@ -146,6 +146,27 @@ Chạy local: `GOOGLE_CLIENT_ID=<client id> npm run server`.
 - `assets/` có hash trong tên → cache 1 năm; file khác có ETag → không đổi thì trả 304, không tốn dữ liệu.
 - Service worker lưu cả game trên máy; bản mới chỉ tải file thay đổi (three.js, physics, React lấy lại từ cache cũ).
 
+## Cập nhật khi đang có người chơi (1.42)
+Push lên `main` → image mới → Azure thay container. Chuyện gì xảy ra với người đang chơi:
+
+| Lúc | Điều xảy ra | Game xử lý thế nào |
+|---|---|---|
+| Container cũ tắt | WebSocket đóng (mã 1012 khi tắt êm, SIGTERM) · phòng online, trận pickleball online mất (chỉ nằm trong RAM) | Toast "Máy chủ đang cập nhật…", **vẫn chơi tiếp offline**; tự nối lại (độ trễ có ±40 % ngẫu nhiên để không ai cũng ập vào cùng giây); trận pickleball online kết thúc "đối thủ mất kết nối" thay vì treo |
+| Container mới chạy | 'welcome' báo phiên bản máy chủ (`dist/version.json`) | Khác phiên bản đang chạy → nút **"Có bản cập nhật mới · Tải lại"** dưới la bàn; game **tự lưu + tải lại khi người chơi chuyển app/tab ra nền**; ở màn hình tiêu đề thì tải lại ngay |
+| Service worker | Trình duyệt kiểm tra `sw.js` khi mở trang, khi quay lại app và mỗi 20 phút → tải bản mới ngầm, chỉ file đổi tên (hash) | Giữ lại **cache của bản trước** (tab cũ vẫn mở được cảnh chưa tải); chỉ xoá bản cũ hơn nữa |
+| Tab cũ xin file đã bị xoá | Server trả **404** cho `/assets/…` không còn (trước đây trả index.html → service worker có thể cache nhầm HTML thành JS) | Mọi import động (boot, cảnh, hiệu ứng) bọc bởi `chunk()` → **lưu game + tải lại vào bản mới** (có chặn lặp 60 s) |
+| Bản lưu | localStorage + cloud, có `version` | Cảnh không còn → về phố; vật phẩm không còn → bỏ qua (không vỡ túi đồ) |
+
+Lưu ý:
+- Đổi giao thức WebSocket thì **giữ tương thích ngược** ít nhất một bản (client cũ còn chạy tới khi người chơi tải lại) —
+  ví dụ 1.42: snapshot không có `outfit` = "giữ bộ cũ", client cũ vẫn gửi đủ.
+- Khuyên dùng **`--min-replicas 1 --max-replicas 1`** (một bản luôn chạy): không bị "ngủ" khi vắng người (lần vào đầu tiên
+  chậm vài giây, mất phòng online), và phòng online chỉ nằm ở một container. Tốn thêm ít tiền (0,25 vCPU chạy liên tục).
+  Lệnh (bạn tự chạy khi muốn): `az containerapp update -n pocket-leben -g pocketleben-rg --min-replicas 1 --max-replicas 1`.
+- Bản 1.41 đang chạy trên máy người chơi **chưa có** các lớp bảo vệ này; từ 1.42 trở đi mới có (lần cập nhật lên 1.42 vẫn
+  có thể làm tab 1.41 đang mở kẹt ở màn hình tải — người chơi tải lại trang là xong).
+- Test giả lập deploy: scratchpad `v142e.mjs` (build A → server đổi sang build B → tab cũ bấm Chơi) + `dbg4.mjs`.
+
 ## Hằng ngày
 - `git push` lên `main` → khoảng 3–4 phút sau bản mới chạy trên Azure (xem tab *Actions*).
 - Quay về bản cũ: `az containerapp update -n pocket-leben -g pocketleben-rg --image ghcr.io/pitien207/pocket-leben:<sha cũ>`

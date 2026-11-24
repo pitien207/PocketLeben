@@ -1,4 +1,5 @@
 import { lazy, StrictMode, Suspense, useState } from 'react'
+import { chunk, startUpdates } from './updates'
 import { createRoot } from 'react-dom/client'
 import { TitleScreen } from './ui/TitleScreen'
 import { pullCloudSave } from './net/auth'
@@ -10,7 +11,7 @@ import './index.css'
  * (three.js, physics, all scenes) is imported when the player taps Play — by then the
  * service worker has usually downloaded it in the background.
  */
-const Game = lazy(() => import('./boot'))
+const Game = lazy(() => chunk(import('./boot')))
 
 // Automated tests against the dev server skip the title screen.
 const AUTOSTART = import.meta.env.DEV && navigator.webdriver
@@ -33,14 +34,8 @@ function Root() {
   )
 }
 
-// PWA: cache the game for offline play (production builds only).
-if (import.meta.env.PROD && 'serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register(`${import.meta.env.BASE_URL}sw.js`).catch(() => {})
-    // Ask the browser not to evict the downloaded game when the device is short on space.
-    void navigator.storage?.persist?.().catch(() => false)
-  })
-}
+// PWA: cache the game for offline play (production builds only), and pick up new versions (1.42, src/updates.ts).
+startUpdates()
 
 const root = document.getElementById('root')
 if (!root) throw new Error('#root element missing')

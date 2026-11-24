@@ -4,7 +4,7 @@ import type { Outfit } from './npcs'
 
 /** Clothes and hairstyles (plan §5.5–5.6). Buying adds to the wardrobe; wear them from the bag. */
 
-export type ClothingSlot = 'shirt' | 'shorts' | 'shoe' | 'hat' | 'hair' | 'bag' | 'neck'
+export type ClothingSlot = 'shirt' | 'shorts' | 'shoe' | 'hat' | 'hair' | 'bag' | 'neck' | 'face'
 /** `gift` = not sold anywhere: found as a secret (data/secrets.ts). */
 export type ClothesShopId = 'vnClothes' | 'barber' | 'flohmarkt' | 'tailor' | 'gift'
 
@@ -64,6 +64,27 @@ export const CLOTHES: ClothingDef[] = [
   c('aoSaoVang', 'Áo thun sao vàng', 'Gold-star T-shirt', 'shirt', 'vnClothes', 120_000, { shirt: '#d4202a', top: 'tee', pattern: 'sao', patternColor: '#ffd23f' }, '#d4202a'),
   c('aoBaBaDao', 'Áo bà ba hoa đào', 'Peach-blossom bà ba', 'shirt', 'vnClothes', 190_000, { shirt: '#fff0f3', top: 'baba', pattern: 'dao', patternColor: '#f06292' }, '#fff0f3'),
   c('quanHoaNhi', 'Quần lụa ống rộng hoa nhí', 'Wide floral silk trousers', 'shorts', 'vnClothes', 190_000, { shorts: '#f6efe2', bottom: 'widePants', patternBottom: 'hoa-nhi', patternBottomColor: '#7fa8d9' }, '#f6efe2'),
+  // 1.42 (user: "làm thêm nhiều kiểu … quần áo, phụ kiện"): new cuts and accessories
+  c('aoPolo', 'Áo polo xanh navy', 'Navy polo shirt', 'shirt', 'vnClothes', 150_000, { shirt: '#2f3a5a', top: 'polo', patternColor: '#ffffff' }, '#2f3a5a'),
+  c('aoPoloDao', 'Áo polo hồng đào', 'Peach polo shirt', 'shirt', 'vnClothes', 150_000, { shirt: '#ffb59e', top: 'polo' }, '#ffb59e'),
+  c('aoLen', 'Áo len cổ tròn kem', 'Cream crew-neck sweater', 'shirt', 'vnClothes', 230_000, { shirt: '#ecd9b8', top: 'sweater', patternColor: '#c8322b' }, '#ecd9b8'),
+  c('aoLenReu', 'Áo len xanh rêu', 'Moss-green sweater', 'shirt', 'vnClothes', 230_000, { shirt: '#5b8f6a', top: 'sweater', patternColor: '#f6efe0' }, '#5b8f6a'),
+  c('cardiganKem', 'Cardigan len kem + áo hồng', 'Cream cardigan over a pink tee', 'shirt', 'vnClothes', 260_000, { shirt: '#f2e6cf', top: 'cardigan', patternColor: '#ff9fb2' }, '#f2e6cf'),
+  c('cardiganNau', 'Cardigan nâu hạt dẻ', 'Chestnut cardigan', 'shirt', 'vnClothes', 260_000, { shirt: '#8a5a3a', top: 'cardigan', patternColor: '#f6f1e6' }, '#8a5a3a'),
+  c('quanYem', 'Quần yếm jean', 'Denim dungarees', 'shorts', 'vnClothes', 240_000, { shorts: '#4f6fa8', bottom: 'overalls' }, '#4f6fa8'),
+  c('quanYemKaki', 'Quần yếm kaki be', 'Beige dungarees', 'shorts', 'vnClothes', 220_000, { shorts: '#c9ad85', bottom: 'overalls' }, '#c9ad85'),
+  c('vayDai', 'Chân váy dài xanh xô thơm', 'Sage maxi skirt', 'shorts', 'vnClothes', 200_000, { shorts: '#8fae9a', bottom: 'longSkirt' }, '#8fae9a'),
+  c('vayDaiHoa', 'Chân váy dài hoa nhí', 'Floral maxi skirt', 'shorts', 'vnClothes', 230_000, { shorts: '#f6efe2', bottom: 'longSkirt', patternBottom: 'hoa-nhi', patternBottomColor: '#e86a8a' }, '#f6efe2'),
+  c('khauTrang', 'Khẩu trang vải xanh', 'Blue cloth face mask', 'hat', 'vnClothes', 15_000, { accessory: 'mask', accent: '#bfe3f2' }, '#bfe3f2'),
+  c('khauTrangDen', 'Khẩu trang đen', 'Black face mask', 'hat', 'vnClothes', 15_000, { accessory: 'mask', accent: '#2a2a30' }, '#2a2a30'),
+  c('khuyenTai', 'Khuyên tai vàng', 'Gold earrings', 'hat', 'vnClothes', 120_000, { accessory: 'earrings', accent: '#f4c04e' }, '#f4c04e'),
+  c('kepToc', 'Kẹp tóc vàng chanh', 'Lemon hair clips', 'hat', 'vnClothes', 25_000, { accessory: 'hairClip', accent: '#ffd166' }, '#ffd166'),
+  c('muTaiBeo', 'Mũ tai bèo', 'Bucket hat', 'hat', 'vnClothes', 70_000, { accessory: 'bucketHat', accent: '#f2e2b8' }, '#f2e2b8'),
+  c('muTaiBeoXanh', 'Mũ tai bèo xanh lính', 'Army-green bucket hat', 'hat', 'vnClothes', 70_000, { accessory: 'bucketHat', accent: '#5f7a4a' }, '#5f7a4a'),
+  c('muCoi', 'Mũ cói rộng vành', 'Wide straw hat', 'hat', 'vnClothes', 110_000, { accessory: 'strawHat', accent: '#e8574d' }, '#ecd28e'),
+  c('bangDo', 'Băng đô nơ hồng', 'Pink bow headband', 'hat', 'vnClothes', 35_000, { accessory: 'headband', accent: '#ff8fab' }, '#ff8fab'),
+  c('hoaSu', 'Hoa sứ cài tai', 'Frangipani over the ear', 'hat', 'vnClothes', 20_000, { accessory: 'flowerPin', accent: '#ffffff' }, '#fff6df'),
+  c('hoaDamBut', 'Hoa dâm bụt cài tai', 'Hibiscus over the ear', 'hat', 'vnClothes', 20_000, { accessory: 'flowerPin', accent: '#e8374a' }, '#e8374a'),
   c('baloMoi', 'Balo du học (+4 kg)', 'Study-abroad backpack (+4 kg)', 'bag', 'vnClothes', 200_000, { bag: '#7fb8e8' }, '#7fb8e8'),
   // Sidewalk barber (Vietnam)
   c('tocNgan', 'Tóc ngắn', 'Short hair', 'hair', 'barber', 70_000, { hairStyle: 'short' }, '#3d2c2c'),
@@ -75,6 +96,31 @@ export const CLOTHES: ClothingDef[] = [
   c('tocXoan', 'Uốn xoăn', 'Curly perm', 'hair', 'barber', 150_000, { hairStyle: 'curly' }, '#3d2c2c'),
   c('tocDung', 'Vuốt dựng', 'Spiky hair', 'hair', 'barber', 50_000, { hairStyle: 'spiky' }, '#3d2c2c'),
   c('tocCua', 'Đầu cua', 'Buzz cut', 'hair', 'barber', 30_000, { hairStyle: 'buzz' }, '#3d2c2c'),
+  // 1.42 new cuts
+  c('tocBuocCao', 'Đuôi ngựa buộc cao', 'High ponytail', 'hair', 'barber', 80_000, { hairStyle: 'highPony' }, '#3d2c2c'),
+  c('tocMaiLech', 'Mái lệch Hàn Quốc', 'Side-swept fringe', 'hair', 'barber', 90_000, { hairStyle: 'sideSwept' }, '#3d2c2c'),
+  c('tocTem', 'Tóc tém', 'Pixie cut', 'hair', 'barber', 80_000, { hairStyle: 'pixie' }, '#3d2c2c'),
+  c('tocSong', 'Uốn sóng dài', 'Long waves', 'hair', 'barber', 200_000, { hairStyle: 'wavy' }, '#3d2c2c'),
+  c('tocNuaBui', 'Búi nửa đầu', 'Half-up bun', 'hair', 'barber', 70_000, { hairStyle: 'halfUp' }, '#3d2c2c'),
+  c('tocMohawk', 'Mohawk dựng', 'Mohawk', 'hair', 'barber', 90_000, { hairStyle: 'mohawk' }, '#3d2c2c'),
+  c('tocAfro', 'Xù Afro', 'Afro', 'hair', 'barber', 220_000, { hairStyle: 'afro' }, '#3d2c2c'),
+  c('tocNgangVai', 'Ngang vai cúp ngoài', 'Shoulder-length flip', 'hair', 'barber', 90_000, { hairStyle: 'shoulder' }, '#3d2c2c'),
+  c('tocDoRuou', 'Nhuộm đỏ rượu vang', 'Wine-red dye', 'hair', 'barber', 180_000, { hair: '#7a2a3a' }, '#7a2a3a'),
+  c('tocBachKim', 'Nhuộm bạch kim', 'Platinum dye', 'hair', 'barber', 250_000, { hair: '#e8e2d4' }, '#e8e2d4'),
+  c('tocXanhKhoi', 'Nhuộm xanh khói', 'Smoky blue dye', 'hair', 'barber', 200_000, { hair: '#5a6e86' }, '#5a6e86'),
+  // 1.42 the face: eyes (lens + make-up) and marks — the barber's make-up corner
+  c('matTron', 'Mắt tròn (như cũ)', 'Round eyes (default)', 'face', 'barber', 0, { eyeShape: 'round' }, '#6b4a3a'),
+  c('matLongLanh', 'Mắt long lanh', 'Sparkly eyes', 'face', 'barber', 60_000, { eyeShape: 'sparkle' }, '#8fc4ff'),
+  c('matMoMang', 'Mắt mơ màng', 'Sleepy eyes', 'face', 'barber', 40_000, { eyeShape: 'sleepy' }, '#a08a7a'),
+  c('matMeo', 'Kẻ mắt mèo', 'Cat-eye liner', 'face', 'barber', 60_000, { eyeShape: 'cat', lashes: true }, '#2a2330'),
+  c('matHatDau', 'Mắt hạt đậu', 'Bead eyes', 'face', 'barber', 30_000, { eyeShape: 'dot' }, '#1d1418'),
+  c('matCuoi', 'Mắt cười híp', 'Smiling eyes', 'face', 'barber', 40_000, { eyeShape: 'smile' }, '#ffb3c7'),
+  c('matMoc', 'Mặt mộc', 'Bare face', 'face', 'barber', 0, { faceMark: null }, '#ffe0c9'),
+  c('tanNhang', 'Tàn nhang', 'Freckles', 'face', 'barber', 30_000, { faceMark: 'freckles' }, '#c08a6a'),
+  c('notRuoi', 'Nốt ruồi duyên', 'Beauty mark', 'face', 'barber', 30_000, { faceMark: 'mole' }, '#4a2e26'),
+  c('bangCaNhan', 'Băng cá nhân trên má', 'Plaster on the cheek', 'face', 'barber', 10_000, { faceMark: 'bandaid' }, '#f2c79a'),
+  c('maHong', 'Má hồng ửng', 'Rosy blush', 'face', 'barber', 50_000, { faceMark: 'rosy' }, '#ff8fa3'),
+  c('stickerSao', 'Sticker ngôi sao', 'Star sticker', 'face', 'barber', 20_000, { faceMark: 'star' }, '#ffd23f'),
   c('tocDen', 'Nhuộm lại đen', 'Back to black', 'hair', 'barber', 60_000, { hair: '#3d2c2c' }, '#3d2c2c'),
   c('tocHong', 'Nhuộm hồng pastel', 'Pastel pink dye', 'hair', 'barber', 180_000, { hair: '#f2a7bd' }, '#f2a7bd'),
   c('tocVang', 'Nhuộm vàng mật ong', 'Honey blonde dye', 'hair', 'barber', 180_000, { hair: '#d9a95b' }, '#d9a95b'),
@@ -110,6 +156,15 @@ export const CLOTHES: ClothingDef[] = [
   c('krawatte', 'Cà vạt Krawatte', 'Tie', 'neck', 'flohmarkt', 5, { neck: 'tie', neckColor: '#2c5aa0' }, '#2c5aa0'),
   c('baskenmuetze', 'Mũ nồi Baskenmütze', 'Beret', 'hat', 'flohmarkt', 7, { accessory: 'beret', accent: '#3a3a44' }, '#3a3a44'),
   c('cap', 'Mũ lưỡi trai xanh', 'Green cap', 'hat', 'flohmarkt', 6, { accessory: 'cap', accent: '#3f7d5c' }, '#3f7d5c'),
+  // 1.42
+  c('strickjacke', 'Strickjacke (cardigan)', 'Cardigan', 'shirt', 'flohmarkt', 9, { shirt: '#6f7fa8', top: 'cardigan', patternColor: '#f6f1e6' }, '#6f7fa8'),
+  c('norwegerpulli', 'Áo len Norweger', 'Nordic sweater', 'shirt', 'flohmarkt', 14, { shirt: '#2f4a6b', top: 'sweater', patternColor: '#f6efe0' }, '#2f4a6b'),
+  c('poloshirt', 'Poloshirt trắng', 'White polo shirt', 'shirt', 'flohmarkt', 6, { shirt: '#f8f8f2', top: 'polo', patternColor: '#2c5aa0' }, '#f8f8f2'),
+  c('latzhose', 'Quần yếm Latzhose', 'Dungarees', 'shorts', 'flohmarkt', 13, { shorts: '#3f4a6b', bottom: 'overalls' }, '#3f4a6b'),
+  c('maxirock', 'Váy dài Maxirock', 'Maxi skirt', 'shorts', 'flohmarkt', 10, { shorts: '#a8546a', bottom: 'longSkirt' }, '#a8546a'),
+  c('fischerhut', 'Mũ Fischerhut', 'Bucket hat', 'hat', 'flohmarkt', 6, { accessory: 'bucketHat', accent: '#d9c49a' }, '#d9c49a'),
+  c('strohhut', 'Mũ rơm Strohhut', 'Straw hat', 'hat', 'flohmarkt', 9, { accessory: 'strawHat', accent: '#2c5aa0' }, '#ecd28e'),
+  c('ohrringe', 'Khuyên tai bạc', 'Silver earrings', 'hat', 'flohmarkt', 7, { accessory: 'earrings', accent: '#d9dde3' }, '#d9dde3'),
   c('jutebeutel', 'Túi vải Jutebeutel (+2 kg)', 'Tote bag (+2 kg)', 'bag', 'flohmarkt', 3, { bag: '#e8dcc0' }, '#e8dcc0'),
   c('wanderrucksack', 'Ba lô leo núi (+6 kg)', 'Hiking backpack (+6 kg)', 'bag', 'flohmarkt', 25, { bag: '#3f7d5c' }, '#3f7d5c'),
   // Found, not bought (secrets)
@@ -122,7 +177,7 @@ export const CLOTHES: ClothingDef[] = [
 
 export const CLOTHES_SHOP_NAMES: Record<ClothesShopId, Localized> = {
   vnClothes: { vi: 'Sạp quần áo Chị Hằng', en: "Hằng's clothes stall", de: 'Hằngs Kleiderstand' },
-  barber: { vi: 'Cắt tóc vỉa hè', en: 'Sidewalk barber', de: 'Straßenfriseur' },
+  barber: { vi: 'Cắt tóc & trang điểm vỉa hè', en: 'Sidewalk barber & make-up', de: 'Straßenfriseur' },
   flohmarkt: { vi: 'Chợ đồ cũ Flohmarkt', en: 'Flea market', de: 'Flohmarkt' },
   tailor: { vi: 'Tiệm may áo dài Cô Hoa', en: 'Hoa’s áo dài tailor', de: 'Hoas Áo-dài-Schneiderei' },
   gift: { vi: 'Quà khám phá', en: 'Found on your travels', de: 'Fundstücke' },

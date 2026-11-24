@@ -1,4 +1,5 @@
 import type { JSX, SVGProps } from 'react'
+import { ICON3D } from './Icon3d'
 import type { ItemIconName } from '../data/items'
 
 /** Original food & drink icons (referenced by name from data/items.ts). */
@@ -181,6 +182,8 @@ function Hoa(props: Props) {
 }
 
 const ICONS: Record<ItemIconName, (props: Props) => JSX.Element> = {
+  trung: Trung,
+  rau: Rau,
   hoa: Hoa,
   broetchen: Broetchen,
   brezel: Brezel,
@@ -298,7 +301,24 @@ function Kem(props: Props) {
   )
 }
 
+/**
+ * 1.42 (user: "những UI tạo bằng khối thủ công thì tìm thư viện thay cho đẹp"): food and drink show Fluent Emoji 3D
+ * pictures (MIT, ui/Icon3d.tsx); the hand-drawn SVGs below remain for Vietnamese dishes without a good match.
+ */
+const THREE_D: Partial<Record<ItemIconName, string>> = {
+  trung: 'egg', rau: 'leafy-green', banhMi: 'baguette-bread', traDa: 'tumbler-glass', miGoi: 'bowl-with-spoon',
+  banhBao: 'dumpling', nuocMia: 'tropical-drink', tangLuc: 'beverage-box', xoi: 'cooked-rice', broetchen: 'bread',
+  brezel: 'pretzel', doener: 'stuffed-flatbread', schorle: 'cup-with-straw', kaffee: 'hot-beverage', pizza: 'pizza',
+  kuchen: 'shortcake', hoa: 'bouquet', pho: 'steaming-bowl', rice: 'sheaf-of-rice', fishSauce: 'amphora',
+  che: 'shaved-ice', banhTrang: 'rice-cracker', kem: 'soft-ice-cream', bunCha: 'meat-on-bone', nemRan: 'tamale',
+  lau: 'pot-of-food', com: 'bento-box',
+}
+
 export function ItemIcon({ name, ...props }: Props & { name: ItemIconName }) {
+  const file = THREE_D[name]
+  const src = file ? ICON3D[file] : undefined
+  if (src)
+    return <img src={src} alt="" draggable={false} decoding="async" className={`pointer-events-none h-[1.15em] w-[1.15em] select-none drop-shadow-[0_1.5px_0_rgba(74,50,38,0.25)] ${props.className ?? ''}`} />
   const Icon = ICONS[name]
   return <Icon {...props} />
 }
@@ -368,6 +388,33 @@ function Com(props: Props) {
       <rect x="18.5" y="11.5" width="8" height="5.5" rx="1.5" fill="#a85a3a" />
       <circle cx="22.5" cy="14.2" r="1.8" fill="#fff3d6" stroke="#e8a25a" strokeWidth="1" />
       <rect x="18.5" y="18" width="8" height="4.5" rx="1.5" fill="#7fc27a" />
+    </Base>
+  )
+}
+
+/** 1.42 Three brown eggs in a little straw nest. */
+function Trung(props: Props) {
+  return (
+    <Base {...props}>
+      <path d="M4 21c2 6 22 6 24 0" fill="#d9b25a" stroke={INK} strokeWidth="1.8" />
+      <path d="M6 22.5l3 2M10 24l2.5 1.5M15 24.5v2M20 24l-2.5 1.5M25 22.5l-3 2" stroke="#a8802f" strokeWidth="1.2" />
+      <ellipse cx="11" cy="17" rx="4.2" ry="5.4" fill="#f2d3a8" stroke={INK} strokeWidth="1.8" />
+      <ellipse cx="21" cy="17" rx="4.2" ry="5.4" fill="#e8bf8a" stroke={INK} strokeWidth="1.8" />
+      <ellipse cx="16" cy="12.5" rx="4.4" ry="5.6" fill="#fbe7cc" stroke={INK} strokeWidth="1.8" />
+      <ellipse cx="14.6" cy="10.4" rx="1.2" ry="1.8" fill="#ffffff" opacity="0.8" />
+    </Base>
+  )
+}
+
+/** 1.42 A bunch of water spinach (rau muống) tied with a straw band. */
+function Rau(props: Props) {
+  return (
+    <Base {...props}>
+      <path d="M13 29l1-13M16 29V14M19 29l-1-13" stroke="#5f9c4a" strokeWidth="2.2" strokeLinecap="round" />
+      <path d="M14 16c-6-1-9-6-8-11 5 1 8 5 8 11z" fill="#7cc263" stroke={INK} strokeWidth="1.6" />
+      <path d="M18 16c6-1 9-6 8-11-5 1-8 5-8 11z" fill="#6db85c" stroke={INK} strokeWidth="1.6" />
+      <path d="M16 15c-3-4-3-9 0-12 3 3 3 8 0 12z" fill="#8fd06f" stroke={INK} strokeWidth="1.6" />
+      <rect x="12" y="21" width="8" height="3" rx="1.2" fill="#e3c27a" stroke={INK} strokeWidth="1.4" />
     </Base>
   )
 }

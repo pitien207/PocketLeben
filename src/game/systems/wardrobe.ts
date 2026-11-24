@@ -18,13 +18,14 @@ const SLOT_FIELDS: Record<ClothingSlot, (keyof Outfit)[]> = {
   hair: ['hairStyle', 'hair'],
   bag: ['bag'],
   neck: ['neck', 'neckColor'],
+  face: ['eyeShape', 'faceMark'],
 }
 
 export function isWearing(id: string): boolean {
   const item = getClothing(id)
   if (!item) return false
   const outfit = usePlayer.getState().outfit
-  return Object.entries(item.apply).every(([k, v]) => outfit[k as keyof Outfit] === v)
+  return Object.entries(item.apply).every(([k, v]) => (outfit[k as keyof Outfit] ?? null) === (v ?? null))
 }
 
 /** Buy a clothing item (or haircut) and put it on straight away. */

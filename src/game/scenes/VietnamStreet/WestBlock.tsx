@@ -1,7 +1,5 @@
 import { memo, useMemo } from 'react'
 import { CuboidCollider, CylinderCollider, RigidBody } from '@react-three/rapier'
-import { NPCS } from '../../../data/npcs'
-import { NPC } from '../../components/npc/NPC'
 import { PROP_GROUPS } from '../../systems/collisionGroups'
 import { PALETTE as P } from '../shared/palette'
 import { cafeTableSetShapes, fluffyTreeShapes, place, stoolShapes } from '../shared/props'
@@ -9,6 +7,7 @@ import { Shapes, type ShapeItem } from '../shared/Shapes'
 import type { SignOptions } from '../shared/textures'
 import { BUILDING_DEPTH, BUILDING_FRONT_Z, houseFront, WEST } from './layout'
 import { TubeHouse, type HousePalette } from './TubeHouse'
+import { fitTree, useBlockerVersion } from '../shared/treeFit'
 
 /**
  * The street continues west (map extension): a phở shop with low plastic tables on the
@@ -46,8 +45,7 @@ function propShapes(): ShapeItem[] {
   // Pharmacy: green cross lightbox, display shelves
   s.push({ box: [0.6, 0.18, 0.08], at: [pharmacy.x + 1.6, 2.9, fph + 0.45], color: '#3fae72' })
   s.push({ box: [0.18, 0.6, 0.08], at: [pharmacy.x + 1.6, 2.9, fph + 0.45], color: '#3fae72' })
-  s.push({ box: [1.2, 0.9, 0.4], at: [pharmacy.x - 0.6, 0.45, fph + 0.45], color: '#ffffff' })
-  for (let i = 0; i < 6; i++) s.push({ box: [0.14, 0.18, 0.12], at: [pharmacy.x - 1.05 + i * 0.18, 1.0, fph + 0.45], color: ['#ff9fb2', '#a9d6ff', '#ffe08a', '#a8e6cf'][i % 4] })
+  // (1.41: the counter and cô Thảo moved inside — scenes/ShopRoom)
   // Tailor: two dress forms with áo dài (long tunic + flowing panels)
   for (const [dx, c] of [[-0.9, '#d4473b'], [0.9, '#f4c04e']] as const) {
     const x = tailor.x + dx
@@ -58,7 +56,7 @@ function propShapes(): ShapeItem[] {
   }
   // Banyan tree (cây đa) with a tiny red shrine at its roots
   const { x: bx, z: bz } = WEST.banyan
-  s.push(place(fluffyTreeShapes('green'), [bx, 0, bz], 0.4, 1.9))
+  s.push(fitTree(fluffyTreeShapes('green'), [bx, 0, bz], 0.4, 1.9))
   s.push({ cyl: [0.5, 0.75, 0.3, 10], at: [bx, 0.15, bz], color: '#cfc8bb' })
   s.push({ box: [0.45, 0.5, 0.35], at: [bx + 0.85, 0.55, bz + 0.2], color: '#c8322b' })
   s.push({ box: [0.55, 0.08, 0.45], at: [bx + 0.85, 0.83, bz + 0.2], color: '#f4c04e' })
@@ -70,10 +68,10 @@ function propShapes(): ShapeItem[] {
 }
 
 export const WestBlock = memo(function WestBlock() {
-  const shapes = useMemo(propShapes, [])
-  const [pho, pharmacy, tailor] = WEST.houses
+  const fit = useBlockerVersion()
+  const shapes = useMemo(propShapes, [fit])
+  const pho = WEST.houses[0]
   const f = BUILDING_FRONT_Z
-  const fph = houseFront(pharmacy)
   return (
     <>
       {WEST.houses.map((h, i) => (
@@ -96,11 +94,8 @@ export const WestBlock = memo(function WestBlock() {
       <RigidBody type="fixed" colliders={false}>
         <CylinderCollider args={[0.8, 0.8]} position={[WEST.banyan.x, 0.8, WEST.banyan.z]} collisionGroups={PROP_GROUPS} />
         <CuboidCollider args={[0.85, 0.5, 0.35]} position={[pho.x - 0.8, 0.5, f + 0.7]} collisionGroups={PROP_GROUPS} />
-        <CuboidCollider args={[0.65, 0.5, 0.25]} position={[pharmacy.x - 0.6, 0.5, fph + 0.45]} collisionGroups={PROP_GROUPS} />
       </RigidBody>
-      <NPC def={NPCS.bacPho} at={{ x: pho.x - 0.8, z: f + 1.35 }} yaw={0} zone={{ x: pho.x - 0.2, z: f + 2.0, halfX: 2.0, halfZ: 1.2 }} />
-      <NPC def={NPCS.coThuoc} at={{ x: pharmacy.x - 0.6, z: fph + 1.05 }} yaw={0} zone={{ x: pharmacy.x - 0.4, z: fph + 1.7, halfX: 1.4, halfZ: 0.9 }} />
-      <NPC def={NPCS.coMay} at={{ x: tailor.x, z: f + 1.0 }} yaw={0} zone={{ x: tailor.x, z: f + 1.6, halfX: 1.4, halfZ: 0.9 }} />
+      {/* 1.41 bác Phở, cô Thảo and cô Hoa work inside their shops now (data/shopRooms.ts, scenes/ShopRoom) */}
     </>
   )
 })

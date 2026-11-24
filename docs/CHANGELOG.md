@@ -1,5 +1,161 @@
 # Changelog
 
+## 1.42.0 — Nhà mới, vườn sau nuôi gà, cửa vào rõ ràng, nhân vật đa dạng
+
+### Fixed (user: "nhiều cây đang chọc xuyên qua nhà")
+- **Trees no longer poke through houses.** When a street loads, the real building colliders are read once
+  (`scenes/shared/treeFit.ts`, `<TreeClearance />` in Hà Nội and Lindenstraße) and every street tree's crown is fitted
+  to the room it has (walls + 0.75 m for balconies and signs): the tree gets smaller (a younger tree) and, if needed, a
+  little narrower — never a thin column. Covers Hàng Gai, Hàng Bông, the banyan, Hàng Đào, the avenue, the square,
+  the đình, Hàng Khay and the German street + Stadtpark.
+
+### Added — the home, redone (user: "làm lại nhà mik cả lúc bình thường và nghèo")
+- Gạch bông floor, a pale-jade tiled wainscot, family photos over the bed, the children's **giấy khen** on the wall,
+  a bedside table, a bookshelf, curtains at the window, a rice cooker / kettle / dish rack / garlic and chillies in Mẹ's
+  kitchen, shoes by the door, a broom.
+- **What the debts take away** (on top of the old poverty details): level 0 has a rug under the tea table, fruit on it, a
+  fridge with magnets and a child's drawing, a standing fan, a **ceiling fan** and a lamp over the table, lush plants, a full
+  bookshelf → level 1: rug gone, plants wilt, half the books gone → level 2: fridge sold (a pale patch and a loose plug),
+  ceiling fan and lamp gone → level 3: the shelf almost bare. The calendar and the red-stamped bills moved left of the altar.
+- **Green back door** with glass panes between the altar and the window: **"Ra vườn"** (a pin over it until the first visit).
+
+### Added — the back yard with hens (user: "đằng sau có cửa bấm vào ra phần vườn sau nhà có nuôi gà")
+- New scene **Vườn sau nhà** (`homeYard`, outdoors: sun, rain, night): the back of the house with its balconies, brick
+  walls and the neighbours' backs, a brick path, a bamboo **chicken coop** with a tin roof and straw nests, a fenced run,
+  **hens, a rooster and chicks** that wander, peck and come running when you scatter rice, three raised beds (rau muống,
+  cải, hành), two water jars with a coconut ladle, a banana plant, a guava tree, a washing line, a bike, and a ginger cat
+  asleep on the coop roof.
+- **Chuồng gà → "Cho gà ăn"** once a day → the next morning **"Nhặt trứng"** gives *Trứng gà ta* (new item).
+  **Luống rau → "Tưới rau"** once a day; after three waterings **"Hái rau"** gives *Bó rau muống vườn nhà* (new item).
+- The yard follows the debts too: 5 hens + rooster + chicks → 4 hens → 2 hens and a "bán gà" sign → 1 hen; the beds dry
+  out and grow weeds, the coop roof gets a tarp, the washing is patched, junk piles up.
+
+### Changed — prettier compass and icons (user: "làm đẹp hơn phần la bàn và tất cả các icon, tìm thư viện mở")
+- **Compass**: a jade lacquer strip with a gold rim (like the clock pill), fine 5° ticks, a red **B** badge for north, gold
+  intercardinals, a gold needle, a 3D compass medallion on the left; the objective pin's distance is a gold chip.
+- **Action buttons** (Vào, Ra phố, Mua đồ, Ngủ, Nói chuyện, Tự học…) now show **Fluent Emoji 3D** pictures (Microsoft,
+  MIT) instead of flat drawings; so do the HUD rail (backpack, phone, map, passport, settings, online globe, emotes) and
+  the clock (sun / moon / rain).
+- Small UI icons (close, check, lock, trash, run, skip…) are now **Phosphor Icons** (MIT, `@phosphor-icons/react`,
+  deep imports — only the used icons are bundled).
+
+### Changed — library models for the home, the animals, real cobwebs (user, round 2: "bỏ dấu hiệu cửa vào; làm lại nhà mình và các con động vật, mạng nhện nhìn ảo quá — tìm thư viện trên mạng")
+- **Removed the entrance badges** (pins over the doors, gold frames, map door tiles) again.
+- **Animals from libraries, rigged and animated** (`game/components/animals/Animal.tsx`): hens and chicks = Quaternius
+  chicken + chick (CC0, poly.pizza) with idle / peck / run clips — white, brown and black hens and an orange rooster
+  (the atlas is baked into vertex colours and repainted); the **ginger cat** = Vuena "Free Low-Poly Animals" (CC0, GitHub)
+  asleep on the coop roof and on the crate in the east alley; a **yellow village dog** (Quaternius Shiba Inu, CC0) in a
+  basket by the back door, lifting its head now and then.
+- **Home furniture from the Quaternius House Interior pack** (repainted): the bed, the TV sideboard, Mẹ's kitchen row
+  (stove, sink, drawers) with the rice cooker and kettle on the counter, the desk chair and desk lamp, the bedside table,
+  a washing machine by the door (sold from 15 M of debt).
+- **The yard's beds** grow Quaternius crops (CC0, new model pack `farm`): rau muống, cải and cà chua plants that are
+  small until watered three times, then full grown (tomatoes red); grass tufts, an orange tree and a bamboo clump.
+- **Cobwebs** are a painted web texture (threads fanning from the corner, a sagging spiral, broken strands, a loose
+  thread) spanned across the ceiling corners (`scenes/shared/Cobwebs.tsx`); more corners at higher debt levels.
+- Ducks in the German Stadtpark stay hand-built (no CC0 duck in a matching style found).
+
+### Fixed / added (round 3: "ghế nằm giữa đường, đài phun nước đứng yên, UI làm bằng tay thì tìm thư viện, tối ưu multiplayer, nghĩ tới lúc push update")
+- **Benches in the road**: the Hàng Khay promenade's bench row was placed at z = 0.4 — on Hàng Gai's pavement and road.
+  Now on the promenade by the lake. All hand-built benches are the Quaternius wooden bench (Germany loads the city pack).
+- **Fountains move**: Hàng Đào square, the Hàng Khay park and the German square have a jet rising and falling into the
+  bowl, a curtain of drops spilling into the basin with splashes, and rippling water (rings, glints) —
+  `scenes/shared/FountainWater.tsx` (no CC0 fountain model exists in a matching style; the stone basins stay).
+- **Hand-drawn icons → Fluent Emoji 3D** (MIT): food and drink in the bag and the shops (phở, bánh mì, trà đá, xôi, chè,
+  bún chả, trứng, rau…), the important papers (passport, diploma, contract, bank card, keys…), the euro and diamond
+  wallets. The đồng coin keeps its own drawing (the "đ").
+- **Multiplayer**: other players are drawn with snapshot interpolation (130 ms behind, between two real packets, short
+  extrapolation when one is late) — no more stutter when packets arrive unevenly, no teleport-snap at riding speed;
+  the outfit (≈ 600 B) is no longer sent 10× a second (only when it changes / every 10 s: ≈ 135 B per update instead
+  of ≈ 750 B); nothing but a heartbeat while the tab is hidden; reconnect with jitter, at once when the network or the
+  app comes back; a toast when the server restarts for an update; an online pickleball match ends cleanly if the
+  connection drops.
+- **Updates while people play** (docs/DEPLOY.md): version in 'welcome' → "Có bản cập nhật mới · Tải lại" pill, auto
+  save + reload when the app goes to the background; the service worker keeps the previous version's cache; a missing
+  chunk of an old version (404 now, not index.html) → save + reload instead of hanging on the loading screen; saves drop
+  items that no longer exist.
+- Tested: two players online (upstream, smoothness, outfit sync, server restart → both back in ~5 s), a simulated deploy
+  in production (old tab keeps working; a failed old chunk reloads into the new build).
+
+### Added — more looks for characters (user: "làm thêm nhiều kiểu tóc, mặt, quần áo, phụ kiện")
+- **8 hairstyles**: đuôi ngựa buộc cao, mái lệch Hàn Quốc, tóc tém, uốn sóng dài, búi nửa đầu, mohawk, xù afro, ngang
+  vai cúp ngoài — plus 3 dyes (đỏ rượu vang, bạch kim, xanh khói). At the sidewalk barber.
+- **Faces** (new tab **"Mắt & mặt"** at the barber, now "Cắt tóc & trang điểm vỉa hè"): eyes round / sparkly / sleepy /
+  cat-eye liner / bead / smiling, and marks: freckles, beauty mark, plaster, rosy blush, star sticker, bare face.
+- **Clothes**: polo shirts, crew-neck sweaters with a knit band, cardigans over a tee, dungarees (quần yếm), maxi skirts —
+  at Chị Hằng's stall and (in euros) at the Flohmarkt.
+- **Accessories**: cloth face mask (khẩu trang), earrings, hair clips, bucket hat (mũ tai bèo), wide straw hat, bow
+  headband, a frangipani / hibiscus over the ear.
+- Some shop guests and Grab customers wear the new looks. Online players see them too (server whitelists `eyeShape`,
+  `faceMark`). The bag's wardrobe has a "Mắt & mặt" slot.
+
+### Manual test checklist (phone, sideways)
+- [ ] Walk Hàng Bông, Hàng Gai, Hàng Đào, the avenue and Hàng Khay: no tree crown inside a house, balcony or sign.
+- [ ] Compass at the top: turns smoothly, the red B, the objective pin with its distance; nothing overlaps the money.
+- [ ] HUD rail: 3D backpack, phone, map, gear (+ passport after choosing a path); the clock shows a 3D sun / moon.
+- [ ] No pins over the shop doors any more; the button "Vào quán" still shows a 3D door.
+- [ ] Yard: hens (white / brown / black, orange rooster) walk, peck, run to the trough; chicks; the cat sleeps on the coop roof; the dog in its basket looks up now and then.
+- [ ] Home: library bed, kitchen row, chair, lamp; borrow 1 M → painted cobwebs in the ceiling corners (no white sticks).
+- [ ] Home with no debt: rug, fridge, ceiling fan turning, lamp, plants, full shelf. Borrow money: rug gone, plants wilted… at 15 M: fridge and fan gone.
+- [ ] Green back door → "Ra vườn" → the yard: hens walk and peck, chicks follow a hen, the cat on the roof.
+- [ ] "Cho gà ăn" → the hens run to the trough; the next morning "Nhặt trứng" → *Trứng gà ta* in the bag. Water the beds three days → "Hái rau".
+- [ ] In debt: fewer hens, dry beds; at night the kitchen window and the door bulb glow. "Vào nhà" → back in the house by the back door.
+- [ ] Barber: tabs "Kiểu tóc" and "Mắt & mặt" show try-on photos; buy sparkly eyes + freckles, a high ponytail; Chị Hằng: a mask, a straw hat, dungarees.
+- [ ] Hàng Gai pavement: no benches in the way; the benches are along the lake promenade of Hàng Khay.
+- [ ] Fountains (Hàng Đào square, Hàng Khay park, German square): water jets and ripples move.
+- [ ] Bag / shop: food and papers are 3D pictures; wallets show a euro note and a gem.
+- [ ] Two phones online: walking / riding looks smooth on the other phone; change clothes → the other sees it.
+- [ ] After the next deploy with the game open: toast "Máy chủ đang cập nhật…", reconnect by itself; the pill "Có bản cập nhật mới" appears; switch apps and back → the new version is loaded, progress kept.
+
+## 1.41.0 — Vào trong các tiệm
+
+### Added (user: "mỗi cửa tiệm đều có không gian bên trong để đi vào tương tác… mở ra cảnh như căn nhà của nhân vật chính, các người chơi cũng thấy nhau")
+- **19 shops have a room inside**, opened like home: walk to the door → **Vào quán / Vào tiệm / Vào văn phòng** → fade →
+  the room with a name plaque; the red mat **Ra phố** brings you back to the same door. Nobody sells from the pavement
+  any more — the owners stand behind their counters inside:
+  - Eateries: Phở Gia Truyền (bác Phở at the broth pot + chú Hùng), Bún Chả Cô Lụa (charcoal grill under a hood),
+    Bánh Cuốn Bà Tám (steamer, gạch bông floor), Lẩu Nướng Tràng Tiền (hotpot tables, lanterns, the till), Bánh Mì 25
+    (red glass cart, oven, a bar with high stools), Cơm Bà Sáu (steel trays of the day's dishes), Chè Bốn Mùa (jar
+    counter, pink neon), Nhà hàng Bờ Hồ (round tables, curtains at the lake windows, fish tank).
+  - Shops: Tạp hóa Cô Liên (shelves to the ceiling, shampoo sachet strips), Circle K (fridge wall, two aisles, till,
+    microwave, noodle bar), Hoàng Kim (black desk, gold cat, red LED, "BAO VISA 100%"), Nhà thuốc (glowing green cross),
+    May đo áo dài (cutting table, sewing machine, dress forms, fitting curtain), Hiệu sách cũ (book walls, ladder, a cat
+    on a pile, the **reading corner** moved inside), Tiệm Vàng Kim Thành (gold cases, today's price board, safe).
+  - Visa offices: Tiệm ảnh Hùng (paper backdrop, softboxes, camera), Công chứng (counter with glass, ticket machine,
+    queue display), Ngân hàng Phố Cổ (three teller windows, exchange-rate board, ATM, queue ropes), APS (interview desk).
+- **Guests**: people eat at the tables, wait in the bank and the notary, browse the books — without dialogue.
+- **Multiplayer**: each shop is its own public room — players inside the same shop see each other (server accepts
+  scenes `shop.<id>`).
+- Opening hours at the door (eateries as before, offices 8–17h, Circle K 24/7…). With a Grab passenger on the back you
+  can't go in; otherwise you get off your bike at the door.
+- New library pack **interior** (Quaternius Ultimate House Interior, CC0): shelves, chairs, sofas, lamps, cabinets,
+  carpets, curtains (`node tools/glb2props.mjs <folder> interior`, 196 KB). Rooms also get floors in planks, small tiles or
+  **gạch bông**, ceiling fans that turn, wall clocks, calendars, fans, lit tubes and lanterns.
+- The guide knows the doors: quest arrows for the photo studio, notary, bank, APS and Hoàng Kim lead to the shop door,
+  then to the clerk inside.
+
+### Polish (after the first test run)
+- Camera: you appear deeper in the room and the camera frames the back wall (signs, counter); the wide rooms (lẩu,
+  Nhà hàng Bờ Hồ) use a farther camera so the tables on the left are in view.
+- Night indoors: white walls no longer glare (bloom threshold indoors stays near the daytime value, lamps a bit
+  brighter) — also affects home, classroom and other rooms slightly.
+- Restaurant stage trim no longer white, chè room less white, the gold-shop guest no longer hides chú Năng, the
+  bookshop's round rug and armchair redrawn.
+
+### Removed
+- The pavement counters of the visa offices, the pharmacy and the gold shop (`HangKhay/GoldCounter.tsx`), and the
+  owners standing outside the eateries, Circle K, Hoàng Kim, the grocery and the bookshop.
+
+### Manual test checklist (phone, sideways)
+- [ ] Phở Gia Truyền: door → "Vào quán" → room fades in with the plaque; talk to chú Hùng → menu; bác Phở → his lines; "Ra phố" → back at the door.
+- [ ] Visit a few of the 19 rooms by day and after 20h (lamps, lanterns, neon glow); nothing floats, signs readable, the exit mat reachable.
+- [ ] Bánh cuốn after 14h / the bank at 18h: the door says closed with the hours.
+- [ ] Ride a bike to a door → "Vào" → you get off and walk in. With a Grab passenger → "Đang chở khách…", no entry.
+- [ ] Visa step "Chụp ảnh visa": the guide arrow goes to the photo studio door, then to chú Hùng inside.
+- [ ] Circle K: chị Hạnh inside → shift starts as before. Tạp hóa: cô Liên → "Mua đồ". Hiệu sách: "Đọc sách" in the reading corner.
+- [ ] Gold shop (Hàng Khay): price board inside shows today's price; buy/sell works.
+- [ ] Two phones logged in, both enter the same shop → they see each other; one leaves → disappears for the other.
+
 ## 1.40.0 — Quán ăn trong phố, Grab chạy thật ngoài đường
 
 ### Added — quán ăn (user: "thêm vài nhà hàng, quán ăn xen kẽ trong thành phố, tìm thư viện đẹp")

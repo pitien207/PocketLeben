@@ -175,3 +175,16 @@ Implement Milestone M1 only:
 - Follow the project structure in section 7.
 When done, tell me how to run it and what to test on my phone.
 ```
+
+---
+
+## Trạng thái 1.41 — Vào trong các tiệm (xong, 2026-11-24)
+
+- 19 tiệm có cảnh bên trong `shop.<id>` (như vào nhà): 7 quán ăn, Nhà hàng Bờ Hồ, tạp hóa, Circle K, Hoàng Kim,
+  nhà thuốc, tiệm may, hiệu sách cũ, tiệm ảnh, công chứng, ngân hàng, APS, tiệm vàng; chủ tiệm trong quầy, khách ngồi
+  ăn / xếp hàng; cửa "Vào quán / Vào tiệm / Vào văn phòng", thảm "Ra phố", giờ mở cửa; mỗi tiệm là một phòng
+  multiplayer công khai. Chi tiết: CHANGELOG 1.41.
+- Test headless `v141.mjs`: 152/152 PASS (lần 2, sau khi chỉnh camera + ánh sáng ban đêm). Phòng rộng (lẩu, nhà
+  hàng) dùng camera xa hơn.
+
+**Sau này (chưa làm):** tiệm ở Đức, các nơi "sắp mở cửa" ở Hàng Khay, quán trà sữa (đã đi vào được ngoài phố).

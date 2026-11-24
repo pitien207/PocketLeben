@@ -177,7 +177,10 @@ export function cafeTableSetShapes(stoolColors: string[]): ShapeItem[] {
   return items
 }
 
+/** 1.42: the Quaternius wooden bench (CC0, pack city) when it is loaded; the hand-built one otherwise. */
 export function benchShapes(color: string = P.mint): ShapeItem[] {
+  const lib = modelShapes('bench1', { scale: 1.6, paint: { Wood: color === P.mint ? '#a3734f' : '#7a5a42' } })
+  if (lib) return lib
   return [
     { box: [1.6, 0.08, 0.45], at: [0, 0.45, 0], color },
     { box: [1.6, 0.4, 0.07], at: [0, 0.75, -0.2], rot: [-0.15, 0, 0], color },

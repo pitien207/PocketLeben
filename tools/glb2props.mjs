@@ -16,7 +16,9 @@ import path from 'node:path'
 import { readGlb, simplifyGroup, staticGroups } from './glb.mjs'
 
 const SRC = process.argv[2]
-if (!SRC) throw new Error('usage: node tools/glb2props.mjs <folder>')
+if (!SRC) throw new Error('usage: node tools/glb2props.mjs <folder> [pack…]')
+/** Pack names to build (none = all). */
+const ONLY = process.argv.slice(3)
 const OUT = path.resolve('src/assets/models')
 
 const range = (prefix, file, n) => Object.fromEntries(Array.from({ length: n }, (_, i) => [`${prefix}${i + 1}`, file.replace('#', String(i + 1))]))
@@ -79,15 +81,44 @@ const PACKS = {
       propane: ['survival_pack/PropaneTank', 1.2],
     },
   },
+  /** 1.41 shop interiors (scenes/ShopRoom): shelves, chairs, sofas, lamps, cabinets, carpets, curtains. Name = `i` + file without `_`. */
+  /** 1.42 crops for the back yard's beds, grass tufts, bamboo, an orange tree (Quaternius Crops Pack, CC0). Size them with modelShapes(name, { height }). */
+  farm: {
+    source: 'Quaternius Crops Pack (CC0)',
+    models: Object.fromEntries(
+      ['Lettuce_1', 'Lettuce_2', 'Lettuce_3', 'Lettuce_4', 'Corn_2', 'Corn_3', 'Corn_4', 'Rice_2', 'Rice_3', 'Rice_4', 'Tomato_3', 'Tomato_4', 'Grass_1', 'Grass_2', 'Grass_3', 'Grass_4', 'Bamboo_2', 'Bamboo_3', 'Orange_3', 'Orange_4', 'Carrot_3', 'Pumpkin_3', 'Flower_2', 'Flower_3'].map((n) => ['f' + n.replace(/_/g, ''), `crops_pack/${n}`]),
+    ),
+  },
+  interior: {
+    source: 'Quaternius Ultimate House Interior Pack (CC0)',
+    models: Object.fromEntries(
+      [
+        'Bookshelf', 'Chair_1', 'Chair_2', 'Chair_3', 'Chair_4', 'Couch_Medium1', 'Couch_Medium2', 'Couch_Small1', 'Couch_Small2',
+        'Shelf_1', 'Shelf_2', 'Shelf_Large', 'Shelf_Small1', 'Shelf_Small2', 'Table_RoundLarge', 'Table_RoundSmall', 'Table_RoundSmall2',
+        'Light_Ceiling1', 'Light_Ceiling2', 'Light_Ceiling3', 'Light_Ceiling4', 'Light_CeilingSingle', 'Light_Chandelier', 'Light_Floor1',
+        'Light_Floor2', 'Light_Desk', 'Light_Stand1', 'Light_Cube', 'Light_Small', 'Drawer_1', 'Drawer_2', 'Drawer_3', 'Drawer_4', 'Drawer_5',
+        'NightStand_1', 'NightStand_2', 'Kitchen_Fridge', 'Kitchen_Cabinet1', 'Kitchen_2Drawers', 'Kitchen_Sink', 'Kitchen_Oven', 'Carpet_1',
+        'Carpet_2', 'Carpet_Round', 'Curtains_Double', 'Curtains_Single', 'Window_Large1', 'Window_Small1', 'Door_1', 'Door_Double',
+        'Trashcan_Small1', 'Trashcan_Cylindric', 'Bathroom_Mirror1', 'Column_Round1', 'Column_SquareSmall', 'Stool', 'Houseplant_1',
+        'Houseplant_4', 'Houseplant_7',
+        // 1.42 the home
+        'Bed_Single', 'Bed_King', 'Kitchen_Cabinet2', 'Kitchen_CabinetSmall', 'Kitchen_1Drawers', 'Kitchen_3Drawers', 'Bathroom_WashingMachine',
+        'NightStand_3', 'Shelf_Small3', 'Plate_1', 'Light_Ceiling5', 'Window_Large2', 'Door_2', 'Door_3', 'Trashcan_Green', 'Light_Floor3',
+      ].map((n) => ['i' + n.replace(/_/g, ''), [`house_interior_pack/${n}`, 0.5]]),
+    ),
+  },
 }
 
 /** Share of the triangles kept per group (1.33 performance pass): trees and plants are cut hard, buildings a little. */
 const KEEP = {
   nature: (name, tris) => (tris < 300 ? 1 : /^(simple|shrub|rock|grass)/.test(name) ? 1 : tris > 1500 ? 0.22 : 0.45),
   city: (name, tris) => (tris < 400 ? 1 : /^b/.test(name) ? 0.6 : 0.5),
+  interior: (name, tris) => (tris < 600 ? 1 : 0.6),
+  farm: (name, tris) => (tris < 300 ? 1 : 0.5),
 }
 
 for (const [pack, def] of Object.entries(PACKS)) {
+  if (ONLY.length && !ONLY.includes(pack)) continue
   const pos16 = []
   const idx16 = []
   const manifest = { source: def.source, models: {} }

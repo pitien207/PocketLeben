@@ -1,4 +1,5 @@
 import { CONFIG } from '../../data/config'
+import { getItem } from '../../data/items'
 import { useFlags } from '../../store/flagsStore'
 import { useInventory } from '../../store/inventoryStore'
 import { initialStats, usePlayer, type PlayerStats } from '../../store/playerStore'
@@ -69,7 +70,8 @@ function isSaveData(v: unknown): v is SaveData {
 function apply(data: SaveData) {
   usePlayer.getState().hydrate({ ...initialStats(), ...data.player })
   useTime.getState().setTime(Math.max(1, Math.floor(data.time.day)), Math.max(0, data.time.minutes % 1440))
-  useInventory.getState().hydrate(data.inventory)
+  // 1.42: a save from another version may name items that no longer exist — drop them instead of crashing the bag
+  useInventory.getState().hydrate(Object.fromEntries(Object.entries(data.inventory).filter(([id, n]) => getItem(id) && Number.isFinite(n) && n > 0)))
   useFlags.getState().hydrate(data.flags)
   const scene = data.scene && data.scene in SCENES ? data.scene : 'vietnam'
   useWorld.getState().setScene(scene)

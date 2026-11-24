@@ -60,8 +60,8 @@ export const CITY_PLACES: Record<CityPlaceId, CityPlace> = {
     sign: sign('NHÀ HÀNG BỜ HỒ', 'Cơm gia đình · Nem cua bể · Lẩu', '#8a3b1f', '#ffe7b0', '#ffd76a'),
     blurb: { vi: 'Mùi cá kho, canh cua bay ra tận cửa. Chú Thành đứng đón khách.', en: 'Smells of braised fish and crab soup.' },
     hours: [10, 22],
-    // 1.40: a real restaurant now (systems/eateries.ts) and a Grab pick-up point
-    action: 'food.restaurant',
+    // 1.40: a real restaurant (systems/eateries.ts) and a Grab pick-up point; 1.41: you walk in (data/shopRooms.ts)
+    action: 'shop.enter',
   },
   hotel: {
     id: 'hotel',
@@ -130,6 +130,7 @@ export const CITY_PLACES: Record<CityPlaceId, CityPlace> = {
     sign: sign('TIỆM VÀNG KIM THÀNH', 'Vàng miếng · Nhẫn tròn 9999 · Mua bán theo chỉ, cây', '#b3261e', '#ffd76a', '#ffd76a', 5),
     blurb: { vi: 'Tủ kính sáng loáng những miếng vàng.', en: 'Glass cases full of gold.' },
     hours: [8, 20],
-    action: 'gold.open',
+    // 1.41: a room inside (data/shopRooms.ts) with chú Năng behind the counter
+    action: 'shop.enter',
   },
 }

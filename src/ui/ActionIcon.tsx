@@ -1,7 +1,11 @@
 import type { JSX, SVGProps } from 'react'
 import type { ActionIconName } from '../data/tasks'
+import { ICON3D } from './Icon3d'
 
-/** Colourful original icons for context actions (referenced by name from data/tasks.ts). */
+/**
+ * Icons of the context actions (referenced by name from data/tasks.ts). 1.42 (user: "làm đẹp hơn tất cả các icon"):
+ * Fluent Emoji 3D pictures (MIT, ui/Icon3d.tsx) by `THREE_D`; the hand-drawn SVGs below stay as the fallback.
+ */
 
 type Props = SVGProps<SVGSVGElement>
 const INK = '#5b4636'
@@ -292,7 +296,7 @@ function DuckIcon(props: Props) {
   )
 }
 
-const ICONS: Record<ActionIconName, (props: Props) => JSX.Element> = {
+const ICONS: Partial<Record<ActionIconName, (props: Props) => JSX.Element>> = {
   feed: FeedIcon,
   wipe: WipeIcon,
   comfort: ComfortIcon,
@@ -320,7 +324,45 @@ const ICONS: Record<ActionIconName, (props: Props) => JSX.Element> = {
   duck: DuckIcon,
 }
 
-export function ActionIcon({ name, ...props }: Props & { name: ActionIconName }) {
-  const Icon = ICONS[name]
-  return <Icon {...props} />
+/** The 3D picture per action (file names in src/assets/icons3d). */
+const THREE_D: Partial<Record<ActionIconName, string>> = {
+  start: 'briefcase',
+  coffee: 'hot-beverage',
+  milk: 'glass-of-milk',
+  ice: 'ice',
+  egg: 'egg',
+  talk: 'speech-balloon',
+  shop: 'shopping-cart',
+  sleep: 'bed',
+  save: 'floppy-disk',
+  feed: 'bowl-with-spoon',
+  wipe: 'sponge',
+  comfort: 'hugging-face',
+  wheel: 'manual-wheelchair',
+  door: 'door',
+  book: 'open-book',
+  passport: 'identification-card',
+  ticket: 'ticket',
+  tram: 'tram',
+  bottle: 'recycling-symbol',
+  hanger: 't-shirt',
+  laptop: 'laptop',
+  number: 'input-numbers',
+  incense: 'diya-lamp',
+  swing: 'playground-slide',
+  duck: 'duck',
+  chicken: 'chicken',
+  garden: 'seedling',
+  water: 'droplet',
+  enter: 'door',
+}
+
+/** 1.42: `flat` forces the old drawing (e.g. inside SVG layouts). */
+export function ActionIcon({ name, flat, className, ...props }: Props & { name: ActionIconName; flat?: boolean }) {
+  const file = flat ? undefined : THREE_D[name]
+  const src = file ? ICON3D[file] : undefined
+  if (src)
+    return <img src={src} alt="" draggable={false} decoding="async" className={`pointer-events-none h-[1.2em] w-[1.2em] select-none drop-shadow-[0_1.5px_0_rgba(74,50,38,0.28)] ${className ?? ''}`} />
+  const Icon = ICONS[name] ?? DoorIcon
+  return <Icon className={className} {...props} />
 }

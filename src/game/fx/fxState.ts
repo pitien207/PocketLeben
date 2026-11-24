@@ -10,6 +10,8 @@ import { SCENES } from '../scenes/registry'
 export const fxState = {
   /** 0 = day, 1 = full night (lamps on). Written by Lighting every frame. */
   night: 0,
+  /** 1.41 rooms keep their daytime lamps at night: bloom stays near its day threshold there (PostFX). */
+  indoor: false,
 }
 
 /** Shared uniforms for scene materials (see `shared/materials.ts`). */

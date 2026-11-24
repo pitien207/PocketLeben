@@ -3,12 +3,15 @@ import type { Localized } from '../../i18n/localized'
 import type { Condition } from '../../data/conditions'
 import type { SceneId } from '../../store/worldStore'
 import { loadModelPacks, type ModelPack } from './shared/models'
+import { chunk } from '../../updates'
+import { SHOP_ROOM_LIST, shopExit, shopScene, shopStreetSpawns, type ShopSceneId } from '../../data/shopRooms'
 
 /** 1.33: a scene's code chunk and the model packs it draws with, fetched together. */
 const withModels =
   (packs: ModelPack[], load: () => Promise<{ default: ComponentType }>) =>
   (): Promise<{ default: ComponentType }> =>
-    Promise.all([load(), loadModelPacks(packs)]).then(([m]) => m)
+    // 1.42: a chunk of an older version gone from the server → save + reload into the new one (src/updates.ts)
+    Promise.all([chunk(load()), loadModelPacks(packs)]).then(([m]) => m)
 
 export interface SpawnPoint {
   x: number
@@ -32,7 +35,32 @@ export interface SceneInfo {
   load: () => Promise<{ default: ComponentType }>
 }
 
+/** 1.41 one scene per shop room (data/shopRooms.ts); they all share the scenes/ShopRoom chunk. */
+const loadShopRoom = withModels(['nature', 'food', 'interior'], () => import('./ShopRoom'))
+const shopRoomScenes = Object.fromEntries(
+  SHOP_ROOM_LIST.map((r): [SceneId, SceneInfo] => {
+    const exit = shopExit(r)
+    const id = shopScene(r.id)
+    return [
+      id,
+      {
+        id,
+        country: 'vn',
+        indoor: true,
+        name: r.name,
+        plaque: { style: 'room', title: r.name, subtitle: r.subtitle },
+        // a little way in from the mat, so the camera frames the room and its back wall (signs, counter)
+        spawns: { default: { x: exit.x - 0.3, z: exit.z - 1.6, yaw: 0 } },
+        // wide rooms (lẩu, the restaurant) need the camera further back (stays < 1 = indoor rules)
+        cameraZoom: r.w >= 11 ? 0.98 : 0.9,
+        load: loadShopRoom,
+      },
+    ]
+  }),
+) as Record<ShopSceneId, SceneInfo>
+
 export const SCENES: Record<SceneId, SceneInfo> = {
+  ...shopRoomScenes,
   vietnam: {
     id: 'vietnam',
     country: 'vn',
@@ -47,6 +75,8 @@ export const SCENES: Record<SceneId, SceneInfo> = {
       maiDoor: { x: 10.7, z: -10.6, yaw: Math.PI / 2 },
       /** 1.39 the gate of the pickleball court in Vườn hoa Hàng Khay (HangKhay/layout.ts PICKLE). */
       pickleball: { x: -30, z: 114.2, yaw: 0 },
+      /** 1.41 in front of each shop door (data/shopRooms.ts). */
+      ...shopStreetSpawns(),
     },
     load: withModels(['nature', 'city', 'food'], () => import('./VietnamStreet')),
   },
@@ -56,9 +86,20 @@ export const SCENES: Record<SceneId, SceneInfo> = {
     indoor: true,
     name: { vi: 'Nhà mình', en: 'Home', de: 'Zuhause' },
     plaque: { style: 'room', title: { vi: 'Nhà mình', en: 'Home', de: 'Zuhause' }, subtitle: { vi: 'Số 12, ngõ Hàng Gai', en: 'No. 12, Hàng Gai lane', de: 'Nr. 12, Hàng-Gai-Gasse' } },
-    spawns: { default: { x: 3.4, z: 2.4, yaw: 0 }, bed: { x: -2.2, z: -0.7, yaw: 0 } },
+    spawns: { default: { x: 3.4, z: 2.4, yaw: 0 }, bed: { x: -2.2, z: -0.7, yaw: 0 }, backDoor: { x: 0.95, z: -2.2, yaw: 0 } },
     cameraZoom: 0.8,
-    load: withModels(['nature'], () => import('./Home')),
+    load: withModels(['nature', 'interior'], () => import('./Home')),
+  },
+  /** 1.42 the back yard with the hens (scenes/HomeYard, systems/homeYard.ts): outdoors, private. */
+  homeYard: {
+    id: 'homeYard',
+    country: 'vn',
+    indoor: false,
+    name: { vi: 'Vườn sau nhà', en: 'The back yard' },
+    plaque: { style: 'room', title: { vi: 'Vườn sau nhà', en: 'The back yard' }, subtitle: { vi: 'Chuồng gà · luống rau · chum nước', en: 'Hens · vegetable beds · water jars' } },
+    spawns: { default: { x: 0, z: -3.3, yaw: 0 } },
+    cameraZoom: 0.92,
+    load: withModels(['nature', 'farm'], () => import('./HomeYard').then((m) => import('../components/animals/Animal').then((A) => A.loadAnimals(['hen', 'chick', 'cat', 'dog'])).then(() => m, () => m))),
   },
   maiOffice: {
     id: 'maiOffice',
@@ -122,7 +163,7 @@ export const SCENES: Record<SceneId, SceneInfo> = {
       buergeramt: { x: -2.0, z: -3.2, yaw: 0 },
       tram: { x: 3.4, z: 0.4, yaw: 0 },
     },
-    load: withModels(['nature'], () => import('./GermanyStreet')),
+    load: withModels(['nature', 'city'], () => import('./GermanyStreet')),
   },
   buergeramt: {
     id: 'buergeramt',

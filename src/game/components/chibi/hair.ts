@@ -74,6 +74,15 @@ const SHELLS: Record<string, ShellSpec> = {
   elderBun: { len: [[0, 0.82], [0.9, 1.15], [1.35, 2.0], [1.7, 2.4], [Math.PI, 2.78]], tips: [[0, 0]], strands: 18, ridge: 0.05, lift: 0.05, gather: [0, 0.15, -0.99] },
 }
 SHELLS.braid = { ...SHELLS.ponytail, gather: [0.75, -0.25, -0.62] }
+// 1.42 (user: "làm thêm nhiều kiểu tóc")
+SHELLS.highPony = { ...SHELLS.ponytail, gather: [0, 0.82, -0.57] }
+SHELLS.sideSwept = { len: [[0, 1.4], [0.6, 1.3], [1.2, 1.95], [1.7, 2.35], [Math.PI, 2.68]], tips: [[0, 0.24], [1.2, 0.1], [Math.PI, 0.1]], strands: 13, ridge: 0.065, lift: 0.095, sweepSide: 0.7, part: -0.95, hug: true }
+SHELLS.pixie = { len: [[0, 1.34], [0.7, 1.4], [1.1, 1.98], [1.6, 2.12], [Math.PI, 2.45]], tips: [[0, 0.2], [1.1, 0.18], [Math.PI, 0.12]], strands: 14, ridge: 0.07, lift: 0.08, sweepSide: 0.45, part: 0.5, hug: true }
+SHELLS.wavy = { ...SHELLS.long, curls: 0.04, strands: 13, ridge: 0.075 }
+SHELLS.halfUp = { ...SHELLS.long, part: undefined }
+SHELLS.mohawk = { ...SHELLS.buzz }
+SHELLS.afro = { len: [[0, 1.22], [0.9, 1.45], [1.3, 2.15], [Math.PI, 2.4]], tips: [[0, 0.05]], strands: 10, ridge: 0.02, lift: 0.3, curls: 0.12 }
+SHELLS.shoulder = { len: [[0, 1.3], [0.85, 1.36], [1.15, 2.6], [1.7, 2.78], [2.4, 2.86], [Math.PI, 2.9]], tips: [[0, 0.15], [1.2, 0.16], [Math.PI, 0.1]], strands: 15, ridge: 0.06, lift: 0.08, tuck: -0.07, part: 0.35 }
 SHELLS.twinBuns = { ...SHELLS.bun, gather: undefined, len: SHELLS.twin.len, part: 0 }
 
 /** Point on the skull ellipsoid, pushed out by `lift`, at polar angle th and azimuth a. */
@@ -172,6 +181,16 @@ function ponytailGeo(k: number) {
       rings: segs(26, k, 12), radial: segs(14, k, 7),
       radius: prof([[0, 0.15], [0.1, 0.27], [0.4, 0.31], [0.78, 0.2], [1, 0]]),
       lobes: 5, lobeDepth: (t) => lerp(0.12, 0.55, t), twist: 0.7, flat: 0.92, up: [0, 0, -1], capStart: true,
+    }),
+  )
+}
+/** 1.42 a ponytail tied high on the crown, swinging out and down the back. */
+function highPonyGeo(k: number) {
+  return cached(`hpony${k}`, () =>
+    sweep([r(0, 0.9, -0.6), r(0, 1.1, -0.78), r(0, 1.05, -1.05), r(0.02, 0.72, -1.3), r(0.03, 0.25, -1.42), r(0, -0.2, -1.36), r(-0.04, -0.6, -1.22)], {
+      rings: segs(26, k, 12), radial: segs(14, k, 7),
+      radius: prof([[0, 0.14], [0.1, 0.26], [0.4, 0.3], [0.78, 0.19], [1, 0]]),
+      lobes: 5, lobeDepth: (t) => lerp(0.12, 0.55, t), twist: 0.7, flat: 0.9, up: [0, 0, -1], capStart: true,
     }),
   )
 }
@@ -338,6 +357,36 @@ export function hairShapes(o: Outfit, hat: boolean, k: number): ShapeItem[] {
     }
     case 'curly':
       for (const side of [-1, 1]) s.push({ geometry: curlGeo(side, kk), color: c })
+      break
+    // --- 1.42 ---
+    case 'highPony':
+      s.push({ geometry: highPonyGeo(kk), color: c })
+      s.push(tie(r(0, 0.9, -0.62), new Vector3(0, 0.75, -0.65).normalize(), 0.12, tieColor))
+      s.push({ geometry: wispGeo(1, kk), color: c }, { geometry: wispGeo(-1, kk), color: c })
+      break
+    case 'sideSwept':
+      s.push({ geometry: wispGeo(-1, kk), color: c })
+      break
+    case 'pixie':
+      s.push({ geometry: wispGeo(1, kk), color: c }, { geometry: wispGeo(-1, kk), color: c })
+      if (!hat) s.push({ geometry: ahogeGeo(kk), color: c })
+      break
+    case 'wavy':
+      for (const side of [-1, 1]) s.push({ geometry: curlGeo(side, kk), color: c })
+      break
+    case 'halfUp':
+      if (hat) break
+      s.push({ group: [{ geometry: bunGeo(0.2 * R, kk), color: c }, { sphere: [0.13 * R, 10, 8], color: dark }], at: r(0, 0.84, -0.6), rot: [-0.6, 0, 0] })
+      s.push(tie(r(0, 0.76, -0.55), new Vector3(0, 0.8, -0.6).normalize(), 0.12, tieColor))
+      break
+    case 'mohawk':
+      if (hat) break
+      for (let i = 0; i < 7; i++) {
+        const t = 0.55 - i * 0.33
+        s.push({ geometry: spikeGeo(new Vector3(0, Math.cos(t), Math.sin(t)).normalize(), i === 0 ? 0.42 : 0.56, kk), color: c })
+      }
+      break
+    case 'afro':
       break
     default:
       break

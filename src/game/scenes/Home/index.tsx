@@ -3,9 +3,13 @@ import { NPCS, raggedOutfit } from '../../../data/npcs'
 import { ActionSpot, type SpotAction } from '../../components/ActionSpot'
 import { NPC } from '../../components/npc/NPC'
 import { HOME_ROOM } from '../interiors'
-import { TearCalendar, WallClock, WallFan } from '../shared/Decor'
+import { Cobwebs, type WebSpec } from '../shared/Cobwebs'
+import { CeilingFan, TearCalendar, WallClock, WallFan } from '../shared/Decor'
+import { glowMaterial } from '../shared/materials'
+import { modelShapes } from '../shared/models'
+import { frame, M, newBuild, pendant, put, rug, wainscot } from '../ShopRoom/kit'
 import { PALETTE as P } from '../shared/palette'
-import { motorbikeShapes, place, plantShapes } from '../shared/props'
+import { libraryPot, motorbikeShapes, place, plantShapes } from '../shared/props'
 import { Room, DOORMAT } from '../shared/Room'
 import { Shapes, type ShapeItem } from '../shared/Shapes'
 import { useFlags } from '../../../store/flagsStore'
@@ -16,6 +20,11 @@ import { HouseScene } from './HouseScene'
  * Home, the ground floor of the family's tube house in the lane: a wooden bed with a
  * rolled-up mosquito net, the study desk by the window, the family altar, a wooden
  * tea set where Bố reads the paper — and the motorbike parked indoors for the night.
+ *
+ * 1.42 redone (user: "làm lại nhà mik cả lúc bình thường và nghèo, đằng sau có cửa ra vườn nuôi gà"): gạch bông floor,
+ * a tiled wainscot, family photos and the children's certificates (giấy khen) on the walls, a bookshelf, a fridge, a
+ * ceiling fan and a lamp, a rug and plants — all of which disappear or wilt as the debts grow (houseShapes) — and the
+ * green back door with glass panes between the altar and the window: "Ra vườn" → scene homeYard (the hens).
  */
 
 const { w: W, d: D, h: H } = HOME_ROOM
@@ -38,13 +47,15 @@ function furniture(): ShapeItem[] {
   const s: ShapeItem[] = []
   // Bed: wooden frame, straw mat (chiếu cói), pillows, folded blanket, mosquito-net frame
   const { x: bx, z: bz } = HOME_ROOM.bed
-  s.push({ box: [1.7, 0.36, 2.15], at: [bx, 0.18, bz], color: WOOD })
-  s.push({ box: [1.7, 0.75, 0.08], at: [bx, 0.55, bz - 1.04], color: WOOD_DARK })
-  s.push({ box: [1.6, 0.05, 2.05], at: [bx, 0.385, bz], color: '#f0d9a3' })
-  for (let i = 0; i < 7; i++) s.push({ box: [1.6, 0.052, 0.02], at: [bx, 0.39, bz - 0.9 + i * 0.3], color: '#d9bd85' })
-  s.push({ box: [0.6, 0.12, 0.32], at: [bx - 0.4, 0.47, bz - 0.78], color: '#ffffff' })
-  s.push({ box: [0.6, 0.12, 0.32], at: [bx + 0.4, 0.47, bz - 0.78], color: '#ffd6e0' })
-  s.push({ box: [1.4, 0.14, 0.45], at: [bx, 0.47, bz + 0.72], color: '#7fb8e8' })
+  // 1.42: the Quaternius king bed (CC0), repainted: wooden frame, straw mat, white pillows, a blue blanket
+  const bed = M('iBedKing', 0, { scale: 1.1, paint: { Wood: WOOD, White: '#f0d9a3', Grey: '#ffffff', Red: '#7fb8e8', DarkRed: '#5f98c8' } })
+  if (bed.length) s.push(put(bed, bx, 0.04, bz - 0.02))
+  else {
+    s.push({ box: [1.7, 0.36, 2.15], at: [bx, 0.18, bz], color: WOOD })
+    s.push({ box: [1.7, 0.75, 0.08], at: [bx, 0.55, bz - 1.04], color: WOOD_DARK })
+    s.push({ box: [1.6, 0.05, 2.05], at: [bx, 0.385, bz], color: '#f0d9a3' })
+    s.push({ box: [1.4, 0.14, 0.45], at: [bx, 0.47, bz + 0.72], color: '#7fb8e8' })
+  }
   for (const sx of [-1, 1]) for (const sz of [-1, 1]) s.push({ box: [0.04, 1.6, 0.04], at: [bx + sx * 0.82, 1.15, bz + sz * 1.03], color: WOOD_DARK })
   for (const sz of [-1, 1]) s.push({ box: [1.68, 0.04, 0.04], at: [bx, 1.95, bz + sz * 1.03], color: WOOD_DARK })
   s.push({ box: [1.6, 0.14, 0.14], at: [bx, 1.86, bz - 1.0], color: '#f8f8f2' })
@@ -54,21 +65,26 @@ function furniture(): ShapeItem[] {
   s.push({ box: [1.4, 0.05, 0.6], at: [dx, 0.76, dz], color: WOOD })
   for (const sx of [-1, 1]) s.push({ box: [0.05, 0.74, 0.56], at: [dx + sx * 0.66, 0.37, dz], color: WOOD_DARK })
   s.push({ box: [0.4, 0.4, 0.55], at: [dx + 0.43, 0.4, dz], color: WOOD_DARK })
-  s.push({ cyl: [0.08, 0.1, 0.03, 10], at: [dx - 0.5, 0.79, dz - 0.1], color: '#3f7d5c' })
-  s.push({ cyl: [0.015, 0.015, 0.36, 6], at: [dx - 0.5, 0.97, dz - 0.1], rot: [0.25, 0, 0], color: '#3f7d5c' })
-  s.push({ cyl: [0.05, 0.13, 0.13, 10], at: [dx - 0.5, 1.15, dz - 0.04], rot: [0.4, 0, 0], color: '#3f7d5c' })
+  const lamp = M('iLightDesk', 0.42, { paint: (mat) => (mat === 'Light' || mat === 'White' ? '#fff1c4' : '#3f7d5c') })
+  if (lamp.length) s.push(put(lamp, dx - 0.5, 0.785, dz - 0.08, 0.3))
+  else s.push({ cyl: [0.08, 0.1, 0.03, 10], at: [dx - 0.5, 0.79, dz - 0.1], color: '#3f7d5c' })
   ;['#c8322b', '#4f86d9', '#f4c04e'].forEach((c, i) => s.push({ box: [0.3, 0.05, 0.22], at: [dx + 0.05, 0.81 + i * 0.05, dz - 0.1], rot: [0, i * 0.12, 0], color: c }))
   s.push({ box: [0.34, 0.012, 0.24], at: [dx - 0.05, 0.79, dz + 0.12], color: '#ffffff' })
   s.push({ cyl: [0.05, 0.05, 0.14, 8], at: [dx + 0.5, 0.85, dz - 0.15], color: '#cfe8f6' })
   for (let i = 0; i < 5; i++) s.push({ sphere: [0.04, 6, 4], at: [dx + 0.5 + Math.cos(i * 1.26) * 0.05, 0.97 + (i % 2) * 0.03, dz - 0.15 + Math.sin(i * 1.26) * 0.05], color: '#ffffff' })
   const cz = HOME_ROOM.deskSeat.z
-  s.push({ box: [0.44, 0.05, 0.42], at: [dx, 0.46, cz], color: WOOD })
-  s.push({ box: [0.44, 0.5, 0.05], at: [dx, 0.72, cz + 0.2], color: WOOD_DARK })
-  for (const sx of [-1, 1]) for (const sz of [-1, 1]) s.push({ box: [0.04, 0.45, 0.04], at: [dx + sx * 0.19, 0.22, cz + sz * 0.18], color: WOOD_DARK })
-  // Green shutters beside the window
+  const chair = M('iChair1', 0.95, { paint: () => WOOD })
+  if (chair.length) s.push(put(chair, dx, 0.04, cz + 0.02, Math.PI))
+  else {
+    s.push({ box: [0.44, 0.05, 0.42], at: [dx, 0.46, cz], color: WOOD })
+    s.push({ box: [0.44, 0.5, 0.05], at: [dx, 0.72, cz + 0.2], color: WOOD_DARK })
+  }
+  // 1.42 curtains on a rod beside the window (the back door took the shutters' place)
+  s.push({ cyl: [0.018, 0.018, 2.1, 6], at: [dx, 2.52, BACK + 0.12], rot: [0, 0, Math.PI / 2], color: WOOD_DARK })
+  const curtain = M('iCurtainsSingle', 2.0, { paint: (mat) => (mat.toLowerCase().includes('wood') || mat === 'Black' ? WOOD_DARK : '#e9a5a0') })
   for (const side of [-1, 1]) {
-    s.push({ box: [0.62, 1.2, 0.05], at: [dx + side * 1.08, 1.75, BACK + 0.05], color: '#3f7d5c' })
-    for (let l = 0; l < 5; l++) s.push({ box: [0.54, 0.025, 0.06], at: [dx + side * 1.08, 1.32 + l * 0.2, BACK + 0.07], color: '#2c5c43' })
+    if (curtain.length) s.push(put(curtain, dx + side * 0.98, 0.5, BACK + 0.14, 0, 0.62))
+    else s.push({ box: [0.4, 1.9, 0.05], at: [dx + side * 0.98, 1.5, BACK + 0.14], color: '#e9a5a0' })
   }
 
   // Family altar (bàn thờ): red lacquer shelf, incense bowl, candles, a plate of five fruits
@@ -100,13 +116,19 @@ function furniture(): ShapeItem[] {
   }
 
   // TV cabinet on the left wall (the TV itself and Bố's Wave depend on the family's debt: houseShapes)
-  s.push({ box: [0.45, 0.55, 1.4], at: [-W / 2 + 0.25, 0.28, -0.9], color: WOOD_DARK })
-  // Mẹ's kitchen corner on the right wall: counter, gas stove, a pot, a rice jar (hũ gạo)
-  s.push({ box: [0.6, 0.9, 1.4], at: [W / 2 - 0.35, 0.45, -0.6], color: '#e8dcc4' })
-  s.push({ box: [0.66, 0.05, 1.46], at: [W / 2 - 0.35, 0.92, -0.6], color: '#9a9a9a' })
-  s.push({ box: [0.4, 0.08, 0.5], at: [W / 2 - 0.35, 0.99, -0.9], color: '#2f2f38' })
-  s.push({ cyl: [0.16, 0.14, 0.18, 12], at: [W / 2 - 0.35, 1.12, -0.9], color: '#b8b8c0' })
-  s.push({ cyl: [0.12, 0.14, 0.3, 10], at: [W / 2 - 0.35, 1.1, -0.2], color: '#c49a6c' })
+  // 1.42 library pieces (Quaternius House Interior, CC0): a long wooden sideboard for the TV, Mẹ's kitchen row
+  const side = M('iDrawer2', 0, { scale: 0.8, paint: { Wood: WOOD_DARK, Wood_Light: WOOD, Wood_Dark: '#5a3c22' } })
+  s.push(side.length ? put(side, -W / 2 + 0.25, 0.04, -0.9, Math.PI / 2) : { box: [0.45, 0.55, 1.4], at: [-W / 2 + 0.25, 0.28, -0.9], color: WOOD_DARK })
+  const kitchen = { paint: { Kitchen: '#e8dcc4', KitchenTop: '#9aa0a4', White: '#f4f1ea', DarkMetal: '#3a3a40', LightMetal: '#b8bcc0', Glass: '#cfe8f6' } }
+  const kx = W / 2 - 0.3
+  const units: [string, number][] = [['iKitchenOven', -1.15], ['iKitchenSink', -0.65], ['iKitchen3Drawers', -0.15]]
+  for (const [name, z] of units) {
+    const m = M(name, 0, { scale: 1.12, ...kitchen })
+    s.push(m.length ? put(m, kx, 0.04, z, -Math.PI / 2) : { box: [0.6, 0.9, 0.5], at: [kx, 0.45, z], color: '#e8dcc4' })
+  }
+  // a pot on the stove, the rice jar (hũ gạo) on the floor beside the counter
+  s.push({ cyl: [0.16, 0.14, 0.18, 12], at: [kx - 0.05, 1.05, -1.15], color: '#b8b8c0' })
+  s.push({ cyl: [0.17, 0.2, 0.42, 12], at: [kx - 0.05, 0.25, 0.35], color: '#c49a6c' }, { cyl: [0.12, 0.12, 0.05, 10], at: [kx - 0.05, 0.48, 0.35], color: '#9a6a43' })
   s.push(place(plantShapes(P.leafDark, '#c49a6c'), [-W / 2 + 0.45, 0, 2.4], 0, 1.1))
   s.push({ box: [1.0, 0.025, 0.55], at: [HOME_ROOM.exit.x, 0.055, HOME_ROOM.exit.z], color: DOORMAT })
   // Paper cabinet (tủ giấy tờ): the family keeps the originals here — diploma, birth certificate (1.13)
@@ -123,7 +145,77 @@ function furniture(): ShapeItem[] {
   const { x: lx, z: lz } = HOME_ROOM.desk
   s.push({ box: [0.36, 0.02, 0.25], at: [lx - 0.05, 0.8, lz + 0.12], color: '#3f4a5c' })
   s.push({ box: [0.36, 0.23, 0.015], at: [lx - 0.05, 0.92, lz + 0.0], rot: [-0.2, 0, 0], color: '#2f2f38' })
+  s.push(...homeExtras())
   return s
+}
+
+/** 1.42: the green back door to the yard — two glazed leaves, the garden's light in the panes, a mat in front. */
+function backDoorShapes(): ShapeItem[] {
+  const { x } = HOME_ROOM.backDoor
+  const z = BACK + 0.02
+  const s: ShapeItem[] = []
+  const GREEN = '#3f7d5c'
+  s.push({ box: [1.24, 2.36, 0.05], at: [x, 1.18, z], color: '#2c5c43' })
+  for (const side of [-1, 1]) {
+    const lx = x + side * 0.26
+    s.push({ box: [0.5, 2.14, 0.05], at: [lx, 1.09, z + 0.035], color: GREEN })
+    s.push({ box: [0.36, 0.86, 0.02], at: [lx, 1.6, z + 0.065], color: '#d8f2bf' })
+    s.push({ box: [0.022, 0.86, 0.03], at: [lx, 1.6, z + 0.07], color: GREEN })
+    s.push({ box: [0.36, 0.022, 0.03], at: [lx, 1.6, z + 0.07], color: GREEN })
+    s.push({ box: [0.36, 0.62, 0.02], at: [lx, 0.55, z + 0.065], color: '#357052' })
+    s.push({ box: [0.28, 0.5, 0.025], at: [lx, 0.55, z + 0.07], color: '#4f9a6c' })
+    s.push({ sphere: [0.03, 8, 6], at: [x + side * 0.07, 1.06, z + 0.09], color: '#f4c04e' })
+  }
+  // transom with a fan of glass, and a sprig of leaves peeking in from the yard
+  s.push({ box: [1.1, 0.22, 0.03], at: [x, 2.42, z + 0.01], color: '#2c5c43' })
+  for (let i = 0; i < 4; i++) s.push({ box: [0.24, 0.15, 0.02], at: [x - 0.39 + i * 0.26, 2.42, z + 0.03], color: '#d8f2bf' })
+  s.push({ box: [0.9, 0.025, 0.5], at: [x, 0.055, BACK + 0.5], color: DOORMAT })
+  return s
+}
+
+/** 1.42 things every home has (the level-dependent ones are in houseShapes). */
+function homeExtras(): ShapeItem[] {
+  const b = newBuild()
+  // A tiled wainscot round the room (pale jade tiles, like old Hà Nội kitchens)
+  wainscot(b, W, D, 0.95, '#a9cdb9', '#f6ead0', '#c3dfcd')
+  b.s.push(...backDoorShapes())
+  // Family photos over the bed: Bố and Mẹ's wedding, the children as babies
+  frame(b, -3.45, 2.15, BACK + 0.03, 0.5, 0.62, '#e8d9c0', '#8a5a3a')
+  b.s.push({ sphere: [0.07, 8, 6], at: [-3.53, 2.2, BACK + 0.05], color: '#3a2a22' }, { sphere: [0.07, 8, 6], at: [-3.37, 2.2, BACK + 0.05], color: '#3a2a22' })
+  b.s.push({ box: [0.3, 0.16, 0.01], at: [-3.45, 2.0, BACK + 0.05], color: '#ffffff' })
+  frame(b, -2.75, 2.2, BACK + 0.03, 0.42, 0.34, '#bfe0f0', '#d9a43a')
+  b.s.push({ sphere: [0.07, 8, 6], at: [-2.75, 2.2, BACK + 0.05], color: '#ffd9b8' })
+  // The children's certificates (giấy khen) above the TV, on the left wall
+  for (let i = 0; i < 3; i++) {
+    frame(b, -W / 2 + 0.02, 2.05, -1.55 + i * 0.5, 0.42, 0.32, '#fff6df', '#c8322b', Math.PI / 2)
+    b.s.push({ box: [0.01, 0.05, 0.22], at: [-W / 2 + 0.045, 2.12, -1.55 + i * 0.5], color: '#d4473b' })
+    b.s.push({ box: [0.01, 0.04, 0.12], at: [-W / 2 + 0.045, 1.97, -1.55 + i * 0.5], color: '#f4c04e' })
+  }
+  // Bedside table
+  const ns = M('iNightStand3', 0.45, { paint: { Wood: WOOD, Metal: '#c9a050' } })
+  b.s.push(ns.length ? put(ns, -1.75, 0.04, -3.1) : { box: [0.45, 0.45, 0.45], at: [-1.75, 0.27, -3.1], color: WOOD })
+  // Bookshelf on the left wall, by the door (its books in houseShapes)
+  const shelf = M('iShelf2', 1.9, { paint: () => WOOD_DARK })
+  b.s.push(shelf.length ? put(shelf, -W / 2 + 0.22, 0.04, 1.75, Math.PI / 2) : { box: [0.38, 1.9, 0.56], at: [-W / 2 + 0.22, 0.95, 1.75], color: WOOD_DARK })
+  // Kitchen: a rice cooker, a kettle, a dish rack on the wall, a string of garlic and chillies
+  const kx = W / 2 - 0.35
+  b.s.push({ cyl: [0.14, 0.15, 0.2, 14], at: [kx + 0.05, 1.03, -0.12], color: '#f4efe6' }, { sphere: [0.14, 12, 6, Math.PI / 2], at: [kx + 0.05, 1.13, -0.12], color: '#e8574d' })
+  b.s.push({ cyl: [0.08, 0.1, 0.18, 10], at: [kx + 0.05, 1.02, -0.32], color: '#d9dde3' })
+  b.s.push({ box: [0.3, 0.04, 1.0], at: [W / 2 - 0.16, 1.62, -0.6], color: WOOD })
+  for (let i = 0; i < 5; i++) b.s.push({ cyl: [0.09, 0.06, 0.05, 10], at: [W / 2 - 0.17, 1.67 + (i % 2) * 0.05, -0.95 + i * 0.17], color: i % 2 ? '#ffffff' : '#a9d6e8' })
+  for (let i = 0; i < 6; i++) b.s.push({ sphere: [0.045, 6, 5], at: [W / 2 - 0.06, 2.1 - i * 0.09, 0.05], color: i % 2 ? '#f2ece0' : '#d4473b' })
+  b.s.push({ cyl: [0.006, 0.006, 0.6, 3], at: [W / 2 - 0.06, 1.92, 0.05], color: '#a8802f' })
+  // Shoes by the front door, a broom in the corner
+  ;['#4f86d9', '#ff9fb2', '#3a3a3a', '#f4c04e'].forEach((c, i) => b.s.push({ box: [0.11, 0.06, 0.26], at: [2.25 + i * 0.16, 0.07, 3.05], rot: [0, (i % 2 ? 1 : -1) * 0.12, 0], color: c }))
+  b.s.push({ cyl: [0.012, 0.012, 1.1, 5], at: [W / 2 - 0.15, 0.75, 3.1], rot: [0, 0, -0.18], color: '#c49a6c' }, { cyl: [0.03, 0.12, 0.3, 8], at: [W / 2 - 0.05, 0.15, 3.1], rot: [0, 0, -0.18], color: '#d9b25a' })
+  return b.s
+}
+
+/** Bulbs (bloom at night): the lamp over the tea table while the family can pay the bill for it. */
+function homeGlow(level: number): ShapeItem[] {
+  const b = newBuild()
+  if (level < 2) pendant(b, -1.4, 0.9, H, 0.55, '#f4c04e', '#fff1c4', 0.26)
+  return [...b.glow, ...b.s]
 }
 
 /**
@@ -147,18 +239,12 @@ function houseShapes(level: number, mortgaged: boolean, clock: boolean): ShapeIt
   const petals = level === 0 ? ['#ff9fb2', '#ffe066', '#ff6b5e'] : ['#a8865a', '#8e6e4a', '#b89a6a']
   petals.forEach((c, i) => s.push({ sphere: [0.05, 6, 4], at: [ax - 0.33 + i * 0.03, 2.24 + (i % 2) * 0.05, BACK + 0.2 + i * 0.02], color: c }))
   if (level < 2) {
-    s.push({ box: [0.06, 0.6, 1.0], at: [-W / 2 + 0.16, 0.88, -0.9], color: '#2f2f38' })
-    s.push({ box: [0.07, 0.52, 0.92], at: [-W / 2 + 0.18, 0.88, -0.9], color: '#4a5a70' })
+    s.push({ box: [0.12, 0.04, 0.3], at: [-W / 2 + 0.25, 0.6, -0.9], color: '#2f2f38' })
+    s.push({ box: [0.06, 0.6, 1.0], at: [-W / 2 + 0.25, 0.92, -0.9], color: '#2f2f38' })
+    s.push({ box: [0.07, 0.52, 0.92], at: [-W / 2 + 0.27, 0.92, -0.9], color: '#4a5a70' })
   } else {
     // Where the TV stood: a dusty rectangle on the wall
     s.push({ box: [0.012, 0.6, 1.0], at: [-W / 2 + 0.03, 0.9, -0.9], color: '#e9d39a' })
-  }
-  if (level >= 1) {
-    // Cobwebs in the ceiling corners (big ones)
-    for (const [x, z] of [[-W / 2 + 0.2, BACK + 0.2], [W / 2 - 0.2, BACK + 0.2], [-W / 2 + 0.2, D / 2 - 0.4]] as [number, number][]) {
-      for (let i = 0; i < 5; i++) s.push({ box: [0.9 - i * 0.15, 0.012, 0.012], at: [x, 2.9 - i * 0.1, z], rot: [0, Math.PI / 4, 0.6], color: '#f4f4f4' })
-      for (const r of [0.14, 0.26, 0.38]) s.push({ torus: [r, 0.006, 3, 10, Math.PI / 2], at: [x, 2.88, z], rot: [Math.PI / 2, 0, Math.PI / 4], color: '#f4f4f4' })
-    }
   }
   if (level >= 2) {
     // A long crack down the back wall
@@ -187,9 +273,71 @@ function houseShapes(level: number, mortgaged: boolean, clock: boolean): ShapeIt
     s.push({ box: [0.28, 0.05, 0.36], at: [-W / 2 + 0.25, 1.37, 0.45], color: '#c8322b' })
     s.push({ box: [0.2, 0.052, 0.04], at: [-W / 2 + 0.25, 1.371, 0.4], color: '#f4c04e' })
   }
+  s.push(...comfortShapes(level))
   s.push(...povertyShapes(level))
   if (!clock) s.push({ cyl: [0.23, 0.23, 0.005, 16], at: [ax, 2.72, BACK + 0.006], rot: [Math.PI / 2, 0, 0], color: '#e9d39a' })
   return s
+}
+
+/**
+ * 1.42 What a family without debts has, and how it goes: level 0 a rug, a fridge, a standing fan, lush plants and a
+ * full bookshelf, fruit on the table; level 1 the rug is sold, the plants wilt, half the books are gone; level 2 the
+ * fridge is sold (a pale patch and a loose plug), the fan too; level 3 the shelf is almost bare.
+ */
+function comfortShapes(level: number): ShapeItem[] {
+  const b = newBuild()
+  const s = b.s
+  if (level === 0) {
+    rug(b, -2.0, 1.1, 2.6, 1.7, '#c8322b', '#f4c04e')
+    s.push({ cyl: [0.16, 0.12, 0.06, 12], at: [-1.85, 0.52, 0.95], color: '#d9a43a' })
+    ;['#ff9b3d', '#ffe066', '#7fc06b'].forEach((c, i) => s.push({ sphere: [0.05, 8, 6], at: [-1.88 + i * 0.05, 0.58, 0.95 + (i % 2) * 0.03], color: c }))
+  }
+  // Plants by the front and back doors: lush, then wilting
+  const leaves = level === 0 ? null : level === 1 ? '#a8a05a' : '#9a7a50'
+  for (const [x, z, seed] of [[1.95, 2.9, 3], [0.05, -3.05, 5]] as const) {
+    const p = leaves ? modelShapes('pot2', { height: 0.8, paint: (mat, c) => (mat.includes('Green') ? leaves : mat === 'Black' || mat === 'Grey' ? '#c97b63' : c) }) : libraryPot(seed, '#c97b63', 0.9)
+    s.push(put(p ?? plantShapes(leaves ?? P.leaf, '#c97b63'), x, 0.04, z, seed, p ? 1 : 0.9))
+  }
+  // Books on the shelf: fewer as things are sold
+  const rows = [5, 3, 2, 1][Math.min(3, level)]
+  const colors = ['#c8322b', '#4f86d9', '#f4c04e', '#3fae72', '#7a5ea8', '#e8834a']
+  for (let r = 0; r < 4; r++) {
+    const n = r < rows ? 8 : r === rows ? 3 : 0
+    for (let i = 0; i < n; i++) s.push({ box: [0.2, 0.26 + (i % 3) * 0.03, 0.05], at: [-W / 2 + 0.24, 0.32 + r * 0.45 + (i % 3) * 0.015, 1.55 + i * 0.058], color: colors[(i + r * 2) % colors.length] })
+  }
+  if (level < 2) {
+    const wm = M('iBathroomWashingMachine', 0, { scale: 1.2, paint: { Grey: '#d9dde3', White: '#f4f6f8', Black: '#3a3a40' } })
+    if (wm.length) s.push(put(wm, W / 2 - 0.45, 0.04, 2.05, -Math.PI / 2))
+    // Fridge by the kitchen (magnets, a child's drawing) and a standing fan by the tea table
+    const fr = M('iKitchenFridge', 1.65, { paint: (mat, c) => (mat === 'White' || mat === 'Grey' ? '#eef1f4' : c) })
+    s.push(fr.length ? put(fr, W / 2 - 0.4, 0.04, -2.3, -Math.PI / 2) : { box: [0.62, 1.65, 0.62], at: [W / 2 - 0.4, 0.86, -2.3], color: '#eef1f4' })
+    ;['#ff6b5e', '#ffd166', '#6bcbff'].forEach((c, i) => s.push({ box: [0.012, 0.06, 0.06], at: [W / 2 - 0.725, 1.3 + i * 0.12, -2.45 + i * 0.1], color: c }))
+    s.push({ box: [0.01, 0.22, 0.18], at: [W / 2 - 0.725, 1.05, -2.2], color: '#fff6df' })
+    s.push({ cyl: [0.16, 0.18, 0.04, 12], at: [-0.75, 0.06, 1.75], color: '#5a7fa8' }, { cyl: [0.02, 0.02, 1.0, 6], at: [-0.75, 0.55, 1.75], color: '#d9dde3' })
+    s.push({ cyl: [0.24, 0.24, 0.06, 16], at: [-0.75, 1.1, 1.72], rot: [Math.PI / 2 - 0.15, 0, 0], color: '#7fb8e8' }, { sphere: [0.07, 8, 6], at: [-0.75, 1.1, 1.76], color: '#5a7fa8' })
+  } else {
+    // Where the fridge stood
+    s.push({ box: [0.012, 1.6, 0.66], at: [W / 2 - 0.03, 0.85, -2.3], color: '#e9d39a' })
+    s.push({ cyl: [0.006, 0.006, 0.5, 3], at: [W / 2 - 0.1, 0.3, -2.0], rot: [0.6, 0, 0], color: '#3a3a3a' })
+  }
+  return s
+}
+
+/** 1.42 painted cobwebs in the ceiling corners (shared/Cobwebs): from the first loan, more at level 2+. */
+function homeWebs(level: number): WebSpec[] {
+  if (level < 1) return []
+  const top = H - 0.01
+  const webs: WebSpec[] = [
+    { at: [-W / 2 + 0.01, top, BACK + 0.01], a: [1, 0, 0], b: [0, 0, 1], size: 1.0 },
+    { at: [W / 2 - 0.01, top, BACK + 0.01], a: [-1, 0, 0], b: [0, 0, 1], size: 0.85 },
+  ]
+  if (level >= 2) {
+    webs.push({ at: [-W / 2 + 0.01, top, D / 2 - 0.6], a: [0, 0, -1], b: [1, 0, 0], size: 0.7 })
+    // over the window and behind the altar
+    webs.push({ at: [HOME_ROOM.desk.x + 0.75, 2.42, BACK + 0.01], a: [-1, 0, 0], b: [0, 0, 1], size: 0.45 })
+  }
+  if (level >= 3) webs.push({ at: [W / 2 - 0.01, top, 0.4], a: [0, 0, -1], b: [-1, 0, 0], size: 0.75 })
+  return webs
 }
 
 /** Deterministic scatter so the stains sit in the same places on every visit. */
@@ -256,11 +404,11 @@ function povertyShapes(level: number): ShapeItem[] {
   })
   // The blanket is patched
   const { x: bx, z: bz } = HOME_ROOM.bed
-  s.push({ box: [0.3, 0.012, 0.2], at: [bx - 0.3, 0.546, bz + 0.72], rot: [0, 0.2, 0], color: '#c2a98a' })
-  s.push({ box: [0.22, 0.012, 0.16], at: [bx + 0.35, 0.546, bz + 0.68], rot: [0, -0.3, 0], color: '#8f8a80' })
+  s.push({ box: [0.3, 0.012, 0.2], at: [bx - 0.3, 0.6, bz + 0.5], rot: [0, 0.2, 0], color: '#c2a98a' })
+  s.push({ box: [0.22, 0.012, 0.16], at: [bx + 0.35, 0.6, bz + 0.46], rot: [0, -0.3, 0], color: '#8f8a80' })
 
   // Unpaid bills pinned beside the calendar, stamped red
-  ;[[1.35, 1.62, 0.1], [1.55, 1.45, -0.12], [1.42, 1.28, 0.05]].forEach(([x, y, r]) => {
+  ;[[-1.75, 1.3, 0.1], [-1.52, 1.12, -0.12], [-1.7, 0.95, 0.05]].forEach(([x, y, r]) => {
     s.push({ box: [0.24, 0.32, 0.008], at: [x, y, wallZ + 0.004], rot: [0, 0, r], color: '#f6f1e4' })
     s.push({ box: [0.18, 0.05, 0.009], at: [x, y + 0.08, wallZ + 0.006], rot: [0, 0, r], color: '#d4473b' })
     for (let l = 0; l < 3; l++) s.push({ box: [0.16, 0.012, 0.009], at: [x, y - 0.02 - l * 0.05, wallZ + 0.006], rot: [0, 0, r], color: '#9a948a' })
@@ -286,7 +434,7 @@ function povertyShapes(level: number): ShapeItem[] {
     s.push({ box: [0.3 + rnd(i + 320) * 0.3, 0.004, 0.2 + rnd(i + 330) * 0.3], at: [x, 0.043, z], rot: [0, rnd(i + 340) * 3, 0], color: '#8b6a52' })
   }
   // Boxes of instant noodles by the kitchen: dinner, most days
-  for (let i = 0; i < 3; i++) s.push({ box: [0.42, 0.26, 0.32], at: [W / 2 - 0.36, 0.17 + i * 0.27, 0.55], rot: [0, i * 0.15, 0], color: i % 2 ? '#d98a45' : '#c9772f' })
+  for (let i = 0; i < 3; i++) s.push({ box: [0.42, 0.26, 0.32], at: [W / 2 - 0.36, 0.17 + i * 0.27, 0.95], rot: [0, i * 0.15, 0], color: i % 2 ? '#d98a45' : '#c9772f' })
   // A bare bulb on a wire instead of the ceiling lamp
   s.push({ cyl: [0.006, 0.006, 0.7, 4], at: [0.6, 2.65, 0.2], color: '#3a3a3a' })
   s.push({ sphere: [0.06, 8, 6], at: [0.6, 2.27, 0.2], color: '#fff2b8' })
@@ -338,6 +486,8 @@ const EXIT: SpotAction[] = [
   { id: 'flyBack', labelKey: 'action.flyBack', icon: 'passport', action: 'trip.return', primary: true, if: { flag: 'trip.away' } },
 ]
 
+const BACK_DOOR: SpotAction[] = [{ id: 'yard', labelKey: 'action.toYard', icon: 'garden', action: 'home.toYard', primary: true }]
+
 /** Tết decorations for the visit home (chapter 5): peach blossom, bánh chưng, red couplets. */
 function tetDecor(): ShapeItem[] {
   const s: ShapeItem[] = []
@@ -374,6 +524,8 @@ const Home = memo(function Home() {
   // The wall clock is sold at level 2 and only comes back once everything is repaid.
   const clock = useFlags((s) => houseLevel() < 2 && !(typeof s.flags['debt.peak'] === 'number' && (s.flags['debt.peak'] as number) >= 2))
   const state = useMemo(() => houseShapes(level, mortgage, clock), [level, mortgage, clock])
+  const glow = useMemo(() => homeGlow(level), [level])
+  const webs = useMemo(() => homeWebs(level), [level])
   const { bed, desk } = HOME_ROOM
   // Bố and Mẹ wear what is left: faded, then patched, then ragged.
   const bo = useMemo(() => ({ ...NPCS.bo, outfit: raggedOutfit(NPCS.bo.outfit, level) }), [level])
@@ -386,6 +538,7 @@ const Home = memo(function Home() {
         h={H}
         style={STYLES[Math.min(3, level)]}
         windows={[desk.x]}
+        floorKind="bong"
         furniture={shapes}
         blockers={[
           [bed.x, bed.z, 0.85, 1.08],
@@ -394,13 +547,20 @@ const Home = memo(function Home() {
           [-W / 2 + 0.25, -0.9, 0.25, 0.7],
           [-W / 2 + 0.25, 0.45, 0.25, 0.38],
           [3.0, 1.3, 0.35, 0.8],
-          [W / 2 - 0.35, -0.6, 0.32, 0.72],
+          [W / 2 - 0.3, -0.65, 0.32, 0.8],
+          [W / 2 - 0.45, 2.05, 0.4, 0.4],
+          [W / 2 - 0.4, -2.3, 0.33, 0.33],
+          [-W / 2 + 0.22, 1.75, 0.22, 0.32],
+          [-1.75, -3.1, 0.25, 0.25],
         ]}
       />
       <Shapes shapes={state} />
+      <Shapes shapes={glow} material={glowMaterial} castShadow={false} />
+      {webs.length > 0 && <Cobwebs webs={webs} />}
+      {level < 2 && <CeilingFan position={[0.9, H, 0.6]} drop={0.35} />}
       <HouseScene />
       {clock && <WallClock position={[-0.4, 2.72, BACK + 0.04]} radius={0.22} />}
-      <TearCalendar position={[0.75, 1.55, BACK + 0.03]} />
+      <TearCalendar position={[-1.6, 1.75, BACK + 0.03]} />
       <WallFan position={[W / 2 - 0.05, 2.2, -1.6]} rotation={[0, -Math.PI / 2, 0]} />
 
       {mortgage && !visiting ? (
@@ -420,6 +580,13 @@ const Home = memo(function Home() {
       <ActionSpot id="home-bed" nameKey="interact.bed" zone={{ x: bed.x + 0.2, z: bed.z + 1.55, halfX: 1.1, halfZ: 0.55 }} actions={BED} />
       <ActionSpot id="home-desk" nameKey="interact.studyDesk" zone={{ x: desk.x, z: desk.z + 1.05, halfX: 0.9, halfZ: 0.6 }} actions={DESK} />
       <ActionSpot id="home-papers" nameKey="interact.papers" zone={{ x: -W / 2 + 0.95, z: 0.45, halfX: 0.5, halfZ: 0.55 }} actions={PAPERS} />
+      <ActionSpot
+        id="home-backdoor"
+        nameKey="interact.backYard"
+        zone={{ x: HOME_ROOM.backDoor.x, z: HOME_ROOM.backDoor.z, halfX: 0.6, halfZ: 0.55 }}
+        actions={BACK_DOOR}
+        marker={{ at: [HOME_ROOM.backDoor.x, 2.85, BACK + 0.35], when: { noFlag: 'yard.visited' } }}
+      />
       <ActionSpot id="home-exit" nameKey="interact.exit" zone={{ x: HOME_ROOM.exit.x, z: HOME_ROOM.exit.z, halfX: 0.9, halfZ: 0.6 }} actions={EXIT} />
     </>
   )

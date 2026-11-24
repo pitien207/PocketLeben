@@ -1,4 +1,5 @@
 import type { ReactElement, SVGProps } from 'react'
+import { ICON3D } from './Icon3d'
 import type { PaperKind } from '../data/keyItems'
 
 /**
@@ -8,7 +9,18 @@ import type { PaperKind } from '../data/keyItems'
 
 const O = '#4a3226'
 
+/** 1.42: Fluent Emoji 3D pictures for the papers (MIT); the drawings below are the fallback. */
+const THREE_D: Record<PaperKind, string> = {
+  passport: 'closed-book', passportDe: 'closed-book', certificate: 'scroll', diploma: 'graduation-cap', folder: 'file-folder',
+  visa: 'passport-control', ticket: 'ticket', document: 'page-facing-up', contract: 'memo', bankCard: 'credit-card',
+  insuranceCard: 'card-index', studentId: 'identification-card', wgKey: 'key', flatKey: 'old-key', residence: 'page-with-curl',
+}
+
 export function PaperIcon({ kind, ...props }: { kind: PaperKind } & SVGProps<SVGSVGElement>) {
+  const file = THREE_D[kind]
+  const src = file ? ICON3D[file] : undefined
+  if (src)
+    return <img src={src} alt="" draggable={false} decoding="async" className={`pointer-events-none h-[1.15em] w-[1.15em] select-none drop-shadow-[0_1.5px_0_rgba(74,50,38,0.25)] ${props.className ?? ''}`} />
   return (
     <svg viewBox="0 0 32 32" width="1em" height="1em" aria-hidden="true" {...props}>
       {SHAPES[kind]}

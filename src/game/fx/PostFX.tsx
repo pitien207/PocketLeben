@@ -33,7 +33,8 @@ export function PostFX() {
   useFrame(() => {
     const b = bloom.current
     if (!b) return
-    const n = fxState.night
+    // 1.41: rooms stay lit like by day — a low night threshold made white walls glow; their lamps get brighter instead
+    const n = fxState.indoor ? fxState.night * 0.2 : fxState.night
     b.luminanceMaterial.threshold = 1.7 - n * 1.08
     b.intensity = 0.25 + n * 0.85
   })

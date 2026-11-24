@@ -11,6 +11,7 @@ import { BUILDING_GROUPS, PROP_GROUPS } from '../../systems/collisionGroups'
 import { groundMaterial, lambert } from '../shared/materials'
 import { PALETTE as P } from '../shared/palette'
 import { benchShapes, coneShapes, place, plantShapes, treeShapes } from '../shared/props'
+import { FountainWater, type FountainSpec } from '../shared/FountainWater'
 import { Shapes, type ShapeItem } from '../shared/Shapes'
 import { SignBoard } from '../shared/SignBoard'
 import { makeTileTexture, type SignOptions } from '../shared/textures'
@@ -18,6 +19,7 @@ import { Backdrop } from '../VietnamStreet/Backdrop'
 import { Altbau } from './Altbau'
 import { PfandBottles } from './PfandBottles'
 import { Stadtpark } from './Stadtpark'
+import { fitTree, TreeClearance, useBlockerVersion } from '../shared/treeFit'
 
 /**
  * Lindenstraße (chapter 3–4): an Altbau street with the WG, the Bürgeramt, a supermarket,
@@ -116,7 +118,7 @@ function streetShapes(): ShapeItem[] {
     [12.2, 13.2],
     ...WEST_TREES,
   ]) {
-    s.push(place(treeShapes(Math.round(x * 7 + z) % 5 === 0 ? 'birch' : 'linden', Math.round(x * 7 + z)), [x, 0, z], x * 0.7, 1.15))
+    s.push(fitTree(treeShapes(Math.round(x * 7 + z) % 5 === 0 ? 'birch' : 'linden', Math.round(x * 7 + z)), [x, 0, z], x * 0.7, 1.15))
   }
   // Classic lamp posts
   for (const x of [-27, -19.5, -8, 3.8, 10.8]) {
@@ -177,6 +179,8 @@ const WEST_TREES: [number, number][] = [
   [-30.5, 12.8],
 ]
 const FOUNTAIN = { x: -29.6, z: -1.2 }
+/** 1.42 moving water (shared/FountainWater). */
+const FOUNTAIN_WATER: FountainSpec[] = [{ x: FOUNTAIN.x, z: FOUNTAIN.z, basinY: 0.49, basinR: 1.15, bowlY: 1.71, bowlR: 0.48, topY: 1.8, jet: 0.5 }]
 
 /** West end: Apotheke display, Asia-Markt crates, a fountain square with benches. */
 function westShapes(): ShapeItem[] {
@@ -198,7 +202,6 @@ function westShapes(): ShapeItem[] {
   s.push({ cyl: [1.15, 1.15, 0.05, 20], at: [fx, 0.46, fz], color: '#8cc2d8' })
   s.push({ cyl: [0.18, 0.22, 1.3, 10], at: [fx, 0.9, fz], color: '#cfc8bb' })
   s.push({ cyl: [0.5, 0.3, 0.2, 12], at: [fx, 1.6, fz], color: '#cfc8bb' })
-  s.push({ sphere: [0.22, 10, 8], at: [fx, 1.85, fz], color: '#a9d6ff' })
   s.push(place(benchShapes('#3a4a44'), [fx - 2.4, 0, fz + 1.0], Math.PI / 2 + 0.3))
   s.push(place(benchShapes('#3a4a44'), [fx + 2.4, 0, fz + 1.0], -Math.PI / 2 - 0.3))
   s.push(place(benchShapes('#3a4a44'), [-21, 0, 11.6], Math.PI))
@@ -250,7 +253,8 @@ const FLEA: SpotAction[] = [{ id: 'shop', labelKey: 'action.shop', icon: 'hanger
 const at = (x: number, y: number, z: number): Vec3 => [x, y, z]
 
 const GermanyStreet = memo(function GermanyStreet() {
-  const street = useMemo(streetShapes, [])
+  const fit = useBlockerVersion()
+  const street = useMemo(streetShapes, [fit])
   const market = useMemo(supermarketShapes, [])
   return (
     <>
@@ -275,6 +279,7 @@ const GermanyStreet = memo(function GermanyStreet() {
       <SignBoard options={SIGNS.doener} width={1.6} position={[9.2, 2.05, 1.56]} />
 
       <Shapes shapes={street} />
+      <FountainWater fountains={FOUNTAIN_WATER} />
       <RigidBody type="fixed" colliders={false}>
         {[[-11.5, 2.4], [-3.6, 2.4], [5.6, 2.4], [12.6, 2.4], [-10, 12.8], [-2, 13.2], [7.5, 12.8], [12.2, 13.2], ...WEST_TREES].map(([x, z]) => (
           <CylinderCollider key={`t${x},${z}`} args={[0.8, 0.25]} position={[x, 0.8, z]} collisionGroups={PROP_GROUPS} />
@@ -319,6 +324,7 @@ const GermanyStreet = memo(function GermanyStreet() {
       <NPC def={NPCS.frauBeck} at={{ x: FOUNTAIN.x - 2.3, z: FOUNTAIN.z + 1.0 }} yaw={Math.PI / 2 + 0.3} seatY={0.45} />
       <Backdrop colors={GERMAN_COLORS} roof="#8a5a52" sideRoad={false} tree="linden" clear={CLEAR} />
       <Stadtpark />
+      <TreeClearance />
     </>
   )
 })

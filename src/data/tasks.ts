@@ -37,6 +37,11 @@ export type ActionIconName =
   | 'incense'
   | 'swing'
   | 'duck'
+  // 1.42 the back yard, shop doors
+  | 'chicken'
+  | 'garden'
+  | 'water'
+  | 'enter'
 
 export interface TaskAction {
   id: string

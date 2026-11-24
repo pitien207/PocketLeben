@@ -1,7 +1,9 @@
 import App from './App'
 import { initAudio, setMusicTheme } from './game/systems/audio'
 import './game/systems/gameplay'
-import { loadGame, startAutosave } from './game/systems/save'
+import { loadGame, saveGame, startAutosave } from './game/systems/save'
+import { onBeforeReload, setInGame } from './updates'
+import { pushCloudSave } from './net/auth'
 import { startWatchers } from './game/systems/watchers'
 import { startGuide } from './game/systems/guide'
 import { SCENES } from './game/scenes/registry'
@@ -37,6 +39,12 @@ initAudio()
 startSocial()
 startPickleball()
 startNet()
+// 1.42 updates: we are in the game now (reload only at a good moment), and save before any reload
+setInGame(true)
+onBeforeReload(() => {
+  saveGame()
+  void pushCloudSave(true)
+})
 if (SECRETS_ENABLED) startSecrets()
 startStory()
 // Story 2.1 (Vietnam): office bookings + BA approval, morning family effects, cracked phone.

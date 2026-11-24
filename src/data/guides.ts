@@ -3,6 +3,7 @@ import { formatMoney } from '../i18n/format'
 import type { SceneId } from '../store/worldStore'
 import type { Condition } from './conditions'
 import { CONFIG } from './config'
+import { SHOP_ROOM_LIST, shopDoorSpot, shopScene } from './shopRooms'
 
 /**
  * Step-by-step guide data: for every story step, where to go (target), how to do it
@@ -47,10 +48,11 @@ const HOME_BED: GuideTarget = { scene: 'home', spot: 'home-bed' }
 const HOME_DESK: GuideTarget = { scene: 'home', spot: 'home-desk' }
 const PASSPORT: GuideTarget = { ui: 'passport' }
 // Visa offices at the west end of the street (1.13) and the paper cabinet at home
-const PHOTO: GuideTarget = { scene: 'vietnam', npc: 'chuAnh' }
-const NOTARY: GuideTarget = { scene: 'vietnam', npc: 'coCongChung' }
-const BANK: GuideTarget = { scene: 'vietnam', npc: 'anhNganHang' }
-const APS: GuideTarget = { scene: 'vietnam', npc: 'coAps' }
+// 1.41 the clerks work inside their offices (data/shopRooms.ts)
+const PHOTO: GuideTarget = { scene: 'shop.photo', npc: 'chuAnh' }
+const NOTARY: GuideTarget = { scene: 'shop.notary', npc: 'coCongChung' }
+const BANK: GuideTarget = { scene: 'shop.bank', npc: 'anhNganHang' }
+const APS: GuideTarget = { scene: 'shop.aps', npc: 'coAps' }
 const PAPERS: GuideTarget = { scene: 'home', spot: 'home-papers' }
 const CLOCK: GuideTarget = { ui: 'clock' }
 
@@ -341,15 +343,15 @@ export const STEP_GUIDES: Record<string, StepGuide> = {
     blockers: [schoolClosed],
   },
   'hk.visit': {
-    targets: [{ target: { scene: 'vietnam', npc: 'anhKhai' } }],
+    targets: [{ target: { scene: 'shop.hoangKim', npc: 'anhKhai' } }],
     hint: L('Văn phòng Hoàng Kim (biển LED nhấp nháy, bên kia ngõ Hàng Bông, đối diện văn phòng chị Mai) → nói chuyện với anh Khải.', 'Hoàng Kim office (blinking LED sign, across the Hàng Bông lane from Mai’s office) → talk to Khải.', 'Büro Hoàng Kim (LED-Schild, gegenüber von Mais Büro) → mit Khải reden.'),
   },
   'hk.spot': {
-    targets: [{ target: { scene: 'vietnam', npc: 'anhKhai' } }],
+    targets: [{ target: { scene: 'shop.hoangKim', npc: 'anhKhai' } }],
     hint: L('Anh Khải → Xem hợp đồng: tìm 3 dấu hiệu lừa đảo.', 'Khải → Look at the contract: find 3 signs of a scam.', 'Khải → Vertrag ansehen: 3 Betrugszeichen finden.'),
   },
   'hk.warn': {
-    targets: [{ if: { scene: 'vietnam' }, target: { scene: 'vietnam', npc: 'anhKhai' } }, { target: { scene: 'classroom', npc: 'hvLinh' } }],
+    targets: [{ if: { all: [{ scene: 'shop.hoangKim' }, { flag: 'linh.told' }] }, target: { scene: 'shop.hoangKim', npc: 'hvLinh' } }, { target: { scene: 'classroom', npc: 'hvLinh' } }],
     hint: L('Nói với Linh những gì bạn biết về Hoàng Kim (trong lớp, hoặc khi Linh ngồi ở văn phòng Hoàng Kim).', 'Tell Linh what you know about Hoàng Kim (in class, or when she sits in the Hoàng Kim office).', 'Erzähl Linh, was du über Hoàng Kim weißt.'),
   },
 
@@ -824,6 +826,9 @@ export const SCENE_LINKS: { from: SceneId; to: SceneId; via: GuidePoint; label: 
   { from: 'vietnam', to: 'maiOffice', via: { spot: 'mai-door' }, label: L('Lên Văn phòng Mai Anh', 'Up to the Mai Anh office', 'Hoch ins Büro Mai Anh') },
   { from: 'maiOffice', to: 'vietnam', via: { spot: 'mai-exit' }, label: L('Ra phố', 'Out to the street', 'Auf die Straße') },
   { from: 'home', to: 'vietnam', via: { spot: 'home-exit' }, label: L('Ra phố', 'Out to the street', 'Auf die Straße') },
+  // 1.42 the back yard
+  { from: 'home', to: 'homeYard', via: { spot: 'home-backdoor' }, label: L('Ra vườn sau', 'Out to the yard', 'In den Hof') },
+  { from: 'homeYard', to: 'home', via: { spot: 'yard-door' }, label: L('Vào nhà', 'Back inside', 'Ins Haus') },
   { from: 'vietnam', to: 'classroom', via: { spot: 'center-door' }, label: L('Vào Trung tâm Đức ngữ', 'Into the German centre', 'Ins Sprachzentrum') },
   { from: 'classroom', to: 'vietnam', via: { spot: 'class-exit' }, label: L('Ra phố', 'Out to the street', 'Auf die Straße') },
   { from: 'examHall', to: 'classroom', via: { spot: 'exam-exit' }, label: L('Về lớp', 'Back to class', 'Zurück zum Kurs') },
@@ -843,6 +848,11 @@ export const SCENE_LINKS: { from: SceneId; to: SceneId; via: GuidePoint; label: 
   // Chapter 5: the Tết trip (book on the WG laptop, fly back from home)
   { from: 'wg', to: 'home', via: { spot: 'wg-laptop' }, label: L('Đặt vé về Hà Nội', 'Book a flight home', 'Heimflug buchen') },
   { from: 'home', to: 'germany', via: { spot: 'home-exit' }, label: L('Bay về Đức', 'Fly back to Germany', 'Zurück nach Deutschland') },
+  // 1.41 every shop room: its street door and the mat inside
+  ...SHOP_ROOM_LIST.flatMap((r) => [
+    { from: 'vietnam' as SceneId, to: shopScene(r.id) as SceneId, via: { spot: shopDoorSpot(r.id) }, label: L(`Vào ${r.name.vi}`, `Into ${r.name.en}`, `Hinein: ${r.name.en}`) },
+    { from: shopScene(r.id) as SceneId, to: 'vietnam' as SceneId, via: { spot: 'shop-exit' }, label: L('Ra phố', 'Out to the street', 'Auf die Straße') },
+  ]),
 ]
 
 /** Onboarding target: the first friendly face near the spawn. */

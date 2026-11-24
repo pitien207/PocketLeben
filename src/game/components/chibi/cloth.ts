@@ -175,6 +175,10 @@ const CUTS: Record<string, TopCut> = {
   aoDai: { hem: -0.1, ease: 0.003, flare: 0.004 },
   dress: { hem: -0.09, ease: 0.004, flare: 0 },
   dirndl: { hem: -0.1, ease: 0.003, flare: 0 },
+  // 1.42 (user: "làm thêm nhiều … quần áo")
+  polo: { hem: -0.13, ease: 0.007, flare: 0.012 },
+  cardigan: { hem: -0.17, ease: 0.014, flare: 0.016 },
+  sweater: { hem: -0.15, ease: 0.016, flare: 0.004 },
 }
 
 /** The top as a lathe from the neckline down to a hem with a lip. */
@@ -404,12 +408,14 @@ export function limbGeometries(o: Outfit, k: number): BufferGeometry[] {
       break
     case 'long':
     case 'jacket':
+    case 'cardigan':
     case 'scrubs':
       sleeve = top === 'scrubs'
         ? { to: 0.57, color: shirt, ease: (y) => 0.012 + 0.012 * smooth(0.64, 0.57, y), lip: 0.003 }
         : { to: 0.37, color: shirt, ease: (y) => 0.009 + 0.004 * smooth(0.52, 0.47, y) - 0.004 * smooth(0.47, 0.4, y), cuff: { h: 0.03, color: shade(shirt, -0.06), extra: 0.006 } }
       break
     case 'hoodie':
+    case 'sweater':
       sleeve = { to: 0.37, color: shirt, ease: (y) => 0.014 + 0.006 * smooth(0.45, 0.4, y), cuff: { h: 0.028, color: shade(shirt, -0.08), extra: -0.004 } }
       break
     case 'puffer':
@@ -432,12 +438,14 @@ export function limbGeometries(o: Outfit, k: number): BufferGeometry[] {
   const bands: Band[] = []
   switch (bottom) {
     case 'pants':
+    case 'overalls':
       leg = { to: 0.072, color: pants, ease: (y) => 0.012 + 0.006 * smooth(0.14, 0.08, y), cuff: { h: 0.018, color: shade(pants, -0.09), extra: 0.003 } }
       break
     case 'widePants':
       leg = { to: 0.072, color: pants, ease: (y) => 0.018 + 0.03 * smooth(0.26, 0.08, y), lip: 0.003 }
       break
     case 'skirt':
+    case 'longSkirt':
     case 'dirndl':
       leg = null
       break
@@ -555,7 +563,7 @@ export function torsoShapes(input: Outfit, k: number): ShapeItem[] {
   const pants = o.shorts
   const skin = o.skin
   const WHITE = '#ffffff'
-  const bulk = top === 'puffer' ? 1.08 : top === 'hoodie' ? 1.03 : 1
+  const bulk = top === 'puffer' ? 1.08 : top === 'hoodie' || top === 'sweater' ? 1.03 : 1
   const radial = segs(30, k, 12)
   const kk = Math.round(k * 20) / 20
   const cut = CUTS[top] ?? CUTS.tee
@@ -687,6 +695,45 @@ export function torsoShapes(input: Outfit, k: number): ShapeItem[] {
       }
       break
     }
+    case 'polo': {
+      // a soft collar, a short placket with two buttons
+      neckRib(shade(shirt, -0.05), 0.088, 0.009)
+      for (const side of [-1, 1]) {
+        P(`poloCollar${side}`, {
+          top: 0.222, bottom: 0.17, nu: 4, nv: 3, lift: 0.011, thick: 0.006,
+          surf: (y) => Math.max(0.084, shirtR(y)),
+          left: (y) => side < 0 ? lerp(-0.03, -0.09, smooth(0.17, 0.222, y)) : lerp(0.03, 0.006, smooth(0.17, 0.222, y)),
+          right: (y) => side < 0 ? lerp(-0.03, -0.006, smooth(0.17, 0.222, y)) : lerp(0.03, 0.09, smooth(0.17, 0.222, y)),
+        }, o.patternColor && !o.pattern ? o.patternColor : shade(shirt, 0.04))
+      }
+      P('poloPlacket', { top: 0.2, bottom: 0.1, left: () => -0.014, right: () => 0.014, nu: 1, nv: 4, surf: shirtR, lift: 0.0015, thick: 0.004 }, shade(shirt, -0.05))
+      if (fine) for (const y of [0.17, 0.125]) s.push(onSurface(0, y, [0.01, 0.01, 0.005], '#f6f1e6', 0.006, shirtR))
+      break
+    }
+    case 'cardigan': {
+      // open knit front over a light tee, buttons down one edge, two patch pockets
+      const v = (y: number) => 0.06 * smooth(-0.04, 0.21, y) + 0.012
+      P('cardiTee', { top: 0.212, bottom: cut.hem + 0.01, left: (y) => -v(y), right: (y) => v(y), surf: shirtR, lift: 0.0012, thick: 0.002, nu: 3, nv: 8 }, o.patternColor ?? '#f6f1e6')
+      for (const side of [-1, 1]) P(`cardiEdge${side}`, { top: 0.212, bottom: cut.hem + 0.004, left: (y) => side * v(y) - 0.008, right: (y) => side * v(y) + 0.008, surf: shirtR, lift: 0.003, thick: 0.004, nu: 1, nv: 8 }, shade(shirt, -0.08))
+      if (fine) for (const y of [0.12, 0.05, -0.02, -0.09]) s.push(onSurface(v(y) / shirtR(y), y, [0.011, 0.011, 0.006], shade(shirt, 0.18), 0.008, shirtR))
+      P('cardiPocketL', { top: -0.07, bottom: -0.14, left: () => -0.17, right: () => -0.09, surf: shirtR, puff: 0.004, thick: 0.005, nu: 3, nv: 2 }, shade(shirt, -0.05))
+      P('cardiPocketR', { top: -0.07, bottom: -0.14, left: () => 0.09, right: () => 0.17, surf: shirtR, puff: 0.004, thick: 0.005, nu: 3, nv: 2 }, shade(shirt, -0.05))
+      s.push({ geometry: cached(`cardiHem${kk}`, () => ring(shirtR(cut.hem) - 0.003, cut.hem + 0.012, 0.011, radial, 1.3)), color: shade(shirt, -0.08) })
+      break
+    }
+    case 'sweater': {
+      // ribbed crew neck and hem, a contrasting knit band across the chest
+      neckRib(shade(shirt, -0.08), 0.09, 0.014)
+      s.push({ geometry: cached(`sweatHem${kk}`, () => ring(shirtR(cut.hem) - 0.004, cut.hem + 0.013, 0.013, radial, 1.3)), color: shade(shirt, -0.08) })
+      if (!o.pattern) {
+        const band = o.patternColor ?? shade(shirt, 0.22)
+        for (const [y, h] of [[0.105, 0.012], [0.07, 0.022], [0.035, 0.012]] as const) {
+          const r = shirtR(y)
+          s.push({ geometry: cached(`sweatBand${y}${kk}`, () => lathe([[r + 0.0005, y + h], [r + 0.003, y + h - 0.003], [r + 0.003, y - h + 0.003], [r + 0.0005, y - h]], radial)), color: y === 0.07 ? band : shade(band, -0.12) })
+        }
+      }
+      break
+    }
     case 'sleeveless':
       P('scoop', { top: 0.212, bottom: 0.14, left: (y) => -0.085 * Math.sqrt(smooth(0.13, 0.215, y)), right: (y) => 0.085 * Math.sqrt(smooth(0.13, 0.215, y)), surf: shirtR, lift: 0.0012, thick: 0.002, nu: 5, nv: 4 }, skin)
       neckRib(shade(shirt, -0.1), 0.095, 0.008)
@@ -705,7 +752,7 @@ export function torsoShapes(input: Outfit, k: number): ShapeItem[] {
   }
 
   // ---- trousers / shorts on the seat: waistband, fly, front pocket openings, back pockets (1.34)
-  if (bottom !== 'skirt' && bottom !== 'dirndl') {
+  if (bottom !== 'skirt' && bottom !== 'dirndl' && bottom !== 'longSkirt') {
     const pr = (y: number) => pelvisR(y, bulk) + 0.002
     const yTop = Math.min(cut.hem - 0.006, -0.12)
     P('fly', { top: yTop, bottom: -0.235, left: () => -0.006, right: () => 0.006, surf: pr, lift: 0.0015, thick: 0.003, nu: 1, nv: 4 }, shade(pants, -0.13))
@@ -731,6 +778,22 @@ export function torsoShapes(input: Outfit, k: number): ShapeItem[] {
         const sr = () => lerp(0.208, rh, Math.pow(t, 0.85)) - 0.004
         s.push(onSurface(a, y, [0.022, 0.022, 0.006], o.patternColor ?? '#f4d6e6', 0.006, sr))
       }
+    }
+  }
+  if (bottom === 'longSkirt') {
+    // 1.42 a flowing maxi skirt down to the ankles
+    s.push({ geometry: cached(`lSkirt${kk}`, () => skirtGeo(-0.07, -0.47, 0.208, 0.31, 12, 0.1, radial, false)), color: pants })
+    s.push({ geometry: cached(`lSkirtIn${kk}`, () => skirtGeo(-0.07, -0.47, 0.208, 0.31, 12, 0.1, radial, true)), color: shade(pants, -0.18) })
+    s.push({ geometry: cached(`waist${kk}`, () => ring(0.212, -0.085, 0.012, radial, 1.2)), color: shade(pants, -0.06) })
+  }
+  if (bottom === 'overalls') {
+    // 1.42 dungarees (quần yếm): a bib with a pocket, straps over the shoulders, brass buttons
+    P('ovBib', { top: 0.11, bottom: cut.hem - 0.004, left: (y) => -0.1 - 0.02 * smooth(0.11, cut.hem, y), right: (y) => 0.1 + 0.02 * smooth(0.11, cut.hem, y), surf: shirtR, lift: 0.004, thick: 0.006, nu: 4, nv: 6 }, pants)
+    P('ovPocket', { top: 0.07, bottom: 0.01, left: () => -0.05, right: () => 0.05, surf: shirtR, lift: 0.009, thick: 0.004, nu: 3, nv: 2 }, shade(pants, -0.06))
+    for (const side of [-1, 1]) {
+      P(`ovStrapF${side}`, { top: 0.21, bottom: 0.1, left: () => side * 0.085 - 0.016, right: () => side * 0.085 + 0.016, surf: shirtR, lift: 0.005, thick: 0.005, nu: 1, nv: 4 }, pants)
+      P(`ovStrapB${side}`, { top: 0.21, bottom: cut.hem, centre: Math.PI, left: () => side * 0.06 - 0.016, right: () => side * 0.06 + 0.016, surf: shirtR, lift: 0.004, thick: 0.005, nu: 1, nv: 8 }, pants)
+      s.push(onSurface(side * 0.085 / shirtR(0.1), 0.1, [0.014, 0.014, 0.007], '#e8c35a', 0.012, shirtR))
     }
   }
   if (bottom === 'dirndl') {

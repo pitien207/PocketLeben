@@ -38,7 +38,7 @@ Server: plain Node ESM `server/index.mjs` + `server/store.mjs` (MongoDB API — 
 - Entry: `src/main.tsx` (title screen only, tiny; on Play pulls a newer cloud save first) → lazy `src/boot.tsx` (loads save, watchers, guide, audio, `startNet`, `startSecrets`, `startStory`) → `App.tsx`.
 - **Performance rules (1.21, user saw a hitch every ~1 s on Azure):** never rebuild textures/materials on a timer — build variants once and toggle `visible` (see `HangBong.tsx` `LedSign`); nothing heavy may subscribe to every `useTime` tick (1 game minute = 1 real second): bucket it (watchers re-check quests every 5 game minutes, guide every 10, autosave only on a new day + the 10 s interval). `ChibiModel` skips animation when an ancestor is hidden and runs every 3rd frame beyond 35 m.
 - Online: `src/net/auth.ts` (account in localStorage `visa-hunter-auth`, `api()`, `pullCloudSave`/`pushCloudSave`; title-screen safe) and `src/net/client.ts` (WebSocket `/ws`, sends `PlayerSnapshot` 10 Hz when changed + 2 s heartbeat, auth with `caps: ['batch']`; **1.21 server room tick**: every 100 ms one `{t:'snaps', l:[[id, snap]]}` per room serialised once, outfit only when changed (`c.outfitDirty`), own entry included (client skips `myId` from 'welcome'); clients without the cap still get per-snapshot `{t:'snap'}` (`broadcastLegacy`); `remotes` map (with `outfitKey` computed on receive) read per frame by `components/RemotePlayers.tsx` — only the 12 nearest within 60 m drawn, name plates < 20 m (`pickShown` 4×/s); `useNet` store; emotes `sendEmote`). Server rooms = public scenes only (`PUBLIC_SCENES` in server). UI: `ui/LoginPanel.tsx` (name+password, always remembered (token in localStorage, no checkbox — user asked), `GoogleButton`, pick-name step for a new Google account, browser password manager via PasswordCredential), `ui/OnlineUI.tsx` (online chip, emote picker), Settings → AccountSection (+ GoogleLinkRow, OfflineStatus). Google: `src/net/google.ts` loads GIS lazily; server `server/google.mjs` verifies ID tokens (JWKS, aud = `GOOGLE_CLIENT_ID`; `GOOGLE_JWKS_URL` override for tests); routes `/api/config`, `/api/google`, `/api/google/register` (ticket → name), `/api/google/link`; store `googleUser/googleOf/linkGoogle`. Tokens renew on use (valid 365 days after last use). Rate limits: 10 password / 30 Google per IP per minute (`AUTH_RATE_LIMIT` multiplies, tests use 10). Setting `online` (persisted). Social (1.10): `server/social.mjs` (`createSocial` → routes + `onMessage` for WS `chat`/`dm` + `presence`; friends/requests/blocked per account in store `getSocial/setSocial`, DMs `getDms/addDm` keyed by `pairKey(a,b)`, 100 kept; world chat ring buffer 60 in memory; `cleanText` = NFC, strip control/bidi/zero-width, 200 chars, bad-word stars; gaps world 2 s / DM 0.6 s) ↔ client `src/net/social.ts` (`useSocial` store, `startSocial()` from boot, listens via `onNetMessage`, sends via `sendNet`; unread counts; same gaps client-side) ↔ `ui/PhonePanel.tsx` (panel type `phone`, HUD button replaced the music button, tabs messages / world / friends, `PhoneBadge`). World lines from my room → `useNet.chats[id]` (mine: -1) → `ChatBubble` in `RemotePlayers.tsx`. Online list has "+ Kết bạn". Phase 2 (shared clock) not built — see `docs/MULTIPLAYER_PLAN.md`.
-- Scenes: `game/scenes/registry.ts` (id, country, indoor, spawns, plaque (+ `alt` by condition), lazy `load`). One scene at a time; `systems/travel.ts` `travelTo(scene, spawn, opts)` fades. Scene ids: vietnam (incl. Hàng Khay since 1.36), home, maiOffice, classroom, examHall, embassy, airport, germany, buergeramt, wg, careHome, university.
+- Scenes: `game/scenes/registry.ts` (id, country, indoor, spawns, plaque (+ `alt` by condition), lazy `load`). One scene at a time; `systems/travel.ts` `travelTo(scene, spawn, opts)` fades. Scene ids: vietnam (incl. Hàng Khay since 1.36), home, homeYard (1.42), maiOffice, classroom, examHall, embassy, airport, germany, buergeramt, wg, careHome, university, and (1.41) one `shop.<id>` per shop room (see 1.41 below).
 - **Story 2.1, Vietnam part (1.15)** — the user's file is merged into `docs/STORY.md` §1–2d:
   - **1.17 — tea shop, north quarter, poor house** (all Vietnam):
     - The café is **Tiệm Trà Sữa Phố Cổ** (`VietnamStreet/Cafe.tsx`, still named Cafe/CAFE in code; job id stays `cafe`, flags `job.cafe.*`). `CafeJob.tsx` = NPC **chiVy** behind the counter (dialogue `chiVy` in vn21.ts, extra action "Làm ca") → action `job.tea` (`systems/jobs.ts`: `teaShift`, `teaWage`, `teaStrikes`, `teaBanLeft`; numbers `CONFIG.vnJobs.tea`) → mini-game `{ kind: 'bubbleTea', rank, strikes }` = `minigames/BubbleTea.tsx` (full screen, own summary; result in `MinigameResult.tea: TeaOutcome`; TEAS / TOPPINGS / CUSTOMERS lists with `rank` = unlock; hold-to-pour gauge GOOD 0.76–0.94, OVER 1.1 = spilled; `data-testid` tea-*). Walk-out = strike `job.cafe.quits`; `maxQuits` → `job.cafe.banUntil` (day you may work again); a full shift with meter ≥ 50 removes one strike. Tests `job.teaBanned` / `job.teaWarned`. The old WorkStation engine (`components/WorkStation|WorkCustomers|RecipeCup`, `systems/work.ts`, `store/workStore`, `ui/WorkPanel|WorkResults`, `data/tasks.ts`) is **unused** now (kept; `ActionIconName` still lives in tasks.ts).
@@ -129,7 +129,7 @@ Server: plain Node ESM `server/index.mjs` + `server/store.mjs` (MongoDB API — 
   `systems/gold.ts` (`goldQuote(day)` = deterministic per day: trend × mean-reverting walk, numbers `CONFIG.gold`;
   `buyGold/sellGold(chi)`, flags `gold.chi` / `gold.paid`, tests `gold.shopOpen` / `gold.has`, actions `gold.open`
   (→ dialogue `chuNang`, `data/dialogues/gold.ts`) and `gold.trade` buy|sell → panel `{type:'gold', mode}` =
-  `ui/GoldPanel.tsx` (testids `gold-*`)); counter + chú Năng + daily price board = `scenes/HangKhay/GoldCounter.tsx`.
+  `ui/GoldPanel.tsx` (testids `gold-*`)); since 1.41 chú Năng, the gold cases and the daily price board are in the shop room `shop.goldShop` (ShopRoom/plans.ts `goldShop`; the city-place door runs `shop.enter`).
   1 cây = 10 chỉ. Test: scratchpad `gold.mjs <out> [port]` (session aacfe38d…/4229b6c7…).
 - **1.35 own vehicles**: catalogue `data/vehicles.ts` (`VEHICLES`: kind bicycle|motorbike|car, price, speed ×walk,
   turn, accel, tank litres, range metres, bike `style` cub|scooter|vespa|big|bicycle or car `model`), numbers
@@ -189,7 +189,7 @@ Server: plain Node ESM `server/index.mjs` + `server/store.mjs` (MongoDB API — 
     `drawn` = house built elsewhere: the old Phở Gia Truyền of WestBlock) + `data/eateries.ts` (`EATERY_DEFS`: name, short (map),
     sign, owner NPC, shop, hours, Grab `orders`, greetings). `VietnamStreet/Eateries.tsx` builds each tube house in LOCAL space
     (front line z = 0, room toward −z, pavement +z; `toWorld`/`yawOf`) — open ground floor (ROOM 3.6 m), awning, sign, fairy
-    lights; per-kind `fill()`; all in ONE Shapes mesh + one glow mesh; owners via `ActiveArea` (45 m). NorthQuarter `cut(rows, front)`
+    lights; per-kind `fill()`; all in ONE Shapes mesh + one glow mesh; the owners work inside the shop rooms since 1.41. NorthQuarter `cut(rows, front)`
     punches the holes in ROWS_B/C2/D; `VACATED` lost −39.7 (bún chả). Owners share dialogue `quanAn` (`data/dialogues/eateries.ts`)
     → `systems/eateries.ts` (`eateryOfOwner` remembers the last owner because a closing choice runs its effect after the
     dialogue closed; action `food.menu` = shop panel, `food.restaurant` = Hàng Khay city place `restaurant` → chú Thành; test
@@ -211,6 +211,87 @@ Server: plain Node ESM `server/index.mjs` + `server/store.mjs` (MongoDB API — 
     `houseLevel() < 3`. `job.grabRegister` (Bố's dialogue, free) and `job.grab` (toggle app) live in grab.ts now, not jobs.ts;
     `jobUnlocked('grab')` = any vehicle. Flags `grab.done`, `grab.<kind>`, `grab.starSum/starCount`. Dev: `__vh.grab`,
     `__vh.grabClock`, `__vh.ride`. Test: scratchpad `v140.mjs <out>` (vite 5199; session 9d42c795…).
+- **1.41 shop rooms** (user: "mỗi cửa tiệm có không gian bên trong… mở ra cảnh như căn nhà, người chơi thấy nhau"): 19 shops are
+  scenes `shop.<id>` — ids in `data/shopRoomIds.ts` (no imports; `SceneId` includes `ShopSceneId`; `shopOfScene`), defs in
+  `data/shopRooms.ts` (`SHOP_ROOMS`: name/subtitle (plaque), street `door` {x, z, yaw (0 = faces +z), halfW along the facade,
+  halfD}, optional existing `spot` (Hàng Khay city places goldShop/restaurant: their `action` is now `shop.enter`), `hours`,
+  room `w`×`d`, `enter` label kind; `shopExit(r)` = front-right mat; street spawns `shop-<id>` merged into the vietnam spawns).
+  `registry.ts` generates the scenes (indoor, plaque, cameraZoom 0.9 (0.98 when w ≥ 11), spawn 1.6 m in from the mat, ONE chunk `scenes/ShopRoom` + packs nature/food/interior).
+  `systems/shopRooms.ts`: actions `shop.enter <id>` (hours; dismount unless a Grab passenger blocks) / `shop.leave`, test
+  `shop.inside`. Street doors: `VietnamStreet/ShopDoors.tsx` (ActionSpot `shopdoor-<id>`). Room = `scenes/ShopRoom/index.tsx`
+  (picks `planFor(id)`; Room + one glow mesh + signs (static or `(day) => SignOptions`) + clocks / calendars / wall fans /
+  `CeilingFan` (shared/Decor) + people + spots + exit spot `shop-exit`), `plans.ts` (one builder per shop; owners keep their
+  street NPC ids and dialogues; side-wall items must sit in the full-height part of the wall: z < 0.05·d), `kit.ts` (Build
+  {s, glow, block}: counter, glassCase, shelfUnit + goods kinds, fridge, altar, tube, pendant, lantern, fairyLights,
+  plasticSet, diningSet, rug, plant, wainscot, backDoor, exitMat), `people.ts` (`guest(room, i)` / `helper` = NPCs without
+  dialogue). `Room` got `floorKind` check | planks | small | bong (gạch bông). Model pack **interior** (Quaternius House
+  Interior, names `i<File>`, scaled ×0.5): `node tools/glb2props.mjs <folder> interior` (pack names after the folder = build
+  only those). Server: `SHOP_SCENE` regex → public rooms. Guide: `SCENE_LINKS` generated per shop; PHOTO / NOTARY / BANK / APS /
+  anhKhai targets are in the shop scenes; Linh's dialogue checks `{ scene: 'shop.hoangKim' }`. Removed from the street:
+  owners / clerks + pavement counters, `HangKhay/GoldCounter.tsx`. Not done yet: Germany shops, the Hàng Khay "opening soon"
+  places, the café (already walk-in in the street); stalls (trà đá, chè, barber, clothes stall, nước mía) stay outside on
+  purpose. Test: scratchpad `v141.mjs <out>` (session aacfe38d…/3d44a2f4…).
+- **1.42 trees / home / yard / doors / icons / looks:**
+  - **Trees vs houses**: `scenes/shared/treeFit.ts` — `<TreeClearance />` (mounted in VietnamStreet and GermanyStreet,
+    inside Physics) reads the colliders with the camera-blocker group (top ≥ 2.4 m, + 0.75 m balcony margin) at frames
+    2/20/60/120 after mounting and publishes their footprints; `fitTree(tree, at, rotY, scale)` replaces `place()` for
+    street trees (shrinks the tree, then narrows it, min 0.4 of the crown); components add `useBlockerVersion()` to their
+    memo deps. **New tree call sites next to buildings: use fitTree.** Dev: `window.__treeFit` (boxes, roomAround).
+  - **No entrance badges** (built and removed again in 1.42, user) — do not add door markers.
+  - **Home** (`scenes/Home/index.tsx`): `homeExtras` (static: wainscot, back door, photos, giấy khen, shelf, kitchen) +
+    `comfortShapes(level)` (rug, fruit, fridge, fans, plants, books — removed / wilted by debt level) + `homeGlow`
+    (pendant lamp) + `CeilingFan` below level 2; uses ShopRoom/kit helpers; floor `bong`; loads pack `interior`.
+    `HOME_ROOM`: desk x 2.9, `backDoor` {0.95, −2.75}; spawn `backDoor`. Spot `home-backdoor` → `home.toYard`.
+  - **Library animals** (`game/components/animals/Animal.tsx`): `<Animal kind="hen|chick|cat|dog" variant action speed size groupRef />`
+    loads `src/assets/models/animals/*.glb` with GLTFLoader (cached), clones with SkeletonUtils, AnimationMixer per instance,
+    cross-fades clips (short names: hen/chick idle peck run · cat idle idle2 walk eat sit sleep · dog idle idle2 walk eat).
+    Quaternius atlas models are baked to vertex colours at load; variants (white, brown, black, rooster) repaint the colour
+    with the largest surface. Materials → MeshLambert. `loadAnimals([...])` preloads (homeYard registry entry). GLBs are
+    prepared by scratchpad `gt/animals.mjs` (gltf-transform: keep/rename clips, drop LOD0 + ORM, resample, 512 px texture).
+    Used: yard hens (HomeYard/Chickens.tsx, one `Bird` component each, re-renders only when the clip changes), the cat on
+    the coop roof and in the east alley (EastBlock), the dog by the back door.
+  - **Cobwebs**: `scenes/shared/Cobwebs.tsx` (canvas web texture, quads across ceiling corners, one mesh per room);
+    Home `homeWebs(level)`. Never build webs out of boxes/tori again.
+  - Model pack **farm** (Quaternius Crops, names `f<Name>`, `tools/glb2props.mjs <folder> farm`) for the yard; the
+    interior pack also has iBedKing/iBedSingle, kitchen units, iBathroomWashingMachine, doors. Home furniture uses them
+    (ShopRoom/kit `M()`, fallback shapes when a pack is missing).
+  - **Back yard** scene `homeYard` (outdoor, private): `scenes/HomeYard/` (`layout.ts` YARD, `index.tsx` shapes +
+    spots `yard-door` / `yard-coop` / `yard-beds`, `Chickens.tsx` animated birds, one mesh each, `yardFx.fedAt`),
+    logic `systems/homeYard.ts` (actions `home.toYard`, `yard.toHouse`, `yard.feed` / `eggs` / `water` / `harvest`;
+    flags `yard.fedDay`, `yard.eggDay`, `yard.waterDay`, `yard.waterCount`, `yard.visited`; tests `yard.*`;
+    `yardHens(level)`). Items `trungGa`, `rauMuong` (icons `trung`, `rau`). Guide links home ↔ homeYard.
+  - **Icons**: `ActionIcon` = Fluent 3D picture per name (`THREE_D` map; `flat` = old SVG); HUD rail + clock use
+    `Icon3d`; `ui/icons.tsx` line icons = Phosphor (`@phosphor-icons/react/dist/csr/<Name>` deep imports — keep them deep,
+    the barrel import pulls in every icon in dev). New ActionIconNames: chicken, garden, water, enter. Compass restyled
+    (`ui/CompassBar.tsx`, keep ids `compass-bar` / `compass-strip` / `compass-mark` and the mark's last child).
+  - **Looks**: HairStyle + highPony, sideSwept, pixie, wavy, halfUp, mohawk, afro, shoulder (SHELLS + extras in hair.ts;
+    Portrait maps them to the closest SVG style via `portraitHair`); Outfit `eyeShape` (round, sparkle, sleepy, cat, dot,
+    smile) + `faceMark` (freckles, mole, bandaid, rosy, star) painted in face.ts (cache key includes them); Accessory +
+    mask, earrings, hairClip, bucketHat, strawHat (both count as hats), headband, flowerPin; TopStyle + polo, cardigan
+    (`patternColor` = the tee under it), sweater (`patternColor` = chest band); BottomStyle + overalls, longSkirt. Clothing
+    slot `face` (wardrobe SLOT_FIELDS, ClothesPanel tab "Mắt & mặt", bag slot). Server cleanSnap whitelists eyeShape/faceMark.
+  - Test: scratchpad `v142.mjs <out>` (vite 5199; session 877bf06e…). Note: in tests read app modules through window
+    hooks (`__treeFit`), a dynamic `import('/src/…')` may get another module instance after HMR.
+- **1.42 updates / multiplayer smoothness:**
+  - `src/updates.ts`: `startUpdates()` (main.tsx; registers the SW, checks every 20 min + on foreground, listens to
+    `vite:preloadError` / unhandled chunk errors), `useUpdate.ready` → `ui/UpdatePill.tsx`, `applyUpdate()` (runs
+    `onBeforeReload` hooks = saveGame + cloud push from boot.tsx, reload, 60 s loop guard), `noteServerVersion(v)` (from
+    'welcome'), **`chunk(import(...))` — wrap every dynamic import** (main boot, registry `withModels`, PostFX) so a
+    chunk deleted by a deploy reloads into the new version. `setInGame(true)` in boot.
+  - Server: `GAME_VERSION` from `dist/version.json` (written by the vite SW plugin) in 'welcome' (`v`); missing
+    `/assets/*` → 404 (never index.html); snapshots may omit `outfit` (= keep the last); SIGTERM closes sockets with 1012.
+  - SW (pwa/sw-template.js): keeps the current + the previous version cache; never caches HTML as a script; accepts the
+    'skipWaiting' message.
+  - Client net (src/net/client.ts): outfit only when changed / every 10 s / after welcome; hidden tab = heartbeat only;
+    reconnect with ±40 % jitter, immediately on 'online' / foreground; emits `{t:'net.closed', code}` to listeners
+    (pickleball ends the match). Remotes keep `buf` samples → RemotePlayers `sampleAt()` (INTERP_DELAY 130 ms,
+    MAX_EXTRAPOLATE 250 ms, no extrapolation past a standing sample).
+  - **Protocol changes must stay backward compatible for one release** (old tabs keep running until they reload).
+  - Fountains: `scenes/shared/FountainWater.tsx` (instanced drops + ripple shader, specs per fountain in NorthQuarter /
+    HangKhay / GermanyStreet). Benches: `benchShapes()` returns the library bench when pack city is loaded.
+  - Icons: ItemIcon / PaperIcon map to Fluent 3D (`THREE_D` maps, SVG fallback); wallets euro-banknote / gem-stone.
+  - Tests: scratchpad `v142e.mjs` (starts its own servers 8798 / 8799; needs vite 5199 with VH_SERVER; `deploy/` holds
+    builds A and B + a server copy), `dbg4.mjs` (a failed chunk import reloads).
 - **1.29 quest UI**: `ui/QuestLog.tsx` — `QuestTracker` (HUD card: `Ring` progress + Icon3d, step slides with Motion) and `QuestLog` (chapter banner, `QuestCard` accordion, `StepTimeline`, `Fold` for finished quests / older chapters). Motion is used as `LazyMotion features={domAnimation}` + `m.*` (no `layout` prop — that needs domMax).
 - **1.26 notifications**: `ui/Toasts.tsx` shows the toast store through **Sonner** (`<Toaster position="top-center" visibleToasts={3}>`, `toast.custom` → `GameToast` card with an `Icon3d` by key/tone via `look()`); the store API (`pushToast`, `say`) is unchanged. While `useMinigame.active`, new toasts are queued and shown after the game. Don't render toasts elsewhere.
 - **1.24 recorded SFX**: `src/assets/audio/sfx/sfx-<name>.ogg` (Kenney CC0) are loaded by `audio.ts` (`SAMPLE_URLS` glob, decoded once after the AudioContext starts, `SAMPLE_GAIN`, ±4 % pitch); a name without a file keeps its synth. Add `sfx-<name>.ogg` to replace a synth sound. They are precached (vite.config filter skips only non-`sfx-` audio). Mini-game juice: `minigames/juice.tsx` (`burst(el, 'small'|'coins'|'big')` via canvas-confetti, `<Reaction>`); CSS animations `animate-plop / walk-in / bob` in index.css. Kenney downloads: `fetch('https://kenney.nl/download-link/' + data-download-id)` → signed zip URL.
@@ -226,7 +307,7 @@ Server: plain Node ESM `server/index.mjs` + `server/store.mjs` (MongoDB API — 
 
 ## UI style
 - Cartoon-game look: `--color-outline` (#4a3226) border on panels/chips/buttons + top highlight + solid bottom shadow (`index.css` utilities `panel`, `hud-chip`, `btn-lacquer`, `btn-jade`, `ribbon`). Use `border-outline`.
-- No emoji in UI chrome: use SVG icons from `ui/icons.tsx` (Map, Run, Skip, Target, Check, Scroll, Star, Lock, Trash, Pin…), food `ui/ItemIcon.tsx`, papers `ui/PaperIcon.tsx`. Emoji are fine inside content text.
+- No emoji characters in UI chrome: use `ui/icons.tsx` (Phosphor since 1.42), Fluent 3D pictures via `Icon3d` / `ActionIcon`, food `ui/ItemIcon.tsx`, papers `ui/PaperIcon.tsx`. Emoji are fine inside content text.
 - Signs: `SignBoard` (alphaTest corners, auto-fit text, backing plate; `flat` for posters). Mount signs in front of trims/cornices (German street: `FRONT + 0.24`).
 
 ## Conventions

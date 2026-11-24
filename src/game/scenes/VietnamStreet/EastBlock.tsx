@@ -1,4 +1,5 @@
 import { memo, useMemo } from 'react'
+import { Animal } from '../../components/animals/Animal'
 import { MeshBasicMaterial } from 'three'
 import { CuboidCollider, CylinderCollider, RigidBody } from '@react-three/rapier'
 import type { Vec3 } from '../../../data/config'
@@ -15,6 +16,7 @@ import type { SignOptions } from '../shared/textures'
 import { bicycleShapes, motorbikeShapes } from '../shared/vehicles'
 import { BUILDING_CENTER_Z, BUILDING_DEPTH, BUILDING_FRONT_Z, EAST, SOUTH } from './layout'
 import { TubeHouse, type HousePalette } from './TubeHouse'
+import { fitTree, useBlockerVersion } from '../shared/treeFit'
 
 /**
  * East of the side road (map extension 1.7): the village communal house (đình) with its
@@ -80,7 +82,7 @@ function dinhShapes(): ShapeItem[] {
     s.push({ cyl: [0, 0.4, 0.3, 4], at: [x, 1.45, F - 1.4], rot: [0, Math.PI / 4, 0], color: '#bdb5a5' })
   }
   // Frangipani (hoa sứ) in the courtyard corner
-  s.push(place(fluffyTreeShapes('blossom', 2, 70), [D.x0 + 1.0, 0, D.hallZ + 1.0], 0.6, 0.8))
+  s.push(fitTree(fluffyTreeShapes('blossom', 2, 70), [D.x0 + 1.0, 0, D.hallZ + 1.0], 0.6, 0.8))
   // The keeper's old Peugeot leaning on the east wall (secret "xeDapCo")
   s.push(place(bicycleShapes('#2f6b8f'), [D.x1 - 0.55, 0, D.hallZ + 0.95], Math.PI / 2 + 0.15))
   // Hall: raised floor, red pillars, ochre walls with lacquered doors, a big tiled roof
@@ -121,16 +123,9 @@ function alleyShapes(): ShapeItem[] {
   // Little altar on the wall
   s.push({ box: [0.4, 0.3, 0.25], at: [x0 + 0.05, 1.5, F - 5.2], color: RED })
   s.push({ box: [0.5, 0.05, 0.3], at: [x0 + 0.05, 1.33, F - 5.2], color: GOLD })
-  // Crate with a sleeping tabby cat
+  // Crate with a sleeping ginger cat (1.42: the library cat, an Animal in the JSX below)
   s.push({ box: [0.55, 0.45, 0.5], at: [cat.x - 0.2, 0.22, cat.z], color: '#c4a074' })
   s.push({ box: [0.57, 0.04, 0.52], at: [cat.x - 0.2, 0.32, cat.z], color: '#a07a50' })
-  const cx = cat.x - 0.2
-  const cy = 0.5
-  s.push({ sphere: [0.16, 12, 8], at: [cx, cy, cat.z], scale: [1.4, 0.75, 0.9], color: '#f2a35c' })
-  s.push({ sphere: [0.11, 12, 8], at: [cx + 0.2, cy + 0.06, cat.z + 0.05], color: '#f2a35c' })
-  for (const dz of [-0.05, 0.07]) s.push({ cyl: [0, 0.04, 0.07, 4], at: [cx + 0.22, cy + 0.17, cat.z + dz], color: '#d98a45' })
-  s.push({ torus: [0.14, 0.025, 4, 10, Math.PI], at: [cx - 0.12, cy - 0.02, cat.z + 0.14], rot: [Math.PI / 2, 0, 0.4], color: '#d98a45' })
-  for (let i = 0; i < 3; i++) s.push({ box: [0.03, 0.012, 0.18], at: [cx - 0.08 + i * 0.09, cy + 0.11, cat.z], color: '#c26b2a' })
   // Old stone well with a little wooden roof
   s.push({ cyl: [0.42, 0.45, 0.6, 14], at: [well.x, 0.3, well.z], color: '#bdb5a5' })
   s.push({ cyl: [0.32, 0.32, 0.02, 14], at: [well.x, 0.58, well.z], color: '#3f5f66' })
@@ -196,7 +191,7 @@ function marketShapes(): { s: ShapeItem[]; glow: ShapeItem[] } {
   for (const px of [x0, x1]) s.push({ cyl: [0.05, 0.06, 2.8, 6], at: [px, 1.4, z], color: P.darkSteel })
   // A plastic-stool corner for eating chè
   for (let i = 0; i < 4; i++) s.push(place(stoolShapes([P.coral, P.mint, P.sky2, P.butter][i]), [stalls[1] + 1.2 + (i % 2) * 0.6, 0, z - 1.9 + Math.floor(i / 2) * 0.6], i))
-  s.push(place(fluffyTreeShapes('green', 2, 71), [33.0, 0, 10.4 + SOUTH], 0.5, 1.0))
+  s.push(fitTree(fluffyTreeShapes('green', 2, 71), [33.0, 0, 10.4 + SOUTH], 0.5, 1.0))
   return { s, glow }
 }
 
@@ -205,21 +200,22 @@ const lanternMaterial = new MeshBasicMaterial({ vertexColors: true })
 const at = (x: number, y: number, z: number): Vec3 => [x, y, z]
 const FORTUNE: SpotAction[] = [{ id: 'fortune', labelKey: 'action.fortune', icon: 'incense', action: 'place.fortune', primary: true }]
 const MIA: SpotAction[] = [{ id: 'shop', labelKey: 'action.shop', icon: 'shop', action: 'de.openShop', arg: 'giaKhat', primary: true }]
-const BOOKS: SpotAction[] = [{ id: 'read', labelKey: 'action.readBook', icon: 'book', action: 'place.readBook', primary: true }]
 const MARKET: SpotAction[] = [{ id: 'shop', labelKey: 'action.shop', icon: 'shop', action: 'de.openShop', arg: 'choDem', primary: true }]
 
 export const EastBlock = memo(function EastBlock() {
   const ground = useMemo(groundShapes, [])
-  const dinh = useMemo(dinhShapes, [])
+  const fit = useBlockerVersion()
+  const dinh = useMemo(dinhShapes, [fit])
   const alley = useMemo(alleyShapes, [])
   const shops = useMemo(shopShapes, [])
-  const market = useMemo(marketShapes, [])
+  const market = useMemo(marketShapes, [fit])
   const [mia, books] = EAST.houses
   const cx = (D.x0 + D.x1) / 2
   const { cat, well } = EAST.alley
   return (
     <>
       <Shapes shapes={ground} material={groundMaterial} castShadow={false} />
+      <Animal kind="cat" action="sleep" position={[cat.x - 0.2, 0.34, cat.z]} rotationY={Math.PI / 2} />
       {EAST.houses.map((h, i) => (
         <TubeHouse
           key={h.x}
@@ -265,12 +261,11 @@ export const EastBlock = memo(function EastBlock() {
 
       <ActionSpot id="vn-dinh" name={{ vi: 'Đình Hàng Gai', en: 'Hàng Gai communal house', de: 'Gemeindehaus Hàng Gai' }} zone={{ x: cx, z: D.hallZ + 1.1, halfX: 1.6, halfZ: 1.0 }} actions={FORTUNE} marker={{ at: at(cx, 2.6, D.hallZ + 0.6), when: { noFlag: 'fortune.first' } }} />
       <ActionSpot id="vn-mia" name={{ vi: 'Nước mía Cô Tư', en: 'Auntie Tư’s sugarcane juice', de: 'Tante Tưs Zuckerrohrsaft' }} zone={{ x: mia.x - 0.6, z: F + 1.2, halfX: 1.6, halfZ: 1.0 }} actions={MIA} />
-      <ActionSpot id="vn-books" name={{ vi: 'Hiệu sách cũ', en: 'Old bookshop', de: 'Antiquariat' }} zone={{ x: books.x - 0.2, z: F + 1.4, halfX: 1.2, halfZ: 0.9 }} actions={BOOKS} />
       <ActionSpot id="vn-market" name={{ vi: 'Chợ đêm phố cổ', en: 'Old Quarter night market', de: 'Nachtmarkt der Altstadt' }} zone={{ x: 23.5, z: EAST.market.z - 1.3, halfX: 7.5, halfZ: 0.8 }} actions={MARKET} />
 
       <NPC def={NPCS.ongTu} at={{ x: cx + 1.6, z: D.hallZ + 0.9 }} yaw={0} zone={{ x: cx + 1.6, z: D.hallZ + 1.6, halfX: 1.3, halfZ: 1.0 }} />
       <NPC def={NPCS.coTu} at={{ x: mia.x - 0.4, z: F + 0.7 }} yaw={0} />
-      <NPC def={NPCS.chuSach} at={{ x: books.x + 0.6, z: F + 0.5 }} yaw={0.2} zone={{ x: books.x + 0.6, z: F + 1.2, halfX: 0.9, halfZ: 0.8 }} />
+      {/* 1.41 chú Hưng and the reading corner are inside the bookshop (data/shopRooms.ts oldBooks) */}
       <NPC def={NPCS.baChe} at={{ x: EAST.market.stalls[1], z: EAST.market.z + 0.75 }} yaw={Math.PI} />
       <NPC def={NPCS.anhLongDen} at={{ x: EAST.market.stalls[3], z: EAST.market.z + 0.75 }} yaw={Math.PI} />
     </>

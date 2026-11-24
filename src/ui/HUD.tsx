@@ -5,14 +5,16 @@ import { usePlayer } from '../store/playerStore'
 import { useTime } from '../store/timeStore'
 import { useUI } from '../store/uiStore'
 import { useFlags } from '../store/flagsStore'
-import { ActionIcon } from './ActionIcon'
 import { QuestTracker } from './QuestLog'
 import { GrabCard } from './GrabCard'
 import { useGrab } from '../game/systems/grab'
 import { bagCapacity, bagWeight } from '../game/systems/bag'
 import { useInventory } from '../store/inventoryStore'
-import { BagIcon, GearIcon, MapIcon, MoonIcon, RainIcon, SunIcon } from './icons'
-import { PhoneBadge, PhoneIcon } from './PhonePanel'
+import { Icon3d } from './Icon3d'
+
+/** 1.42: the rail shows Fluent 3D pictures (user: prettier icons). */
+const RAIL_ICON = 'h-[22px] w-[22px] drop-shadow-[0_1.5px_0_rgba(74,50,38,0.3)]'
+import { PhoneBadge } from './PhonePanel'
 import { isRaining } from '../game/systems/weather'
 import { SCENES } from '../game/scenes/registry'
 import { useWorld } from '../store/worldStore'
@@ -83,7 +85,7 @@ function Clock() {
       aria-label={`${formatClock(minutes)} — ${t('clock.title')}`}
       className="pointer-events-auto flex h-7 shrink-0 items-center gap-1 rounded-full border border-white/25 bg-[#2f6b52]/90 pr-2.5 pl-1.5 text-left text-white shadow-[0_2px_6px_rgba(40,25,15,0.25)] transition active:scale-95"
     >
-      <span className="text-[14px] text-gold-light">{raining ? <RainIcon /> : daytime ? <SunIcon /> : <MoonIcon />}</span>
+      <Icon3d name={raining ? 'cloud-with-rain' : daytime ? 'sun' : 'crescent-moon'} className="-ml-0.5 h-[19px] w-[19px] drop-shadow-[0_1px_0_rgba(0,0,0,0.25)]" />
       <span className="font-display text-[14px] leading-none font-extrabold tabular-nums">{formatClock(minutes)}</span>
     </button>
   )
@@ -111,42 +113,6 @@ function DongIcon() {
         đ
       </text>
       <path d="M6.2 7.6a7 7 0 0 1 4.6-3" stroke="#ffffff" strokeWidth="1.4" fill="none" strokeLinecap="round" opacity="0.75" />
-    </svg>
-  )
-}
-
-/** A silver-blue euro coin with a gold rim. */
-function EuroIcon() {
-  return (
-    <svg viewBox="0 0 24 24" className="h-full w-full" aria-hidden="true">
-      <defs>
-        <linearGradient id="w-euro" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#eef4ff" />
-          <stop offset="1" stopColor="#9db4d8" />
-        </linearGradient>
-      </defs>
-      <circle cx="12" cy="12.6" r="10" fill="#8a6a1c" />
-      <circle cx="12" cy="11.4" r="10" fill="#f4c64a" stroke="#8a6a1c" strokeWidth="1.2" />
-      <circle cx="12" cy="11.4" r="7" fill="url(#w-euro)" stroke="#5f7396" strokeWidth="1" />
-      <path d="M14.8 8.6a3.6 3.6 0 1 0 0 5.6M8 10.5h4.6M8 12.4h4.2" fill="none" stroke="#2f4a7a" strokeWidth="1.5" strokeLinecap="round" />
-    </svg>
-  )
-}
-
-/** A cut diamond. */
-function GemIcon() {
-  return (
-    <svg viewBox="0 0 24 24" className="h-full w-full" aria-hidden="true">
-      <defs>
-        <linearGradient id="w-gem" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stopColor="#b9f3ff" />
-          <stop offset="0.5" stopColor="#4cc9f0" />
-          <stop offset="1" stopColor="#4361ee" />
-        </linearGradient>
-      </defs>
-      <path d="M7 3.5h10l5 6-10 11.5L2 9.5z" fill="url(#w-gem)" stroke="#1d3a8a" strokeWidth="1.2" strokeLinejoin="round" />
-      <path d="M2 9.5h20M7 3.5l2.5 6L12 21l2.5-11.5 2.5-6M9.5 9.5 12 3.5l2.5 6" fill="none" stroke="#e8fbff" strokeWidth="0.9" strokeLinejoin="round" opacity="0.9" />
-      <path d="M7.4 4.6 4.3 8.6h4.2z" fill="#ffffff" opacity="0.55" />
     </svg>
   )
 }
@@ -185,8 +151,8 @@ function Wallets() {
   return (
     <div className="pointer-events-auto flex shrink-0 items-center gap-1.5">
       <Wallet id="vnd" label="Việt Nam đồng" value={vnd} text={whole(vnd)} icon={<DongIcon />} />
-      <Wallet id="eur" label="Euro" value={eur} text={euros(eur)} icon={<EuroIcon />} />
-      <Wallet id="gem" label="Kim cương" value={gems} text={whole(gems)} icon={<GemIcon />} />
+      <Wallet id="eur" label="Euro" value={eur} text={euros(eur)} icon={<Icon3d name="euro-banknote" className="h-full w-full" />} />
+      <Wallet id="gem" label="Kim cương" value={gems} text={whole(gems)} icon={<Icon3d name="gem-stone" className="h-full w-full" />} />
     </div>
   )
 }
@@ -200,26 +166,26 @@ function Rail({ row }: { row: boolean }) {
   return (
         <nav className={`hud-slim pointer-events-auto flex shrink-0 items-center gap-px p-0.5 ${row ? 'flex-row' : 'flex-col'}`} aria-label={t('hud.menu')}>
           <RailButton label={t('hud.bag')} onClick={() => openPanel({ type: 'bag' })} tour="bag">
-            <BagIcon />
+            <Icon3d name="backpack" className={RAIL_ICON} />
             <BagFullBadge />
           </RailButton>
           {/* The phone (friends, chat); music on/off lives in Settings. */}
           <RailButton label={t('hud.phone')} onClick={() => openPanel({ type: 'phone' })} tour="phone">
-            <PhoneIcon />
+            <Icon3d name="mobile-phone" className={RAIL_ICON} />
             <PhoneBadge />
           </RailButton>
           <RailButton label={`${t('map.title')} (M)`} onClick={() => openPanel({ type: 'map' })} tour="map">
-            <MapIcon />
+            <Icon3d name="world-map" className={RAIL_ICON} />
           </RailButton>
           {showVisa && (
             <RailButton label={t('visa.title')} onClick={() => openPanel({ type: 'visa' })} tour="passport">
-              <ActionIcon name="passport" />
+              <Icon3d name="identification-card" className={RAIL_ICON} />
             </RailButton>
           )}
           <OnlineChip />
           <EmoteButton />
           <RailButton label={t('hud.settings')} onClick={() => setSettingsOpen(true)}>
-            <GearIcon />
+            <Icon3d name="gear" className={RAIL_ICON} />
           </RailButton>
         </nav>
   )

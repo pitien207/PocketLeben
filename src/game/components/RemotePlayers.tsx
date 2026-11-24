@@ -3,7 +3,7 @@ import { useFrame } from '@react-three/fiber'
 import { Html } from '@react-three/drei'
 import type { Group } from 'three'
 import { useLocalize, type Localized } from '../../i18n/localized'
-import { remotes } from '../../net/client'
+import { remotes, type RemoteSample } from '../../net/client'
 import { useNet, type EmoteId } from '../../store/netStore'
 import { damp, dampAngle } from '../systems/math'
 import { playerState } from '../systems/playerState'
@@ -14,6 +14,38 @@ import { VehicleMesh } from './PlayerVehicle'
 import { matchHiddenRemotes } from '../minigames/pickleball/session'
 
 /** What each emote shows above the head (emoji are fine in content). */
+
+/** 1.42: how far in the past remote players are drawn (the server batches every 100 ms; this hides jitter). */
+const INTERP_DELAY = 130
+/** At most this long past the newest sample we keep moving in the last direction (a late packet). */
+const MAX_EXTRAPOLATE = 250
+
+/** Position at time t from the samples (interpolated; briefly extrapolated past the newest one). */
+function sampleAt(buf: RemoteSample[], t: number): { x: number; z: number; yaw: number } | null {
+  const n = buf.length
+  if (!n) return null
+  if (n === 1 || t <= buf[0].t) return buf[0]
+  for (let i = n - 1; i > 0; i--) {
+    const a = buf[i - 1]
+    const b = buf[i]
+    if (t >= a.t && t <= b.t) {
+      const k = (t - a.t) / Math.max(1, b.t - a.t)
+      let dy = b.yaw - a.yaw
+      dy = Math.atan2(Math.sin(dy), Math.cos(dy))
+      return { x: a.x + (b.x - a.x) * k, z: a.z + (b.z - a.z) * k, yaw: a.yaw + dy * k }
+    }
+  }
+  // newer than the newest sample: keep going a little in the last direction, then stop
+  const a = buf[n - 2]
+  const b = buf[n - 1]
+  const span = Math.max(1, b.t - a.t)
+  const over = Math.min(t - b.t, MAX_EXTRAPOLATE)
+  // they stopped (the newest sample says so), or the samples are far apart in time → no extrapolation
+  if (!b.moving || span > 400) return b
+  const k = over / span
+  return { x: b.x + (b.x - a.x) * k, z: b.z + (b.z - a.z) * k, yaw: b.yaw }
+}
+
 export const EMOTES: Record<EmoteId, { icon: string; text?: Localized }> = {
   wave: { icon: '👋' },
   heart: { icon: '💖' },
@@ -159,10 +191,19 @@ function RemotePlayer({ id, name }: { id: number; name: string }) {
     // Outfit changed (they bought clothes): rebuild the model (geometry is cached per outfit).
     if (r.outfitKey !== outfitKey.current || (r.snap.veh ?? null) !== vehKey.current || (r.snap.motion.held === 'paddle') !== paddleKey.current) rerender()
     const dt = Math.min(rawDt, 0.1)
-    const far = Math.hypot(r.snap.x - r.x, r.snap.z - r.z) > 4
-    r.x = far ? r.snap.x : damp(r.x, r.snap.x, 10, dt)
-    r.z = far ? r.snap.z : damp(r.z, r.snap.z, 10, dt)
-    r.yaw = dampAngle(r.yaw, r.snap.yaw, 12, dt)
+    // 1.42 snapshot interpolation: draw the player INTERP_DELAY ms in the past, between two real samples
+    const target = sampleAt(r.buf, performance.now() - INTERP_DELAY)
+    if (target) {
+      // a light final smoothing hides the step when a late packet corrects the extrapolation
+      const far = Math.hypot(target.x - r.x, target.z - r.z) > 6
+      r.x = far ? target.x : damp(r.x, target.x, 25, dt)
+      r.z = far ? target.z : damp(r.z, target.z, 25, dt)
+      r.yaw = dampAngle(r.yaw, target.yaw, 18, dt)
+    } else {
+      r.x = damp(r.x, r.snap.x, 10, dt)
+      r.z = damp(r.z, r.snap.z, 10, dt)
+      r.yaw = dampAngle(r.yaw, r.snap.yaw, 12, dt)
+    }
     g.position.set(r.x, 0, r.z)
     if (facing.current) facing.current.rotation.y = r.yaw
     Object.assign(motion.current, r.snap.motion)

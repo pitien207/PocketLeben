@@ -11,6 +11,7 @@ import { glowMaterial, groundMaterial } from '../shared/materials'
 import { modelFrontAt, modelShapes, modelSize, pickBy } from '../shared/models'
 import { PALETTE as P } from '../shared/palette'
 import { libraryTree, place, softPlantShapes, stoolShapes } from '../shared/props'
+import { FountainWater, type FountainSpec } from '../shared/FountainWater'
 import { Shapes, type ShapeItem } from '../shared/Shapes'
 import { SignBoard } from '../shared/SignBoard'
 import { makeTileTexture } from '../shared/textures'
@@ -18,10 +19,10 @@ import { motorbikeShapes } from '../shared/vehicles'
 import { LAKE } from '../VietnamStreet/layout'
 import { ActiveArea } from '../../components/ActiveArea'
 import { LampPools } from '../VietnamStreet/LampPools'
-import { GoldCounter } from './GoldCounter'
 import type { Vec3 } from '../../../data/config'
-import { BA_TRIEU, BUILDINGS, FLOWER_MARKET, inPickleCourt, OZ, PARK, PLAY, PROMENADE, ROAD, ROW_FRONT, SCHOOL_YARD, SHORE_Z, SOUTH_PAVE, TRAFFIC, WALKERS, type Building } from './layout'
+import { BA_TRIEU, BUILDINGS, FLOWER_MARKET, inPickleCourt, OZ, PARK, PLAY, PROMENADE, ROAD, SCHOOL_YARD, SHORE_Z, SOUTH_PAVE, TRAFFIC, WALKERS, type Building } from './layout'
 import { PickleCourt } from './PickleCourt'
+import { fitTree, useBlockerVersion } from '../shared/treeFit'
 
 /**
  * Phố Hàng Khay (1.33; part of the Hàng Gai scene since 1.34): the south shore of Hồ Gươm — a lakeside promenade, a four-lane street, a row of functional
@@ -115,7 +116,6 @@ function groundShapes(): ShapeItem[] {
   s.push({ cyl: [2.9, 2.9, 0.05, 28], at: [fountain.x, 0.57, fountain.z], color: '#9fd3e0' })
   s.push({ cyl: [0.5, 0.7, 1.1, 14], at: [fountain.x, 0.9, fountain.z], color: '#e6dfd2' })
   s.push({ cyl: [1.0, 0.8, 0.22, 18], at: [fountain.x, 1.5, fountain.z], color: '#e6dfd2' })
-  s.push({ sphere: [0.35, 12, 8], at: [fountain.x, 1.85, fountain.z], color: '#bfe6f2' })
   // School yard: sand-coloured ground, a fence with a gate on Bà Triệu, a flag pole
   const Y = SCHOOL_YARD
   s.push({ box: [Y.x1 - Y.x0, 0.035, Y.z1 - Y.z0], at: [(Y.x0 + Y.x1) / 2, 0.03, (Y.z0 + Y.z1) / 2], color: '#e2d2ae' })
@@ -149,7 +149,7 @@ function propShapes(): { solid: ShapeItem[]; glow: ShapeItem[]; lamps: [number, 
   const tree = (variant: Parameters<typeof libraryTree>[0], x: number, z: number, seed: number, k = 1) => {
     if (!free(x, z, 1.4 * k)) return
     const t = libraryTree(variant, seed)
-    if (t) s.push(place(t, [x, 0, z], seed * 1.7, k))
+    if (t) s.push(fitTree(t, [x, 0, z], seed * 1.7, k))
   }
   const lamp = (x: number, z: number) => {
     if (!free(x, z, 0.5)) return
@@ -165,7 +165,8 @@ function propShapes(): { solid: ShapeItem[]; glow: ShapeItem[]; lamps: [number, 
   }
   // Promenade: willows on the bank, benches facing the water, palms and flower beds by the road
   for (let i = 0; i < 13; i++) tree('willow', -45 + i * 6 + (i % 2) * 1.2, SHORE_Z - 0.9 - (i % 3) * 0.3, i + 500, 1.05 + (i % 3) * 0.1)
-  for (let x = -42; x < 44; x += 9) bench(x, 0.4, Math.PI)
+  // 1.42 fix: the benches stood at z = 0.4 — on Hàng Gai! — instead of on the promenade (local OZ + 0.4)
+  for (let x = -42; x < 44; x += 9) bench(x, OZ + 0.4, Math.PI)
   for (let x = -45; x < 46; x += 12) lamp(x, PROMENADE.z1 - 0.7)
   for (let x = -39; x < 44; x += 12) {
     // Flower bed: a low stone edge, bushes and flowers
@@ -286,6 +287,9 @@ function skylineShapes(): ShapeItem[] {
 }
 
 
+/** 1.42 the park fountain: moving water (shared/FountainWater). */
+const PARK_FOUNTAIN: FountainSpec[] = [{ x: PARK.fountain.x, z: PARK.fountain.z, basinY: 0.6, basinR: 2.9, bowlY: 1.62, bowlR: 0.95, topY: 1.75, jet: 1.0 }]
+
 function CityDoor({ b }: { b: Building }) {
   const place = b.id ? CITY_PLACES[b.id] : null
   const actions = useMemo<SpotAction[]>(() => (b.id ? [{ id: 'enter', labelKey: 'action.enterPlace', icon: 'door', action: 'city.visit', arg: b.id, primary: true }] : []), [b.id])
@@ -317,7 +321,8 @@ const nearSouthShore = (_x: number, z: number) => z > LAKE.south - 30
 
 export const HangKhay = memo(function HangKhay() {
   const ground = useMemo(groundShapes, [])
-  const props = useMemo(propShapes, [])
+  const fit = useBlockerVersion()
+  const props = useMemo(propShapes, [fit])
   const houses = useMemo(() => BUILDINGS.flatMap(buildingShapes), [])
   const skyline = useMemo(skylineShapes, [])
   const paving = useMemo(() => {
@@ -342,11 +347,11 @@ export const HangKhay = memo(function HangKhay() {
       <Shapes shapes={ground} material={groundMaterial} castShadow={false} />
       <Shapes shapes={houses} />
       <Shapes shapes={props.solid} />
+      <FountainWater fountains={PARK_FOUNTAIN} />
       <Shapes shapes={props.glow} material={glowMaterial} castShadow={false} receiveShadow={false} />
       <Shapes shapes={skyline} castShadow={false} receiveShadow={false} />
       <LampPools spots={props.lamps} />
       <Signs />
-      <GoldCounter />
       <PickleCourt />
       {BUILDINGS.map((b) => (
         <CityDoor key={`${b.model}-${b.x}-${b.z}`} b={b} />
@@ -359,8 +364,7 @@ export const HangKhay = memo(function HangKhay() {
       <NPC def={NPCS.chiDiDao} at={WALKERS.chiDiDao[0]} path={{ points: WALKERS.chiDiDao, pauseSec: [1, 4] }} />
       <NPC def={NPCS.coDoanhNhan} at={WALKERS.coDoanhNhan[0]} path={{ points: WALKERS.coDoanhNhan, pauseSec: [1, 3] }} />
       <NPC def={NPCS.coBanHoa} at={{ x: fm.x + 2.2, z: fm.z0 + 4.2 }} yaw={Math.PI / 2} seatY={0.33} activity="fan" />
-      {/* 1.40 Nhà hàng Bờ Hồ: chú Thành welcomes guests at the door (talk = menu) */}
-      <NPC def={NPCS.chuNhaHang} at={{ x: -7.9 + 1.5, z: ROW_FRONT - 0.7 }} yaw={Math.PI} />
+      {/* 1.41 chú Thành welcomes you inside Nhà hàng Bờ Hồ (data/shopRooms.ts restaurant) */}
       <NPC def={NPCS.baoVeTruong} at={{ x: BA_TRIEU.px0 - 0.2, z: OZ + 41.2 }} yaw={Math.PI / 2} />
       </ActiveArea>
 

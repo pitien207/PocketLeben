@@ -148,6 +148,10 @@ export function startPickleNet() {
         for (const fn of matchListeners) fn(msg.d as PbData)
         break
       }
+      case 'net.closed':
+        // 1.42: the connection dropped (e.g. the server restarts for an update): the match cannot go on
+        if (S().match) for (const fn of matchListeners) fn({ k: 'gone', name: '', reason: msg.code === 1012 ? 'restart' : 'net' })
+        break
       case 'pb.gone':
         for (const fn of matchListeners) fn({ k: 'gone', name: msg.name, reason: msg.reason })
         break

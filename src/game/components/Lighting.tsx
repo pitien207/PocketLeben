@@ -70,8 +70,9 @@ export function Lighting() {
     const fancy = fancyOn()
     const night = nightAt(useTime.getState().minutes / 60)
     fxState.night = night
+    fxState.indoor = indoor
     fxUniforms.uNight.value = fancy && !indoor ? night : 0
-    glowMaterial.color.setScalar(fancy ? 1 + (indoor ? 0.3 : 0.85) * night : 1)
+    glowMaterial.color.setScalar(fancy ? 1 + (indoor ? 0.9 : 0.85) * night : 1)
     if (indoor) {
       if (scene.background instanceof Color) scene.background.copy(INDOOR.background)
       if (scene.fog instanceof Fog) {

@@ -101,6 +101,8 @@ export const GRAB_PEOPLE: { name: string; outfit: Outfit }[] = [
   { name: 'Mr. Jakob', outfit: { skin: '#f6d5c0', hair: '#e0b45e', hairStyle: 'curly', shirt: '#7fc27a', shorts: '#c9b79a', shoe: '#8a5a3c', bag: '#5b4038', accessory: 'sunglasses', bottom: 'shorts', top: 'tee', eye: '#4f86d9', expression: 'happy' } },
   { name: 'Cô Nga', outfit: { skin: '#f0c8a8', hair: '#2b2222', hairStyle: 'bun', shirt: '#b8a0d8', shorts: '#2a2628', shoe: '#7aa6c9', bag: null, accessory: 'nonLa', bottom: 'pants', top: 'baba', pattern: 'flowers', patternColor: '#ffffff', shoeType: 'sandal', lashes: true, expression: 'happy' } },
   { name: 'Anh Khoa', outfit: { skin: '#e8b994', hair: '#2a2020', hairStyle: 'spiky', shirt: '#2a2a30', shorts: '#3f4a5c', shoe: '#ffffff', bag: '#3a3a40', accessory: 'headphones', bottom: 'pants', top: 'hoodie', expression: 'neutral' } },
+  { name: 'Chị Thảo', outfit: { skin: '#f7d6bd', hair: '#7a2a3a', hairStyle: 'shoulder', shirt: '#f2e6cf', shorts: '#4f6fa8', shoe: '#ffffff', bag: '#e8dcc0', accessory: 'mask', accent: '#bfe3f2', top: 'cardigan', patternColor: '#ffb59e', bottom: 'overalls', lashes: true, eyeShape: 'sparkle', expression: 'happy' } },
+  { name: 'Anh Đức', outfit: { skin: '#e8b994', hair: '#1f1a1a', hairStyle: 'sideSwept', shirt: '#5b8f6a', shorts: '#3f4a5c', shoe: '#5d4a3e', bag: '#3a3a40', accessory: 'bucketHat', accent: '#5f7a4a', top: 'polo', bottom: 'pants', faceMark: 'freckles', expression: 'neutral' } },
   { name: 'Chị Mai Phương', outfit: { skin: '#fbdcc4', hair: '#5b3a2c', hairStyle: 'ponytail', shirt: '#ffe08a', shorts: '#ffffff', shoe: '#d4473b', bag: '#ffffff', accessory: null, bottom: 'skirt', top: 'dress', lashes: true, expression: 'happy' } },
 ]
 

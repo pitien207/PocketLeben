@@ -11,6 +11,7 @@ import { benchShapes, place, treeShapes } from '../shared/props'
 import { Shapes, type ShapeItem } from '../shared/Shapes'
 import { SignBoard } from '../shared/SignBoard'
 import type { SignOptions } from '../shared/textures'
+import { fitTree, useBlockerVersion } from '../shared/treeFit'
 
 /**
  * Stadtpark (map extension 1.7), east of the bakery: a duck pond, a playground with
@@ -85,7 +86,7 @@ function parkShapes(): ShapeItem[] {
   hedge([x0, z0 - 0.2], [x1 + 0.3, z0 - 0.2])
   hedge([x1 + 0.3, z0], [x1 + 0.3, z1 - 0.3])
   hedge([x0 - 0.2, z0], [x0 - 0.2, z1 - 0.6])
-  for (const [x, z] of PARK_TREES) s.push(place(treeShapes(Math.round(x * 5 + z) % 4 === 0 ? 'birch' : Math.round(x * 5 + z) % 4 === 1 ? 'pine' : 'linden', Math.round(x * 5 + z)), [x, 0, z], x * 0.7, 1.15))
+  for (const [x, z] of PARK_TREES) s.push(fitTree(treeShapes(Math.round(x * 5 + z) % 4 === 0 ? 'birch' : Math.round(x * 5 + z) % 4 === 1 ? 'pine' : 'linden', Math.round(x * 5 + z)), [x, 0, z], x * 0.7, 1.15))
   // Hollow in the geocache tree
   s.push({ sphere: [0.13, 8, 6], at: [20.6, 0.9, -11.85], scale: [0.8, 1.2, 0.4], color: '#4a3226' })
   // Statue on a plinth (a reading poet), holding out a hand — with a lost red glove
@@ -188,7 +189,8 @@ const EIS_ACTIONS: SpotAction[] = [{ id: 'shop', labelKey: 'action.shop', icon: 
 
 export const Stadtpark = memo(function Stadtpark() {
   const ground = useMemo(groundShapes, [])
-  const park = useMemo(parkShapes, [])
+  const fit = useBlockerVersion()
+  const park = useMemo(parkShapes, [fit])
   const { x0, x1, z0, z1 } = PARK
   return (
     <>

@@ -25,6 +25,8 @@ function serviceWorker(): Plugin {
         .replace('__VERSION__', version)
         .replace('__PRECACHE__', JSON.stringify(precache, null, 2))
       this.emitFile({ type: 'asset', fileName: 'sw.js', source })
+      // 1.42: the server tells connected players which game version it ships (server/index.mjs GAME_VERSION)
+      this.emitFile({ type: 'asset', fileName: 'version.json', source: JSON.stringify({ version: VERSION, build: version }) })
     },
   }
 }

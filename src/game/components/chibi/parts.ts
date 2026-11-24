@@ -101,6 +101,65 @@ export function accessory(o: Outfit): ShapeItem[] {
         { torus: [R * 1.12, 0.03, 5, 16, Math.PI], at: v3(0, R * 0.1, -R * 0.05), color: '#3a3a44' },
         ...[-1, 1].map((k): ShapeItem => ({ cyl: [R * 0.3, R * 0.3, R * 0.25, 12], at: v3(k * R * 1.06, -R * 0.05, -R * 0.05), rot: [0, 0, Math.PI / 2], color: acc ?? '#ff9b8f' })),
       ]
+    // --- 1.42 (user: "làm thêm nhiều … phụ kiện") ---
+    case 'mask': {
+      // khẩu trang: a soft cloth mask over the lower face, pleats and ear loops
+      const col = acc ?? '#bfe3f2'
+      return [
+        { sphere: [R * 0.6, 16, 10], at: v3(0, -R * 0.58, R * 0.45), scale: [1.1, 0.5, 0.86], color: col },
+        ...[-0.08, 0.06].map((dy): ShapeItem => ({ box: [R * 0.72, 0.006, 0.01], at: v3(0, -R * 0.58 + dy * R, R * 0.955), color: shade(col, -0.1) })),
+        ...[-1, 1].map((k): ShapeItem => ({ torus: [R * 0.2, 0.006, 3, 10, Math.PI], at: v3(k * R * 0.86, -R * 0.42, R * 0.3), rot: [0, k * 1.2, -Math.PI / 2], color: shade(col, 0.05) })),
+      ]
+    }
+    case 'earrings': {
+      const col = acc ?? '#f4c04e'
+      return [-1, 1].flatMap((k): ShapeItem[] => [
+        { sphere: [R * 0.05, 6, 5], at: v3(k * R * 0.99, -R * 0.36, R * 0.02), color: col },
+        { torus: [R * 0.1, 0.008, 4, 12], at: v3(k * R * 1.0, -R * 0.5, R * 0.02), rot: [0, Math.PI / 2, 0], color: col },
+      ])
+    }
+    case 'hairClip': {
+      const col = acc ?? '#ffd166'
+      return [0, 1].map((i): ShapeItem => ({ box: [R * 0.32, R * 0.08, R * 0.06], at: v3(R * (0.55 + i * 0.12), R * (0.66 - i * 0.18), R * (0.68 - i * 0.04)), rot: [0.2, 0.8, -0.6 - i * 0.15], color: i ? shade(col, 0.1) : col }))
+    }
+    case 'bucketHat': {
+      const col = acc ?? '#f2e2b8'
+      return [
+        { sphere: [R * 1.1, 22, 10, Math.PI * 0.5], at: v3(0, R * 0.36, -R * 0.05), scale: [1.03, 0.92, 1.03], color: col },
+        { cyl: [R * 1.12, R * 1.55, R * 0.24, 24], at: v3(0, R * 0.26, -R * 0.05), color: shade(col, -0.05) },
+        { torus: [R * 1.1, R * 0.05, 5, 24], at: v3(0, R * 0.4, -R * 0.05), rot: [Math.PI / 2, 0, 0], color: shade(col, -0.18) },
+      ]
+    }
+    case 'strawHat': {
+      // a wide-brimmed straw hat with a ribbon
+      const ribbon = acc ?? '#e8574d'
+      return [
+        { cyl: [R * 1.95, R * 1.95, 0.02, 28], at: v3(0, R * 0.62, -R * 0.06), rot: [-0.08, 0, 0], color: '#ecd28e' },
+        { torus: [R * 1.95, 0.012, 3, 28], at: v3(0, R * 0.62, -R * 0.06), rot: [Math.PI / 2 - 0.08, 0, 0], color: '#d9b86a' },
+        { cyl: [R * 0.86, R * 1.02, R * 0.62, 20], at: v3(0, R * 0.96, -R * 0.08), rot: [-0.08, 0, 0], color: '#f0d896' },
+        { cyl: [R * 1.03, R * 1.03, R * 0.16, 20], at: v3(0, R * 0.74, -R * 0.07), rot: [-0.08, 0, 0], color: ribbon },
+      ]
+    }
+    case 'headband': {
+      const col = acc ?? '#ff8fab'
+      return [
+        { torus: [R * 1.06, R * 0.07, 6, 20, Math.PI], at: v3(0, R * 0.05, -R * 0.12), rot: [-0.4, 0, 0], color: col },
+        { sphere: [R * 0.16, 8, 6], at: v3(R * 0.45, R * 0.98, R * 0.25), scale: [1.3, 0.8, 0.6], rot: [0, 0, 0.5], color: shade(col, 0.06) },
+        { sphere: [R * 0.16, 8, 6], at: v3(R * 0.78, R * 0.8, R * 0.25), scale: [1.3, 0.8, 0.6], rot: [0, 0, 0.5], color: shade(col, 0.06) },
+      ]
+    }
+    case 'flowerPin': {
+      // a frangipani (hoa sứ) tucked over the right ear
+      const col = acc ?? '#ffffff'
+      const c0 = v3(R * 0.86, R * 0.42, R * 0.18)
+      const out: ShapeItem[] = []
+      for (let i = 0; i < 5; i++) {
+        const a = (i / 5) * Math.PI * 2
+        out.push({ sphere: [R * 0.13, 8, 6], at: [c0[0] + Math.sin(a) * 0.005, c0[1] + Math.cos(a) * R * 0.14, c0[2] + Math.sin(a) * R * 0.14], scale: [0.4, 1, 0.75], rot: [a, 0, 0], color: col })
+      }
+      out.push({ sphere: [R * 0.07, 8, 6], at: [c0[0] + R * 0.04, c0[1], c0[2]], color: '#ffd23f' })
+      return out
+    }
     default:
       return []
   }
@@ -143,7 +202,7 @@ const POLE: ShapeItem[] = (() => {
  * shoes. Arms and legs themselves are skinned tubes (cloth.ts `limbGeometries`).
  */
 export function bodyParts(o: Outfit, carry: Carry, k = 1): [number, ShapeItem[]][] {
-  const hat = !!o.accessory && ['nonLa', 'helmet', 'beanie', 'cap', 'tyrolean', 'beret'].includes(o.accessory)
+  const hat = !!o.accessory && ['nonLa', 'helmet', 'beanie', 'cap', 'tyrolean', 'beret', 'bucketHat', 'strawHat'].includes(o.accessory)
   const head: ShapeItem[] = [...hairShapes(o, hat, k), ...accessory(o)]
   const torso = torsoShapes(o, k)
   if (carry === 'pole') torso.push(...POLE)

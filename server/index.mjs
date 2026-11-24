@@ -5,7 +5,7 @@
 // Rooms live in memory: run exactly ONE instance (Container App max replicas = 1).
 import { createServer } from 'node:http'
 import { randomBytes, scrypt as scryptCb, timingSafeEqual } from 'node:crypto'
-import { existsSync, statSync, createReadStream } from 'node:fs'
+import { existsSync, readFileSync, statSync, createReadStream } from 'node:fs'
 import { extname, join, normalize, resolve, sep } from 'node:path'
 import { promisify } from 'node:util'
 import { WebSocketServer } from 'ws'
@@ -20,11 +20,26 @@ const ROOT = resolve(import.meta.dirname, '..')
 const DATA_DIR = resolve(process.env.DATA_DIR ?? join(ROOT, 'server', 'data'))
 const DIST = join(ROOT, 'dist')
 const MAX_SAVE = 512 * 1024
+/**
+ * 1.42 the game version this server ships (dist/version.json, written by the build). Sent in 'welcome' so a client
+ * running an older cached copy knows a newer game is out and can reload at a good moment (src/updates.ts).
+ */
+const GAME_VERSION = (() => {
+  try {
+    return JSON.parse(readFileSync(join(DIST, 'version.json'), 'utf8')).version ?? null
+  } catch {
+    return null
+  }
+})()
 const ROOM_CAP = 25
 
 /** Scenes everyone shares. Homes, exams and interviews stay private (instances). */
 const PUBLIC_SCENES = new Set(['vietnam', 'hangKhay', 'germany', 'classroom', 'buergeramt', 'university', 'airport', 'careHome'])
 const ALL_SCENES = new Set([...PUBLIC_SCENES, 'home', 'examHall', 'embassy', 'wg'])
+/** 1.41 shop rooms (src/data/shopRoomIds.ts): `shop.<id>`, each one a public room of its own. */
+const SHOP_SCENE = /^shop\.[A-Za-z]{1,24}$/
+const isPublicScene = (scene) => PUBLIC_SCENES.has(scene) || SHOP_SCENE.test(scene)
+const isKnownScene = (scene) => typeof scene === 'string' && (ALL_SCENES.has(scene) || SHOP_SCENE.test(scene))
 const EMOTES = new Set(['wave', 'heart', 'laugh', 'wow', 'sad', 'dance', 'hello', 'thanks', 'luck', 'tschuess', 'follow', 'yes'])
 
 // ---------------------------------------------------------------------------------------
@@ -241,7 +256,11 @@ function serveStatic(req, res) {
     return send(res, 400, { error: 'badPath' })
   }
   let file = normalize(join(DIST, path))
-  if (!file.startsWith(DIST + sep) || !existsSync(file) || statSync(file).isDirectory()) file = join(DIST, 'index.html')
+  const missing = !file.startsWith(DIST + sep) || !existsSync(file) || statSync(file).isDirectory()
+  // 1.42: an old tab asking for a chunk of the previous version gets a real 404 (it then reloads, src/updates.ts) —
+  // answering with index.html made the service worker cache HTML under a .js name.
+  if (missing && path.startsWith('/assets/')) return send(res, 404, { error: 'notFound' })
+  if (missing) file = join(DIST, 'index.html')
   const hashed = file.startsWith(join(DIST, 'assets') + sep)
   const stat = statSync(file)
   const etag = `"${stat.size.toString(36)}-${Math.floor(stat.mtimeMs).toString(36)}"`
@@ -333,15 +352,16 @@ const str = (v, max = 24) => (typeof v === 'string' ? v.slice(0, max) : undefine
 
 /** Keep only known, bounded fields: never relay arbitrary client data. */
 function cleanSnap(s) {
-  if (!s || typeof s !== 'object' || !ALL_SCENES.has(s.scene)) return null
+  if (!s || typeof s !== 'object' || !isKnownScene(s.scene)) return null
   const m = s.motion ?? {}
-  const o = s.outfit ?? {}
-  const outfit = {}
-  for (const k of ['skin', 'hair', 'hairStyle', 'shirt', 'shorts', 'shoe', 'bag', 'accessory', 'accent', 'top', 'bottom', 'neck', 'neckColor', 'eye', 'expression', 'shoeType', 'pattern', 'patternColor', 'patternBottom', 'patternBottomColor', 'apron', 'socks', 'hairTie']) {
+  // 1.42: clients send the outfit only when it changed; null = "keep the last one" (the message handler)
+  const o = s.outfit && typeof s.outfit === 'object' ? s.outfit : null
+  const outfit = o ? {} : null
+  if (o) for (const k of ['skin', 'hair', 'hairStyle', 'shirt', 'shorts', 'shoe', 'bag', 'accessory', 'accent', 'top', 'bottom', 'neck', 'neckColor', 'eye', 'expression', 'shoeType', 'pattern', 'patternColor', 'patternBottom', 'patternBottomColor', 'apron', 'socks', 'hairTie', 'eyeShape', 'faceMark']) {
     const v = o[k] === null ? null : str(o[k])
     if (v !== undefined) outfit[k] = v
   }
-  if (typeof o.lashes === 'boolean') outfit.lashes = o.lashes
+  if (o && typeof o.lashes === 'boolean') outfit.lashes = o.lashes
   return {
     scene: s.scene,
     x: num(s.x, -300, 300),
@@ -428,7 +448,7 @@ function leaveRoom(c) {
 }
 
 function joinRoom(c, scene) {
-  if (!PUBLIC_SCENES.has(scene)) return
+  if (!isPublicScene(scene)) return
   let n = 1
   while ((rooms.get(n === 1 ? scene : `${scene}#${n}`)?.size ?? 0) >= ROOM_CAP) n++
   const room = n === 1 ? scene : `${scene}#${n}`
@@ -468,7 +488,7 @@ wss.on('connection', (ws) => {
       for (const other of clients.values()) if (other.user === user) other.ws.close(4002, 'replaced')
       c = { id: nextId++, user, name: account.name, ws, scene: null, room: null, snap: null, lastSnap: 0, lastEmote: 0, batch: Array.isArray(msg.caps) && msg.caps.includes('batch'), dirty: false, outfitDirty: false, outfitKey: '' }
       clients.set(c.id, c)
-      ws.send(JSON.stringify({ t: 'welcome', id: c.id, name: c.name, key: user }))
+      ws.send(JSON.stringify({ t: 'welcome', id: c.id, name: c.name, key: user, v: GAME_VERSION }))
       void social.presence(user, true)
       return
     }
@@ -483,6 +503,8 @@ wss.on('connection', (ws) => {
       c.lastSnap = now
       const snap = cleanSnap(msg.s)
       if (!snap) return
+      snap.outfit ??= c.snap?.outfit ?? null
+      if (!snap.outfit) return // the very first snapshot must carry the outfit
       c.snap = snap
       if (snap.scene !== c.scene) {
         leaveRoom(c)

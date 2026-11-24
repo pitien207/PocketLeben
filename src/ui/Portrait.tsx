@@ -10,7 +10,8 @@ let gradientId = 0
 export function Portrait({ outfit, size = 64 }: { outfit: Outfit; size?: number }) {
   // 1.25: a photo of the real 3D chibi; the drawing below shows until it is taken (or without WebGL).
   const shot = usePortraitShot(outfit)
-  const { skin, hair, hairStyle, accessory, shirt } = outfit
+  const { skin, hair, accessory, shirt } = outfit
+  const hairStyle = portraitHair(outfit.hairStyle)
   const eye = outfit.eye ?? '#5a3424'
   const expression = outfit.expression ?? 'neutral'
   const closed = expression === 'happy-closed'
@@ -305,4 +306,10 @@ function Braid({ hair, dark, tie }: { hair: string; dark: string; tie: string })
       <circle cx="47" cy="60.3" r="1.9" fill={tie} />
     </g>
   )
+}
+
+/** 1.42: the SVG fallback draws the newer hairstyles as their closest older one (the 3D photo is the real look). */
+function portraitHair(style: HairStyle): HairStyle {
+  const map: Partial<Record<HairStyle, HairStyle>> = { highPony: 'ponytail', sideSwept: 'short', pixie: 'short', wavy: 'long', halfUp: 'long', mohawk: 'spiky', afro: 'curly', shoulder: 'bob' }
+  return map[style] ?? style
 }

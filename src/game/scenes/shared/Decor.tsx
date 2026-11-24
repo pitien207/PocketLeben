@@ -86,6 +86,45 @@ export function WallFan({ position, rotation = [0, 0, 0] }: { position: Vec3; ro
   )
 }
 
+/**
+ * 1.41 Ceiling fan (quạt trần) hanging from `position` (the top of the down-rod): rod, motor, four wooden blades
+ * turning slowly. Body and blades are one small mesh each.
+ */
+export function CeilingFan({ position, drop = 0.5, color = '#f2efe8', blade = '#b98a5c', speed = 3.2 }: { position: Vec3; drop?: number; color?: string; blade?: string; speed?: number }) {
+  const blades = useRef<Group>(null)
+  const body = useMemo<ShapeItem[]>(
+    () => [
+      { cyl: [0.07, 0.07, 0.04, 10], at: [0, -0.02, 0], color },
+      { cyl: [0.015, 0.015, drop, 6], at: [0, -drop / 2, 0], color },
+      { cyl: [0.12, 0.1, 0.12, 14], at: [0, -drop - 0.02, 0], color },
+      { sphere: [0.05, 8, 6], at: [0, -drop - 0.11, 0], color: '#fff6d8' },
+    ],
+    [drop, color],
+  )
+  const wings = useMemo<ShapeItem[]>(
+    () =>
+      [0, 1, 2, 3].map((i) => ({
+        group: [
+          { box: [0.62, 0.012, 0.13], at: [0.42, 0, 0], color: blade },
+          { box: [0.12, 0.02, 0.04], at: [0.1, 0.01, 0], color },
+        ],
+        rot: [0.06, (i * Math.PI) / 2, 0],
+      })),
+    [blade, color],
+  )
+  useFrame((_, dt) => {
+    if (blades.current) blades.current.rotation.y += Math.min(dt, 0.1) * speed
+  })
+  return (
+    <group position={position}>
+      <Shapes shapes={body} castShadow={false} />
+      <group ref={blades} position={[0, -drop - 0.04, 0]}>
+        <Shapes shapes={wings} castShadow={false} />
+      </group>
+    </group>
+  )
+}
+
 /** Tear-off wall calendar (lịch bloc) showing today's in-game date. */
 export function TearCalendar({ position, rotation = [0, 0, 0], width = 0.42 }: { position: Vec3; rotation?: Vec3; width?: number }) {
   const day = useTime((s) => s.day)

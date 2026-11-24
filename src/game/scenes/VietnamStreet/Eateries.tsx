@@ -1,9 +1,6 @@
 import { memo, useMemo } from 'react'
 import { CuboidCollider, CylinderCollider, RigidBody } from '@react-three/rapier'
 import { EATERY_DEFS } from '../../../data/eateries'
-import { NPCS, type NpcDef } from '../../../data/npcs'
-import { ActiveArea } from '../../components/ActiveArea'
-import { NPC } from '../../components/npc/NPC'
 import { BUILDING_GROUPS, PROP_GROUPS } from '../../systems/collisionGroups'
 import { glowMaterial, WINDOW_GLASS } from '../shared/materials'
 import { modelShapes, type ModelOptions } from '../shared/models'
@@ -12,13 +9,13 @@ import { place, softPlantShapes } from '../shared/props'
 import { Shapes, type ShapeItem } from '../shared/Shapes'
 import { SignBoard } from '../shared/SignBoard'
 import { balcony, tiledRoof, win } from './decorHouses'
-import { EATERIES, WEST, type EateryId, type EateryLot } from './layout'
+import { EATERIES, type EateryId, type EateryLot } from './layout'
 
 /**
  * 1.40 Quán ăn xen kẽ trong phố (data/eateries.ts, layout.ts `EATERIES`): six tube houses whose ground floor is an
  * open eatery — tiled room, striped awning, a sign, plastic tables and stools spilling onto the pavement, pots,
- * bowls, crates and jars from KayKit Restaurant Bits (CC0, model pack "food") — plus the owner behind the counter
- * (talk = menu). The old Phở Gia Truyền (WestBlock) only gets its owner here.
+ * bowls, crates and jars from KayKit Restaurant Bits (CC0, model pack "food"). 1.41: the owners work inside — the
+ * door (ShopDoors.tsx) opens the shop room (scenes/ShopRoom), where you order.
  *
  * Every house is built in local space — front line at z = 0, the room toward −z, the pavement toward +z — and
  * turned to face its street. All of them merge into ONE mesh (+ one glow mesh for lamps, coals and lanterns).
@@ -306,41 +303,6 @@ function allShapes() {
   return { solid, glow }
 }
 
-/** Where each owner stands (local), and whether they sit. */
-const OWNERS: Record<EateryId, { x: number; z: number; seatY?: number }> = {
-  pho: { x: 0, z: 0 },
-  bunCha: { x: EATERIES.bunCha.w / 2 - 0.75, z: 0.2 },
-  banhCuon: { x: -EATERIES.banhCuon.w / 2 + 0.95, z: -1.25, seatY: 0.3 },
-  lau: { x: EATERIES.lau.w / 2 - 1.2, z: -ROOM + 1.45 },
-  banhMi: { x: 0.6, z: 0.2 },
-  com: { x: 0.3, z: -1.35 },
-  che: { x: 0, z: -1.95 },
-}
-
-/** The NPCs only exist within this distance of their eatery (like traffic, ActiveArea). */
-const NEAR = 45
-const nearBy = Object.fromEntries(
-  (Object.keys(EATERIES) as EateryId[]).map((id) => {
-    const e = EATERIES[id]
-    return [id, (x: number, z: number) => Math.hypot(x - e.x, z - e.z) < NEAR]
-  }),
-) as Record<EateryId, (x: number, z: number) => boolean>
-
-function Owner({ id }: { id: EateryId }) {
-  const e = EATERIES[id]
-  const def = NPCS[EATERY_DEFS[id].owner as keyof typeof NPCS] as NpcDef
-  if (id === 'pho') {
-    // The old Phở Gia Truyền (WestBlock): beside the big pot on the pavement
-    const pho = WEST.houses[0]
-    return <NPC def={def} at={{ x: pho.x - 2.05, z: e.z + 0.75 }} yaw={0.3} zone={{ x: pho.x - 1.2, z: e.z + 1.3, halfX: 1.6, halfZ: 1.1 }} />
-  }
-  const o = OWNERS[id]
-  const at = toWorld(e, o.x, o.z)
-  // Talk zone: the doorway / counter front, so you can reach the owner from the pavement
-  const zone = { ...toWorld(e, Math.max(-e.w / 2 + 1, Math.min(e.w / 2 - 1, o.x)), Math.max(o.z, -1.2) + 1.1), halfX: 1.5, halfZ: 1.2 }
-  return <NPC def={def} at={at} yaw={yawOf(e)} seatY={o.seatY} zone={zone} />
-}
-
 /** Colliders: the house behind the room, the side walls, counters, grill and cart. */
 function Colliders() {
   return (
@@ -395,11 +357,6 @@ export const Eateries = memo(function Eateries() {
         const at = toWorld(e, 0, 0.21)
         return <SignBoard key={id} options={EATERY_DEFS[id].sign} width={Math.min(e.w - 0.4, 4.6)} position={[at.x, GH + 0.5, at.z]} rotation={[0, yawOf(e), 0]} />
       })}
-      {(Object.keys(EATERIES) as EateryId[]).map((id) => (
-        <ActiveArea key={id} when={nearBy[id]}>
-          <Owner id={id} />
-        </ActiveArea>
-      ))}
       <Colliders />
     </>
   )

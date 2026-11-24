@@ -7,6 +7,8 @@ import { useNet, type EmoteId } from '../store/netStore'
 import { useSettings } from '../store/settingsStore'
 import { useWorld } from '../store/worldStore'
 import { getAccount, pushCloudSave, SERVER_URL } from './auth'
+import { noteServerVersion } from '../updates'
+import { pushToast } from '../store/toastStore'
 
 /**
  * Multiplayer client (docs/MULTIPLAYER_PLAN.md, phase 1 "see each other"): one WebSocket,
@@ -27,6 +29,34 @@ export interface Remote {
   outfit: Outfit
   /** JSON of the outfit, computed when it arrives (the model rebuilds when it changes). */
   outfitKey: string
+  /**
+   * 1.42 the last positions with their arrival time (performance.now): RemotePlayers draws each player ~130 ms in the
+   * past, interpolating between two real samples (smooth even when packets arrive unevenly), and extrapolates a little
+   * when a packet is late.
+   */
+  buf: RemoteSample[]
+}
+
+export interface RemoteSample {
+  t: number
+  x: number
+  z: number
+  yaw: number
+  /** Walking / riding when this was sent (no extrapolation past a standing sample). */
+  moving: boolean
+}
+
+/** Keep this many samples per remote (≈ 1 s at 10 Hz). */
+const BUF = 10
+function pushSample(r: Remote, s: PlayerSnapshot) {
+  const t = performance.now()
+  const last = r.buf[r.buf.length - 1]
+  // a teleport / new scene: restart the buffer so nobody glides across the map
+  if (last && Math.hypot(s.x - last.x, s.z - last.z) > 12) r.buf.length = 0
+  // walking, or (riding: the pose speed is 0) the position changed since the last sample
+  const moved = !!last && Math.hypot(s.x - last.x, s.z - last.z) > 0.01
+  r.buf.push({ t, x: s.x, z: s.z, yaw: s.yaw, moving: (s.motion?.speed ?? 0) > 0.05 || moved })
+  if (r.buf.length > BUF) r.buf.shift()
 }
 
 /** Read every frame by RemotePlayers: plain objects, no React state per update. */
@@ -61,11 +91,14 @@ function upsert(id: number, name: string | undefined, s: PlayerSnapshot | null) 
       }
     }
     r.snap = s
+    pushSample(r, s)
     if (name) r.name = name
     return
   }
   if (!s.outfit) return // never seen and no outfit yet: wait for the full snapshot ('join' / 'room')
-  remotes.set(id, { id, name: name ?? '?', snap: s, x: s.x, z: s.z, yaw: s.yaw, motion: { ...s.motion }, outfit: s.outfit, outfitKey: JSON.stringify(s.outfit) })
+  const fresh: Remote = { id, name: name ?? '?', snap: s, x: s.x, z: s.z, yaw: s.yaw, motion: { ...s.motion }, outfit: s.outfit, outfitKey: JSON.stringify(s.outfit), buf: [] }
+  pushSample(fresh, s)
+  remotes.set(id, fresh)
   rosterUpdate()
 }
 
@@ -99,15 +132,30 @@ function send(msg: unknown) {
   if (ws?.readyState === WebSocket.OPEN) ws.send(JSON.stringify(msg))
 }
 
+/**
+ * 1.42: the outfit (≈ 600 bytes) used to ride along with every snapshot, 10× a second while walking. Now it is sent
+ * when it changed, after (re)connecting and every 10 s; the server keeps the last one. While the page is hidden only
+ * the 2 s heartbeat goes out.
+ */
+let lastOutfit = ''
+let lastOutfitAt = 0
 function tick() {
-  const s = snapshot()
-  const text = JSON.stringify(s)
+  if (ws?.readyState !== WebSocket.OPEN) return
   const now = Date.now()
-  // Only when something changed, plus a heartbeat every 2 s.
-  if (text === lastSent && now - lastSentAt < 2000) return
+  const hidden = document.visibilityState === 'hidden'
+  const { outfit, ...s } = snapshot()
+  const text = JSON.stringify(s)
+  const outfitText = JSON.stringify(outfit)
+  const outfitDue = outfitText !== lastOutfit || now - lastOutfitAt > 10_000
+  // Only when something changed (not while hidden), plus a heartbeat every 2 s.
+  if (!outfitDue && (text === lastSent || hidden) && now - lastSentAt < 2000) return
   lastSent = text
   lastSentAt = now
-  send({ t: 'snap', s })
+  if (outfitDue) {
+    lastOutfit = outfitText
+    lastOutfitAt = now
+    send({ t: 'snap', s: { ...s, outfit } })
+  } else send({ t: 'snap', s })
 }
 
 function onMessage(ev: MessageEvent<string>) {
@@ -125,6 +173,8 @@ function onMessage(ev: MessageEvent<string>) {
       myId = typeof msg.id === 'number' ? msg.id : -1
       net.set({ status: 'online', name: msg.name as string, key: (msg.key as string) ?? null })
       lastSent = ''
+      lastOutfit = ''
+      if (typeof msg.v === 'string') noteServerVersion(msg.v)
       tick()
       send({ t: 'ping', at: Date.now() })
       break
@@ -180,16 +230,21 @@ function connect() {
     ws = null
     remotes.clear()
     rosterUpdate()
+    // 1.42: tell the listeners (an online pickleball match ends instead of waiting forever)
+    for (const fn of listeners) fn({ t: 'net.closed', code: e.code })
     if (e.code === 4002) {
       useNet.getState().set({ status: 'replaced' })
       return
     }
     useNet.getState().set({ status: wanted ? 'offline' : 'off' })
     if (!wanted) return
-    // Back off: 2 s, 4 s, 8 s … up to 30 s.
+    // Back off: 2 s, 4 s, 8 s … up to 30 s, with ±40 % jitter so a restarted server (an update) is not hit by
+    // every player in the same second. 1012 = the server is restarting for an update: try again soon.
     retry++
+    if (e.code === 1012) pushToast('toast.event', 'info', { text: 'Máy chủ đang cập nhật bản mới — đang kết nối lại… (bạn cứ chơi tiếp)' })
     window.clearTimeout(retryTimer)
-    retryTimer = window.setTimeout(connect, Math.min(30_000, 1000 * 2 ** retry))
+    const base = e.code === 1012 ? 1500 * retry : Math.min(30_000, 1000 * 2 ** retry)
+    retryTimer = window.setTimeout(connect, base * (0.6 + Math.random() * 0.8))
   }
 }
 
@@ -231,6 +286,15 @@ export function startNet() {
   window.addEventListener('vh-account', update)
   useSettings.subscribe(update)
   sendTimer = window.setInterval(tick, 100)
+  // 1.42: back online / back in the foreground → reconnect now instead of waiting for the back-off
+  const retryNow = () => {
+    if (!wanted || ws || document.visibilityState === 'hidden') return
+    window.clearTimeout(retryTimer)
+    retry = 0
+    connect()
+  }
+  window.addEventListener('online', retryNow)
+  document.addEventListener('visibilitychange', retryNow)
   // Online player count + latency check.
   window.setInterval(() => send({ t: 'ping', at: Date.now() }), 15_000)
   // Cloud save: every 30 s if something changed, and when the page is hidden.

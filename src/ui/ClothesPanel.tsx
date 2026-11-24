@@ -17,10 +17,10 @@ import { Sheet } from './Sheet'
  * the head for hats and hair); tap one to see it big, then buy or wear it.
  */
 
-type Tab = 'shirt' | 'shorts' | 'shoe' | 'acc' | 'hair'
-const TAB_OF: Record<ClothingSlot, Tab> = { shirt: 'shirt', shorts: 'shorts', shoe: 'shoe', hat: 'acc', bag: 'acc', neck: 'acc', hair: 'hair' }
-const TABS: Tab[] = ['shirt', 'shorts', 'shoe', 'acc', 'hair']
-const frameOf = (item: ClothingDef): ShotFrame => (item.slot === 'hat' || item.slot === 'hair' || item.slot === 'neck' ? 'face' : 'body')
+type Tab = 'shirt' | 'shorts' | 'shoe' | 'acc' | 'hair' | 'face'
+const TAB_OF: Record<ClothingSlot, Tab> = { shirt: 'shirt', shorts: 'shorts', shoe: 'shoe', hat: 'acc', bag: 'acc', neck: 'acc', hair: 'hair', face: 'face' }
+const TABS: Tab[] = ['shirt', 'shorts', 'shoe', 'acc', 'hair', 'face']
+const frameOf = (item: ClothingDef): ShotFrame => (item.slot === 'hat' || item.slot === 'hair' || item.slot === 'neck' || item.slot === 'face' ? 'face' : 'body')
 
 /** Your chibi wearing the item (a swatch until the photo is ready / without WebGL). */
 function TryOn({ outfit, item, big = false }: { outfit: Outfit; item: ClothingDef; big?: boolean }) {

@@ -21,6 +21,7 @@ import { VisaPanel } from './ui/VisaPanel'
 import { ClockPanel } from './ui/ClockPanel'
 import { GuideCard, GuideUiPulse, Onboarding } from './ui/Guide'
 import { CompassBar } from './ui/CompassBar'
+import { UpdatePill } from './ui/UpdatePill'
 import { QuestCelebration } from './ui/QuestCelebration'
 import { FastForwardOverlay, LocationCard, NewDayCard } from './ui/TimeOverlays'
 import { DialogueBox } from './ui/DialogueBox'
@@ -61,6 +62,7 @@ export default function App() {
       <div className="pointer-events-none absolute inset-0">
         <OutsideMatch>
           <CompassBar />
+          <UpdatePill />
           <QuestCelebration />
           <HUD />
           <LocationCard />

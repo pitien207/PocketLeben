@@ -175,6 +175,23 @@ Mở sau khi đậu A2. Chị Mai giới thiệu: viện dưỡng lão Sonnenhof
 - Mỗi lần nợ xuống dưới một mức: tin nhắn kèm ảnh của Na gửi sang, ví dụ "Bố mua lại tivi rồi! Bố xem bóng đá to tiếng lắm 😂" hoặc "Thợ đến trát lại tường rồi đó." Về Tết (phần Đức) sẽ thấy tận mắt.
 - Trả hết: cảnh bố treo lại đồng hồ lên tường, mẹ cắm hoa tươi lên bàn thờ. +20 tâm trạng.
 
+**🆕 1.42 Nhà mới & vườn sau.** Nhà lúc chưa nợ: nền gạch bông, ốp gạch men xanh ngọc chân tường, ảnh cưới bố mẹ và ảnh
+Na hồi bé trên đầu giường, **giấy khen** của hai anh em treo cạnh tivi, giá sách đầy, tủ lạnh dán nam châm và tranh Na vẽ,
+quạt cây, **quạt trần** và đèn treo trên bàn nước, thảm, hoa quả, cây xanh tốt. Mức 1: thảm bị bán, cây héo, giá sách vơi
+nửa. Mức 2: **tủ lạnh bị bán** (còn vệt tường sáng màu và cái phích cắm lủng lẳng), quạt trần và đèn cũng không còn. Mức 3:
+giá sách gần như trống.
+
+**Cửa sau màu xanh** (giữa bàn thờ và cửa sổ) → **"Ra vườn"** → **Vườn sau nhà**: chuồng gà tre mái tôn, ổ rơm, sân gà rào
+lưới; gà mái (trắng, nâu, đen), gà trống, gà con lon ton theo mẹ; ba luống rau (rau muống, cải, cà chua), hai chum nước có
+gáo dừa, bụi chuối, bụi tre, cây cam, dây phơi, con mèo cam ngủ trên mái chuồng, **con chó vàng** nằm trong ổ cạnh cửa sau.
+- **Cho gà ăn** (mỗi ngày một lần): "Rắc một nắm thóc: "Bập bập bập!" — cả đàn gà chạy tới mổ lia lịa. Mai ra nhặt trứng nhé."
+  → sáng hôm sau **Nhặt trứng**: *Trứng gà ta (vườn nhà)* — "Nhặt được mấy quả trứng gà ta còn ấm trong ổ rơm 🥚".
+- **Tưới rau** (mỗi ngày một lần): "Múc nước chum tưới mấy luống rau muống, rau cải. Đất thơm mùi ẩm." — tưới đủ 3 lần (rau lớn hẳn, cà chua chín đỏ) →
+  **Hái rau**: *Bó rau muống vườn nhà* — "Tối nay có rau muống luộc chấm nước mắm rồi!"
+- Vườn cũng nghèo đi theo nợ: mức 0 có 5 gà mái + gà trống + 4 gà con → mức 1 còn 4 gà mái → mức 2 còn 2 con, treo biển
+  "Bán gà", mái chuồng phủ bạt xanh, rau khô có cỏ dại → mức 3 chỉ còn **một con gà mái** ("Rắc nắm thóc cho con gà mái cuối
+  cùng. Chuồng vắng quá…"), đồ đồng nát chất góc sân, quần áo phơi toàn đồ vá.
+
 **Ảnh hưởng lên cách chơi:**
 - Mức 2 trở lên: mỗi sáng ở nhà −3 tâm trạng ("nhìn tường nứt mà thấy có lỗi").
 - Mức 3: bố bán xe Wave → muốn chạy Grab phải có xe riêng; trả bớt nợ (dưới mức 3) thì bố lại cho mượn.
@@ -428,6 +445,31 @@ Bảy quán ăn xen kẽ trong phố cổ (tên hư cấu), nói chuyện với 
 | **Nhà hàng Bờ Hồ** | Phố Hàng Khay (thay „Phở Gánh") | chú Thành | 10–22h | Cơm suất, nem, lẩu thái |
 
 Lời chào (mỗi lần một câu), ví dụ cô Lụa: „Chả nướng than hoa thơm cả phố đây! Ngồi xuống cô làm cho suất bún chả." · bà Tám: „Bà mở từ sáng sớm, quá trưa là hết bột đấy nhé!" · ngoài giờ: „Quán nghỉ rồi cháu ơi, mai quay lại nhé — quán mở từ … giờ đến … giờ." · hỏi „Quán có giao Grab không ạ?": „Có chứ! Bật app Grab là thấy đơn của quán…"
+
+#### 🚪 Vào trong các tiệm (1.41)
+Chủ tiệm không đứng ngoài vỉa hè nữa: đến cửa bấm **„Vào quán / Vào tiệm / Vào văn phòng“** → màn mờ → vào hẳn bên trong (giống vào nhà mình), có bảng tên tiệm, đồ đạc đầy đủ, khách ngồi ăn / xếp hàng. Bấm thảm đỏ **„Ra phố“** để ra lại đúng cửa. Ngoài giờ mở cửa: „… đóng cửa rồi (mở …h–…h).“ Đang chở khách Grab thì không vào được (phải trả khách trước). Những người chơi khác đang ở cùng tiệm thấy nhau.
+
+| Tiệm | Bên trong có gì | Ai ở đó |
+|---|---|---|
+| Phở Gia Truyền | nồi nước dùng to trên bếp than, tủ kính bánh phở + thịt bò, 4 bàn nhựa, bàn thờ Thần Tài, ảnh cũ | bác Phở (nồi nước dùng), chú Hùng (quầy) |
+| Bún Chả Cô Lụa | lò than + chụp hút khói, quầy rau – bún – nem, TV, đèn nháy | cô Lụa nướng chả |
+| Bánh Cuốn Bà Tám | nồi tráng bánh phủ vải, đĩa bánh, chả quế, sàn gạch bông | bà Tám ngồi tráng bánh |
+| Lẩu Nướng Tràng Tiền | 4 bàn lẩu (nồi lẩu đỏ bốc hơi), đèn lồng, két bia, tủ mát, chum rượu | anh Dũng ở quầy thu ngân |
+| Bánh Mì 25 | tủ bánh mì kính đỏ, lò nướng, quầy bar ghế cao | chị Ngân |
+| Cơm Bà Sáu | quầy khay inox các món, nồi cơm, nồi canh, TV | bà Sáu |
+| Chè Bốn Mùa | quầy hũ chè nhiều màu, thùng đá, đèn neon hồng | cô Hiền |
+| Nhà hàng Bờ Hồ | bàn tròn khăn trắng, rèm cửa nhìn ra hồ, bể cá, bình phong | chú Thành đón khách |
+| Tạp hóa Cô Liên | kệ hàng kín tường, dây dầu gội gói, két nước, bao gạo, bình gas | cô Liên ngồi quạt (Mua đồ) |
+| Circle K | dãy tủ mát, hai dãy kệ, quầy thu ngân, lò vi sóng, tủ kem, quầy ăn mì | chị Hạnh |
+| Hoàng Kim | bàn đen bóng + mèo vàng, sofa da, biển „BAO VISA 100%“, đèn LED đỏ | anh Khải (+ Linh khi đã kể chuyện) |
+| Nhà thuốc | kệ thuốc, tủ kính, chữ thập xanh phát sáng, cân sức khỏe | cô Thảo |
+| May đo áo dài | bàn cắt vải, máy may, kệ lụa, ma-nơ-canh áo dài, gương + rèm thử đồ | cô Hoa |
+| Hiệu sách cũ | kệ sách kín tường, thang, chồng sách (có mèo ngủ), góc đọc sách (**Đọc sách**) | chú Hưng |
+| Tiệm ảnh Hùng | phông giấy trắng, đèn softbox, máy ảnh chân ba, tường ảnh thẻ | chú Hùng |
+| Công chứng | quầy gỗ vách kính 2 ô, máy lấy số, ghế chờ | cô Phương (+ anh Toàn) |
+| Ngân hàng Phố Cổ | quầy 3 ô, bảng tỷ giá, ATM, dây xếp hàng | anh Quân (+ chị Mai Hương) |
+| Văn phòng APS | bàn phỏng vấn, cờ đen-đỏ-vàng, tủ hồ sơ | Frau Schneider |
+| Tiệm Vàng Kim Thành | tủ kính vàng chữ U, bảng giá vàng hôm nay, két sắt, đèn lồng | chú Năng |
 
 #### 📚 Gia sư Toán lớp 8
 Học trò: **bé Bin** (lớp 8, con nhà phụ huynh phố Hàng Bông, rất ghét phân số).

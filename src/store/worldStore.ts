@@ -1,6 +1,7 @@
 import { create } from 'zustand'
+import type { ShopSceneId } from '../data/shopRoomIds'
 
-export type SceneId = 'vietnam' | 'home' | 'maiOffice' | 'classroom' | 'examHall' | 'embassy' | 'airport' | 'germany' | 'buergeramt' | 'wg' | 'careHome' | 'university'
+export type SceneId = 'vietnam' | 'home' | 'homeYard' | 'maiOffice' | 'classroom' | 'examHall' | 'embassy' | 'airport' | 'germany' | 'buergeramt' | 'wg' | 'careHome' | 'university' | ShopSceneId
 
 interface WorldState {
   scene: SceneId

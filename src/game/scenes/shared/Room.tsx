@@ -25,6 +25,11 @@ export interface RoomProps {
   furniture?: ShapeItem[]
   /** Solid furniture footprints [x, z, halfX, halfZ]. */
   blockers?: [number, number, number, number][]
+  /**
+   * 1.41 floor look: 1 m chequer (default), wooden planks, small 0.5 m tiles, or gạch bông (cement tiles with a
+   * four-petal motif, old Hà Nội shops). Colours: `style.floor` / `style.floorAlt` (+ `style.trim` for the motif).
+   */
+  floorKind?: 'check' | 'planks' | 'small' | 'bong'
 }
 
 /** The mat at every room's way out: one calm light red. It sits above the floor tiles (top 0.04 m):
@@ -35,20 +40,45 @@ export const DOORMAT = '#ef9a94'
  * A "dollhouse" interior: chequered floor, a full back wall with windows, low side walls
  * and an open front so the follow camera can look in from outside.
  */
-export function Room({ w, d, h = 3, style, windows = [], furniture = [], blockers = [] }: RoomProps) {
+export function Room({ w, d, h = 3, style, windows = [], furniture = [], blockers = [], floorKind = 'check' }: RoomProps) {
   const floor = useMemo<ShapeItem[]>(() => {
     const s: ShapeItem[] = []
-    const tile = 1
-    for (let x = -w / 2; x < w / 2 - 0.01; x += tile) {
-      for (let z = -d / 2; z < d / 2 - 0.01; z += tile) {
-        const alt = (Math.round(x + w) + Math.round(z + d)) % 2 === 0
-        s.push({ box: [tile, 0.04, tile], at: [x + tile / 2, 0.02, z + tile / 2], color: alt ? style.floor : style.floorAlt })
+    if (floorKind === 'planks') {
+      // Boards 0.24 m wide running across the room, staggered joints, two shades
+      const bw = 0.24
+      let row = 0
+      for (let z = -d / 2; z < d / 2 - 0.01; z += bw, row++) {
+        let x = -w / 2
+        let k = row * 7
+        while (x < w / 2 - 0.01) {
+          const len = Math.min(w / 2 - x, 1.1 + ((k * 37) % 9) * 0.12 - (x === -w / 2 ? (row % 3) * 0.35 : 0))
+          s.push({ box: [len - 0.012, 0.04, bw - 0.012], at: [x + len / 2, 0.02, z + bw / 2], color: (k + row) % 3 === 0 ? style.floorAlt : style.floor })
+          x += len
+          k++
+        }
+      }
+      s.push({ box: [w, 0.03, d], at: [0, 0.012, 0], color: style.floorAlt })
+    } else {
+      const tile = floorKind === 'check' ? 1 : 0.5
+      const n = (v: number) => Math.round(v / tile)
+      for (let x = -w / 2; x < w / 2 - 0.01; x += tile) {
+        for (let z = -d / 2; z < d / 2 - 0.01; z += tile) {
+          const alt = (n(x + w) + n(z + d)) % 2 === 0
+          const cx = x + tile / 2
+          const cz = z + tile / 2
+          if (floorKind === 'bong') {
+            // Gạch bông: a plain tile with a petal cross and a dot in the middle, borders meeting into diamonds
+            s.push({ box: [tile - 0.01, 0.04, tile - 0.01], at: [cx, 0.02, cz], color: style.floor })
+            s.push({ box: [tile * 0.5, 0.042, tile * 0.5], at: [cx, 0.021, cz], rot: [0, Math.PI / 4, 0], color: style.floorAlt })
+            s.push({ cyl: [tile * 0.09, tile * 0.09, 0.044, 8], at: [cx, 0.022, cz], color: style.trim })
+          } else s.push({ box: [tile, 0.04, tile], at: [cx, 0.02, cz], color: alt ? style.floor : style.floorAlt })
+        }
       }
     }
     // A strip of floor outside the open front, so the room sits on a little stage.
     s.push({ box: [w + 1.2, 0.2, d + 1.2], at: [0, -0.1, 0], color: style.trim })
     return s
-  }, [w, d, style])
+  }, [w, d, style, floorKind])
 
   const shell = useMemo<ShapeItem[]>(() => {
     const s: ShapeItem[] = []

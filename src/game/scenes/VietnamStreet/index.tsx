@@ -21,6 +21,7 @@ import { StreetGround } from './StreetGround'
 import { StoryPlaces } from './StoryPlaces'
 import { StreetLife } from './StreetLife'
 import { StreetProps } from './StreetProps'
+import { TreeClearance } from '../shared/treeFit'
 import type { SignOptions } from '../shared/textures'
 import { TubeHouse, type HousePalette } from './TubeHouse'
 import { WestBlock } from './WestBlock'
@@ -30,6 +31,7 @@ import { VisaOffices } from './VisaOffices'
 import { HangBong } from './HangBong'
 import { NorthQuarter } from './NorthQuarter'
 import { Eateries } from './Eateries'
+import { ShopDoors } from './ShopDoors'
 import { LampPools } from './LampPools'
 import { LakeEast } from './LakeEast'
 import { HangKhay } from '../HangKhay'
@@ -111,10 +113,12 @@ export const VietnamStreet = memo(function VietnamStreet() {
       <HangBong />
       <NorthQuarter />
       <Eateries />
+      <ShopDoors />
       <LampPools />
       <LakeEast />
       {/* 1.34: the far shore of the lake is part of this map */}
       <HangKhay />
+      <TreeClearance />
       <Backdrop lake colors={HANOI_BACKDROP} roof="#c8653d" clear={PLAY} />
     </group>
   )

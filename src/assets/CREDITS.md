@@ -18,6 +18,9 @@ Every asset must be CC0 or our own (plan §2, §9). List each one here with its 
   https://github.com/trebeljahr/quaternius-showcase (same CC0 files). Converted by
   `tools/glb2props.mjs` into `src/assets/models/nature|city.bin/.json` (scaled, welded, simplified with
   meshoptimizer, repainted per material in the game).
+- **Shop interiors** (1.41) — shelves, chairs, sofas, lamps, cabinets, kitchen units, carpets, curtains, stools from
+  **Quaternius *Ultimate House Interior Pack*** — license **CC0 1.0** — same mirror (`public/glb/house_interior_pack`),
+  converted by `node tools/glb2props.mjs <folder> interior` into `src/assets/models/interior.bin/.json` (scaled ×0.5).
 
 ## Textures
 - Fabric prints in `src/assets/patterns/*.svg` (hoa sen, hoa mai, hoa đào, trống đồng, thổ cẩm, caro, sóng nước, hoa nhí,
@@ -35,6 +38,27 @@ Every asset must be CC0 or our own (plan §2, §9). List each one here with its 
 - `src/assets/icons3d/*.webp` (food, drinks, vehicles, trees, house, faces, stopwatch, money bag, party popper…) are
   **Fluent Emoji 3D** by Microsoft — https://github.com/microsoft/fluentui-emoji — **MIT licence**
   (Copyright (c) Microsoft Corporation). Shrunk to 128 px WebP; otherwise unchanged. 1.35 added bicycle, fuel-pump, key; 1.40 package, takeout-box.
+  1.42 added the action / HUD icons (backpack, mobile-phone, gear, identification-card, globe, grinning face, door, bed,
+  floppy-disk, egg, ice, shopping-cart, broom, open-book, ticket, tram, recycling-symbol, coat, laptop, input-numbers,
+  chicken, rooster, hatching-chick, seedling, droplet, basket, bowl-with-spoon, briefcase, manual-wheelchair, diya-lamp,
+  playground-slide, duck, sponge, hugging-face, t-shirt, dress, lipstick, ribbon, crown, sparkles, ear-of-corn,
+  sunflower, sun, crescent-moon, sun-behind-cloud, fog).
+
+## Animals (1.42)
+- `src/assets/models/animals/hen.glb`, `chick.glb` — **Chicken** and **Chick** by **Quaternius**, **CC0 1.0**, from
+  https://poly.pizza (models ineV9pU5VL / Z3RCoCYss4 / LH96IMq0rE pages). `dog.glb` — **Shiba Inu** from Quaternius'
+  animals pack (**CC0**, mirror github.com/trebeljahr/quaternius-showcase). `cat.glb` — **Free Low-Poly Animals (cat)** by
+  **Vuena**, **CC0 1.0**, https://github.com/Vuena/free-low-poly-animals-cc0. Changed: unused clips and the high LOD removed,
+  clips renamed, texture shrunk to 512 px (scratchpad tool gt/animals.mjs with gltf-transform).
+
+## Crops (1.42)
+- `src/assets/models/farm.bin` + `farm.json` — **Quaternius Crops Pack**, **CC0 1.0** (same mirror,
+  `public/glb/crops_pack`): lettuce, rice, tomato, corn, grass, bamboo, orange tree… converted by tools/glb2props.mjs.
+  The interior pack (1.41) gained beds, kitchen units, a washing machine and doors from the same House Interior pack.
+
+## UI icons (1.42)
+- `@phosphor-icons/react` — **Phosphor Icons** by Helena Zhang and Tobias Fried — https://phosphoricons.com — **MIT
+  licence**. Used for the small UI glyphs in `src/ui/icons.tsx` (close, check, lock, trash, run, skip, gear…).
 
 ## Restaurant props (1.40)
 - `src/assets/models/food.bin` + `food.json` (pots, bowls, plates, stools, tables, chairs, vegetable crates, jars,
@@ -65,7 +89,8 @@ Every asset must be CC0 or our own (plan §2, §9). List each one here with its 
 ## Icons
 - Loading-screen illustration (Hà Nội rooftop at dusk, `src/ui/LoaderArt.tsx`): inline SVG from the user's own design.
 - App icon (passport + paper plane) is original artwork: `pwa/icon.svg`, rendered to PNG in `public/icons/`.
-- HUD, action and item icons are original inline SVGs (`src/ui/icons.tsx`, `ActionIcon.tsx`, `ItemIcon.tsx`).
+- Item icons are original inline SVGs (`ItemIcon.tsx`); since 1.42 the action / HUD icons are Fluent Emoji 3D and the
+  small UI glyphs Phosphor Icons (see below); the old drawings in `ActionIcon.tsx` stay as fallback.
 - Dialogue portraits are drawn from each character's outfit data (`src/ui/Portrait.tsx`).
 
 ## Fonts

@@ -25,7 +25,7 @@ import { Sheet } from './Sheet'
 import { EffectChips } from './ShopPanel'
 
 type Tab = 'items' | 'wardrobe' | 'achievements'
-const SLOTS: ClothingSlot[] = ['hat', 'hair', 'shirt', 'neck', 'shorts', 'shoe', 'bag']
+const SLOTS: ClothingSlot[] = ['hat', 'hair', 'face', 'shirt', 'neck', 'shorts', 'shoe', 'bag']
 
 /** Weight bar: how full the backpack is. */
 function WeightBar() {

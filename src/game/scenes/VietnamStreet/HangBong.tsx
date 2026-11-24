@@ -2,10 +2,7 @@ import { useMemo, useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
 import type { Group } from 'three'
 import { CuboidCollider, RigidBody } from '@react-three/rapier'
-import { NPCS } from '../../../data/npcs'
-import { useFlags } from '../../../store/flagsStore'
 import { ActionSpot, type SpotAction } from '../../components/ActionSpot'
-import { NPC } from '../../components/npc/NPC'
 import { BUILDING_GROUPS } from '../../systems/collisionGroups'
 import { PALETTE as P } from '../shared/palette'
 import { place, softPlantShapes } from '../shared/props'
@@ -150,8 +147,6 @@ function LedSign() {
 
 export function HangBong() {
   const shapes = useMemo(() => [...maiShapes(), ...hoangKimShapes(), ...circleKShapes()], [])
-  // Linh signs papers inside Hoàng Kim once she has told you about it (until you leave for Germany).
-  const linhThere = useFlags((s) => !!s.flags['linh.told'] && !s.flags['de.arrived'])
   return (
     <>
       <Shapes shapes={shapes} />
@@ -165,9 +160,7 @@ export function HangBong() {
         <CuboidCollider args={[(K.x1 - K.x0) / 2, 4.4, (K.z1 - K.z0) / 2]} position={[(K.x0 + K.x1) / 2, 4.4, (K.z0 + K.z1) / 2]} collisionGroups={BUILDING_GROUPS} />
       </RigidBody>
       <ActionSpot id="mai-door" nameKey="interact.maiOffice" zone={{ x: M.x1 + 0.6, z: M.door, halfX: 0.6, halfZ: 0.8 }} actions={MAI_DOOR} />
-      <NPC def={NPCS.anhKhai} at={H.khai} yaw={-Math.PI / 2} zone={{ x: H.khai.x - 0.3, z: H.khai.z, halfX: 0.9, halfZ: 1.1 }} />
-      {linhThere && <NPC def={NPCS.hvLinh} at={{ x: H.desk.x + 0.55, z: H.desk.z }} yaw={-Math.PI / 2} seatY={0.45} zone={{ x: H.x0 - 0.6, z: H.desk.z, halfX: 0.6, halfZ: 0.7 }} />}
-      <NPC def={NPCS.chiQuanLy} at={K.manager} yaw={0} zone={{ x: K.manager.x, z: K.manager.z + 0.4, halfX: 1.0, halfZ: 0.9 }} />
+      {/* 1.41 anh Khải, Linh and chị Hạnh work inside (data/shopRooms.ts hoangKim / circleK) */}
     </>
   )
 }

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Icon3d } from './Icon3d'
 import { useT } from '../i18n'
 import { useLocalize } from '../i18n/localized'
 import { EMOTES } from '../game/components/RemotePlayers'
@@ -38,7 +39,7 @@ export function EmoteButton() {
         onClick={() => setOpen((o) => !o)}
         className="rail-btn"
       >
-        <ChatIcon />
+        <Icon3d name="grinning-face-with-big-eyes" className="h-[22px] w-[22px] drop-shadow-[0_1.5px_0_rgba(74,50,38,0.3)]" />
       </button>
       {open && (
         <div className="panel pointer-events-auto absolute top-0 right-full z-30 mr-2 land:top-full land:right-0 land:mt-2 land:mr-0 w-[min(19rem,calc(100vw-4.5rem))] p-2.5" data-testid="emote-picker">
@@ -132,7 +133,7 @@ export function OnlineChip() {
         title={live ? t('online.count', { n: Math.max(online, 1) }) : t('online.connecting')}
         className="rail-btn !flex flex-col items-center justify-center gap-0.5"
       >
-        <span className={`h-2 w-2 rounded-full ${live ? 'bg-[#3fae72]' : 'animate-pulse bg-ink/40'}`} />
+        <span className="relative"><Icon3d name="globe-showing-asia-australia" className={`h-[17px] w-[17px] ${live ? '' : 'animate-pulse opacity-50 grayscale'}`} />{live && <span className="absolute -right-0.5 -bottom-0.5 h-2 w-2 rounded-full border border-white bg-[#3fae72]" />}</span>
         <span className="text-[10px] leading-none font-black tabular-nums">{live ? Math.max(online, 1) : '…'}</span>
       </button>
       {open && live && (

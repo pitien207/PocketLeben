@@ -2,17 +2,28 @@ import type { Localized } from '../i18n/localized'
 
 /** Character looks and the people of the street. Models are built at runtime (no files). */
 
-export type HairStyle = 'bob' | 'short' | 'bun' | 'long' | 'ponytail' | 'spiky' | 'curly' | 'twin' | 'buzz' | 'twinBuns' | 'braid' | 'elderBun'
-export type Accessory = 'nonLa' | 'glasses' | 'helmet' | 'beanie' | 'cap' | 'bow' | 'flowerCrown' | 'catEars' | 'headphones' | 'sunglasses' | 'beret' | 'tyrolean' | null
+export type HairStyle =
+  | 'bob' | 'short' | 'bun' | 'long' | 'ponytail' | 'spiky' | 'curly' | 'twin' | 'buzz' | 'twinBuns' | 'braid' | 'elderBun'
+  // 1.42 (user: "làm thêm nhiều kiểu tóc")
+  | 'highPony' | 'sideSwept' | 'pixie' | 'wavy' | 'halfUp' | 'mohawk' | 'afro' | 'shoulder'
+export type Accessory =
+  | 'nonLa' | 'glasses' | 'helmet' | 'beanie' | 'cap' | 'bow' | 'flowerCrown' | 'catEars' | 'headphones' | 'sunglasses' | 'beret' | 'tyrolean'
+  // 1.42
+  | 'mask' | 'earrings' | 'hairClip' | 'bucketHat' | 'strawHat' | 'headband' | 'flowerPin'
+  | null
 /** Cut of the top: short sleeves, long sleeves, or none. */
-export type TopStyle = 'tee' | 'long' | 'sleeveless' | 'hoodie' | 'jacket' | 'dress' | 'aoDai' | 'puffer' | 'scrubs' | 'baba' | 'dirndl'
+export type TopStyle = 'tee' | 'long' | 'sleeveless' | 'hoodie' | 'jacket' | 'dress' | 'aoDai' | 'puffer' | 'scrubs' | 'baba' | 'dirndl' | 'polo' | 'cardigan' | 'sweater'
 /** Cut of the bottom. */
-export type BottomStyle = 'shorts' | 'pants' | 'skirt' | 'widePants' | 'lederhosen'
+export type BottomStyle = 'shorts' | 'pants' | 'skirt' | 'widePants' | 'lederhosen' | 'overalls' | 'longSkirt'
 /** Something around the neck. */
 export type NeckStyle = 'scarf' | 'tie' | 'redScarf' | null
 export type ShoeType = 'sneaker' | 'sandal' | 'boot' | 'loafer'
 /** Face expression painted on the head (game/components/chibi/face.ts). */
 export type Expression = 'neutral' | 'happy' | 'happy-closed' | 'surprised' | 'sad'
+/** 1.42 Eye shape painted on the face (default round anime eyes). */
+export type EyeShape = 'round' | 'sparkle' | 'sleepy' | 'cat' | 'dot' | 'smile'
+/** 1.42 Something on the cheeks: freckles, a beauty mark, a plaster, rosy blush, a star sticker. */
+export type FaceMark = 'freckles' | 'mole' | 'bandaid' | 'rosy' | 'star' | null
 
 export interface Outfit {
   skin: string
@@ -37,6 +48,9 @@ export interface Outfit {
   /** Face (default neutral) and long lashes. */
   expression?: Expression
   lashes?: boolean
+  /** 1.42 eye shape and a mark on the face (face.ts). */
+  eyeShape?: EyeShape
+  faceMark?: FaceMark
   /** Shoe shape (default sneaker); `shoe` is its colour. */
   shoeType?: ShoeType
   /**

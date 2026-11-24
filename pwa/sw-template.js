@@ -26,20 +26,34 @@ self.addEventListener('install', (event) => {
   event.waitUntil(precache().then(() => self.skipWaiting()))
 })
 
+/**
+ * 1.42: keep the PREVIOUS version's cache besides this one. A tab still running the old code (opened before the
+ * update) lazy-loads its scene chunks by their old hashed names — the server no longer has them, this cache does.
+ * Older versions are deleted. (caches.keys() lists in creation order, so the last other key is the previous one.)
+ */
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches
       .keys()
-      .then((keys) => Promise.all(keys.filter((k) => k.startsWith('visa-hunter-') && k !== CACHE && k !== RUNTIME).map((k) => caches.delete(k))))
+      .then((keys) => {
+        const versions = keys.filter((k) => k.startsWith('visa-hunter-') && k !== RUNTIME && k !== CACHE)
+        const keep = versions[versions.length - 1]
+        return Promise.all(versions.filter((k) => k !== keep).map((k) => caches.delete(k)))
+      })
       .then(() => self.clients.claim()),
   )
+})
+
+self.addEventListener('message', (event) => {
+  if (event.data === 'skipWaiting') self.skipWaiting()
 })
 
 async function cacheFirst(request, cacheName) {
   const hit = await caches.match(request)
   if (hit) return hit
   const response = await fetch(request)
-  if (response.ok || response.type === 'opaque') {
+  const html = (response.headers.get('content-type') ?? '').includes('text/html')
+  if ((response.ok && !(html && request.destination === 'script')) || response.type === 'opaque') {
     const cache = await caches.open(cacheName)
     await cache.put(request, response.clone())
   }

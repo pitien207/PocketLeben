@@ -5,6 +5,10 @@ import cityUrl from '../../../assets/models/city.bin?url'
 import cityJson from '../../../assets/models/city.json'
 import foodUrl from '../../../assets/models/food.bin?url'
 import foodJson from '../../../assets/models/food.json'
+import interiorUrl from '../../../assets/models/interior.bin?url'
+import interiorJson from '../../../assets/models/interior.json'
+import farmUrl from '../../../assets/models/farm.bin?url'
+import farmJson from '../../../assets/models/farm.json'
 import type { Vec3 } from '../../../data/config'
 import type { ShapeItem } from './Shapes'
 
@@ -20,7 +24,8 @@ import type { ShapeItem } from './Shapes'
  */
 
 /** 1.40 "food" = KayKit Restaurant Bits (CC0, tools/kaykit2props.mjs): pots, bowls, stools, tables, crates, jars… */
-export type ModelPack = 'nature' | 'city' | 'food'
+/** 1.41 "interior" = Quaternius Ultimate House Interior (CC0): shelves, chairs, sofas, lamps, cabinets for the shop rooms (names start with i). */
+export type ModelPack = 'nature' | 'city' | 'food' | 'interior' | 'farm'
 interface Group {
   mat: string
   color: string
@@ -42,13 +47,17 @@ const PACKS: Record<ModelPack, { url: string; data: Manifest }> = {
   nature: { url: natureUrl, data: natureJson as unknown as Manifest },
   city: { url: cityUrl, data: cityJson as unknown as Manifest },
   food: { url: foodUrl, data: foodJson as unknown as Manifest },
+  interior: { url: interiorUrl, data: interiorJson as unknown as Manifest },
+  /** 1.42 Quaternius Crops (CC0): vegetables, grass, bamboo, an orange tree (names start with f). */
+  farm: { url: farmUrl, data: farmJson as unknown as Manifest },
 }
 
 const built = new Map<string, BufferGeometry[]>()
 const loading: Partial<Record<ModelPack, Promise<void>>> = {}
 const ready: Partial<Record<ModelPack, boolean>> = {}
 
-const packOf = (name: string): ModelPack | null => (name in PACKS.nature.data.models ? 'nature' : name in PACKS.city.data.models ? 'city' : name in PACKS.food.data.models ? 'food' : null)
+const PACK_ORDER: ModelPack[] = ['nature', 'city', 'food', 'interior', 'farm']
+const packOf = (name: string): ModelPack | null => PACK_ORDER.find((p) => name in PACKS[p].data.models) ?? null
 
 export const modelPackReady = (pack: ModelPack) => !!ready[pack]
 

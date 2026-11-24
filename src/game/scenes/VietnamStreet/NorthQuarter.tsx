@@ -7,6 +7,7 @@ import { glowMaterial } from '../shared/materials'
 import { PALETTE as P } from '../shared/palette'
 import { benchShapes, bicycleShapes, cycloShapes, fluffyTreeShapes, motorbikeShapes, place, softPlantShapes } from '../shared/props'
 import { Shapes, type ShapeItem } from '../shared/Shapes'
+import { FountainWater, type FountainSpec } from '../shared/FountainWater'
 import { SignBoard } from '../shared/SignBoard'
 import type { SignOptions } from '../shared/textures'
 import { decorHouse, planRow, seeded, type DecorLot } from './decorHouses'
@@ -18,6 +19,7 @@ import { ActiveArea } from '../../components/ActiveArea'
 const nearAvenue = (_x: number, z: number) => z < 15
 import { Showroom, SHOWROOM } from './Showroom'
 import { AVENUE_LANES, BUILDING_CENTER_Z, BUILDING_DEPTH, EATERIES, NORTH, OFFICES, PLAY, VACATED, WEST, type Lot } from './layout'
+import { fitTree, useBlockerVersion } from '../shared/treeFit'
 
 /**
  * The north quarter (1.17): the map is no longer one straight street. Behind the Hàng Gai row a
@@ -281,7 +283,7 @@ function propShapes(): { solid: ShapeItem[]; glow: ShapeItem[] } {
   TREE_XS.forEach((x, i) => {
     s.push({ cyl: [0.75, 0.82, 0.42, 14], at: [x, 0.21, MID_Z], color: '#cfc8bb' })
     s.push({ cyl: [0.66, 0.66, 0.05, 14], at: [x, 0.43, MID_Z], color: P.soil })
-    s.push(place(fluffyTreeShapes(i % 3 === 1 ? 'blossom' : 'green', 2, i + 100), [x, 0.3, MID_Z], i * 1.7, 1.25))
+    s.push(fitTree(fluffyTreeShapes(i % 3 === 1 ? 'blossom' : 'green', 2, i + 100), [x, 0.3, MID_Z], i * 1.7, 1.25))
   })
   for (const [x, z, rot] of BENCHES) s.push(place(benchShapes(), [x, 0, z], rot))
   // Street lamps on both pavements
@@ -329,14 +331,10 @@ function propShapes(): { solid: ShapeItem[]; glow: ShapeItem[] } {
   s.push({ cyl: [0.8, 0.3, 0.25, 16], at: [fx, 1.6, fz], color: '#d3cdc4' })
   s.push({ cyl: [0.7, 0.7, 0.05, 16], at: [fx, 1.72, fz], color: '#9fd8f0' })
   s.push({ cyl: [0.1, 0.14, 0.5, 8], at: [fx, 1.95, fz], color: '#c9c3b8' })
-  for (let i = 0; i < 5; i++) glow.push({ sphere: [0.09 - i * 0.012, 6, 5], at: [fx, 2.25 + i * 0.16, fz], color: '#e6f7ff' })
-  for (let i = 0; i < 8; i++) {
-    const a = (i / 8) * Math.PI * 2
-    glow.push({ sphere: [0.06, 5, 4], at: [fx + Math.sin(a) * 0.85, 1.35 - (i % 2) * 0.3, fz + Math.cos(a) * 0.85], scale: [1, 2.2, 1], color: '#e6f7ff' })
-  }
+  // (1.42: the water itself moves — FountainWater in the component)
   for (const [x, z] of PLAZA_TREES) {
     s.push({ box: [1.6, 0.3, 1.6], at: [x, 0.15, z], color: '#cfc8bb' })
-    s.push(place(fluffyTreeShapes('blossom', 2, Math.round(x * 3 + z)), [x, 0.2, z], x, 1.2))
+    s.push(fitTree(fluffyTreeShapes('blossom', 2, Math.round(x * 3 + z)), [x, 0.2, z], x, 1.2))
     for (let i = 0; i < 6; i++) s.push({ ico: [0.2, 0], at: [x + Math.sin(i) * 0.55, 0.38, z + Math.cos(i * 1.7) * 0.55], color: i % 2 ? '#ffd166' : '#ff9fb2' })
   }
   // The balloon seller's bunch
@@ -352,7 +350,7 @@ function propShapes(): { solid: ShapeItem[]; glow: ShapeItem[] } {
   s.push({ box: [1.3, 1.5, 1.3], at: [walk.x0 + 2.4, 0.75, MID_Z], color: '#c9c3b8' })
   s.push({ cyl: [0.26, 0.34, 1.5, 10], at: [walk.x0 + 2.4, 2.25, MID_Z], color: '#eeeae2' })
   s.push({ sphere: [0.24, 10, 8], at: [walk.x0 + 2.4, 3.2, MID_Z], color: '#eeeae2' })
-  for (const z of [walk.z0 - 2.2, walk.z1 + 2.2]) s.push(place(fluffyTreeShapes('green', 2, Math.round(z)), [walk.x0 + 0.9, 0, z], z, 1.6))
+  for (const z of [walk.z0 - 2.2, walk.z1 + 2.2]) s.push(fitTree(fluffyTreeShapes('green', 2, Math.round(z)), [walk.x0 + 0.9, 0, z], z, 1.6))
   // The lanes: washing lines, plants and a bike, like any ngõ
   lanes.forEach((lane, i) => {
     const mid = (lane.x0 + lane.x1) / 2
@@ -369,8 +367,8 @@ function propShapes(): { solid: ShapeItem[]; glow: ShapeItem[] } {
   })
   // Hàng Bông's new stretch: trees and a row of parked bikes on the wide pavements
   for (const z of [-15, -18.5]) {
-    s.push(place(fluffyTreeShapes('green', 2, Math.round(z) + 200), [hangBong.x0 + 1.0, 0, z], z, 0.95))
-    s.push(place(fluffyTreeShapes(z < -16 ? 'blossom' : 'green', 2, Math.round(z) + 210), [hangBong.x1 - 1.0, 0, z], z + 1, 0.95))
+    s.push(fitTree(fluffyTreeShapes('green', 2, Math.round(z) + 200), [hangBong.x0 + 1.0, 0, z], z, 0.95))
+    s.push(fitTree(fluffyTreeShapes(z < -16 ? 'blossom' : 'green', 2, Math.round(z) + 210), [hangBong.x1 - 1.0, 0, z], z + 1, 0.95))
   }
   s.push(place(motorbikeShapes(P.rose), [hangBong.x1 - 0.9, 0, -16.7], Math.PI / 2 + 0.1))
   // Posts of the street-name plaques (the plaques themselves are SignBoards)
@@ -438,7 +436,7 @@ function gasShapes(): ShapeItem[] {
   s.push({ box: [0.4, 1.1, 0.3], at: [gas.x0 + 0.8, 0.55, f - 2.0], color: '#3fae72' })
   s.push(place(softPlantShapes(P.leafDark, '#ffffff'), [gas.x0 + 0.9, 0, f - 0.5], 0, 1.2))
   // Avenue: trees and tall lamps
-  AVE_TREES.forEach(([x, z], i) => s.push(place(fluffyTreeShapes(i % 4 === 1 ? 'blossom' : 'green', 2, i + 300), [x, 0, z], i * 1.3, 1.25)))
+  AVE_TREES.forEach(([x, z], i) => s.push(fitTree(fluffyTreeShapes(i % 4 === 1 ? 'blossom' : 'green', 2, i + 300), [x, 0, z], i * 1.3, 1.25)))
   for (let x = PLAY.minX + 8.5; x < PLAY.maxX; x += 18) {
     for (const [z, dir] of [[ave.z0 + 0.5, -1], [ave.z1 - 0.5, 1]] as const) {
       s.push({ cyl: [0.07, 0.11, 6.4, 6], at: [x, 3.2, z], color: '#5d6170' })
@@ -487,11 +485,15 @@ const WALKERS = {
   ],
 }
 
+/** 1.42 the square's fountain: moving water (shared/FountainWater). */
+const PLAZA_FOUNTAIN: FountainSpec[] = [{ x: plaza.fountain.x, z: plaza.fountain.z, basinY: 0.54, basinR: 1.55, bowlY: 1.745, bowlR: 0.7, topY: 2.2, jet: 0.7 }]
+
 export const NorthQuarter = memo(function NorthQuarter() {
   const houses = useMemo(houseShapes, [])
   const churchS = useMemo(churchShapes, [])
   const clockS = useMemo(clockShapes, [])
-  const props = useMemo(propShapes, [])
+  const fit = useBlockerVersion()
+  const props = useMemo(propShapes, [fit])
   const placed = useMemo(signs, [])
   const landmarks = useMemo<ShapeItem[]>(
     () => [place(churchS, CHURCH_AT, Math.PI / 2), place(clockS, [(clock.x0 + clock.x1) / 2, 0, rowD.front - 3], 0), place(gasShapes(), [0, 0, 0])],
@@ -504,6 +506,7 @@ export const NorthQuarter = memo(function NorthQuarter() {
       <Shapes shapes={houses} />
       <Shapes shapes={landmarks} />
       <Shapes shapes={props.solid} />
+      <FountainWater fountains={PLAZA_FOUNTAIN} />
       <Shapes shapes={props.glow} material={glowMaterial} castShadow={false} receiveShadow={false} />
       {placed.map((p) => (
         <SignBoard key={p.options.title} options={p.options} width={p.width} position={[p.x, 3.32, p.z]} rotation={p.back ? [0, Math.PI, 0] : [0, 0, 0]} />

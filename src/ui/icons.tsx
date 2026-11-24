@@ -1,84 +1,41 @@
 import type { SVGProps } from 'react'
+import type { IconProps as PhProps } from '@phosphor-icons/react'
+import { GearSix as PhGearSix } from '@phosphor-icons/react/dist/csr/GearSix'
+import { MusicNotes as PhMusicNotes } from '@phosphor-icons/react/dist/csr/MusicNotes'
+import { SpeakerSimpleSlash as PhSpeakerSimpleSlash } from '@phosphor-icons/react/dist/csr/SpeakerSimpleSlash'
+import { X as PhX } from '@phosphor-icons/react/dist/csr/X'
+import { Backpack as PhBackpack } from '@phosphor-icons/react/dist/csr/Backpack'
+import { PersonSimpleRun as PhPersonSimpleRun } from '@phosphor-icons/react/dist/csr/PersonSimpleRun'
+import { FastForward as PhFastForward } from '@phosphor-icons/react/dist/csr/FastForward'
+import { Crosshair as PhCrosshair } from '@phosphor-icons/react/dist/csr/Crosshair'
+import { Check as PhCheck } from '@phosphor-icons/react/dist/csr/Check'
+import { Scroll as PhScroll } from '@phosphor-icons/react/dist/csr/Scroll'
+import { Star as PhStar } from '@phosphor-icons/react/dist/csr/Star'
+import { LockSimple as PhLockSimple } from '@phosphor-icons/react/dist/csr/LockSimple'
+import { Trash as PhTrash } from '@phosphor-icons/react/dist/csr/Trash'
 
-/** Small original inline icons (no icon font / library download). */
+/**
+ * Small UI icons. 1.42 (user: "làm đẹp hơn tất cả các icon, tìm thư viện mở"): the plain line icons are now
+ * Phosphor Icons (MIT, phosphoricons.com; deep imports so only the used ones are bundled) in filled / bold weights;
+ * the coloured game icons (coin, map, sun, moon, pin…) stay hand-drawn.
+ */
 
 type IconProps = SVGProps<SVGSVGElement>
 
-function Svg({ children, ...props }: IconProps) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      width="1em"
-      height="1em"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={2.2}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-      {...props}
-    >
-      {children}
-    </svg>
-  )
-}
-
-/** Gear outline generated from polar points: 8 rounded teeth. */
-const GEAR_PATH = (() => {
-  const teeth = 8
-  const step = (Math.PI * 2) / teeth
-  const pts: string[] = []
-  for (let i = 0; i < teeth; i++) {
-    const a = i * step
-    for (const [r, da] of [
-      [7.4, -0.36],
-      [10, -0.2],
-      [10, 0.2],
-      [7.4, 0.36],
-    ] as const) {
-      const ang = a + da * step
-      pts.push(`${(12 + Math.cos(ang) * r).toFixed(2)},${(12 + Math.sin(ang) * r).toFixed(2)}`)
-    }
-  }
-  return `M${pts.join('L')}Z`
-})()
-
 export function GearIcon(props: IconProps) {
-  return (
-    <Svg {...props}>
-      <path d={GEAR_PATH} />
-      <circle cx="12" cy="12" r="3" />
-    </Svg>
-  )
+  return <PhGearSix weight="fill" aria-hidden="true" {...(props as PhProps)} />
 }
 
 export function MusicIcon(props: IconProps) {
-  return (
-    <Svg {...props}>
-      <path d="M9 17.5V5.5l11-2v12" />
-      <circle cx="6.5" cy="17.5" r="2.5" />
-      <circle cx="17.5" cy="15.5" r="2.5" />
-    </Svg>
-  )
+  return <PhMusicNotes weight="fill" aria-hidden="true" {...(props as PhProps)} />
 }
 
 export function MusicOffIcon(props: IconProps) {
-  return (
-    <Svg {...props}>
-      <path d="M9 17.5V5.5l11-2v12" />
-      <circle cx="6.5" cy="17.5" r="2.5" />
-      <circle cx="17.5" cy="15.5" r="2.5" />
-      <path d="M3 3l18 18" />
-    </Svg>
-  )
+  return <PhSpeakerSimpleSlash weight="fill" aria-hidden="true" {...(props as PhProps)} />
 }
 
 export function CloseIcon(props: IconProps) {
-  return (
-    <Svg {...props}>
-      <path d="M6 6l12 12M18 6L6 18" />
-    </Svg>
-  )
+  return <PhX weight="bold" aria-hidden="true" {...(props as PhProps)} />
 }
 
 /** Old Vietnamese copper coin (đồng xu) with a square hole. */
@@ -120,15 +77,8 @@ export function MoodIcon({ value, ...props }: IconProps & { value: number }) {
   )
 }
 
-/** Woven bag (túi đồ). */
 export function BagIcon(props: IconProps) {
-  return (
-    <Svg {...props}>
-      <path d="M8 8V7a4 4 0 0 1 8 0v1" />
-      <path d="M4.5 8h15l-1.2 11.5a2 2 0 0 1-2 1.8H7.7a2 2 0 0 1-2-1.8z" fill="#f4c04e" />
-      <path d="M8 12v5M12 12v5M16 12v5" stroke="#9e6a1f" strokeWidth={1.6} />
-    </Svg>
-  )
+  return <PhBackpack weight="fill" aria-hidden="true" {...(props as PhProps)} />
 }
 
 export function RainIcon(props: IconProps) {
@@ -176,83 +126,36 @@ export function MapIcon(props: IconProps) {
   )
 }
 
-/** Running figure. */
 export function RunIcon(props: IconProps) {
-  return (
-    <svg viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true" {...props}>
-      <circle cx="14.5" cy="4.2" r="2.2" fill="#ffe6a6" stroke={O} strokeWidth="1.5" />
-      <path d="M9 21l2.5-5.5 3 2.5V22M11.5 15.5 13 9.5l-4 1.5-2 3M13 9.5l2.5 3.5 3.5-1" fill="none" stroke={O} strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" />
-      <path d="M9 21l2.5-5.5 3 2.5V22M11.5 15.5 13 9.5l-4 1.5-2 3M13 9.5l2.5 3.5 3.5-1" fill="none" stroke="#f4c04e" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  )
+  return <PhPersonSimpleRun weight="fill" aria-hidden="true" {...(props as PhProps)} />
 }
 
-/** Skip forward (test mode). */
 export function SkipIcon(props: IconProps) {
-  return (
-    <svg viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true" {...props}>
-      <path d="M4 5.5v13l8-6.5zM12 5.5v13l8-6.5z" fill="#f4c04e" stroke={O} strokeWidth="1.6" strokeLinejoin="round" />
-    </svg>
-  )
+  return <PhFastForward weight="fill" aria-hidden="true" {...(props as PhProps)} />
 }
 
-/** Objective target. */
 export function TargetIcon(props: IconProps) {
-  return (
-    <svg viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true" {...props}>
-      <circle cx="12" cy="12" r="9.5" fill="#ffffff" stroke={O} strokeWidth="1.6" />
-      <circle cx="12" cy="12" r="6.3" fill="#c8322b" />
-      <circle cx="12" cy="12" r="3.4" fill="#ffffff" />
-      <circle cx="12" cy="12" r="1.5" fill="#c8322b" />
-    </svg>
-  )
+  return <PhCrosshair weight="bold" aria-hidden="true" {...(props as PhProps)} />
 }
 
 export function CheckIcon(props: IconProps) {
-  return (
-    <svg viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true" {...props}>
-      <circle cx="12" cy="12" r="10" fill="#3f7d5c" stroke={O} strokeWidth="1.6" />
-      <path d="M7 12.5l3.2 3.2L17 9" fill="none" stroke="#ffffff" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  )
+  return <PhCheck weight="bold" aria-hidden="true" {...(props as PhProps)} />
 }
 
-/** Rolled scroll (main quest). */
 export function ScrollIcon(props: IconProps) {
-  return (
-    <svg viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true" {...props}>
-      <path d="M6 4h11a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" fill="#fff6e3" stroke={O} strokeWidth="1.6" />
-      <path d="M3.5 6a2 2 0 0 1 4 0v1.5h-4z" fill="#e8c27a" stroke={O} strokeWidth="1.4" />
-      <path d="M8.5 9h7M8.5 12h7M8.5 15h4.5" stroke="#c8322b" strokeWidth="1.5" strokeLinecap="round" />
-    </svg>
-  )
+  return <PhScroll weight="duotone" aria-hidden="true" {...(props as PhProps)} />
 }
 
 export function StarIcon(props: IconProps) {
-  return (
-    <svg viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true" {...props}>
-      <path d="M12 2.8l2.7 5.6 6.1.8-4.5 4.2 1.1 6.1L12 16.6l-5.4 2.9 1.1-6.1-4.5-4.2 6.1-.8z" fill="#ffd84d" stroke={O} strokeWidth="1.6" strokeLinejoin="round" />
-    </svg>
-  )
+  return <PhStar weight="fill" aria-hidden="true" {...(props as PhProps)} />
 }
 
 export function LockIcon(props: IconProps) {
-  return (
-    <svg viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true" {...props}>
-      <path d="M8 10V7.5a4 4 0 0 1 8 0V10" fill="none" stroke={O} strokeWidth="2" />
-      <rect x="5" y="10" width="14" height="10.5" rx="2.2" fill="#f4c04e" stroke={O} strokeWidth="1.6" />
-      <circle cx="12" cy="15" r="1.6" fill={O} />
-    </svg>
-  )
+  return <PhLockSimple weight="fill" aria-hidden="true" {...(props as PhProps)} />
 }
 
 export function TrashIcon(props: IconProps) {
-  return (
-    <svg viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true" {...props}>
-      <path d="M5 7h14l-1.2 12.2a1.8 1.8 0 0 1-1.8 1.6H8a1.8 1.8 0 0 1-1.8-1.6z" fill="#e9e2d0" stroke={O} strokeWidth="1.6" strokeLinejoin="round" />
-      <path d="M3.5 7h17M9.5 7V4.5h5V7M10 10.5v6.5M14 10.5v6.5" fill="none" stroke={O} strokeWidth="1.6" strokeLinecap="round" />
-    </svg>
-  )
+  return <PhTrash weight="fill" aria-hidden="true" {...(props as PhProps)} />
 }
 
 export function PinIcon(props: IconProps) {

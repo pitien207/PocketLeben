@@ -72,8 +72,10 @@ export const HOME_ROOM = {
   d: 7,
   h: 3,
   bed: { x: -3.0, z: -2.0 },
-  desk: { x: 2.6, z: -3.05 },
+  desk: { x: 2.9, z: -3.05 },
   /** Studying at the desk by the window. */
-  deskSeat: { x: 2.6, z: -2.35, yaw: Math.PI, sitY: 0.46 } as Seat,
+  deskSeat: { x: 2.9, z: -2.35, yaw: Math.PI, sitY: 0.46 } as Seat,
   exit: { x: 3.4, z: 3.0 },
+  /** 1.42 the back door to the yard (scene homeYard), between the altar and the window. */
+  backDoor: { x: 0.95, z: -2.75 },
 }

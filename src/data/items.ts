@@ -4,6 +4,9 @@ import type { Localized } from '../i18n/localized'
 /** Food & drink (plan §5.5). Add an item here and list it in a shop (data/shops.ts). Every item has a weight (kg). */
 
 export type ItemIconName =
+  // 1.42 from the back yard
+  | 'trung'
+  | 'rau'
   | 'banhMi'
   | 'traDa'
   | 'miGoi'
@@ -410,6 +413,29 @@ export const ITEMS = {
     currency: 'VND',
     energy: 35,
     mood: 10,
+    minutes: 8,
+  },
+  // 1.42 the back yard behind the house (scenes/HomeYard): the hens' eggs, greens from the beds
+  trungGa: {
+    id: 'trungGa',
+    weight: 0.2,
+    name: { vi: 'Trứng gà ta (vườn nhà)', en: 'Free-range eggs (own hens)' },
+    icon: 'trung',
+    price: 15_000,
+    currency: 'VND',
+    energy: 15,
+    mood: 6,
+    minutes: 6,
+  },
+  rauMuong: {
+    id: 'rauMuong',
+    weight: 0.4,
+    name: { vi: 'Bó rau muống vườn nhà', en: 'Water spinach from the yard' },
+    icon: 'rau',
+    price: 10_000,
+    currency: 'VND',
+    energy: 10,
+    mood: 5,
     minutes: 8,
   },
 } satisfies Record<string, ItemDef>
