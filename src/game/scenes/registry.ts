@@ -27,6 +27,8 @@ export interface SceneInfo {
   indoor: boolean
   name: Localized
   spawns: { default: SpawnPoint } & Record<string, SpawnPoint>
+  /** 1.43 a journey (the first flight): the clock jumps through the night, nobody passes out here. */
+  journey?: boolean
   /** Camera distance multiplier (rooms are viewed a little closer). */
   cameraZoom?: number
   /** Place-name plaque shown when you arrive (street sign style per country). */
@@ -150,6 +152,30 @@ export const SCENES: Record<SceneId, SceneInfo> = {
     spawns: { default: { x: 0, z: 2.8, yaw: 0 } },
     cameraZoom: 0.85,
     load: withModels(['nature'], () => import('./Airport')),
+  },
+  /** 1.43 the jet bridge + cabin of the first flight (systems/flight.ts): find your seat. */
+  plane: {
+    id: 'plane',
+    country: 'vn',
+    indoor: true,
+    name: { vi: 'Chuyến bay SH 701', en: 'Flight SH 701' },
+    plaque: { style: 'room', title: { vi: 'Chuyến bay SH 701', en: 'Flight SH 701' }, subtitle: { vi: 'Hà Nội → München · tìm ghế trên thẻ lên máy bay', en: 'Hanoi → Munich · find the seat on your boarding pass' } },
+    spawns: { default: { x: -6.5, z: 13.4, yaw: 0 }, aisle: { x: 0, z: -0.4, yaw: 0 } },
+    cameraZoom: 0.9,
+    journey: true,
+    load: withModels(['nature'], () => import('./Plane')),
+  },
+  /** 1.43 transit at München: Passkontrolle, the departures board, gates G / H. */
+  transit: {
+    id: 'transit',
+    country: 'de',
+    indoor: true,
+    name: { vi: 'Sân bay München (transit)', en: 'Munich Airport (transit)', de: 'Flughafen München' },
+    plaque: { style: 'german', title: { vi: 'Flughafen München', en: 'Flughafen München', de: 'Flughafen München' }, subtitle: { vi: 'Transit · nối chuyến đi Frankfurt', en: 'Transfer · connecting to Frankfurt', de: 'Transfer · Anschlussflüge' } },
+    spawns: { default: { x: 0, z: 14.4, yaw: 0 }, hall: { x: 3, z: 1.4, yaw: 0 } },
+    cameraZoom: 0.95,
+    journey: true,
+    load: withModels(['nature'], () => import('./Transit')),
   },
   germany: {
     id: 'germany',

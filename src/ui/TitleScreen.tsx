@@ -77,8 +77,8 @@ function MenuButton({ n, primary, onClick, children, hint, testId }: { n: string
       style={{ fontFamily: VN }}
     >
       <small className="w-[22px] text-[11px] font-medium tracking-[0.14em] text-[#4a3226]/45 portrait:hidden">{n}</small>
-      <span className={primary ? 'drop-shadow-[0_2px_0_rgba(244,192,78,0.9)]' : ''}>{children}</span>
-      {hint && <em className="text-[13px] font-medium text-[#4a3226]/55 not-italic transition group-hover:opacity-100 portrait:hidden sm:-translate-x-1.5 sm:opacity-0 sm:group-hover:translate-x-0">{hint}</em>}
+      <span className={`shrink-0 whitespace-nowrap ${primary ? 'drop-shadow-[0_2px_0_rgba(244,192,78,0.9)]' : ''}`}>{children}</span>
+      {hint && <em className="min-w-0 text-[13px] font-medium text-[#4a3226]/55 not-italic transition group-hover:opacity-100 portrait:hidden sm:-translate-x-1.5 sm:opacity-0 sm:group-hover:translate-x-0">{hint}</em>}
     </button>
   )
 }
@@ -132,7 +132,7 @@ function DeskBackdrop() {
  * Title screen: a sunny morning at the desk in Hà Nội (3D, from the user's start-menu design),
  * the visa form as the logo, a text menu. Shows instantly; `loading` = the game is on its way.
  */
-export function TitleScreen({ onPlay, loading = false }: { onPlay?: () => void; loading?: boolean }) {
+export function TitleScreen({ onPlay, onSandbox, loading = false }: { onPlay?: () => void; onSandbox?: () => void; loading?: boolean }) {
   const t = useT()
   const musicOn = useSettings((s) => s.musicOn)
   const toggleMusic = useSettings((s) => s.toggleMusic)
@@ -236,6 +236,11 @@ export function TitleScreen({ onPlay, loading = false }: { onPlay?: () => void; 
                 >
                   {t('title.register')}
                 </MenuButton>
+                {onSandbox && (
+                  <MenuButton n="04" onClick={onSandbox} hint={t('title.sandboxHint')} testId="title-sandbox">
+                    {t('title.sandbox')}
+                  </MenuButton>
+                )}
               </>
             ) : (
               <>
@@ -245,6 +250,11 @@ export function TitleScreen({ onPlay, loading = false }: { onPlay?: () => void; 
                 <MenuButton n="02" onClick={() => setLogin('register')} hint={t('title.registerHint')} testId="title-register">
                   {t('title.register')}
                 </MenuButton>
+                {onSandbox && (
+                  <MenuButton n="03" onClick={onSandbox} hint={t('title.sandboxHint')} testId="title-sandbox">
+                    {t('title.sandbox')}
+                  </MenuButton>
+                )}
               </>
             )}
           </nav>

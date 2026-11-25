@@ -554,11 +554,41 @@ export const STEP_GUIDES: Record<string, StepGuide> = {
     blockers: [vnOfficeClosed],
   },
   'dep.airport': {
-    targets: [{ if: { scene: 'airport' }, target: { scene: 'airport', npc: 'me' } }, { target: { scene: 'vietnam', npc: 'anhTu' } }],
+    targets: [
+      { if: { all: [{ scene: 'airport' }, { flag: 'dep.envelopes' }] }, target: { scene: 'airport', spot: 'gate' } },
+      { if: { scene: 'airport' }, target: { scene: 'airport', npc: 'me' } },
+      { target: { scene: 'vietnam', npc: 'anhTu' } },
+    ],
     hint: L(
       'Nói chuyện với Anh Tú xe ôm → Sân bay Nội Bài. Chào Mẹ, Bố và Na rồi ra cửa lên máy bay (Gate 7).',
       'Talk to Tú → Nội Bài Airport. Say goodbye to Mum, Dad and Na, then go to Gate 7.',
       'Sprich mit Tú → Flughafen Nội Bài. Verabschiede dich und geh zu Gate 7.',
+    ),
+  },
+
+  // 1.43 the first flight (systems/flight.ts) — the guide shows the way, the reading is up to you
+  'dep.seat': {
+    targets: [{ target: { scene: 'plane', at: [0, 0, -6] } }],
+    hint: L(
+      'Xem số ghế trên thẻ lên máy bay (nút vé trên thanh công cụ, hoặc trong balo) rồi tự tìm ghế: số hàng ghi trên biển treo ngay trên lối đi („27 · A B C"). Đứng cạnh đúng ghế → Ngồi xuống.',
+      'Check the seat on your boarding pass (ticket button on the rail, or in the bag), then find it: row numbers hang over the aisle (“27 · A B C”). Stand next to your seat → Sit down.',
+      'Sitzplatz auf der Bordkarte nachsehen. Reihennummern hängen über dem Gang.',
+    ),
+  },
+  'dep.passport': {
+    targets: [{ target: { scene: 'transit', npc: 'bpOfficer' } }],
+    hint: L(
+      'Theo biển vàng „Anschlussflüge" (đừng ra cửa xanh „Ausgang" — đó là lối lấy hành lý). Ở Passkontrolle xếp hàng quầy „Alle Pässe" (làn EU chỉ cho công dân EU), đưa hộ chiếu và trả lời bằng tiếng Đức.',
+      'Follow the yellow “Anschlussflüge” signs (not the green “Ausgang” — that’s baggage claim). At passport control queue at “Alle Pässe” (the EU lane is for EU citizens), answer in German.',
+      'Folge „Anschlussflüge". Passkontrolle: Schalter „Alle Pässe".',
+    ),
+  },
+  'dep.gate': {
+    targets: [{ if: { noFlag: 'fly.boardRead' }, target: { scene: 'transit', spot: 'transit-board' } }, { target: { scene: 'transit', at: [0, 0, -7.2] } }],
+    hint: L(
+      'Bảng „Abflug" giữa sảnh: tìm chuyến {flight2} đi Frankfurt (cẩn thận, có hai chuyến đi Frankfurt!). Cổng: {gate2}. Đi theo biển G ← / → H rồi đưa thẻ ở quầy cổng.',
+      'The “Abflug” board in the hall: find {flight2} to Frankfurt (careful, two flights go to Frankfurt!). Gate: {gate2}. Follow G ← / → H and show your pass at the gate desk.',
+      'Abflugtafel: {flight2} nach Frankfurt. Gate: {gate2}.',
     ),
   },
 
@@ -836,7 +866,10 @@ export const SCENE_LINKS: { from: SceneId; to: SceneId; via: GuidePoint; label: 
   { from: 'embassy', to: 'vietnam', via: { spot: 'embassy-exit' }, label: L('Về nhà bằng xe ôm', 'Ride home', 'Nach Hause fahren') },
   { from: 'vietnam', to: 'airport', via: { npc: 'anhTu' }, label: L('Đi xe ôm Anh Tú', 'Ride with Tú (xe ôm)', 'Mit Tú (Motorradtaxi)') },
   { from: 'airport', to: 'vietnam', via: { spot: 'airport-exit' }, label: L('Về nhà', 'Go back home', 'Zurück nach Hause') },
-  { from: 'airport', to: 'germany', via: { spot: 'gate' }, label: L('Lên máy bay', 'Board the plane', 'Einsteigen') },
+  // 1.43 the first flight: gate 7 → the cabin → transit in München → Frankfurt
+  { from: 'airport', to: 'plane', via: { spot: 'gate' }, label: L('Lên máy bay', 'Board the plane', 'Einsteigen') },
+  { from: 'plane', to: 'transit', via: { at: [0, 0, -6] }, label: L('Tìm ghế, ngồi xuống', 'Find your seat', 'Platz suchen') },
+  { from: 'transit', to: 'germany', via: { spot: 'transit-board' }, label: L('Tìm cổng bay đi Frankfurt', 'Find the gate to Frankfurt', 'Gate nach Frankfurt finden') },
   { from: 'germany', to: 'wg', via: { spot: 'de-wg' }, label: L('Vào Lindenstraße 12', 'Into Lindenstraße 12', 'In die Lindenstraße 12') },
   { from: 'wg', to: 'germany', via: { spot: 'wg-exit' }, label: L('Ra phố', 'Out to the street', 'Auf die Straße') },
   { from: 'germany', to: 'buergeramt', via: { spot: 'de-amt' }, label: L('Vào Bürgeramt', 'Into the Bürgeramt', 'Ins Bürgeramt') },

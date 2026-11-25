@@ -4,6 +4,8 @@ import { CONFIG } from '../../data/config'
 import { useTime } from '../../store/timeStore'
 import { useUI } from '../../store/uiStore'
 import { passOut } from '../systems/effects'
+import { SCENES } from '../scenes/registry'
+import { useWorld } from '../../store/worldStore'
 import { applyNeeds, isLateNight, isTimePaused } from '../systems/time'
 
 /**
@@ -38,7 +40,8 @@ export function TimeSystem() {
     acc.current -= minutes
     useTime.getState().advance(minutes)
     applyNeeds(minutes)
-    if (isLateNight(useTime.getState().minutes)) passOut()
+    // 1.43 not on the first flight (night flight, German time on landing)
+    if (isLateNight(useTime.getState().minutes) && !SCENES[useWorld.getState().scene].journey) passOut()
   })
 
   return null

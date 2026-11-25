@@ -599,29 +599,7 @@ function envelopes() {
   return true
 }
 
-/**
- * Board the plane, next morning in Germany. Both wallets travel with you: the euros you exchanged
- * at the bank are what you spend there (an old save's blocked account goes back to your đồng).
- */
-function depart() {
-  if (!getFlag('visa.flight')) return false
-  const player = usePlayer.getState()
-  const blocked = flagNumber('visa.blocked')
-  if (blocked > 0) player.addMoney(blocked)
-  if (eurosInHand() < 100) pushToast('toast.noEuros', 'info')
-  travelTo('germany', 'default', {
-    long: true,
-    label: { vi: 'Bay sang Đức… ✈ Frankfurt', en: 'Flying to Germany… ✈ Frankfurt', de: 'Flug nach Deutschland… ✈ Frankfurt' },
-    onArrive: () => {
-      setFlag('visa.blocked', 0)
-      const t = useTime.getState()
-      t.setTime(t.day + 1, 9 * 60)
-      setFlag('de.arrived', t.day + 1)
-      usePlayer.getState().changeMood(10)
-    },
-  })
-  return true
-}
+// 1.43 boarding (flight.depart) and the whole first flight live in systems/flight.ts
 
 registerActions({
   'visa.choosePath': choosePath,
@@ -637,7 +615,6 @@ registerActions({
   'xeOm.embassy': xeOmEmbassy,
   'xeOm.airport': xeOmAirport,
   'xeOm.home': () => rideTo('vietnam'),
-  'flight.depart': depart,
   'family.envelopes': envelopes,
   'visa.photo': takePhotos,
   'visa.originals': takeOriginals,

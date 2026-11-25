@@ -355,6 +355,8 @@ const THREE_D: Partial<Record<ActionIconName, string>> = {
   garden: 'seedling',
   water: 'droplet',
   enter: 'door',
+  seat: 'seat',
+  board: 'airplane-departure',
 }
 
 /** 1.42: `flat` forces the old drawing (e.g. inside SVG layouts). */

@@ -21,6 +21,10 @@ export type Panel =
   | { type: 'vehicles' }
   /** 1.39 Pickleball lobby (ui/PickleLobby.tsx). */
   | { type: 'pickleball' }
+  /** 1.43 the first flight: boarding pass, departures board (ui/BoardingPass.tsx) and the test tools / milestones. */
+  | { type: 'boardingPass' }
+  | { type: 'flightBoard' }
+  | { type: 'testTools' }
 
 /** Full-screen fade between scenes, with an optional caption ("✈ Bay sang Đức…"). */
 export interface Transition {

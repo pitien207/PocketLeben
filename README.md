@@ -20,8 +20,11 @@ Other scripts: `npm run typecheck`, `npm run build` (outputs `dist/`, incl. the 
 (test the production build: title screen, PWA install, offline).
 
 **Test mode** (also on a phone / production build): open the game with `?test=1`, or tap the version line in
-Settings 5 times. Then ⏭ next to the objective skips a story step, and Settings → 🧪 jumps to any chapter or the
-ending, switches the path (Studium / Ausbildung) and gives money / energy / next day. `?test=0` turns it off. In test mode the map (🗺️) teleports you: tap the map, a place or another scene.
+Settings 5 times. Then ⏭ next to the objective skips a story step and ↶ goes back to the state before the last skip /
+jump; the test-tube button on the rail (also in Settings) jumps to any milestone — forward or back —, any chapter or the
+ending, travels to any scene, switches the path (Studium / Ausbildung) and gives money / next day. `?test=0` turns it
+off. In test mode the city map teleports you (tap the map or a place). "Chơi thử" on the title screen is the same as
+an offline sandbox with its own save and endless money.
 
 Controls: WASD / arrows to walk, **hold Shift to run** (phones: 🏃 next to the joystick), E to interact, 🗺️ for the map.
 
@@ -56,7 +59,8 @@ node tools/loadtest.mjs --bots 49 --stay         # keep bots online, then open t
 | Folder | What |
 |---|---|
 | `src/main.tsx`, `src/boot.tsx` | Entry (title screen only) → the game, loaded after "▶ Chơi" |
-| `src/game/scenes/` | One folder per scene (`HangKhay` = the district south of the lake with the functional buildings of `data/cityPlaces.ts`, mounted inside the Hàng Gai scene since 1.36), `ShopRoom` (1.41: the inside of every shop, one scene `shop.<id>` each, data in `src/data/shopRooms.ts`), `HomeYard` (1.42: the back yard with the hens, logic `src/game/systems/homeYard.ts`) + `registry.ts` (spawns, plaques, lazy loading) and `interiors.ts` (seats/positions used by game logic). `shared/` has merged low-poly shapes, props, materials, `Room` (interiors), `Decor` (wall clock, fan, tear-off calendar), `treeFit` (1.42: tree crowns fitted to the building colliders) |
+| `src/sandbox.ts` | 1.43 "Chơi thử": an offline sandbox game started from the title screen (own save, endless money, milestones in `game/systems/testMode.ts`) |
+| `src/game/scenes/` | One folder per scene (`HangKhay` = the district south of the lake with the functional buildings of `data/cityPlaces.ts`, mounted inside the Hàng Gai scene since 1.36), `ShopRoom` (1.41: the inside of every shop, one scene `shop.<id>` each, data in `src/data/shopRooms.ts`), `HomeYard` (1.42: the back yard with the hens, logic `src/game/systems/homeYard.ts`), `Plane` + `Transit` (1.43: the first flight — jet bridge and cabin, München transit; logic `src/game/systems/flight.ts`, data `src/data/flight.ts`) + `registry.ts` (spawns, plaques, lazy loading) and `interiors.ts` (seats/positions used by game logic). `shared/` has merged low-poly shapes, props, materials, `Room` (interiors), `Decor` (wall clock, fan, tear-off calendar), `treeFit` (1.42: tree crowns fitted to the building colliders) |
 | `src/assets/models/` + `tools/glb2*.mjs`, `tools/kaykit2props.mjs` | Library models converted to compact packs: `nature` (trees, plants), `city` (buildings, street furniture), `cars` (Quaternius CC0), `food` (1.40: pots, bowls, stools, tables, crates, jars — KayKit Restaurant Bits CC0); loaded by `scenes/shared/models.ts` / `carModels.ts` |
 | `src/game/fx/` | 1.32 "đồ họa đẹp" (setting "Hiệu ứng ánh sáng", Việt Nam scenes only for now): sky dome, post effects (AO, bloom, grade, tilt-shift), night amount + shared uniforms |
 | `src/game/components/` | Player, ChibiModel, CameraRig, Lighting (day/night/rain), Weather (particles), GuideSystem (guide arrow/ring + edge arrow), ActionSpot, Interactable, WorkStation… |

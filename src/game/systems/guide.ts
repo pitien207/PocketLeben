@@ -1,4 +1,5 @@
 import { GLOBAL_BLOCKERS, ONBOARDING_NPC, SCENE_LINKS, type GuidePoint, type GuideTarget } from '../../data/guides'
+import { currentFlightPlan } from './flight'
 import { QUESTS } from '../../data/quests'
 import { useFlags } from '../../store/flagsStore'
 import { useDialogue } from '../../store/dialogueStore'
@@ -53,7 +54,12 @@ export function guideVars(): Record<string, string | number> {
     const d = flagNumber(key)
     return d > 0 ? dateLabel(d) : '—'
   }
+  // 1.43 the first flight: the gate shows only once the board was read
+  const plan = currentFlightPlan()
   return {
+    seat: plan.seat,
+    flight2: plan.leg2.flight,
+    gate2: getFlag('fly.boardRead') ? plan.leg2.gate : '?',
     xp: Math.min(g.xp, germanXpNeeded(g.level)),
     need: germanXpNeeded(g.level),
     termin: date('visa.terminDay') + (flagNumber('visa.terminTime') > 0 ? ` ${formatClock(flagNumber('visa.terminTime'))}` : ''),

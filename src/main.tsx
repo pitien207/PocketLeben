@@ -4,6 +4,7 @@ import { createRoot } from 'react-dom/client'
 import { TitleScreen } from './ui/TitleScreen'
 import { pullCloudSave } from './net/auth'
 import { startLandscapePlay } from './fullscreen'
+import { enterSandbox, isSandbox } from './sandbox'
 import './index.css'
 
 /**
@@ -17,7 +18,8 @@ const Game = lazy(() => chunk(import('./boot')))
 const AUTOSTART = import.meta.env.DEV && navigator.webdriver
 
 function Root() {
-  const [playing, setPlaying] = useState(AUTOSTART)
+  // 1.43 a sandbox game (Chơi thử) reloads straight into the game (after a milestone reset or an update)
+  const [playing, setPlaying] = useState(AUTOSTART || isSandbox())
   const [syncing, setSyncing] = useState(false)
   // Signed in: take the cloud save first if it is newer than this device's.
   const play = () => {
@@ -26,7 +28,13 @@ function Root() {
     setSyncing(true)
     void pullCloudSave().finally(() => setPlaying(true))
   }
-  if (!playing) return <TitleScreen onPlay={play} loading={syncing} />
+  // Chơi thử: offline, its own save, no cloud pull
+  const sandbox = () => {
+    startLandscapePlay()
+    enterSandbox()
+    setPlaying(true)
+  }
+  if (!playing) return <TitleScreen onPlay={play} onSandbox={sandbox} loading={syncing} />
   return (
     <Suspense fallback={<TitleScreen loading />}>
       <Game />

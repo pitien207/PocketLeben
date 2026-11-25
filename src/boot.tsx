@@ -18,6 +18,8 @@ import { startStory } from './game/systems/story'
 import { startVisa } from './game/systems/visa'
 import { startFamily } from './game/systems/family'
 import { startVnStory } from './game/systems/vnStory'
+import { isSandbox } from './sandbox'
+import { startSandbox } from './game/systems/testMode'
 
 /**
  * The game itself, loaded after the title screen (keeps the first paint light).
@@ -28,7 +30,10 @@ import { startVnStory } from './game/systems/vnStory'
 // No save yet (first game, or the character was deleted in Settings): pick male / female first.
 // Automated tests skip it unless the URL has ?create.
 const hadSave = loadGame()
-if (!hadSave && !(import.meta.env.DEV && navigator.webdriver && !location.search.includes('create'))) {
+// 1.43 Chơi thử: own save, endless money, test tools; a new sandbox game takes the real character's look
+const sandbox = isSandbox()
+const looked = sandbox && startSandbox(hadSave)
+if (!hadSave && !looked && !(import.meta.env.DEV && navigator.webdriver && !location.search.includes('create'))) {
   useUI.getState().openPanel({ type: 'create' })
 }
 startAutosave()
@@ -36,9 +41,12 @@ startWatchers()
 startGuide()
 initAudio()
 // Signed in: multiplayer room + cloud save (does nothing offline / without an account).
-startSocial()
-startPickleball()
-startNet()
+// The sandbox stays offline (no room, no cloud save).
+if (!sandbox) {
+  startSocial()
+  startPickleball()
+  startNet()
+}
 // 1.42 updates: we are in the game now (reload only at a good moment), and save before any reload
 setInGame(true)
 onBeforeReload(() => {

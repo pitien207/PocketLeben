@@ -11,12 +11,14 @@ import { useGrab } from '../game/systems/grab'
 import { bagCapacity, bagWeight } from '../game/systems/bag'
 import { useInventory } from '../store/inventoryStore'
 import { Icon3d } from './Icon3d'
+import { useTestMode } from '../game/systems/testMode'
 
 /** 1.42: the rail shows Fluent 3D pictures (user: prettier icons). */
 const RAIL_ICON = 'h-[22px] w-[22px] drop-shadow-[0_1.5px_0_rgba(74,50,38,0.3)]'
 import { PhoneBadge } from './PhonePanel'
 import { isRaining } from '../game/systems/weather'
 import { SCENES } from '../game/scenes/registry'
+import { SCENE_MAPS } from '../game/scenes/maps'
 import { useWorld } from '../store/worldStore'
 import { EmoteButton, OnlineChip } from './OnlineUI'
 import { useLandscape } from './useMedia'
@@ -163,6 +165,11 @@ function Rail({ row }: { row: boolean }) {
   const setSettingsOpen = useUI((s) => s.setSettingsOpen)
   const openPanel = useUI((s) => s.openPanel)
   const showVisa = useFlags((s) => !!s.flags['visa.path'] && !s.flags['de.arrived'])
+  // 1.43 the boarding pass from gate 7 until you land; the test tools while test mode / the sandbox is on
+  const showPass = useFlags((s) => !!s.flags['fly.boarded'] && !s.flags['de.arrived'])
+  // 1.43 user: only the cities have a map (not rooms, the plane, the airports)
+  const cityMap = useWorld((s) => !!SCENE_MAPS[s.scene])
+  const testMode = useTestMode()
   return (
         <nav className={`hud-slim pointer-events-auto flex shrink-0 items-center gap-px p-0.5 ${row ? 'flex-row' : 'flex-col'}`} aria-label={t('hud.menu')}>
           <RailButton label={t('hud.bag')} onClick={() => openPanel({ type: 'bag' })} tour="bag">
@@ -174,16 +181,28 @@ function Rail({ row }: { row: boolean }) {
             <Icon3d name="mobile-phone" className={RAIL_ICON} />
             <PhoneBadge />
           </RailButton>
-          <RailButton label={`${t('map.title')} (M)`} onClick={() => openPanel({ type: 'map' })} tour="map">
-            <Icon3d name="world-map" className={RAIL_ICON} />
-          </RailButton>
+          {cityMap && (
+            <RailButton label={`${t('map.title')} (M)`} onClick={() => openPanel({ type: 'map' })} tour="map" testId="rail-map">
+              <Icon3d name="world-map" className={RAIL_ICON} />
+            </RailButton>
+          )}
           {showVisa && (
             <RailButton label={t('visa.title')} onClick={() => openPanel({ type: 'visa' })} tour="passport">
               <Icon3d name="identification-card" className={RAIL_ICON} />
             </RailButton>
           )}
+          {showPass && (
+            <RailButton label={t('hud.boardingPass')} onClick={() => openPanel({ type: 'boardingPass' })} testId="rail-pass">
+              <Icon3d name="ticket" className={RAIL_ICON} />
+            </RailButton>
+          )}
           <OnlineChip />
           <EmoteButton />
+          {testMode && (
+            <RailButton label={t('test.panel')} onClick={() => openPanel({ type: 'testTools' })} testId="rail-test">
+              <Icon3d name="test-tube" className={RAIL_ICON} />
+            </RailButton>
+          )}
           <RailButton label={t('hud.settings')} onClick={() => setSettingsOpen(true)}>
             <Icon3d name="gear" className={RAIL_ICON} />
           </RailButton>

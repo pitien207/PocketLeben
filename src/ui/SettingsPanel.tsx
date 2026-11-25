@@ -13,6 +13,7 @@ import { AUTH_ERRORS, GoogleButton, LoginPanel, useAccount } from './LoginPanel'
 import { api, fetchMe, getAccount, googleLink, pullCloudSave, pushCloudSave, signOut, type AuthError, type Me } from '../net/auth'
 import { googleSignedOut } from '../net/google'
 import { useNet } from '../store/netStore'
+import { isSandbox } from '../sandbox'
 
 function Row({ label, children }: { label: string; children: ReactNode }) {
   return (
@@ -139,7 +140,8 @@ function SaveData() {
           </div>
         </div>
       )}
-      <DeleteCharacter />
+      {/* 1.43 the sandbox must never delete the real (cloud) character */}
+      {!isSandbox() && <DeleteCharacter />}
     </div>
   )
 }

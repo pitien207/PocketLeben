@@ -13,6 +13,7 @@ import { Scroll as PhScroll } from '@phosphor-icons/react/dist/csr/Scroll'
 import { Star as PhStar } from '@phosphor-icons/react/dist/csr/Star'
 import { LockSimple as PhLockSimple } from '@phosphor-icons/react/dist/csr/LockSimple'
 import { Trash as PhTrash } from '@phosphor-icons/react/dist/csr/Trash'
+import { ArrowCounterClockwise as PhArrowCounterClockwise } from '@phosphor-icons/react/dist/csr/ArrowCounterClockwise'
 
 /**
  * Small UI icons. 1.42 (user: "làm đẹp hơn tất cả các icon, tìm thư viện mở"): the plain line icons are now
@@ -132,6 +133,10 @@ export function RunIcon(props: IconProps) {
 
 export function SkipIcon(props: IconProps) {
   return <PhFastForward weight="fill" aria-hidden="true" {...(props as PhProps)} />
+}
+
+export function UndoIcon(props: IconProps) {
+  return <PhArrowCounterClockwise weight="bold" aria-hidden="true" {...(props as PhProps)} />
 }
 
 export function TargetIcon(props: IconProps) {

@@ -4,6 +4,8 @@
  */
 
 const AUTH_KEY = 'visa-hunter-auth'
+import { isSandbox } from '../sandbox'
+
 const SAVE_KEY = 'visa-hunter-save'
 /** Same origin by default (the dev server proxies /api and /ws); VITE_SERVER_URL points elsewhere. */
 export const SERVER_URL: string = (import.meta.env.VITE_SERVER_URL as string | undefined) ?? ''
@@ -155,6 +157,7 @@ const savedAtOf = (raw: string | null) => {
  * (play on the phone, continue on the laptop). Never blocks for long.
  */
 export async function pullCloudSave(): Promise<'cloud' | 'local' | 'none'> {
+  if (isSandbox()) return 'none'
   const a = getAccount()
   if (!a) return 'none'
   try {
@@ -179,6 +182,8 @@ export async function pullCloudSave(): Promise<'cloud' | 'local' | 'none'> {
 let lastPushed = 0
 /** Upload the local save if it changed since the last upload. `keepalive` survives page close. */
 export async function pushCloudSave(keepalive = false): Promise<boolean> {
+  // 1.43 the sandbox (Chơi thử) never touches the cloud save
+  if (isSandbox()) return false
   const a = getAccount()
   const raw = localStorage.getItem(SAVE_KEY)
   const at = savedAtOf(raw)

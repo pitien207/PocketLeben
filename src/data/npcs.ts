@@ -761,6 +761,34 @@ export const NPCS = {
     outfit: { skin: '#eec39f', hair: '#3a3436', hairStyle: 'short', shirt: '#fff6e3', shorts: '#3a3f4e', shoe: '#2a2626', bag: null, accessory: 'glasses', top: 'long', bottom: 'pants', shoeType: 'loafer', neck: 'tie', neckColor: '#c8322b', expression: 'happy' },
     dialogueId: 'chuNang',
   },
+  // --- 1.43 The first flight: cabin crew of SH 701, Bundespolizei at the transit airport (systems/flight.ts) ---
+  tiepVien: {
+    id: 'tiepVien',
+    name: { vi: 'Chị Ngân', en: 'Ngân' },
+    title: { vi: 'Tiếp viên SH 701', en: 'Flight attendant, SH 701' },
+    outfit: { skin: '#fbdcc4', hair: '#2b2222', hairStyle: 'bun', shirt: '#2f8f83', shorts: '#2f8f83', shoe: '#2f2f38', bag: null, accessory: null, top: 'aoDai', bottom: 'pants', pattern: 'flowers', patternColor: '#f4d06a', lashes: true, expression: 'happy', shoeType: 'loafer' },
+    dialogueId: 'tiepVien',
+  },
+  tiepVien2: {
+    id: 'tiepVien2',
+    name: { vi: 'Anh Khôi', en: 'Khôi' },
+    title: { vi: 'Tiếp viên', en: 'Flight attendant' },
+    outfit: { skin: '#eec39f', hair: '#1f1a1a', hairStyle: 'short', shirt: '#ffffff', shorts: '#23395b', shoe: '#2a2626', bag: null, accessory: null, top: 'long', bottom: 'pants', neck: 'tie', neckColor: '#2f8f83', shoeType: 'loafer' },
+  },
+  bpOfficer: {
+    id: 'bpOfficer',
+    name: { vi: 'Ông Krüger', en: 'Mr Krüger', de: 'Herr Krüger' },
+    title: { vi: 'Cảnh sát cửa khẩu · Alle Pässe', en: 'Border police · All passports', de: 'Bundespolizei' },
+    outfit: { skin: '#f6d6c0', hair: '#8a6a52', hairStyle: 'buzz', shirt: '#2c3e66', shorts: '#2c3e66', shoe: '#1f1f24', bag: null, accessory: null, top: 'long', bottom: 'pants', eye: '#4f86d9', shoeType: 'boot' },
+    dialogueId: 'bpOfficer',
+  },
+  bpEu: {
+    id: 'bpEu',
+    name: { vi: 'Bà Hoffmann', en: 'Ms Hoffmann', de: 'Frau Hoffmann' },
+    title: { vi: 'Cảnh sát cửa khẩu · Làn EU', en: 'Border police · EU lane', de: 'Bundespolizei' },
+    outfit: { skin: '#fbe2d0', hair: '#c9a05e', hairStyle: 'ponytail', shirt: '#2c3e66', shorts: '#2c3e66', shoe: '#1f1f24', bag: null, accessory: 'glasses', top: 'long', bottom: 'pants', eye: '#5b8f6a', lashes: true, shoeType: 'boot' },
+    dialogueId: 'bpEu',
+  },
 } satisfies Record<string, NpcDef>
 
 export type NpcId = keyof typeof NPCS

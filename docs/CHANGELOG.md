@@ -1,5 +1,92 @@
 # Changelog
 
+## 1.43.0 — Chuyến bay đầu tiên: lên máy bay, transit München, chế độ Chơi thử
+
+### Added — boarding the first flight (user: "cảnh lên máy bay… có đường vào máy bay và tìm chỗ ngồi đúng")
+- Gate 7 at Nội Bài no longer fades straight to Germany. The pass is scanned, the clock moves to **23:15** (the night
+  flight SH 701 to München; never back in time) and the **boarding pass** opens: seat (rows 22–31, A–F), the
+  connecting flight RF 20xx to Frankfurt **without a gate** ("—", read the board in München). It stays in the bag
+  (important papers) and as a **ticket button on the rail** until you land in Germany.
+- New scene **`plane`**: the **jet bridge** (glass walls, the apron far below at night), the front-left door, the
+  galley with **chị Ngân** (flight attendant, áo dài: shows the pass, explains A B C / D E F), rows 20–33 with 3 + 3
+  seats, slim overhead bins, a rail with **row signs "27 · A B C"** over the aisle, 15 passengers already seated, the
+  wings, engines and tail outside.
+- Stand next to an empty seat → **"Ghế 27E · Ngồi xuống"**. A wrong seat → its owner turns up ("Entschuldigung… 25A
+  là ghế của tôi!"), the second wrong one → the attendant tells you row and side. The right seat → seatbelt, taxi,
+  "✈ Bay đêm SH 701: Hà Nội → München" → **06:05** German time.
+
+### Added — transit at München (user: "transit… đi qua hải quan, đọc bảng điện tử và tìm cổng bay đúng")
+- New scene **`transit`** (Germany → the wallet switches to euros): arrival corridor with a green **"Ausgang ·
+  Exit / Gepäckausgabe"** door (the wrong way — your suitcase flies on) and the yellow **"Anschlussflüge"** signs;
+  **Passkontrolle** with an **EU lane** (Frau Hoffmann sends you over) and **"Alle Pässe"** (Herr Krüger, Bundespolizei:
+  a 4-question Q&A in German, set `einreise`, 50 % to pass; the lane gate stays shut until the stamp); the transit hall
+  with Duty Free, a Brezel & Kaffee bar and the big **"Abflug · Departures"** board; two piers with gates
+  **G 10/12/14** and **H 27/29/31**, each with a desk, an agent and its own screen; planes outside the windows.
+- **Reading is the challenge:** the board has **two Frankfurt flights** (an earlier one, boarding right when you
+  arrive, with a number close to yours) and a number with two digits swapped. "Xem bảng điện tử" opens the board as a
+  phone-readable panel (statuses follow the clock: Gestartet / Boarding / Gate offen / Verspätet / Letzter Aufruf /
+  Planmäßig, with the Vietnamese meaning). Wrong gates explain what flies from there; the right gate → RF … to Frankfurt
+  → Lindenstraße around 12:00 (`de.arrived`).
+- Quest "Lên đường" has three new steps: `dep.seat`, `dep.passport`, `dep.gate` (`dep.airport` is now "qua cổng 7").
+  The guide only points the general way (the aisle, the board, the G/H fork) and shows the gate only after the board
+  was read. No passing out on the flight (`SceneInfo.journey`).
+- One seed per player (`fly.seed`, `data/flight.ts`) makes the pass, the board and the gate screens agree.
+  Fictional airlines (Sông Hồng Air, Rheinflug). The Tết trip in chapter 5 is still a fade.
+
+### Added — "Chơi thử" (user: "cho user chơi offline vô hạn tiền và có thể nhảy cảnh sang các mốc game để test")
+- Title screen: new entry **"Chơi thử — Offline · tiền vô hạn · nhảy tới các mốc"**. It is a separate game: its own
+  save (`visa-hunter-sandbox-save`), never uploaded, no multiplayer, the real character's look (no creation), and
+  **money that never runs out** (both wallets refill).
+- **Milestones** (test tube button on the rail, also in Settings): 20 points from "Ngày đầu ở Hà Nội" through A1, B1,
+  the path, visa papers, the embassy, Nội Bài, the plane, the transit, the gates, Germany, Anmeldung, both chapter-4
+  branches, the contract, Tết, the flat and the ending. Forward = skip the steps in between; **backward** (sandbox
+  only) = a fresh sandbox game skipped forward to it. "Thoát chơi thử" goes back to the title screen; "Chơi lại từ đầu".
+- Normal test mode (`?test=1` / tap the version 5×) gets the same rail button and milestones (forward only).
+
+### Changed — after the user's first look ("skip bước mới nhưng phải quay lại được bước cũ… cổng an ninh đi xuyên qua rào chắn… map… lên máy bay phải tự tìm chỗ")
+- **Going back in test mode**: every skip (the ⏭ next to the objective, "Bỏ qua bước", chapter jumps) and every milestone
+  jump first remembers the whole game state (sessionStorage, the last 12). A **↶ button** next to the objective (and
+  "Quay lại: …" in the test tools) puts the state before the last skip / jump back in place — no reload, you travel to
+  where you were. **Backward milestones now work in the real game's test mode too** (a new game with the same look,
+  skipped forward to that milestone, in place; ↶ undoes it). The sandbox does the same without reloading.
+- **Passkontrolle**: the queue belts in front of both lanes are solid now (you could walk straight through them), the
+  lane gates and the barrier are thicker; the queue is still entered from its open end.
+- **The map only exists in the cities** (Hà Nội streets incl. Hàng Khay, Lindenstraße): no map button / M key in
+  rooms, shops, the plane or the airports (scene travel for tests moved into the test tools; the teleport list in the
+  map is folded). The map shows **no NPCs and no other players — only friends**. Prettier drawing: parks and the lake
+  with a rim, roads with kerbs and dashed centre lines, buildings with a soft shadow, place pins with name tags, north–
+  south street names run along their street, a scale bar. **Names never overlap**: placed by importance (goal, streets,
+  water, areas, places, friends), whatever has no room is left out, nothing under the buttons or cut by the frame. It
+  opens about 70 m across around you in every city (Hà Nội used to open far out, Lindenberg far in).
+- **On the plane you find the seat yourself**: the guide hint no longer says the seat; chị Ngân explains how to read the
+  pass ("số ghế ghi ở ô vàng… tự tìm ghế của mình nhé") with "Xem lại thẻ của mình" (opens the pass after the talk, no
+  longer hidden behind the dialogue); after the 3rd wrong seat the attendant explains row + letter, without the answer.
+  The **boarding pass in the bag** shows "Ghế 27E" and a **"Xem thẻ"** button (besides the ticket button on the rail).
+
+### Fixed
+- The server ignored snapshots from the back yard (and now the plane / transit), so others kept seeing you where you
+  were before. They are known private scenes now.
+
+### Phone test checklist (1.43)
+- [ ] Title screen (landscape and portrait): "Chơi thử" is there and readable; it starts the game with your character.
+- [ ] Chơi thử: money stays 999.000.000đ / 99.999 € after buying things; the rail has the test tube.
+- [ ] Test tube → milestone "Sân bay Nội Bài" → chào gia đình → gate 7 → the boarding pass opens and the seat is big
+      and readable in landscape.
+- [ ] Walk the jet bridge into the cabin; the row signs are readable while you walk; talk to chị Ngân.
+- [ ] Sit in a wrong seat once (owner comes), then find your seat → take-off → München at 06:05.
+- [ ] Try the green "Ausgang" door; the EU lane; the "Alle Pässe" lane stays closed until the Q&A is passed.
+- [ ] "Xem bảng điện tử": the table fits / scrolls; find your flight (not the other Frankfurt one!) and its gate.
+- [ ] A wrong gate explains itself; the right gate → Lindenstraße, chapter 3 starts.
+- [ ] Test tube → "Lên máy bay — tìm ghế" again (backward) → you are back on the plane, the real game's save untouched.
+- [ ] ⏭ next to the objective, then ↶ → the same step again, you stand where you were.
+- [ ] Real game with `?test=1`: a passed milestone (e.g. "Thi A1") → day 1 at A1; ↶ → back where you were.
+- [ ] Passkontrolle: try to walk through the queue belts and the closed gate — they hold; the queue opens at its end.
+- [ ] No map button on the plane, in the transit, in a shop or at home; in Hà Nội and Lindenberg the map opens around
+      you, names readable, none on top of another, no NPC / stranger dots.
+- [ ] Plane: the hint does not tell the seat; ask chị Ngân → "Xem lại thẻ" shows the pass; bag → boarding pass shows
+      the seat and "Xem thẻ".
+- [ ] "Thoát chơi thử" → title screen; "Đăng nhập" plays the real game as before.
+
 ## 1.42.0 — Nhà mới, vườn sau nuôi gà, cửa vào rõ ràng, nhân vật đa dạng
 
 ### Fixed (user: "nhiều cây đang chọc xuyên qua nhà")

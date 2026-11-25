@@ -342,7 +342,10 @@ Cảnh buổi tối, cả nhà ngồi quanh mâm cơm. Bố bật đèn bàn th�
 1. Chờ visa `dep.visa`
 2. Mua vé máy bay ✏️ (chị Mai, **17.000.000 ₫** một chiều **(ư)**; Cầu nối: miễn phí) `dep.flight`
 3. 🆕 Đổi tiền Euro ở ngân hàng anh Quân `dep.exchange` (game nhắc: "Lương đầu tiên cuối tuần đầu mới về. Em cần ít nhất ~600 € cho tuần đầu.")
-4. Ra sân bay, chào gia đình, lên máy bay `dep.airport`
+4. Ra sân bay, chào gia đình, qua **cổng 7** lên máy bay `dep.airport`
+5. 🆕 (1.43) **Trên máy bay: tìm đúng ghế** ghi trên thẻ lên máy bay `dep.seat`
+6. 🆕 (1.43) **Transit München: qua kiểm soát hộ chiếu** `dep.passport`
+7. 🆕 (1.43) **Đọc bảng điện tử, tìm đúng cổng** chuyến bay đi Frankfurt `dep.gate`
 
 **Mẹ ở sân bay Nội Bài:**
 - "Con đi đường bình an nhé. Nhớ ăn uống đầy đủ, mặc ấm, rảnh thì gọi video về cho mẹ."
@@ -351,6 +354,48 @@ Cảnh buổi tối, cả nhà ngồi quanh mâm cơm. Bố bật đèn bàn th�
   - hoặc "Mẹ ơi, nước mắm bị cấm mang lên máy bay đó…" → "Kệ, mẹ gói kỹ lắm rồi! Đi đi con, đi bình an."
 - 🆕 Mẹ dúi phong bì: **+300 €** "Tiền đi đường, đừng nói với bố." (Bố đứng sau, cũng dúi một phong bì nữa: **+100 €**, "Đừng nói với mẹ.")
 - 🆕 Em Na: "Anh/chị nhớ gửi ảnh tuyết cho em với anh Tú xe ôm nhé."
+
+### 2.5 🆕 Chuyến bay đầu tiên (1.43) — chơi thật, không chỉ màn hình đen
+Chỉ lần bay **đầu tiên** sang Đức (chuyến về ăn Tết ở chương 5 vẫn là màn chuyển cảnh). Hãng bay là hãng tưởng tượng: **Sông Hồng Air (SH)** và **Rheinflug (RF)**. Số ghế, số hiệu chuyến nối và cổng được bốc ngẫu nhiên một lần cho mỗi người chơi (cờ `fly.seed`), nên thẻ, bảng điện tử và màn hình ở cổng luôn khớp nhau.
+
+**Cổng 7 Nội Bài** (bảng: "MÜNCHEN ✈ 23:45 · SH 701 · Gate 7 · nối chuyến đi Frankfurt"): quẹt thẻ → đồng hồ nhảy tới **23:15** (chuyến bay đêm; không bao giờ lùi giờ) → **thẻ lên máy bay** hiện ra:
+- Chặng 1: **HAN → MUC, SH 701**, lên máy bay 23:15, cất cánh 23:45, cổng 7, **ghế** (ví dụ 27E, hàng 22–31).
+- Chặng 2: **MUC → FRA, RF 20xx**, lên máy bay 09:10, cất cánh 09:40, **cổng: "—"** (xem bảng điện tử ở München).
+- Thẻ nằm trong balo (giấy tờ quan trọng) và có nút **vé** trên thanh công cụ cho tới khi đặt chân đến Đức.
+
+**Ống lồng + khoang máy bay** (cảnh `plane`, ban đêm, sân đỗ phía dưới): đi hết ống lồng, rẽ vào cửa trước bên trái.
+- **Chị Ngân** (tiếp viên, áo dài xanh ngọc) ở cửa: "Xin chào quý khách! Willkommen an Bord! Cho em xem thẻ lên máy bay ạ."
+  - "Dạ, thẻ đây ạ" → "Cảm ơn ạ! Số ghế ghi ở ô vàng bên phải thẻ. Anh/chị đi theo lối giữa về phía sau, số hàng ghi trên biển treo ngay trên lối đi — tự tìm ghế của mình nhé." → "Xem lại thẻ của mình" (mở thẻ) / "Dạ, em cảm ơn". (Chị **không** nói số ghế — người chơi tự đọc thẻ, tự tìm chỗ.)
+  - "Ghế A, B, C ở bên nào hả chị?" → "Nhìn về phía đầu máy bay thì A B C bên tay trái, D E F bên tay phải — nên lúc mình đi vào trong thì ngược lại đó ạ! Cứ nhìn biển số hàng: „27 · A B C" chẳng hạn."
+  - "Lần đầu em đi máy bay… hơi run" → "Không sao đâu ạ! Tìm đúng ghế, cất hành lý xách tay lên khoang, thắt dây an toàn là xong."
+- Hàng 20–33, mỗi hàng 3 + 3 ghế; biển "27 · A B C" / "27 · D E F" treo trên lối đi. Có 15 hành khách ngồi sẵn; anh Khôi (tiếp viên) đứng cuối khoang.
+- Đứng cạnh một ghế trống → **"Ghế 27E · Ngồi xuống"**.
+  - **Sai ghế:** ngồi xuống, rồi "Một hành khách đến: „Entschuldigung… xin lỗi, 25A là ghế của tôi!" Xem lại thẻ lên máy bay nhé." (đứng dậy, cờ `fly.wrongSeat` +1). **Từ lần sai thứ 3** → tiếp viên: "Anh/chị mở thẻ lên máy bay (nút vé) xem lại số ghế nhé — số là hàng, chữ là vị trí trong hàng. Biển số hàng treo ngay trên lối đi ạ." (không nói đáp án).
+  - **Đúng ghế:** "Đúng ghế 27E! Thắt dây an toàn, tắt điện thoại… Máy bay bắt đầu lăn bánh." → màn đêm: "✈ Bay đêm SH 701: Hà Nội → München · 11 tiếng trên trời… Hạ cánh 06:05 giờ Đức" → sáng hôm sau **06:05**.
+
+**Sân bay München — transit** (cảnh `transit`, ở Đức → ví chuyển sang Euro; ở đây và trên máy bay **không bị "ngủ gục"** dù đồng hồ ở 2–7 giờ sáng):
+1. **Hành lang đến:** biển đôi — xanh lá "← Ausgang · Exit / Gepäckausgabe · Baggage claim", vàng "↓ Anschlussflüge · Flight connections".
+   - Bấm cửa **Ausgang** → "Lối này ra ngoài lấy hành lý (Gepäckausgabe). Vali của bạn đã được gửi thẳng tới Frankfurt — đi theo biển vàng „Anschlussflüge / Flight connections" mới đúng!"
+2. **Passkontrolle** (cửa chắn kính, hai làn):
+   - Làn **"EU · EWR · CH — Nur EU-Bürger"**, bà Hoffmann: „Dieser Schalter ist nur für EU-Bürger. Mit einem vietnamesischen Pass gehen Sie bitte zum Schalter Alle Pässe — dort drüben." (Quầy này chỉ dành cho công dân EU…)
+   - Làn **"Alle Pässe · All passports"**, ông Krüger (Bundespolizei): „Guten Morgen! Der Nächste, bitte. Ihren Reisepass?"
+     - "„Guten Morgen! Hier, bitte."" → hỏi đáp 4 câu (đủ 50% là qua), câu hỏi bốc từ:
+       - „Guten Morgen. Ihren Reisepass, bitte." — ✅ "Guten Morgen! Hier, bitte." · 🟡 (đưa cả xấp giấy tờ) → "Nur den Pass, bitte." · ❌ "Passport? Yes, yes!"
+       - „Was ist der Zweck Ihrer Reise?" — ✅ "Ich mache eine Ausbildung oder ein Studium hier. Hier ist mein Visum." · 🟡 "Urlaub!" → "Mit diesem Visum?" · ❌ "Ich weiß nicht…"
+       - „Wie lange bleiben Sie in Deutschland?" — ✅ "Mehrere Jahre — so lange wie meine Ausbildung oder mein Studium." · 🟡 "Für immer!" · ❌ "Zwei Wochen." → "Das passt nicht zu Ihrem Visum."
+       - „Wo werden Sie wohnen?" — ✅ "Zuerst in Lindenberg, in einer WG. Die Adresse habe ich hier." · 🟡 "In einem Hotel, glaube ich." · ❌ "Keine Ahnung."
+       - „Haben Sie genug Geld für die ersten Wochen?" — ✅ "Ja, ich habe Euro dabei und mein Gehalt kommt bald." · 🟡 "Mein Geld ist noch in Vietnam." · ❌ "Nein."
+       - „Wohin fliegen Sie jetzt weiter?" — ✅ "Nach Frankfurt, mit dem Anschlussflug." → "Dann beeilen Sie sich!" · 🟡 "Ich bleibe in München." · ❌ "Nach Hause."
+     - Qua: "„Willkommen in Deutschland!" — Cộp! Dấu nhập cảnh đã đóng vào hộ chiếu. Cửa chắn mở." · Trượt: "Ông Krüger nhíu mày: „Noch einmal, bitte — langsam."" (nói chuyện lại, làm lại).
+     - "„Entschuldigung, langsamer bitte?"" → „Na klar. Rei-se-pass, bit-te." (ông ấy mỉm cười chờ).
+3. **Sảnh transit:** Duty Free, quầy "Brezel & Kaffee", ghế chờ, **bảng điện tử "Abflug · Departures"** giữa sảnh (bấm "Xem bảng điện tử" để đọc to trên điện thoại). 9 chuyến 06:20–11:25, cột Zeit / Flug / Ziel / Gate / Bemerkung (Gestartet = đã cất cánh, Boarding = đang lên máy bay, Gate offen = cổng đã mở, Verspätet = trễ, Letzter Aufruf = gọi lần cuối, Planmäßig = đúng giờ). **Bẫy:** có **hai chuyến đi Frankfurt** — một chuyến sớm (06:20, số hiệu gần giống, đang Boarding ngay lúc bạn tới) và chuyến của bạn (09:40); thêm một chuyến số hiệu đảo hai chữ số cuối (ví dụ RF 2074 đi Paris).
+4. **Hai dãy cổng:** biển "← G 10 – G 14 · Flugsteige · Gates · H 27 – H 31 →". Mỗi cổng có quầy, nhân viên, số cổng và **màn hình riêng** (chuyến kế tiếp ở cổng đó).
+   - Cổng của chuyến Frankfurt kia: "„Das ist RF 2041 — Ihr Flug ist RF 2047." Chuyến này cũng đi Frankfurt nhưng là số hiệu khác! Xem lại bảng điện tử."
+   - Cổng khác: "„Dieser Flug geht nach Wien." (Chuyến ở cổng H27 bay đi Wien.) Không phải chuyến của bạn — xem lại bảng điện tử." · Cổng trống: "Cổng … đang trống…"
+   - **Đúng cổng:** "„RF 2047 nach Frankfurt — richtig! Gute Reise!" (Đúng chuyến rồi, chúc đi vui vẻ!)" → "✈ RF 2047 München → Frankfurt · Rồi tàu ICE về Lindenberg… Chào nước Đức!" → Lindenstraße, khoảng **12:00** cùng ngày (`de.arrived`).
+- Hướng dẫn (mũi tên) chỉ đường chung chung (giữa lối đi, bảng điện tử, chỗ rẽ G/H) — **việc đọc số ghế, số hiệu chuyến bay và cổng là của người chơi.** Gợi ý trên máy bay chỉ nói "xem số ghế trên thẻ"; gợi ý ở München chỉ ghi cổng sau khi đã đọc bảng.
+- Xem lại thẻ lúc nào cũng được: nút vé trên thanh công cụ, hoặc balo → "Thẻ lên máy bay" (hiện "Ghế 27E" + nút "Xem thẻ").
+- Không có bản đồ trên máy bay và trong sân bay (bản đồ chỉ có ở phố Hà Nội và Lindenberg).
 
 ---
 

@@ -8,6 +8,7 @@ import { useWorld, type SceneId } from '../../store/worldStore'
 import { SCENES } from '../scenes/registry'
 import { cameraState } from './cameraState'
 import { playerState } from './playerState'
+import { isSandbox, SANDBOX_SAVE_KEY } from '../../sandbox'
 
 /**
  * Save / load (plan §5.8): one versioned JSON blob in localStorage, written
@@ -15,6 +16,8 @@ import { playerState } from './playerState'
  */
 
 const KEY = 'visa-hunter-save'
+/** 1.43 the sandbox (Chơi thử) plays on its own save. */
+const key = () => (isSandbox() ? SANDBOX_SAVE_KEY : KEY)
 const VERSION = 1
 
 export interface SaveData {
@@ -67,12 +70,17 @@ function isSaveData(v: unknown): v is SaveData {
   )
 }
 
-function apply(data: SaveData) {
-  usePlayer.getState().hydrate({ ...initialStats(), ...data.player })
+/** Put a save into the stores: the clock first (day watchers then see the old state, which the rest overwrites). */
+function applyStores(data: SaveData) {
   useTime.getState().setTime(Math.max(1, Math.floor(data.time.day)), Math.max(0, data.time.minutes % 1440))
+  usePlayer.getState().hydrate({ ...initialStats(), ...data.player })
   // 1.42: a save from another version may name items that no longer exist — drop them instead of crashing the bag
   useInventory.getState().hydrate(Object.fromEntries(Object.entries(data.inventory).filter(([id, n]) => getItem(id) && Number.isFinite(n) && n > 0)))
   useFlags.getState().hydrate(data.flags)
+}
+
+function apply(data: SaveData) {
+  applyStores(data)
   const scene = data.scene && data.scene in SCENES ? data.scene : 'vietnam'
   useWorld.getState().setScene(scene)
   cameraState.baseZoom = SCENES[scene].cameraZoom ?? 1
@@ -85,7 +93,7 @@ function apply(data: SaveData) {
 /** Load the saved game into the stores. Returns true if a save was found. */
 export function loadGame(): boolean {
   try {
-    const raw = localStorage.getItem(KEY)
+    const raw = localStorage.getItem(key())
     if (!raw) return false
     const data: unknown = JSON.parse(raw)
     if (!isSaveData(data)) return false
@@ -106,7 +114,7 @@ export function suspendSaving() {
 export function saveGame() {
   if (suspended) return
   try {
-    localStorage.setItem(KEY, JSON.stringify(collect()))
+    localStorage.setItem(key(), JSON.stringify(collect()))
   } catch {
     // Storage full or blocked (private mode): the game keeps running without saving.
   }
@@ -166,7 +174,7 @@ export function importSave(code: string): boolean {
   try {
     const data: unknown = JSON.parse(fromBase64(code))
     if (!isSaveData(data)) return false
-    localStorage.setItem(KEY, JSON.stringify(data))
+    localStorage.setItem(key(), JSON.stringify(data))
     return true
   } catch {
     return false
@@ -175,8 +183,59 @@ export function importSave(code: string): boolean {
 
 export function resetSave() {
   try {
-    localStorage.removeItem(KEY)
+    localStorage.removeItem(key())
   } catch {
     // ignore
   }
+}
+
+/** 1.43 test tools: the whole game state now (to go back to it later). */
+export function collectState(): SaveData {
+  return collect()
+}
+
+/** 1.43 test tools: put an earlier state back in place, without a reload (the caller travels to its scene). */
+export function applyState(data: SaveData) {
+  applyStores(data)
+}
+
+/** 1.43 test tools: a brand-new game (day 1, no flags) that keeps the character's look. */
+export function newGameState(): SaveData {
+  const { gender, outfit, wardrobe } = usePlayer.getState()
+  return {
+    version: VERSION,
+    savedAt: Date.now(),
+    player: { ...initialStats(), gender, outfit, wardrobe },
+    time: { day: 1, minutes: CONFIG.time.startMinutes },
+    inventory: {},
+    flags: {},
+    position: null,
+    scene: 'vietnam',
+  }
+}
+
+/** 1.43 What a character looks like (kept when the sandbox starts over). */
+export function currentLook() {
+  const { gender, outfit, wardrobe } = usePlayer.getState()
+  return { gender, outfit, wardrobe }
+}
+
+/**
+ * 1.43 A new sandbox game: take the look from `look` (a milestone reset) or from the real save on this device.
+ * Returns false when there is none (then the character is created as usual).
+ */
+export function seedSandboxLook(look: unknown): boolean {
+  let src: unknown = look
+  if (!isObj(src)) {
+    try {
+      const real: unknown = JSON.parse(localStorage.getItem(KEY) ?? 'null')
+      src = isObj(real) && isObj(real.player) ? real.player : null
+    } catch {
+      src = null
+    }
+  }
+  if (!isObj(src) || !isObj(src.outfit) || (src.gender !== 'male' && src.gender !== 'female')) return false
+  const p = usePlayer.getState()
+  p.hydrate({ ...initialStats(), money: p.money, currency: p.currency, otherMoney: p.otherMoney, gender: src.gender, outfit: src.outfit as unknown as PlayerStats['outfit'], wardrobe: Array.isArray(src.wardrobe) ? (src.wardrobe as PlayerStats['wardrobe']) : p.wardrobe })
+  return true
 }

@@ -181,6 +181,18 @@ function morningEvent(day: number) {
   if (event.action) runAction(event.action.id, event.action.arg)
 }
 
+let dayMuted = false
+
+/** 1.43 test tools: change the clock (e.g. back to an earlier day) without closing a day, rent or morning events. */
+export function withDayMuted(fn: () => void) {
+  dayMuted = true
+  try {
+    fn()
+  } finally {
+    dayMuted = false
+  }
+}
+
 export function startWatchers(): () => void {
   syncCurrency()
   useWorld.subscribe((s, prev) => s.scene !== prev.scene && syncCurrency())
@@ -198,6 +210,7 @@ export function startWatchers(): () => void {
     useTime.subscribe((s) => {
       if (s.day !== lastDay) {
         lastDay = s.day
+        if (dayMuted) return
         closeDay(s.day)
         chargeRent()
         morningEvent(s.day)

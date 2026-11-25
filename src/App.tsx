@@ -31,6 +31,8 @@ import { LoadingScreen } from './ui/LoadingScreen'
 import { SettingsPanel } from './ui/SettingsPanel'
 import { ShopPanel } from './ui/ShopPanel'
 import { GoldPanel } from './ui/GoldPanel'
+import { BoardingPassPanel, FlightBoardPanel } from './ui/BoardingPass'
+import { TestPanel } from './ui/TestTools'
 import { PickleInvites, PickleLobby } from './ui/PickleLobby'
 import { useMinigame } from './store/minigameStore'
 import { SleepOverlay } from './ui/SleepOverlay'
@@ -80,6 +82,9 @@ export default function App() {
         <CareResults />
         <ShopPanel />
         <GoldPanel />
+        <BoardingPassPanel />
+        <FlightBoardPanel />
+        <TestPanel />
         <ClothesPanel />
         <BagPanel />
         <QuestLog />

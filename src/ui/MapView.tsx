@@ -1,9 +1,8 @@
 import { useEffect, useRef, useState, type ReactNode, type RefObject } from 'react'
 import { SCENES } from '../game/scenes/registry'
-import { SCENE_MAPS, type SceneMap } from '../game/scenes/maps'
+import { MAP_ROAD, MAP_ROAD_LINE, SCENE_MAPS, type MapLabel, type MapRect, type SceneMap } from '../game/scenes/maps'
 import { localSnapshot } from '../game/systems/netState'
 import { playerState, teleportPlayer } from '../game/systems/playerState'
-import { travelTo } from '../game/systems/travel'
 import { npcPositions } from '../game/systems/registry'
 import { translate, useT } from '../i18n'
 import { currentLanguage, localize, useLocalize } from '../i18n/localized'
@@ -14,45 +13,42 @@ import { useGuide } from '../store/guideStore'
 import { useInteraction } from '../store/interactionStore'
 import { useSettings } from '../store/settingsStore'
 import { useUI } from '../store/uiStore'
-import { useWorld } from '../store/worldStore'
-import { CloseIcon } from './icons'
+import { useWorld, type SceneId } from '../store/worldStore'
+import { CloseIcon, PinIcon, StarIcon, TargetIcon } from './icons'
+import { useTestMode } from '../game/systems/testMode'
 
 /**
- * The map (M key / 🗺️ button): a big live top-down view of the current scene — streets and
- * their names, buildings, every place you can use, people, other players (friends in green),
- * the guide's target (⭐) and you (arrow). Drag to move, pinch / wheel / +− to zoom.
+ * The map (M key / map button): a big live top-down view of the CITY you are in (1.43 user: only cities have a map —
+ * rooms, the plane and the transit airport have none): streets and their names, buildings, places you can use,
+ * your friends (no NPCs, no other players), the guide's target (star) and you (arrow). Drag to move, pinch / wheel /
+ * +− to zoom. Names never overlap: they are placed by priority and skipped where there is no room.
  * Drawn on a canvas, outside React's render loop.
  */
+
+/** This scene has a city map (only the streets of Hà Nội and Lindenberg). */
+export function hasCityMap(scene: SceneId): boolean {
+  return !!SCENE_MAPS[scene]
+}
 
 interface View {
   zoom: number
   /** World point at the centre of the canvas (null = centre of the map). */
   cx: number | null
   cz: number | null
+  /** 1.43 set the zoom on the next frame so that about this many metres fit across the shorter side. */
+  span?: number
 }
 
-/** Indoor rooms: frame the room from its interactables and the player. */
-function roomMap(): SceneMap {
-  const xs = [playerState.position.x]
-  const zs = [playerState.position.z]
-  for (const d of Object.values(useInteraction.getState().items)) {
-    xs.push(d.zone.x)
-    zs.push(d.zone.z)
-  }
-  return {
-    bounds: { minX: Math.min(...xs) - 2.5, maxX: Math.max(...xs) + 2.5, minZ: Math.min(...zs) - 2, maxZ: Math.max(...zs) + 2 },
-    ground: '#f1dcb6',
-    rects: [],
-  }
-}
+/** How many metres the map shows across the shorter side when it opens / when you tap ◎. */
+const START_SPAN = 70
 
-function guideTarget(): { x: number; z: number } | null {
+function guideTarget(): { x: number; z: number; id?: string } | null {
   const point = useGuide.getState().guide?.point
   if (!point) return null
   if (point.kind === 'at') return { x: point.at[0], z: point.at[2] }
   if (point.kind === 'npc') return npcPositions.get(point.id) ?? null
   const def = useInteraction.getState().items[point.id]
-  return def ? { x: def.zone.x, z: def.zone.z } : null
+  return def ? { x: def.zone.x, z: def.zone.z, id: def.id } : null
 }
 
 interface Transform {
@@ -73,6 +69,10 @@ function layout(canvas: HTMLCanvasElement, map: SceneMap, view: View): Transform
   const sx = w / (b.maxX - b.minX)
   const sz = h / (b.maxZ - b.minZ)
   const fit = (h > w ? Math.max(sx, Math.min(sz, sx * 2.4)) : Math.min(sx, sz)) * 0.96
+  if (view.span && w > 0 && h > 0) {
+    view.zoom = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, Math.min(w, h) / view.span / fit))
+    view.span = undefined
+  }
   const scale = fit * view.zoom
   // Keep the view over the map.
   const halfW = w / 2 / scale
@@ -86,20 +86,79 @@ function layout(canvas: HTMLCanvasElement, map: SceneMap, view: View): Transform
   return { scale, cx, cz, w, h, bounds: b }
 }
 
-function labelText(ctx: CanvasRenderingContext2D, text: string, x: number, y: number, color: string, halo = 'rgba(255,250,240,0.95)') {
-  ctx.lineWidth = 3.5
+const INK = '#4a3a33'
+const FONT = "Nunito, 'Be Vietnam Pro', system-ui, sans-serif"
+
+/** Screen boxes already taken by a name (or a marker that must stay visible). */
+class Placer {
+  private boxes: { x0: number; y0: number; x1: number; y1: number }[] = []
+  private w: number
+  private h: number
+  constructor(w: number, h: number) {
+    this.w = w
+    this.h = h
+  }
+  /** Take the box if it is on screen and free. */
+  take(x0: number, y0: number, x1: number, y1: number, pad = 2): boolean {
+    // whole names only: nothing cut by the frame
+    if (x0 < 2 || y0 < 2 || x1 > this.w - 2 || y1 > this.h - 2) return false
+    for (const b of this.boxes) if (x0 - pad < b.x1 && x1 + pad > b.x0 && y0 - pad < b.y1 && y1 + pad > b.y0) return false
+    this.boxes.push({ x0, y0, x1, y1 })
+    return true
+  }
+  /** A screen area covered by HTML (zoom buttons, legend): no names there. */
+  block(x0: number, y0: number, x1: number, y1: number) {
+    this.boxes.push({ x0, y0, x1, y1 })
+  }
+  reserve(x: number, y: number, r: number) {
+    this.boxes.push({ x0: x - r, y0: y - r, x1: x + r, y1: y + r })
+  }
+}
+
+function haloText(ctx: CanvasRenderingContext2D, text: string, x: number, y: number, color: string, halo: string, width = 3.5) {
+  ctx.lineJoin = 'round'
+  ctx.lineWidth = width
   ctx.strokeStyle = halo
   ctx.fillStyle = color
   ctx.strokeText(text, x, y)
   ctx.fillText(text, x, y)
 }
 
+/** A rounded name tag (places, friends). */
+function pill(ctx: CanvasRenderingContext2D, text: string, x: number, y: number, tw: number, bg: string, fg: string) {
+  const ph = 17
+  const pw = tw + 12
+  ctx.fillStyle = 'rgba(74,58,51,0.18)'
+  ctx.beginPath()
+  ctx.roundRect(x - pw / 2 + 1, y - ph / 2 + 2, pw, ph, 8.5)
+  ctx.fill()
+  ctx.fillStyle = bg
+  ctx.strokeStyle = INK
+  ctx.lineWidth = 1.3
+  ctx.beginPath()
+  ctx.roundRect(x - pw / 2, y - ph / 2, pw, ph, 8.5)
+  ctx.fill()
+  ctx.stroke()
+  ctx.fillStyle = fg
+  ctx.fillText(text, x, y + 0.5)
+}
+
+const short = (t: string, n = 24) => (t.length > n ? t.slice(0, n - 1).trimEnd() + '…' : t)
+
+/** A colour a bit darker (k < 1) for rims and outlines. */
+function shade(hex: string, k: number): string {
+  const n = parseInt(hex.slice(1, 7), 16)
+  const c = (v: number) => Math.max(0, Math.min(255, Math.round(v * k)))
+  return `rgb(${c(n >> 16)},${c((n >> 8) & 255)},${c(n & 255)})`
+}
+
 function draw(canvas: HTMLCanvasElement, view: View, time: number) {
   const ctx = canvas.getContext('2d')
   if (!ctx) return
-  const dpr = Math.min(window.devicePixelRatio || 1, 2)
   const scene = useWorld.getState().scene
-  const map = SCENE_MAPS[scene] ?? roomMap()
+  const map = SCENE_MAPS[scene]
+  if (!map) return
+  const dpr = Math.min(window.devicePixelRatio || 1, 2)
   const tr = layout(canvas, map, view)
   const { w, h, scale } = tr
   if (canvas.width !== Math.round(w * dpr) || canvas.height !== Math.round(h * dpr)) {
@@ -112,112 +171,159 @@ function draw(canvas: HTMLCanvasElement, view: View, time: number) {
   const X = (x: number) => w / 2 + (x - tr.cx) * scale
   const Z = (z: number) => h / 2 + (z - tr.cz) * scale
   const lang = currentLanguage()
-  const close = view.zoom >= 1.7
+  const clipX = (x: number) => Math.min(X(b.maxX), Math.max(X(b.minX), x))
+  const clipZ = (z: number) => Math.min(Z(b.maxZ), Math.max(Z(b.minZ), z))
 
+  // Paper outside the city, the city ground with soft corners
   ctx.clearRect(0, 0, w, h)
-  ctx.fillStyle = '#d9cbb0'
+  ctx.fillStyle = '#d6c8ab'
   ctx.fillRect(0, 0, w, h)
   ctx.fillStyle = map.ground
-  ctx.fillRect(X(b.minX), Z(b.minZ), (b.maxX - b.minX) * scale, (b.maxZ - b.minZ) * scale)
-  // Faint 5 m grid: helps judge distances.
-  ctx.strokeStyle = 'rgba(74,58,51,0.06)'
+  ctx.beginPath()
+  ctx.roundRect(X(b.minX), Z(b.minZ), (b.maxX - b.minX) * scale, (b.maxZ - b.minZ) * scale, 10)
+  ctx.fill()
+  // Faint 10 m grid: helps judge distances.
+  ctx.strokeStyle = 'rgba(74,58,51,0.045)'
   ctx.lineWidth = 1
-  for (let x = Math.ceil(b.minX / 5) * 5; x <= b.maxX; x += 5) {
-    ctx.beginPath()
+  ctx.beginPath()
+  for (let x = Math.ceil(b.minX / 10) * 10; x <= b.maxX; x += 10) {
     ctx.moveTo(X(x), Z(b.minZ))
     ctx.lineTo(X(x), Z(b.maxZ))
-    ctx.stroke()
   }
-  for (let z = Math.ceil(b.minZ / 5) * 5; z <= b.maxZ; z += 5) {
-    ctx.beginPath()
+  for (let z = Math.ceil(b.minZ / 10) * 10; z <= b.maxZ; z += 10) {
     ctx.moveTo(X(b.minX), Z(z))
     ctx.lineTo(X(b.maxX), Z(z))
-    ctx.stroke()
   }
+  ctx.stroke()
+
+  const box = (r: MapRect) => {
+    const x0 = clipX(X(r.x0))
+    const x1 = clipX(X(r.x1))
+    const z0 = clipZ(Z(r.z0))
+    const z1 = clipZ(Z(r.z1))
+    return x1 - x0 < 0.5 || z1 - z0 < 0.5 ? null : { x0, z0, x1, z1 }
+  }
+  // 1) parks and water: soft blobs with a darker rim
   for (const r of map.rects) {
-    const x0 = Math.max(X(r.x0), X(b.minX))
-    const x1 = Math.min(X(r.x1), X(b.maxX))
-    const z0 = Math.max(Z(r.z0), Z(b.minZ))
-    const z1 = Math.min(Z(r.z1), Z(b.maxZ))
-    if (x1 <= x0 || z1 <= z0) continue
+    if (!r.soft) continue
+    const q = box(r)
+    if (!q) continue
     ctx.fillStyle = r.color
+    ctx.strokeStyle = shade(r.color, 0.82)
+    ctx.lineWidth = 2
     ctx.beginPath()
-    ctx.roundRect(x0, z0, x1 - x0, z1 - z0, r.soft ? Math.min(14, (z1 - z0) / 2) : 2)
+    ctx.roundRect(q.x0, q.z0, q.x1 - q.x0, q.z1 - q.z0, Math.min(18, (q.z1 - q.z0) / 2, (q.x1 - q.x0) / 2))
     ctx.fill()
-    if (!r.soft && r.color !== '#9aa3b2' && r.color !== '#f6f1e7') {
-      ctx.strokeStyle = 'rgba(74,58,51,0.35)'
-      ctx.lineWidth = 1
-      ctx.stroke()
-    }
+    ctx.stroke()
   }
   for (const c of map.circles ?? []) {
     ctx.fillStyle = c.color
+    ctx.strokeStyle = shade(c.color, 0.82)
+    ctx.lineWidth = 1.2
     ctx.beginPath()
     ctx.arc(X(c.x), Z(c.z), c.r * scale, 0, Math.PI * 2)
     ctx.fill()
+    if (c.r * scale > 6) ctx.stroke()
+  }
+  // 2) roads (with white kerbs) and their dashed centre lines
+  for (const r of map.rects) {
+    if (r.color !== MAP_ROAD) continue
+    const q = box(r)
+    if (!q) continue
+    ctx.fillStyle = '#a9b0bd'
+    ctx.fillRect(q.x0, q.z0, q.x1 - q.x0, q.z1 - q.z0)
+    ctx.strokeStyle = 'rgba(255,255,255,0.75)'
+    ctx.lineWidth = 1.5
+    ctx.strokeRect(q.x0, q.z0, q.x1 - q.x0, q.z1 - q.z0)
+  }
+  ctx.strokeStyle = '#fffaf0'
+  ctx.lineWidth = Math.max(1, 0.18 * scale)
+  ctx.setLineDash([Math.max(4, 1.6 * scale), Math.max(4, 1.4 * scale)])
+  for (const r of map.rects) {
+    if (r.color !== MAP_ROAD_LINE) continue
+    const q = box(r)
+    if (!q) continue
+    ctx.beginPath()
+    if (q.x1 - q.x0 >= q.z1 - q.z0) {
+      ctx.moveTo(q.x0, (q.z0 + q.z1) / 2)
+      ctx.lineTo(q.x1, (q.z0 + q.z1) / 2)
+    } else {
+      ctx.moveTo((q.x0 + q.x1) / 2, q.z0)
+      ctx.lineTo((q.x0 + q.x1) / 2, q.z1)
+    }
+    ctx.stroke()
+  }
+  ctx.setLineDash([])
+  // 3) buildings: a soft drop shadow, the block, a darker outline
+  for (const r of map.rects) {
+    if (r.soft || r.color === MAP_ROAD || r.color === MAP_ROAD_LINE) continue
+    const q = box(r)
+    if (!q) continue
+    const rad = Math.min(3, (q.x1 - q.x0) / 3, (q.z1 - q.z0) / 3)
+    ctx.fillStyle = 'rgba(74,58,51,0.16)'
+    ctx.beginPath()
+    ctx.roundRect(q.x0 + 1.5, q.z0 + 2.5, q.x1 - q.x0, q.z1 - q.z0, rad)
+    ctx.fill()
+    ctx.fillStyle = r.color
+    ctx.strokeStyle = shade(r.color, 0.7)
+    ctx.lineWidth = 1
+    ctx.beginPath()
+    ctx.roundRect(q.x0, q.z0, q.x1 - q.x0, q.z1 - q.z0, rad)
+    ctx.fill()
+    ctx.stroke()
   }
 
-  // Street / water / area names
-  ctx.textAlign = 'center'
-  ctx.textBaseline = 'middle'
-  for (const l of map.labels ?? []) {
-    // 1.40: small places (the eateries) only once you zoom in, or the old quarter is a pile of names
-    if (l.minZoom && view.zoom < l.minZoom) continue
-    const size = l.kind === 'street' ? 14 : l.minZoom ? 11 : 13
-    ctx.font = `${l.kind === 'water' ? 'italic ' : ''}900 ${size}px Nunito, system-ui, sans-serif`
-    const color = l.kind === 'water' ? '#2f6f8f' : l.kind === 'street' ? '#ffffff' : '#7a4a2a'
-    const halo = l.kind === 'street' ? 'rgba(74,58,51,0.55)' : 'rgba(255,250,240,0.9)'
-    labelText(ctx, localize(l.text, lang).toUpperCase(), X(l.x), Z(l.z), color, halo)
-  }
+  const placer = new Placer(w, h)
+  placer.block(w - 58, 0, w, 160)
+  placer.block(0, h - 36, Math.min(w, 290), h)
+  placer.block(w - 110, h - 40, w, h)
+  const px = X(playerState.position.x)
+  const pz = Z(playerState.position.z)
+  const target = guideTarget()
+  // You and the goal always stay readable: no name may cover them.
+  placer.reserve(px, pz, 13)
+  if (target) placer.reserve(X(target.x), Z(target.z), 11)
 
-  // Places you can use, and people
-  const items = Object.values(useInteraction.getState().items)
-  ctx.font = '800 12px Nunito, system-ui, sans-serif'
-  ctx.textBaseline = 'alphabetic'
+  // 4) places you can use: small pins (no NPCs — user 1.43)
+  const items = Object.values(useInteraction.getState().items).filter((d) => !d.id.startsWith('resident:') && !d.id.startsWith('npc:'))
+  const pins: { x: number; z: number; name: string; goal: boolean }[] = []
   for (const d of items) {
-    if (d.id.startsWith('resident:')) continue
-    const isNpc = d.id.startsWith('npc:')
     const x = X(d.zone.x)
     const z = Z(d.zone.z)
     if (x < -20 || x > w + 20 || z < -20 || z > h + 20) continue
-    ctx.fillStyle = isNpc ? '#ff7f9f' : '#f4c04e'
-    ctx.strokeStyle = '#4a3a33'
+    const name = d.nameKey ? translate(lang, d.nameKey) : d.name ? localize(d.name, lang) : ''
+    pins.push({ x, z, name, goal: !!target?.id && target.id === d.id })
+    ctx.fillStyle = '#ffffff'
+    ctx.strokeStyle = INK
     ctx.lineWidth = 1.4
     ctx.beginPath()
-    ctx.arc(x, z, isNpc ? 3.6 : 5, 0, Math.PI * 2)
+    ctx.arc(x, z, 4.6, 0, Math.PI * 2)
     ctx.fill()
     ctx.stroke()
-    if (isNpc && !close) continue
-    const name = d.nameKey ? translate(lang, d.nameKey) : d.name ? localize(d.name, lang) : ''
-    if (name) labelText(ctx, name, x, z - 8, isNpc ? '#b0395a' : '#4a3a33')
+    ctx.fillStyle = '#f4b73e'
+    ctx.beginPath()
+    ctx.arc(x, z, 2.6, 0, Math.PI * 2)
+    ctx.fill()
   }
 
-  // Other players in this place (friends in green)
-  const friends = new Set(useSocial.getState().friends.map((f) => f.key))
-  for (const r of remotes.values()) {
+  // 5) friends only (user 1.43: no strangers on the map)
+  const friendKeys = new Set(useSocial.getState().friends.map((f) => f.key))
+  const friends = [...remotes.values()].filter((r) => friendKeys.has(r.name.trim().toLowerCase()))
+  for (const r of friends) {
     const x = X(r.x)
     const z = Z(r.z)
-    const friend = friends.has(r.name.trim().toLowerCase())
-    ctx.fillStyle = friend ? '#3fae72' : '#4f8fe8'
+    ctx.fillStyle = '#3fae72'
     ctx.strokeStyle = '#ffffff'
     ctx.lineWidth = 2
     ctx.beginPath()
-    ctx.arc(x, z, 5, 0, Math.PI * 2)
+    ctx.arc(x, z, 5.5, 0, Math.PI * 2)
     ctx.fill()
     ctx.stroke()
-    labelText(ctx, r.name, x, z - 9, friend ? '#2b7a50' : '#2f5fa8')
+    placer.reserve(x, z, 6)
   }
 
-  // The guide's target: a pulsing star
-  const target = guideTarget()
-  if (target) {
-    const pulse = 1 + Math.sin(time / 180) * 0.18
-    star(ctx, X(target.x), Z(target.z), 10 * pulse)
-  }
-
-  // You: an arrow pointing where you face, with a soft halo
-  const px = X(playerState.position.x)
-  const pz = Z(playerState.position.z)
+  // 6) the guide's target: a pulsing star; 7) you: an arrow pointing where you face
+  if (target) star(ctx, X(target.x), Z(target.z), 10 * (1 + Math.sin(time / 180) * 0.18))
   ctx.fillStyle = 'rgba(200,50,43,0.18)'
   ctx.beginPath()
   ctx.arc(px, pz, 16 + Math.sin(time / 300) * 2, 0, Math.PI * 2)
@@ -238,6 +344,80 @@ function draw(canvas: HTMLCanvasElement, view: View, time: number) {
   ctx.stroke()
   ctx.fill()
   ctx.restore()
+
+  // 8) names, most important first; whatever has no room is left out (never two names on top of each other)
+  ctx.textAlign = 'center'
+  ctx.textBaseline = 'middle'
+  const rank = (l: MapLabel) => (l.kind === 'street' ? 0 : l.kind === 'water' ? 1 : l.minZoom ? 3 : 2)
+  const sorted = [...(map.labels ?? [])].sort((a, c) => rank(a) - rank(c))
+  const shown = new Set<string>()
+  const tag = (name: string, x: number, y: number, bg: string, fg: string): boolean => {
+    const text = short(name)
+    const tw = ctx.measureText(text).width
+    if (!placer.take(x - tw / 2 - 6, y - 9, x + tw / 2 + 6, y + 9)) return false
+    pill(ctx, text, x, y, tw, bg, fg)
+    return true
+  }
+  // the goal's name first
+  const goalPin = pins.find((p) => p.goal)
+  ctx.font = `900 11px ${FONT}`
+  if (goalPin?.name && tag(goalPin.name, goalPin.x, goalPin.z - 19, '#ffd84d', INK)) shown.add(goalPin.name.toLowerCase())
+  for (const l of sorted) {
+    if (l.minZoom && view.zoom < l.minZoom) continue
+    const text = localize(l.text, lang)
+    const fontSize = l.kind === 'area' ? 11.5 : 13
+    ctx.font = `${l.kind === 'water' ? 'italic ' : ''}900 ${fontSize}px ${FONT}`
+    const shownText = l.kind === 'area' ? text : text.toUpperCase()
+    const tw = ctx.measureText(shownText).width + (l.kind === 'street' ? shownText.length * 0.8 : 0)
+    const x = X(l.x)
+    const y = Z(l.z)
+    const hw = (l.vertical ? fontSize : tw) / 2 + 2
+    const hh = (l.vertical ? tw : fontSize) / 2 + 2
+    if (!placer.take(x - hw, y - hh, x + hw, y + hh)) continue
+    shown.add(text.toLowerCase())
+    ctx.save()
+    ctx.translate(x, y)
+    if (l.vertical) ctx.rotate(-Math.PI / 2)
+    if (l.kind === 'street') {
+      ctx.letterSpacing = '0.8px'
+      haloText(ctx, shownText, 0, 0, '#ffffff', 'rgba(74,58,51,0.7)', 3.2)
+    } else if (l.kind === 'water') haloText(ctx, shownText, 0, 0, '#245f7c', 'rgba(235,248,250,0.85)')
+    else haloText(ctx, shownText, 0, 0, '#7a4a2a', 'rgba(255,250,240,0.92)')
+    ctx.restore()
+  }
+  // place names as tags above their pins, once the map is close enough (each name once)
+  ctx.font = `800 11px ${FONT}`
+  if (scale >= 2.5) {
+    for (const p of pins) {
+      if (!p.name || p.goal) continue
+      const key = p.name.toLowerCase()
+      if (shown.has(key)) continue
+      if (tag(p.name, p.x, p.z - 13, '#fff8ea', INK)) shown.add(key)
+    }
+  }
+  for (const r of friends) tag(r.name, X(r.x), Z(r.z) - 14, '#d9f2e3', '#2b7a50')
+
+  // 9) scale bar (bottom right)
+  const metres = [5, 10, 20, 50, 100].find((m) => m * scale >= 50) ?? 100
+  const len = metres * scale
+  const bx = w - 14 - len
+  const by = h - 14
+  ctx.fillStyle = 'rgba(255,248,234,0.9)'
+  ctx.beginPath()
+  ctx.roundRect(bx - 8, by - 18, len + 16, 26, 8)
+  ctx.fill()
+  ctx.strokeStyle = INK
+  ctx.lineWidth = 2
+  ctx.beginPath()
+  ctx.moveTo(bx, by - 4)
+  ctx.lineTo(bx, by)
+  ctx.lineTo(bx + len, by)
+  ctx.lineTo(bx + len, by - 4)
+  ctx.stroke()
+  ctx.font = `900 10px ${FONT}`
+  ctx.fillStyle = INK
+  ctx.textBaseline = 'alphabetic'
+  ctx.fillText(`${metres} m`, bx + len / 2, by - 6)
 }
 
 function star(ctx: CanvasRenderingContext2D, x: number, y: number, r: number) {
@@ -293,7 +473,9 @@ function MapCanvas({ view, onPick }: { view: RefObject<View>; onPick?: (x: numbe
       v.cx = before.tr.cx
       v.cz = before.tr.cz
       v.zoom = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, v.zoom * f))
-      const tr = layout(el, SCENE_MAPS[useWorld.getState().scene] ?? roomMap(), v)
+      const map = SCENE_MAPS[useWorld.getState().scene]
+      if (!map) return
+      const tr = layout(el, map, v)
       const after = { x: tr.cx + (sx - tr.w / 2) / tr.scale, z: tr.cz + (sy - tr.h / 2) / tr.scale }
       v.cx = tr.cx + (before.x - after.x)
       v.cz = tr.cz + (before.z - after.z)
@@ -370,39 +552,21 @@ function TeleportList() {
   const t = useT()
   const localize = useLocalize()
   const lang = useSettings((s) => s.language)
-  const scene = useWorld((s) => s.scene)
   const items = useInteraction((s) => s.items)
   const places = Object.values(items).filter((d) => !d.id.startsWith('resident:'))
   const btn = 'rounded-lg border-2 border-outline bg-cream px-2 py-1 text-[11px] font-black text-ink active:translate-y-0.5'
+  // 1.43 folded by default (it hid most of the map on a phone); scene travel moved to the test tools
   return (
-    <div className="max-h-[28dvh] overflow-y-auto rounded-2xl border-2 border-dashed border-gold bg-gold-light/50 p-2" data-testid="teleport">
-      <p className="mb-1 text-[11px] font-black text-lacquer">{t('map.teleportHint')}</p>
-      <div className="mb-2 flex flex-wrap gap-1">
+    <details className="rounded-2xl border-2 border-dashed border-gold bg-gold-light/50 px-2 py-1" data-testid="teleport">
+      <summary className="cursor-pointer text-[11px] font-black text-lacquer">{t('map.teleportHint')}</summary>
+      <div className="mt-1 flex max-h-[22dvh] flex-wrap gap-1 overflow-y-auto pb-1">
         {places.map((d) => (
           <button key={d.id} type="button" className={btn} onClick={() => teleportPlayer(d.zone.x, d.zone.z + Math.min(d.zone.halfZ, 1) * 0.6)}>
             {d.nameKey ? translate(lang, d.nameKey) : d.name ? localize(d.name) : d.id}
           </button>
         ))}
       </div>
-      <p className="mb-1 text-[11px] font-black text-lacquer">{t('map.travel')}</p>
-      <div className="flex flex-wrap gap-1">
-        {Object.values(SCENES)
-          .filter((s) => s.id !== scene)
-          .map((s) => (
-            <button
-              key={s.id}
-              type="button"
-              className={btn}
-              onClick={() => {
-                useUI.getState().closePanel()
-                travelTo(s.id, 'default', { minutes: 0 })
-              }}
-            >
-              {localize(s.name)}
-            </button>
-          ))}
-      </div>
-    </div>
+    </details>
   )
 }
 
@@ -433,6 +597,7 @@ function useMapKey() {
         return
       }
       if (ui.panel || ui.settingsOpen || ui.transition || ui.sleeping || useDialogue.getState().npcId) return
+      if (!hasCityMap(useWorld.getState().scene)) return
       ui.openPanel({ type: 'map' })
     }
     window.addEventListener('keydown', onKey)
@@ -440,7 +605,7 @@ function useMapKey() {
   }, [])
 }
 
-/** The big map: fills the screen, live, with names, people and your goal. */
+/** The big map: fills the screen, live, with names, friends and your goal (cities only). */
 export function MapPanel() {
   useMapKey()
   const t = useT()
@@ -449,24 +614,27 @@ export function MapPanel() {
   const closePanel = useUI((s) => s.closePanel)
   const scene = useWorld((s) => s.scene)
   const guide = useGuide((s) => s.guide)
-  const testMode = useSettings((s) => s.testMode)
+  const testMode = useTestMode()
   const view = useRef<View>({ zoom: 1, cx: null, cz: null })
   const [, setTick] = useState(0)
+  const cityMap = hasCityMap(scene)
 
-  // Each time it opens: start a bit zoomed in, centred on you.
+  // Walked (or travelled) out of the city with the map open: close it.
+  useEffect(() => {
+    if (open && !cityMap) closePanel()
+  }, [open, cityMap, closePanel])
+
+  // Each time it opens: centred on you, about START_SPAN metres across (the same in a big and a small city).
   useEffect(() => {
     if (!open) return
-    const outdoor = !!SCENE_MAPS[useWorld.getState().scene]
-    // Portrait already fills the height at zoom 1.
-    const start = window.innerHeight > window.innerWidth ? 1 : 1.6
-    view.current = outdoor ? { zoom: start, cx: playerState.position.x, cz: playerState.position.z } : { zoom: 1, cx: null, cz: null }
+    view.current = { zoom: 1, cx: playerState.position.x, cz: playerState.position.z, span: START_SPAN }
     setTick((n) => n + 1)
     const onKey = (e: KeyboardEvent) => e.code === 'Escape' && closePanel()
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
   }, [open, closePanel])
 
-  if (!open) return null
+  if (!open || !cityMap) return null
   const zoomBy = (f: number) => {
     const v = view.current
     v.zoom = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, v.zoom * f))
@@ -480,7 +648,10 @@ export function MapPanel() {
       <div role="dialog" aria-modal="true" aria-label={t('map.title')} data-testid="map" className="panel animate-sheet relative flex h-full w-full max-w-6xl flex-col gap-2 p-2.5 text-ink sm:p-3">
         <div className="flex items-center gap-2 pr-11">
           <h2 className="rounded-full ribbon px-4 py-0.5 text-lg whitespace-nowrap">{t('map.title')}</h2>
-          <p className="truncate text-[13px] font-black text-ink/70">📍 {localize(SCENES[scene].name)}</p>
+          <p className="flex min-w-0 items-center gap-1 text-[13px] font-black text-ink/70">
+            <PinIcon className="shrink-0" />
+            <span className="truncate">{localize(SCENES[scene].name)}</span>
+          </p>
           <span className="ml-auto hidden rounded-md border-2 border-outline/40 px-1.5 text-[11px] font-black text-ink/50 sm:inline">M</span>
         </div>
         <button
@@ -506,7 +677,7 @@ export function MapPanel() {
               onClick={() => {
                 view.current.cx = playerState.position.x
                 view.current.cz = playerState.position.z
-                view.current.zoom = Math.max(view.current.zoom, 1.6)
+                view.current.span = START_SPAN
               }}
             >
               ◎
@@ -516,15 +687,11 @@ export function MapPanel() {
             <span>
               <span className="text-lacquer">▲</span> {t('map.you')}
             </span>
-            <span>⭐ {t('map.goal')}</span>
+            <span className="inline-flex items-center gap-1">
+              <StarIcon className="text-[#e0b400]" /> {t('map.goal')}
+            </span>
             <span>
               <span className="text-gold">●</span> {t('map.place')}
-            </span>
-            <span>
-              <span className="text-rose">●</span> {t('map.person')}
-            </span>
-            <span>
-              <span className="text-[#4f8fe8]">●</span> {t('map.player')}
             </span>
             <span>
               <span className="text-[#3fae72]">●</span> {t('map.friend')}
@@ -533,8 +700,11 @@ export function MapPanel() {
         </div>
 
         {guide && (
-          <div className="rounded-2xl bg-white/80 px-3 py-2 text-[13px] font-bold shadow-[inset_0_0_0_2px_#f1dcb6]">
-            <div className="font-black">🎯 {localize(guide.stepText)}</div>
+          <div className="rounded-2xl bg-white/80 px-3 py-2 text-[13px] font-bold shadow-[inset_0_0_0_2px_#f1dcb6] short:py-1 short:text-[12px]">
+            <div className="flex items-center gap-1.5 font-black">
+              <TargetIcon className="shrink-0 text-lacquer" />
+              <span>{localize(guide.stepText)}</span>
+            </div>
             {guide.destination && guide.destination !== scene && (
               <div className="mt-0.5 text-ink/70">
                 {t('map.goalIn', { place: localize(SCENES[guide.destination].name) })}

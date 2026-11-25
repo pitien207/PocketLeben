@@ -14,7 +14,7 @@ import { useUI } from '../store/uiStore'
 import { Icon3d } from './Icon3d'
 import { SecretList } from './SecretCard'
 
-import { SkipStepButton } from './TestTools'
+import { SkipStepButton, UndoStepButton } from './TestTools'
 
 /**
  * Quests (1.29, user: the old list was boring). Animations with Motion (motion.dev, MIT): the HUD
@@ -109,6 +109,7 @@ export function QuestTracker() {
             ✕
           </button>
         )}
+        <UndoStepButton className="hud-slim px-1.5 text-sm" />
         <SkipStepButton stepId={objective.step.id} className="hud-slim px-1.5 text-sm" />
       </div>
     </LazyMotion>

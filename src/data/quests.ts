@@ -226,7 +226,11 @@ export const QUESTS: QuestDef[] = [
       step('dep.visa', 'Chờ visa được cấp (3 ngày)', 'Wait for the visa (3 days)', { test: 'visa.ready' }),
       step('dep.flight', 'Có vé máy bay (chị Mai, laptop ở nhà, hoặc Cầu nối)', 'Get a plane ticket (Mai, home laptop, or the bridge programme)', { flag: 'visa.flight' }),
       step('dep.exchange', `Đổi Euro ở ngân hàng anh Quân (ít nhất ${CONFIG.visa.exchangeGoal} €)`, `Change euros at Quân’s bank (at least €${CONFIG.visa.exchangeGoal})`, { any: [{ test: 'wallet.euroGoal' }, { flag: 'de.arrived' }] }),
-      step('dep.airport', 'Ra sân bay, chào gia đình và lên máy bay', 'Go to the airport, say goodbye, board the plane', { flag: 'de.arrived' }),
+      step('dep.airport', 'Ra sân bay, chào gia đình rồi qua cổng 7 lên máy bay', 'Go to the airport, say goodbye, board at gate 7', { any: [{ flag: 'fly.boarded' }, { flag: 'de.arrived' }] }),
+      // 1.43 the first flight is played (systems/flight.ts)
+      step('dep.seat', 'Trên máy bay: tìm đúng ghế ghi trên thẻ lên máy bay', 'On the plane: find the seat on your boarding pass', { any: [{ flag: 'fly.seated' }, { flag: 'de.arrived' }] }),
+      step('dep.passport', 'Transit München: theo biển "Anschlussflüge", qua kiểm soát hộ chiếu', 'Munich transit: follow "Anschlussflüge", pass passport control', { any: [{ flag: 'fly.passport' }, { flag: 'de.arrived' }] }),
+      step('dep.gate', 'Đọc bảng điện tử, tìm đúng cổng chuyến bay đi Frankfurt', 'Read the departures board, find the gate of your flight to Frankfurt', { flag: 'de.arrived' }),
     ],
   },
   {

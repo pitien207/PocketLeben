@@ -46,10 +46,15 @@ export interface MapLabel {
   kind: 'street' | 'water' | 'area'
   /** Drawn only from this zoom on (1.40: the eateries). */
   minZoom?: number
+  /** 1.43 a north–south street: the name runs along it. */
+  vertical?: boolean
 }
 
-const ROAD = '#9aa3b2'
-const ROAD_LINE = '#f6f1e7'
+/** Roads and their centre lines (ui/MapView draws them differently from blocks). */
+export const MAP_ROAD = '#9aa3b2'
+export const MAP_ROAD_LINE = '#f6f1e7'
+const ROAD = MAP_ROAD
+const ROAD_LINE = MAP_ROAD_LINE
 
 export const SCENE_MAPS: Partial<Record<SceneId, SceneMap>> = {
   vietnam: {
@@ -142,15 +147,15 @@ export const SCENE_MAPS: Partial<Record<SceneId, SceneMap>> = {
       { x: -16, z: 7.7, kind: 'street', text: { vi: 'Phố Hàng Gai', en: 'Hàng Gai Street', de: 'Hàng-Gai-Straße' } },
       { x: -14, z: 22.4, kind: 'water', text: { vi: 'Hồ Hoàn Kiếm (Hồ Gươm)', en: 'Hoàn Kiếm Lake', de: 'Hoàn-Kiếm-See' } },
       { x: 13.2, z: 24.8, kind: 'area', text: { vi: 'Cầu Thê Húc', en: 'Thê Húc Bridge', de: 'Thê-Húc-Brücke' } },
-      { x: 32.5, z: 30, kind: 'street', text: { vi: 'Đường ven hồ', en: 'Lakeside path' } },
+      { x: 32.5, z: 30, kind: 'street', vertical: true, text: { vi: 'Đường ven hồ', en: 'Lakeside path' } },
       { x: 41.3, z: 52, kind: 'area', text: { vi: 'Vườn hoa Lý Thái Tổ', en: 'Lý Thái Tổ garden' } },
       { x: -10, z: 82.2, kind: 'street', text: { vi: 'Phố Hàng Khay', en: 'Hàng Khay Street' } },
-      { x: 6, z: 116.2, kind: 'street', text: { vi: 'Phố Bà Triệu', en: 'Bà Triệu Street' } },
+      { x: 6, z: 116.2, kind: 'street', vertical: true, text: { vi: 'Phố Bà Triệu', en: 'Bà Triệu Street' } },
       { x: -24, z: 127.2, kind: 'area', text: { vi: 'Vườn hoa Hàng Khay', en: 'Hàng Khay garden' } },
       { x: -34.6, z: 101.8, kind: 'area', text: { vi: 'Sân pickleball', en: 'Pickleball court' } },
       { x: 20, z: -11.3, kind: 'area', text: { vi: 'Đình làng', en: 'Communal house', de: 'Gemeindehaus' } },
       { x: 23.6, z: 17.6, kind: 'area', text: { vi: 'Chợ đêm', en: 'Night market', de: 'Nachtmarkt' } },
-      { x: 11.8, z: -16.5, kind: 'street', text: { vi: 'Phố Hàng Bông', en: 'Hàng Bông street', de: 'Hàng-Bông-Straße' } },
+      { x: 11.8, z: -16.5, kind: 'street', vertical: true, text: { vi: 'Phố Hàng Bông', en: 'Hàng Bông street', de: 'Hàng-Bông-Straße' } },
       { x: 8.9, z: -10.6, kind: 'area', text: { vi: 'VP Mai Anh', en: 'Mai Anh office', de: 'Büro Mai Anh' } },
       { x: 14.9, z: -10.7, kind: 'area', text: { vi: 'Hoàng Kim', en: 'Hoàng Kim', de: 'Hoàng Kim' } },
       { x: 14.9, z: -6.4, kind: 'area', text: { vi: 'Circle K', en: 'Circle K', de: 'Circle K' } },

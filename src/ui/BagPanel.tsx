@@ -9,6 +9,7 @@ import { CONFIG } from '../data/config'
 import { eatFromBag } from '../game/systems/effects'
 import { bagCapacity, bagWeight, dropBottle, dropItem, formatKg, keyItemsHeld } from '../game/systems/bag'
 import { flagNumber } from '../game/systems/conditions'
+import { currentFlightPlan } from '../game/systems/flight'
 import { isWearing, takeOff, wear } from '../game/systems/wardrobe'
 import { useT, type I18nKey } from '../i18n'
 import { useLocalize } from '../i18n/localized'
@@ -119,6 +120,23 @@ function DropButton({ onDrop, label }: { onDrop: () => void; label: string }) {
   )
 }
 
+/** 1.43 the boarding pass in the bag: the seat again, and a button to open the whole pass. */
+function PassLine() {
+  const openPanel = useUI((s) => s.openPanel)
+  useFlags((s) => s.flags['fly.seed'])
+  const plan = currentFlightPlan()
+  return (
+    <span className="mt-1 flex flex-wrap items-center gap-2">
+      <span className="rounded-lg border-2 border-outline bg-butter px-2 py-0.5 font-display text-sm font-extrabold" data-testid="bag-pass-seat">
+        Ghế {plan.seat}
+      </span>
+      <button type="button" data-testid="bag-pass-open" onClick={() => openPanel({ type: 'boardingPass' })} className="btn-jade rounded-lg px-2 py-0.5 text-[12px] font-black">
+        Xem thẻ
+      </button>
+    </span>
+  )
+}
+
 /** What the selected slot is, and what you can do with it. */
 function SlotDetail({ slot }: { slot: Slot }) {
   const t = useT()
@@ -132,6 +150,7 @@ function SlotDetail({ slot }: { slot: Slot }) {
         <span className="min-w-0 flex-1">
           <span className="block font-display text-base leading-tight font-extrabold">{localize(slot.paper.name)}</span>
           <span className="block text-[12px] leading-snug font-bold text-ink/70">{localize(slot.paper.desc)}</span>
+          {slot.paper.id === 'boardingPass' && <PassLine />}
           <span className="mt-1 inline-flex items-center gap-1 text-[11px] font-black text-lacquer">
             <LockIcon /> {t('bag.papersHint')}
           </span>
