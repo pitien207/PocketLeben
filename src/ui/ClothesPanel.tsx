@@ -9,6 +9,7 @@ import { useT, type I18nKey } from '../i18n'
 import { useLocalize } from '../i18n/localized'
 import { usePlayer } from '../store/playerStore'
 import { useUI } from '../store/uiStore'
+import { Tabs } from './kit/Tabs'
 import { Sheet } from './Sheet'
 
 /**
@@ -60,23 +61,9 @@ export function ClothesPanel() {
   const owned = wardrobe.includes(picked.id)
   const wearing = owned && isWearing(picked.id)
   return (
-    <Sheet title={localize(CLOTHES_SHOP_NAMES[shopId])} onClose={closePanel}>
+    <Sheet title={localize(CLOTHES_SHOP_NAMES[shopId])} icon="t-shirt" onClose={closePanel}>
       {tabs.length > 1 && (
-        <div role="tablist" className="mb-2 flex gap-1 overflow-x-auto pb-1">
-          {tabs.map((id) => (
-            <button
-              key={id}
-              type="button"
-              role="tab"
-              aria-selected={id === tab}
-              data-testid={`clothes-tab-${id}`}
-              onClick={() => setTab(id)}
-              className={`shrink-0 rounded-full px-3 py-1 text-[13px] font-black ${id === tab ? 'btn-lacquer' : 'bg-white/70 text-ink/70 shadow-[inset_0_0_0_2px_#f1dcb6]'}`}
-            >
-              {t(`clothes.tab.${id}` as I18nKey)}
-            </button>
-          ))}
-        </div>
+        <Tabs value={tab} onChange={setTab} scroll size="sm" className="mb-2" items={tabs.map((id) => ({ id, label: t(`clothes.tab.${id}` as I18nKey), testId: `clothes-tab-${id}` }))} />
       )}
       <div className="flex gap-3 short:items-start">
         {/* The picked item, big, with buy / wear */}
@@ -99,7 +86,7 @@ export function ClothesPanel() {
           )}
         </div>
         {/* Everything in this category */}
-        <ul className="grid max-h-[46vh] flex-1 grid-cols-2 content-start gap-2 overflow-y-auto pr-0.5 short:max-h-[58vh] short:grid-cols-3">
+        <ul className="grid max-h-[46vh] flex-1 grid-cols-2 content-start gap-2 ui-scroll overflow-y-auto pr-0.5 short:max-h-[58vh] short:grid-cols-3">
           {shown.map((item) => {
             const mine = wardrobe.includes(item.id)
             const on = item.id === picked.id

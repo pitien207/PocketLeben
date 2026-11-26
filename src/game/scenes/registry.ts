@@ -5,6 +5,16 @@ import type { SceneId } from '../../store/worldStore'
 import { loadModelPacks, type ModelPack } from './shared/models'
 import { chunk } from '../../updates'
 import { SHOP_ROOM_LIST, shopExit, shopScene, shopStreetSpawns, type ShopSceneId } from '../../data/shopRooms'
+import { BUS_STOPS, busSpawn, busSpawnKey, U_STATIONS, uSpawnKey, uStreetSpawn, type UStationId } from '../../data/transit'
+import { U_SPAWNS } from './UBahn/layout'
+
+/** 1.48 spawn points beside every bus stop (and, in München, at every U-Bahn exit). */
+function transitSpawns(scene: 'vietnam' | 'germany'): Record<string, SpawnPoint> {
+  const out: Record<string, SpawnPoint> = {}
+  for (const st of Object.values(BUS_STOPS)) if (st.scene === scene) out[busSpawnKey(st.id)] = busSpawn(st)
+  if (scene === 'germany') for (const id of Object.keys(U_STATIONS) as UStationId[]) out[uSpawnKey(id)] = uStreetSpawn(U_STATIONS[id])
+  return out
+}
 
 /** 1.33: a scene's code chunk and the model packs it draws with, fetched together. */
 const withModels =
@@ -79,8 +89,9 @@ export const SCENES: Record<SceneId, SceneInfo> = {
       pickleball: { x: -30, z: 114.2, yaw: 0 },
       /** 1.41 in front of each shop door (data/shopRooms.ts). */
       ...shopStreetSpawns(),
+      ...transitSpawns('vietnam'),
     },
-    load: withModels(['nature', 'city', 'food', 'town', 'facade', 'street', 'towers', 'citybits', 'urban'], () => import('./VietnamStreet')),
+    load: withModels(['nature', 'city', 'food', 'town', 'facade', 'street', 'towers', 'citybits', 'urban', 'vehicles', 'bus'], () => import('./VietnamStreet')),
   },
   home: {
     id: 'home',
@@ -194,9 +205,21 @@ export const SCENES: Record<SceneId, SceneInfo> = {
       hbf: { x: -50, z: -1.5, yaw: 0 },
       garten: { x: 10, z: -114, yaw: 0 },
       isar: { x: 38, z: -40, yaw: 0 },
+      ...transitSpawns('germany'),
     },
     // 1.45 the car models too (parked taxis are built once when the city mounts)
-    load: withModels(['nature', 'city', 'food', 'town', 'facade', 'street', 'towers', 'citybits', 'urban'], () => import('./GermanyStreet').then((m) => import('./shared/carModels').then((c) => c.loadCarModels()).then(() => m, () => m))),
+    load: withModels(['nature', 'city', 'food', 'town', 'facade', 'street', 'towers', 'citybits', 'urban', 'vehicles', 'bus', 'rail'], () => import('./GermanyStreet').then((m) => import('./shared/carModels').then((c) => c.loadCarModels()).then(() => m, () => m))),
+  },
+  /** 1.48 a München U-Bahn station (U3 / U6): the same hall for every station, flag ubahn.at says which (data/transit.ts). */
+  ubahn: {
+    id: 'ubahn',
+    country: 'de',
+    indoor: true,
+    name: { vi: 'U-Bahn München', en: 'Munich U-Bahn', de: 'U-Bahn München' },
+    plaque: { style: 'german', title: { vi: 'U-Bahn', en: 'U-Bahn', de: 'U-Bahn' }, subtitle: { vi: 'U3 · U6', en: 'U3 · U6', de: 'U3 · U6' } },
+    spawns: { default: U_SPAWNS.default, gleis1: U_SPAWNS.gleis1, gleis2: { ...U_SPAWNS.gleis2, yaw: Math.PI } },
+    cameraZoom: 0.95,
+    load: withModels(['nature', 'city', 'rail'], () => import('./UBahn')),
   },
   buergeramt: {
     id: 'buergeramt',

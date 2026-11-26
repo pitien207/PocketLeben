@@ -5,10 +5,11 @@
  * Title-safe: no imports (the title screen loads it).
  */
 
-export type LicenseId = 'CC0' | 'CC-BY-4.0' | 'CC-BY-SA-4.0' | 'MIT' | 'Apache-2.0' | 'zlib' | 'ISC' | 'OFL-1.1' | 'own'
+export type LicenseId = 'CC0' | 'CC-BY-3.0' | 'CC-BY-4.0' | 'CC-BY-SA-4.0' | 'MIT' | 'Apache-2.0' | 'zlib' | 'ISC' | 'OFL-1.1' | 'own'
 
 export const LICENSES: Record<LicenseId, { name: string; url?: string }> = {
   CC0: { name: 'CC0 1.0 (public domain)', url: 'https://creativecommons.org/publicdomain/zero/1.0/' },
+  'CC-BY-3.0': { name: 'CC BY 3.0', url: 'https://creativecommons.org/licenses/by/3.0/' },
   'CC-BY-4.0': { name: 'CC BY 4.0', url: 'https://creativecommons.org/licenses/by/4.0/' },
   'CC-BY-SA-4.0': { name: 'CC BY-SA 4.0', url: 'https://creativecommons.org/licenses/by-sa/4.0/' },
   MIT: { name: 'MIT', url: 'https://opensource.org/license/mit' },
@@ -47,6 +48,27 @@ export const CREDIT_GROUPS: CreditGroup[] = [
         source: 'https://kenney.nl',
         license: 'CC0',
         changes: 'Ghép thành nhà kiểu Hà Nội / München, sơn lại màu.',
+      },
+      {
+        what: 'Ô tô trên phố (sedan, SUV, taxi, xe van, xe tải, cứu thương, xe rác…), tàu U-Bahn và đường ray',
+        by: 'Kenney — Car Kit, Train Kit',
+        source: 'https://kenney.nl/assets/car-kit',
+        license: 'CC0',
+        changes: 'Màu phẳng theo ô bảng màu, giảm tam giác bánh xe, sơn lại thân xe; tàu sơn màu U-Bahn München.',
+      },
+      {
+        what: 'Xe buýt thành phố (Hà Nội, München)',
+        by: 'Nick Ladd — "Montreal Bus" (poly.pizza)',
+        source: 'https://poly.pizza/m/fFCCghvRImG',
+        license: 'CC-BY-3.0',
+        changes: 'Xoay thẳng trục, đổi màu sơn (đỏ – vàng kem ở Hà Nội, trắng – xanh ở München), che logo, giảm tam giác, thêm bảng số tuyến.',
+      },
+      {
+        what: 'Nhà chờ xe buýt',
+        by: 'Zsky — "Bus Stop" (poly.pizza)',
+        source: 'https://poly.pizza/m/OWczicNWhO',
+        license: 'CC-BY-3.0',
+        changes: 'Thu nhỏ theo mét, đổi màu khung và kính theo thành phố, thêm bảng lộ trình.',
       },
       {
         what: 'Cột điện, điều hòa, hộp công tơ, két bia, ghế nhựa, bình ga, đèn, lư đồng, ghế gỗ, đèn lồng, trụ cứu hỏa…',
@@ -130,6 +152,41 @@ export const CREDIT_GROUPS: CreditGroup[] = [
         license: 'CC0',
       },
       {
+        what: 'Còi ô tô (và còi xe máy: cùng tiếng còi, nâng tông, bấm hai lần)',
+        by: '15HPanska_Ruttner_Jan — "Car Horn" (Freesound 461679, Wikimedia Commons)',
+        source: 'https://commons.wikimedia.org/wiki/File:Car_Horn.wav',
+        license: 'CC0',
+        changes: 'Cắt một tiếng còi, chuẩn hóa âm lượng; bản xe máy nâng tông ×1,6 và lặp hai lần.',
+      },
+      {
+        what: 'Còi hơi xe buýt',
+        by: 'Work With Sounds / Technical Museum of Slovenia — "WWS CityBusMANSG220horn"',
+        source: 'https://commons.wikimedia.org/wiki/File:WWS_CityBusMANSG220horn.ogg',
+        license: 'CC-BY-4.0',
+        changes: 'Cắt 1,1 giây đầu, làm nhỏ dần cuối, chuẩn hóa âm lượng, đổi sang Ogg mono.',
+      },
+      {
+        what: 'Chuông xe đạp',
+        by: 'Soundscape_Leuphana — "Bicycle-bell-1"',
+        source: 'https://commons.wikimedia.org/wiki/File:Bicycle-bell-1.wav',
+        license: 'CC0',
+        changes: 'Cắt 1,3 giây, chuẩn hóa âm lượng.',
+      },
+      {
+        what: 'Chuông tàu điện (tram)',
+        by: 'qubodup — "Bell-ring" (Freesound 168709)',
+        source: 'https://commons.wikimedia.org/wiki/File:Bell-ring.flac',
+        license: 'CC0',
+        changes: 'Hạ tông, ghép hai tiếng chuông, chuẩn hóa âm lượng.',
+      },
+      {
+        what: 'Tiếng rú ga ô tô',
+        by: 'AndCars (YouTube) — "Nissan Juke - engine and exhaust sound" (Wikimedia Commons)',
+        source: 'https://commons.wikimedia.org/wiki/File:Nissan_Juke_-_engine_and_exhaust_sound_(YouTube_m9Am72CCFuc).opus',
+        license: 'CC-BY-3.0',
+        changes: 'Cắt một lần nhấn ga 2,4 giây (20,3–22,7 s), làm to dần / nhỏ dần, chuẩn hóa âm lượng, đổi sang Ogg mono.',
+      },
+      {
         what: 'Mưa, chim, xe cộ và các âm thanh còn lại',
         by: 'Pocket Leben — tạo bằng code',
         license: 'own',
@@ -158,6 +215,8 @@ export const CREDIT_GROUPS: CreditGroup[] = [
       { what: 'postprocessing', by: 'Raoul van Rüschen', source: 'https://github.com/pmndrs/postprocessing', license: 'zlib', copyright: 'Copyright © 2015 Raoul van Rüschen' },
       { what: 'n8ao', by: 'N8python', source: 'https://github.com/N8python/n8ao', license: 'CC0' },
       { what: 'Motion', by: 'Motion (motion.dev)', source: 'https://motion.dev', license: 'MIT', copyright: 'Copyright (c) 2024 Motion B.V.' },
+      { what: 'Radix UI (công tắc, thanh tab, chú thích)', by: 'WorkOS — Radix Primitives', source: 'https://www.radix-ui.com', license: 'MIT', copyright: 'Copyright (c) 2022 WorkOS' },
+      { what: 'NumberFlow (số tiền chạy cuộn)', by: 'Maxwell Barvian', source: 'https://number-flow.barvian.me', license: 'MIT', copyright: 'Copyright (c) 2024 Maxwell Barvian' },
       { what: 'Sonner', by: 'Emil Kowalski', source: 'https://sonner.emilkowal.ski', license: 'MIT', copyright: 'Copyright (c) 2023 Emil Kowalski' },
       { what: 'canvas-confetti', by: 'Kiril Vatev', source: 'https://github.com/catdad/canvas-confetti', license: 'ISC', copyright: 'Copyright (c) 2020, Kiril Vatev' },
       { what: 'meshoptimizer (giản lược mô hình)', by: 'Arseny Kapoulkine', source: 'https://github.com/zeux/meshoptimizer', license: 'MIT', copyright: 'Copyright (c) 2016-2026 Arseny Kapoulkine' },

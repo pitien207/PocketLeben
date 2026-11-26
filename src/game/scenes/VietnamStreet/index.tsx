@@ -34,6 +34,7 @@ import { Eateries } from './Eateries'
 import { ShopDoors } from './ShopDoors'
 import { LampPools } from './LampPools'
 import { LakeEast } from './LakeEast'
+import { BusStops } from '../shared/BusStops'
 import { HangKhay } from '../HangKhay'
 
 /** "Vàng Hà Nội": ochre walls, green wooden shutters, dark green ironwork. */
@@ -112,6 +113,8 @@ export const VietnamStreet = memo(function VietnamStreet() {
       <VisaOffices />
       <HangBong />
       <NorthQuarter />
+      {/* 1.48 bus stops (data/transit.ts) */}
+      <BusStops scene="vietnam" />
       <Eateries />
       <ShopDoors />
       <LampPools />

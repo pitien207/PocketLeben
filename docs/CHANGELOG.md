@@ -1,5 +1,134 @@
 # Changelog
 
+## 1.49.0 — Còi xe thật, rú ga, máy bán vé MVV, sửa showroom / xe buýt / đồ chồng lên nhau
+
+### Added (user: "tìm âm thanh còi phù hợp cho các loại xe, âm thanh rú ga ô tô; làm cây bán vé tháng, ngày, tuần ở Đức dưới U-Bahn hoặc gần trạm bus")
+- **Âm thanh thu thật** (Wikimedia Commons, ghi công trong game + CREDITS.md): còi ô tô (CC0), còi xe máy "tít tít" (cùng tiếng còi
+  nâng tông, bấm hai lần), **còi hơi xe buýt MAN** (CC BY 4.0, Work With Sounds / Bảo tàng Kỹ thuật Slovenia), chuông xe đạp (CC0),
+  chuông tram (CC0), **tiếng rú ga** (CC BY 3.0). Xe máy/ô tô/xe đạp trên phố bấm còi khi bạn đứng chắn đường (tối đa một tiếng mỗi
+  1,8 giây), xe buýt bóp còi hơi, Tram 19 rung chuông; xe của bạn: phím H / nút còi đúng loại xe, ô tô rú ga khi nổ máy và khi đạp
+  ga từ lúc đứng yên.
+- **Máy bán vé MVV (Fahrkartenautomat)**: dưới ga U-Bahn (hai máy cạnh cầu thang, mỗi bên sân ga một máy) và cạnh cả 4 bến Bus 100
+  ở München. Bán **Tageskarte 9,70 €** (hết ngày), **Wochenkarte 21,90 €** (7 ngày), **Monatskarte 63 €** (30 ngày); vé mới nối
+  tiếp vé cũ, không mất ngày. Còn vé thì đi U-Bahn và xe buýt ở München **miễn phí** (bảng chọn ga ghi "Có vé"); không có vé thì
+  vẫn trả vé lẻ 3,90 €.
+
+### Fixed
+- **Showroom: ô tô tràn khung xem trước** — camera chỉ đặt một lần lúc mở bảng (chọn xe máy rồi sang ô tô là ô tô quá to). Giờ
+  camera canh lại mỗi lần chọn xe theo khối cầu bao cả dài, rộng, cao. Danh sách xe: giá viết gọn ("420 tr", "2,1 tỷ"), luôn 2
+  cột — trước đây giá dài tràn ra khỏi thẻ trên điện thoại ngang.
+- **Xe buýt bị lệch**: mô hình lệch 0,83° so với làn (căn trục bằng PCA chưa chuẩn) → tìm góc làm xe hẹp nhất, giờ thẳng làn.
+  Xe buýt chạy vào từ cuối phố (trong sương) thay vì hiện ra giữa đường (xe bến Hbf từng hiện ngay ở bến Lindenstraße).
+- **Đồ bị đè lên nhau** (soát bằng công cụ quét va chạm mới `overlap.mjs` + ảnh từng điểm):
+  - lối U-Bahn **Sendlinger Tor** đè lên đài phun nước Lindenstraße → dời vào phố Sendlinger Straße, phía bắc cổng thành;
+  - ghế đá bờ hồ cắm vào chân **Tháp Bút** → dời sang trái;
+  - cột đỏ **đình Trấn Ba** (đảo Ngọc Sơn) xuyên qua tủ kính rùa → dựng cột ra ngoài, mái rộng hơn;
+  - trụ cứu hỏa dính vào bể **Fischbrunnen** (Marienplatz) → dời ra;
+  - cột quảng cáo Litfaßsäule cắm vào góc nhà (Frauenplatz) → dời ra;
+  - 2 cây trong Biergarten Viktualienmarkt mọc xuyên góc bàn bia → ra góc vườn;
+  - bụi cây "con nhím" chui vào tường sau ki-ốt Stadtpark → lùi lại.
+- Quy tắc mới trong CLAUDE.md: tạo hình phải kiểm tra không đè lên nhau (cách ≥ 0,2 m, có collider, quét bằng `overlap.mjs`).
+
+### Test (headless, scratchpad `v149.mjs` + `overlap.mjs`, vite 5199)
+- 6 âm thanh mới giải mã được (độ dài, âm lượng); showroom vừa màn hình 1280×720, 844×390, 740×340 sau khi chọn xe đạp rồi SUV;
+  lối Sendlinger Tor mới (lên/xuống đúng chỗ); mua Wochenkarte ở máy cạnh bến (−21,90 €, hạn 7 ngày, máy báo còn vé); đi Bus 100 và
+  U-Bahn miễn phí khi có vé; ảnh máy bán vé, xe buýt nhìn từ trên (thẳng làn), các chỗ đã sửa: **ALL PASS**, không lỗi script.
+  Quét va chạm: chỉ còn các phần ghép của cùng một công trình (Rathaus, Frauenkirche, đền Ngọc Sơn…). Build sạch.
+
+### Thử trên điện thoại
+- [ ] Hà Nội: đứng giữa đường trước xe máy (tít tít), ô tô (còi), xe đạp (kính coong); mua ô tô ở showroom, nổ máy nghe rú ga, bấm còi.
+- [ ] Showroom: chọn xe đạp rồi chọn SUV Đêm Đen — xe nằm gọn trong khung; danh sách xe không tràn chữ.
+- [ ] München: đứng trên đường trước xe buýt (còi hơi) và trên ray Tram 19 (chuông).
+- [ ] Bến Lindenstraße: máy "Fahrkarten" cạnh nhà chờ → mua Tageskarte; đi Bus 100 → bảng ghi "Có vé", không mất tiền.
+- [ ] Xuống U-Bahn: máy bán vé cạnh cầu thang ở cả hai bên sân ga.
+- [ ] Lối U-Bahn Sendlinger Tor giờ ở trong phố Sendlinger Straße (qua cổng thành), đài phun nước Lindenstraße trống trải.
+
+## 1.48.0 — Xe mới, xe buýt Hà Nội + München, ga U-Bahn ngầm, Tram 19
+
+### Added (user: "nâng cấp hình ảnh các thứ trên map, lấy thêm các mẫu xe, làm U-Bahn bên Đức có 2 bên Gleis, tàu U chạy qua lại và bảng hướng dẫn; bến xe buýt ở VN và Đức để đi lại; tham khảo thư viện mở")
+- **Thư viện mới**: Kenney **Car Kit** + **Train Kit** (CC0) → pack `vehicles` (kv…: sedan, hatchback, SUV, SUV sang, taxi, cảnh sát,
+  cứu thương, cứu hỏa, xe rác, xe giao hàng, van, bán tải…) và `rail` (kl…: toa U-Bahn, tram, đường ray). Poly Pizza
+  **CC BY 3.0** (ghi công trong game): "Montreal Bus" (Nick Ladd) và "Bus Stop" (Zsky) → pack riêng `bus`. `tools/kenney2props.mjs`
+  có `cells` (một màu phẳng mỗi ô bảng màu) + `simplify` (bánh xe giảm còn 40 %); `tools/glb2props.mjs` có `alignZ` / `flip` / `rotY`
+  (xe buýt trong file gốc bị xoay 45°).
+- **Giao thông đẹp hơn** (`Traffic` + `shared/libraryCars.ts`): Hà Nội `CARS_VN` và München `CARS_DE` trộn xe Kenney với xe cũ, thân xe
+  sơn lại (taxi ngà ở München, xe rác cam, cứu thương…). Xe **xếp hàng sau xe phía trước / xe buýt đang đón khách**
+  (`systems/laneTraffic.ts`). Taxi đỗ ở Hbf = Kenney taxi màu ngà.
+- **Showroom Xe Phố Cổ**: 4 ô tô mới — Hatchback Hộp Diêm (420 tr), Xe van Chở Hàng (650 tr), Bán tải Trâu Vàng (780 tr), SUV
+  Sang Trọng Đêm Đen (2,1 tỷ).
+- **Xe buýt** (`data/transit.ts`, `shared/BusStops.tsx`, `systems/transit.ts`, `ui/TransitPanel.tsx`): tuyến **09** ở Hà Nội (Bờ Hồ –
+  Tràng Tiền – Hàng Khay, vé 8.000đ) và **Bus 100** ở München (Hauptbahnhof – Lindenstraße – Maximilianstraße –
+  Prinzregentenstraße, vé 3,90 €). Mỗi bến: nhà chờ, biển (Hà Nội: biển xanh "ĐIỂM DỪNG XE BUÝT"; Đức: chữ H xanh trên nền vàng),
+  bảng lộ trình, vạch bến trên đường, đèn đêm; mỗi bến có xe buýt riêng chạy vào, mở cửa ~16 giây, chạy đi. Xe đang đứng → "Lên
+  xe buýt" → chọn bến → trả vé → tới nơi (xe vẫn đứng đó). Xe chưa tới → báo còn bao nhiêu giây.
+- **U-Bahn München** (scene mới `ubahn`, `scenes/UBahn`): 4 lối xuống trên phố (Universität, Odeonsplatz, Marienplatz, Sendlinger Tor
+  — cầu thang tối dần, lan can kính, trụ "U" phát sáng + tên ga; 3 lối trang trí cũ đã thành lối thật). Dưới ga: **sân ga đảo**,
+  **Gleis 1** (hướng nam: U3 Fürstenried West / U6 Klinikum Großhadern) và **Gleis 2** (hướng bắc: U3 Moosach / U6
+  Garching-Forschungszentrum) hai bên, tàu 5 toa (Kenney, sơn xanh-trắng MVG) **chạy vào – đứng – chạy đi cả hai chiều** (mỗi
+  56 giây, Gleis 2 lệch nửa chu kỳ), cửa mở sáng đèn + tiếng chuông. **Bảng điện tử** (dòng, ga cuối, "sofort / 1 min", chuyến
+  sau), **biển chỉ dẫn** Gleis 1 / Gleis 2 / Ausgang, tên ga trên tường, **sơ đồ tuyến U3·U6** ("Sie sind hier"), số Gleis trên cột,
+  quảng cáo, ghế, thang cuốn. Mỗi ga một màu tường (Marienplatz cam, Odeonsplatz xanh lá, Universität vàng, Sendlinger Tor
+  xanh). Cửa mở → "Lên tàu" → chọn ga → 3,90 € → tới ga đó (tàu vừa dừng). "Lên mặt đất" ra đúng lối của ga.
+- **Tram 19** trên Maximilianstraße (Kenney tram, ba khúc, xanh MVG), ray giữa đường, chạy hết phố rồi quay lại; dừng khi bạn
+  đứng trên ray.
+- Bản đồ: ghim bến xe buýt / U-Bahn có ảnh 3D (bus-stop, metro). Icon Fluent mới: bus, metro.
+
+### Fixed
+- **München không có sàn ở z < −120** (LMU, Siegestor, bắc Englischer Garten): sàn an toàn chung chỉ ±120 m → ai đi tới đó rơi
+  xuyên đất và bị đặt lại chỗ khác. `MunichGround` giờ có sàn va chạm phủ cả thành phố.
+
+### Test (headless, scratchpad `v148.mjs`, vite 5199)
+- Pack tải; xe buýt đứng ở 3 bến Hà Nội + 4 bến München; đi 09 Bờ Hồ → Hàng Khay (trả 8.000đ, xe đứng ở bến tới); Bus 100
+  Hbf → Prinzregentenstraße (3,90 €); showroom có 4 xe mới; 4 lối U-Bahn đưa người chơi lên đúng chỗ; xuống Marienplatz,
+  Gleis 1 → Sendlinger Tor (3,90 €, tàu đứng khi tới), Gleis 2 → Universität, lên mặt đất đúng lối Universität; ảnh tàu vào /
+  cửa mở / bảng điện tử / sơ đồ tuyến, tram + giao thông Maximilianstraße, bản đồ: **ALL PASS**, không lỗi script. Build sạch.
+
+### Thử trên điện thoại
+- [ ] Hà Nội: ra bến Bờ Hồ (vỉa hè phía hồ, Hàng Gai) — đợi xe 09 đỏ–vàng vào bến, "Lên xe buýt", đi Hàng Khay; trả 8.000đ.
+- [ ] Đứng trên đường trước xe buýt: xe dừng lại; ô tô phía sau xếp hàng chờ xe buýt đón khách.
+- [ ] Showroom Xe Phố Cổ, tab Ô tô: thấy Hộp Diêm, Chở Hàng, Trâu Vàng, Đêm Đen; mua một chiếc và chạy thử.
+- [ ] München: Marienplatz (góc tây bắc quảng trường) — "Xuống U-Bahn"; nhìn tàu vào ga cả hai bên, bảng điện tử đếm phút.
+- [ ] Lên tàu Gleis 1 đi Sendlinger Tor, rồi Gleis 2 đi Universität; "Lên mặt đất" ra cạnh LMU, đi bộ quanh Siegestor không rơi.
+- [ ] Bus 100 ở Hauptbahnhof → Maximilianstraße; thấy Tram 19 chạy giữa đường.
+- [ ] Bản đồ (M): ghim xe buýt và U-Bahn có hình.
+
+## 1.47.0 — Nâng cấp giao diện: bộ UI chung từ thư viện mở (Radix UI, NumberFlow)
+
+### Changed (user: "cập nhật nâng cấp toàn bộ UI, giao diện nếu có thể với luật sử dụng thư viện mở mới; chưa động vào character")
+- **Thư viện mới (MIT, có ghi công trong game + `src/assets/CREDITS.md`)**: **Radix UI** (`radix-ui`: Switch, Tabs, Tooltip —
+  đúng chuẩn truy cập, điều khiển bằng phím) và **NumberFlow** (`@number-flow/react`: số chạy cuộn). Motion dùng sẵn.
+- **Bộ UI chung `src/ui/kit/`**: `Tabs` (một thanh tab cho mọi bảng, nút đỏ sơn mài trượt theo tab, mũi tên trái/phải +
+  Enter, `scroll` cho nhiều tab), `Segmented` (lựa chọn nhỏ cùng kiểu trượt), `Toggle` (công tắc bật/tắt), `Hint` (chú
+  thích nhỏ khi rê chuột, kèm phím tắt; KHÔNG hiện trên màn hình cảm ứng), `Amount` / `Money` (số tiền chạy cuộn, vẫn có chữ
+  thường ẩn cho test / trình đọc màn hình).
+- **Bảng trượt (Sheet)**: bật lên có nảy, đóng thì trượt xuống; trên điện thoại **vuốt dải ruy-băng xuống để đóng** (kéo
+  ngắn thì bật lại); ruy-băng tiêu đề có ảnh 3D của bảng (túi, vé, đồng hồ, quần áo, vàng, la bàn, pickleball, cửa hàng,
+  xe, hồ sơ visa…); nút ✕ kiểu giấy chung (`btn-paper`); vùng cuộn có thanh cuộn mảnh màu vàng đất + mờ dần ở mép.
+- **Thanh tab thống nhất**: Túi đồ, cửa hàng quần áo, Sổ nhiệm vụ, Showroom xe, Đăng nhập / Đăng ký (trước là 5 kiểu khác nhau).
+- **Cài đặt**: chia nhóm có ảnh — Tài khoản, Âm thanh, Hướng dẫn, Hiển thị, Dữ liệu; Bật/Tắt thành **công tắc**; Đồ họa
+  Đẹp/Mượt là thanh trượt; bỏ dòng "Tốc độ thời gian" (đã không còn tác dụng từ 1.20).
+- **HUD**: tiền (đồng / euro / kim cương) **chạy cuộn** khi đổi; thanh công cụ có chú thích khi rê chuột (Bản đồ · M, Cài đặt · Esc…),
+  icon nhún khi bấm.
+- **Hội thoại**: trên máy tính các lựa chọn có ô số 1–4 (phím tắt sẵn có); mũi tên "tiếp" vẽ lại.
+- Chung: vòng focus vàng khi dùng bàn phím, nút đỏ / xanh / giấy nhấn xuống + sáng lên khi rê chuột, hoạt ảnh bảng mềm hơn;
+  người bật "giảm chuyển động" trong hệ điều hành thì gần như không có hoạt ảnh.
+- Nhân vật, ảnh chân dung (`Portrait`) không đổi.
+
+### Test (headless, scratchpad `v147ui.mjs`)
+- Máy tính 1280×720, điện thoại ngang 844×390 (cảm ứng), dọc 360×740: ví tiền NumberFlow + chữ đọc được, chú thích rail (chỉ chuột),
+  icon ruy-băng, tab bằng chuột / `element.click()` / phím mũi tên, ✕ + Esc đóng bảng, cửa hàng / xe / quần áo / sổ nhiệm vụ,
+  Cài đặt (nhóm, công tắc nhạc, Đẹp↔Mượt, ghi công có Radix + NumberFlow), số phím trong hội thoại, vuốt đóng / kéo ngắn giữ
+  bảng, Cài đặt vừa màn hình ngang: **27/27 PASS**, không lỗi script. `npm run build` sạch.
+
+### Thử trên điện thoại
+- [ ] Mở Túi đồ: bảng nảy lên, ruy-băng có hình ba lô; đổi tab Túi đồ / Tủ đồ / Thành tựu — nút đỏ trượt theo.
+- [ ] Vuốt ruy-băng "Túi đồ" xuống → bảng đóng; kéo một chút rồi thả → bảng bật lại chỗ cũ.
+- [ ] Mua món gì đó ở tạp hóa: số tiền trên HUD và trong cửa hàng chạy cuộn tới số mới.
+- [ ] Cài đặt: các nhóm có hình; gạt công tắc Âm nhạc tắt/bật nghe đúng; Đồ họa Đẹp ↔ Mượt.
+- [ ] Showroom xe, sạp quần áo chị Hằng, Sổ nhiệm vụ, Đăng nhập/Đăng ký: thanh tab cùng một kiểu.
+- [ ] Trên máy tính: rê chuột lên các nút góc phải thấy chú thích; trong hội thoại thấy số 1, 2… trên lựa chọn.
+- [ ] Điện thoại xoay ngang (740 × 340): Cài đặt và các bảng vẫn cuộn được, không bị cắt.
+
 ## 1.46.0 — Hà Nội từ thư viện mở, đúng kiểu nhà Việt Nam (+ Poly Haven, ambientCG)
 
 ### Changed (user: "cập nhật UI map Việt Nam và Đức, nhiều cái chỉ là hình khối tự tạo nhìn khá xấu; tham khảo thư viện; nhân vật giữ nguyên"; "phải hợp với kiến trúc Việt Nam")
@@ -57,6 +186,11 @@
 - Quy tắc tài nguyên (CLAUDE.md): ưu tiên CC0; **CC-BY, CC-BY-SA, MIT được phép khi ghi công trong màn hình này**;
   CC-BY-SA để gói riêng; cấm NC / ND / "chỉ dùng cá nhân".
 - Test `v147.mjs`: màn hình tiêu đề (1280×720, 740×340, 360×740) + trong game (Cài đặt → ghi công, Esc, ✕): ALL PASSED.
+
+### Chạy trên NAS ở nhà (chuẩn bị, chưa chạy thật)
+- `docs/NAS.md` + `deploy/nas/docker-compose.yml` (game + MongoDB 8 + Cloudflare Tunnel + Watchtower) cho UGREEN DXP2800 trên
+  Vodafone Glasfaser (DS-Lite → tunnel, không mở cổng router); `.env.example`; chuyển dữ liệu Cosmos bằng mongodump / mongorestore.
+- Server lấy IP người chơi từ `CF-Connecting-IP` trước `X-Forwarded-For` (giới hạn đăng nhập theo từng người qua tunnel).
 
 ### Test (headless, scratchpad `v146.mjs`)
 - 13 góc nhìn Hà Nội + 5 góc người chơi + trong quán trà sữa + 3 cảnh đêm + nhà + München: **ALL PASSED** (pack tải, 17 cửa

@@ -21,6 +21,12 @@ import citybitsUrl from '../../../assets/models/citybits.bin?url'
 import citybitsJson from '../../../assets/models/citybits.json'
 import urbanUrl from '../../../assets/models/urban.bin?url'
 import urbanJson from '../../../assets/models/urban.json'
+import vehiclesUrl from '../../../assets/models/vehicles.bin?url'
+import vehiclesJson from '../../../assets/models/vehicles.json'
+import railUrl from '../../../assets/models/rail.bin?url'
+import railJson from '../../../assets/models/rail.json'
+import busUrl from '../../../assets/models/bus.bin?url'
+import busJson from '../../../assets/models/bus.json'
 import type { Vec3 } from '../../../data/config'
 import type { ShapeItem } from './Shapes'
 
@@ -45,7 +51,10 @@ import type { ShapeItem } from './Shapes'
 /** 1.46 "urban" = Poly Haven (CC0, photo-textured props baked to flat colours by tools/polyhaven2props.mjs): power poles with
  * transformers, aircon units, utility boxes, plastic crates / chairs, gas tanks, lamps, pots, brass incense pot, Chinese
  * stool / armchair, barrels, roller shutter, hydrant, seating (names u…; real-world metres; groups c0 = darkest…). */
-export type ModelPack = 'nature' | 'city' | 'food' | 'interior' | 'farm' | 'town' | 'facade' | 'street' | 'towers' | 'citybits' | 'urban'
+/** 1.48 'vehicles' = Kenney Car Kit (CC0; names kv…: sedans, SUVs, taxi, police, ambulance, trucks, vans), 'rail' = Kenney Train
+ * Kit (CC0; names kl…: U-Bahn subway cars, trams, tracks), 'bus' = poly.pizza CC-BY 3.0 (names p…: city bus, shelter, stop pole —
+ * credited in data/credits.ts; own pack because the licence is not CC0). */
+export type ModelPack = 'nature' | 'city' | 'food' | 'interior' | 'farm' | 'town' | 'facade' | 'street' | 'towers' | 'citybits' | 'urban' | 'vehicles' | 'rail' | 'bus'
 interface Group {
   mat: string
   color: string
@@ -76,13 +85,16 @@ const PACKS: Record<ModelPack, { url: string; data: Manifest }> = {
   towers: { url: towersUrl, data: towersJson as unknown as Manifest },
   citybits: { url: citybitsUrl, data: citybitsJson as unknown as Manifest },
   urban: { url: urbanUrl, data: urbanJson as unknown as Manifest },
+  vehicles: { url: vehiclesUrl, data: vehiclesJson as unknown as Manifest },
+  rail: { url: railUrl, data: railJson as unknown as Manifest },
+  bus: { url: busUrl, data: busJson as unknown as Manifest },
 }
 
 const built = new Map<string, BufferGeometry[]>()
 const loading: Partial<Record<ModelPack, Promise<void>>> = {}
 const ready: Partial<Record<ModelPack, boolean>> = {}
 
-const PACK_ORDER: ModelPack[] = ['nature', 'city', 'food', 'interior', 'farm', 'town', 'facade', 'street', 'towers', 'citybits', 'urban']
+const PACK_ORDER: ModelPack[] = ['nature', 'city', 'food', 'interior', 'farm', 'town', 'facade', 'street', 'towers', 'citybits', 'urban', 'vehicles', 'rail', 'bus']
 const packOf = (name: string): ModelPack | null => PACK_ORDER.find((p) => name in PACKS[p].data.models) ?? null
 
 export const modelPackReady = (pack: ModelPack) => !!ready[pack]

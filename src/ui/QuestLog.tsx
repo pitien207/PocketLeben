@@ -14,6 +14,7 @@ import { useUI } from '../store/uiStore'
 import { Icon3d } from './Icon3d'
 import { SecretList } from './SecretCard'
 
+import { Tabs } from './kit/Tabs'
 import { SkipStepButton, UndoStepButton } from './TestTools'
 
 /**
@@ -241,7 +242,7 @@ function QuestDetail({ q, onGo }: { q: QuestDef; onGo: (stepId: string, text: st
             </span>
           </Ring>
         </div>
-        <div className="mt-2.5 min-h-0 flex-1 overflow-y-auto rounded-2xl bg-white/80 px-3 py-2.5 shadow-[inset_0_0_0_1.5px_rgba(74,50,38,0.12)]">
+        <div className="mt-2.5 min-h-0 flex-1 ui-scroll overflow-y-auto rounded-2xl bg-white/80 px-3 py-2.5 shadow-[inset_0_0_0_1.5px_rgba(74,50,38,0.12)]">
           <StepTimeline q={q} onGo={onGo} />
         </div>
       </m.div>
@@ -316,41 +317,35 @@ export function QuestLog() {
               ✕
             </button>
           </div>
-          {/* Tabs */}
-          <div className="flex gap-1.5 border-b-2 border-ink/10 px-3 pt-2 pb-2">
-            {(
-              [
-                ['now', `Đang làm · ${open.length}`],
-                ['done', `Đã xong · ${finished.length}`],
-              ] as const
-            ).map(([id, label]) => (
-              <button
-                key={id}
-                type="button"
-                data-testid={`journal-tab-${id}`}
-                onClick={() => {
-                  setTab(id)
-                  setSecrets(false)
-                  setPick(null)
-                }}
-                className={`rounded-full px-3.5 py-1 text-[13px] font-black transition ${tab === id && !secrets ? 'btn-lacquer' : 'bg-white/70 text-ink/60 shadow-[inset_0_0_0_1.5px_rgba(74,50,38,0.15)]'}`}
-              >
-                {label}
-              </button>
-            ))}
-            {SECRETS_ENABLED && (
-              <button type="button" data-testid="tab-secrets" onClick={() => setSecrets(true)} className={`rounded-full px-3.5 py-1 text-[13px] font-black ${secrets ? 'btn-lacquer' : 'bg-white/70 text-ink/60'}`}>
-                {t('quests.tabSecrets')}
-              </button>
-            )}
+          {/* Tabs (1.47: the shared kit bar) */}
+          <div className="border-b-2 border-ink/10 px-3 pt-2 pb-2">
+            <Tabs
+              size="sm"
+              className="w-fit max-w-full"
+              value={secrets ? 'secrets' : tab}
+              onChange={(id) => {
+                if (id === 'secrets') {
+                  setSecrets(true)
+                  return
+                }
+                setTab(id)
+                setSecrets(false)
+                setPick(null)
+              }}
+              items={[
+                { id: 'now' as const, label: `Đang làm · ${open.length}`, testId: 'journal-tab-now' },
+                { id: 'done' as const, label: `Đã xong · ${finished.length}`, testId: 'journal-tab-done' },
+                ...(SECRETS_ENABLED ? [{ id: 'secrets' as const, label: t('quests.tabSecrets'), testId: 'tab-secrets' }] : []),
+              ]}
+            />
           </div>
           {secrets ? (
-            <div className="min-h-0 flex-1 overflow-y-auto p-3">
+            <div className="min-h-0 flex-1 ui-scroll overflow-y-auto p-3">
               <SecretList />
             </div>
           ) : (
-            <div className="grid min-h-0 flex-1 gap-3 overflow-y-auto p-3 land:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] land:overflow-hidden" data-testid="quest-chapter">
-              <ul className="flex min-h-0 flex-col gap-1.5 land:overflow-y-auto land:pr-1">
+            <div className="grid min-h-0 flex-1 gap-3 ui-scroll overflow-y-auto p-3 land:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] land:overflow-hidden" data-testid="quest-chapter">
+              <ul className="flex min-h-0 flex-col gap-1.5 land:ui-scroll overflow-y-auto land:pr-1">
                 {list.length ? (
                   list.map((q) => <QuestRow key={q.id} q={q} on={picked?.id === q.id} onPick={() => setPick(q.id)} />)
                 ) : (

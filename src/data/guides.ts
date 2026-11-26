@@ -904,6 +904,8 @@ export const SCENE_LINKS: { from: SceneId; to: SceneId; via: GuidePoint; label: 
   { from: 'careHome', to: 'germany', via: { spot: 'care-exit' }, label: L('Đi tram về', 'Tram home', 'Mit der Tram zurück') },
   { from: 'germany', to: 'university', via: { spot: 'de-tram' }, label: L('Đi tram tới đại học', 'Tram to the university', 'Mit der Tram zur Uni') },
   { from: 'university', to: 'germany', via: { spot: 'uni-exit' }, label: L('Đi tram về', 'Tram home', 'Mit der Tram zurück') },
+  // 1.48 out of a U-Bahn station
+  { from: 'ubahn', to: 'germany', via: { spot: 'ubahn-exit' }, label: L('Lên mặt đất', 'Up to the street', 'Zum Ausgang') },
   // Chapter 5: the Tết trip (book on the WG laptop, fly back from home)
   { from: 'wg', to: 'home', via: { spot: 'wg-laptop' }, label: L('Đặt vé về Hà Nội', 'Book a flight home', 'Heimflug buchen') },
   { from: 'home', to: 'germany', via: { spot: 'home-exit' }, label: L('Bay về Đức', 'Fly back to Germany', 'Zurück nach Deutschland') },

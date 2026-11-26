@@ -25,6 +25,11 @@ export type Panel =
   | { type: 'boardingPass' }
   | { type: 'flightBoard' }
   | { type: 'testTools' }
+  /** 1.48 getting about: where to ride from this bus stop / U-Bahn platform (ui/TransitPanel.tsx). */
+  | { type: 'bus'; stop: string }
+  | { type: 'ubahn'; gleis: 1 | 2 }
+  /** 1.49 MVV ticket machine: day / week / month passes. */
+  | { type: 'tickets' }
 
 /** Full-screen fade between scenes, with an optional caption ("✈ Bay sang Đức…"). */
 export interface Transition {

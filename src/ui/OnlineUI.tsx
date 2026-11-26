@@ -5,6 +5,7 @@ import { useLocalize } from '../i18n/localized'
 import { EMOTES } from '../game/components/RemotePlayers'
 import { reconnect, sendEmote } from '../net/client'
 import { useNet, type EmoteId } from '../store/netStore'
+import { Hint } from './kit/Hint'
 import { requestFriend, useSocial } from '../net/social'
 
 /** Speech-bubble icon for the emote button. */
@@ -30,10 +31,10 @@ export function EmoteButton() {
   if (status !== 'online') return null
   return (
     <div className="relative">
+      <Hint label={t('online.emotes')}>
       <button
         type="button"
         aria-label={t('online.emotes')}
-        title={t('online.emotes')}
         aria-expanded={open}
         data-testid="emote-button"
         onClick={() => setOpen((o) => !o)}
@@ -41,6 +42,7 @@ export function EmoteButton() {
       >
         <Icon3d name="grinning-face-with-big-eyes" className="h-[22px] w-[22px] drop-shadow-[0_1.5px_0_rgba(74,50,38,0.3)]" />
       </button>
+      </Hint>
       {open && (
         <div className="panel pointer-events-auto absolute top-0 right-full z-30 mr-2 land:top-full land:right-0 land:mt-2 land:mr-0 w-[min(19rem,calc(100vw-4.5rem))] p-2.5" data-testid="emote-picker">
           <div className="grid grid-cols-6 gap-1.5">
@@ -125,17 +127,18 @@ export function OnlineChip() {
   const live = status === 'online'
   return (
     <div className="relative">
+      <Hint label={live ? t('online.count', { n: Math.max(online, 1) }) : t('online.connecting')}>
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
         data-testid="online-chip"
         aria-label={live ? t('online.count', { n: Math.max(online, 1) }) : t('online.connecting')}
-        title={live ? t('online.count', { n: Math.max(online, 1) }) : t('online.connecting')}
         className="rail-btn !flex flex-col items-center justify-center gap-0.5"
       >
         <span className="relative"><Icon3d name="globe-showing-asia-australia" className={`h-[17px] w-[17px] ${live ? '' : 'animate-pulse opacity-50 grayscale'}`} />{live && <span className="absolute -right-0.5 -bottom-0.5 h-2 w-2 rounded-full border border-white bg-[#3fae72]" />}</span>
         <span className="text-[10px] leading-none font-black tabular-nums">{live ? Math.max(online, 1) : '…'}</span>
       </button>
+      </Hint>
       {open && live && (
         <div className="panel pointer-events-auto absolute top-0 right-full z-30 mr-2 land:top-full land:right-0 land:mt-2 land:mr-0 w-56 p-3 text-sm" data-testid="online-list">
           <p className="mb-1.5 font-display font-extrabold text-lacquer">{t('online.here')}</p>

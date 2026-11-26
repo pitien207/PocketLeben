@@ -106,6 +106,10 @@ and licence (developer notes) AND in `src/data/credits.ts` — that list is what
   **@react-three/postprocessing** (Poimandres, MIT licence, https://github.com/pmndrs/react-postprocessing) and
   **n8ao** (N8python, ISC licence, https://github.com/N8python/n8ao) for the 1.32 post effects (AO, bloom, grade).
 - **motion** (motion.dev, formerly Framer Motion, MIT licence, https://github.com/motiondivision/motion) for the quest animations.
+- **radix-ui** (WorkOS, Radix Primitives, MIT licence, Copyright (c) 2022 WorkOS, https://github.com/radix-ui/primitives) for
+  the 1.47 UI kit: switches, tab bars, desktop tooltips (src/ui/kit). Used unchanged, styled with our CSS.
+- **@number-flow/react** (Maxwell Barvian, MIT licence, Copyright (c) 2024 Maxwell Barvian,
+  https://github.com/barvian/number-flow) for the rolling money digits (src/ui/kit/Amount.tsx). Used unchanged.
 - **sonner** (Emil Kowalski, MIT licence, https://github.com/emilkowalski/sonner) for the notifications.
 - **canvas-confetti** (Kirill Shestakov, ISC licence, https://github.com/catdad/canvas-confetti) for the confetti in
   the job mini-games.
@@ -144,3 +148,29 @@ and licence (developer notes) AND in `src/data/credits.ts` — that list is what
   WebAudio API (`src/game/systems/audio.ts`) — original work.
 
 - Character style (toon shading, ink outline, painted anime face, hair/outfit shapes): based on the project owner's own design file "chibi.js" (Pocket Leben, formerly Visa Hunter / "Đi Đức"), re-implemented in src/game/components/chibi/.
+
+## 1.48 vehicles, U-Bahn, buses
+- **Kenney Car Kit** (3.1) and **Kenney Train Kit** — https://kenney.nl/assets/car-kit, https://kenney.nl/assets/train-kit —
+  **CC0 1.0**. Packs `vehicles` (kv…) and `rail` (kl…) via `tools/kenney2props.mjs vehicles|rail <kit>` (one flat colour per
+  palette cell, wheels simplified to 40 % with meshoptimizer). Traffic cars, showroom cars, the U-Bahn trains (repainted MVG blue)
+  and the U-Bahn tracks.
+- **"Montreal Bus"** by **Nick Ladd** — https://poly.pizza/m/fFCCghvRImG — **CC BY 3.0**
+  (https://creativecommons.org/licenses/by/3.0/). Pack `bus` (pBus) via `tools/glb2props.mjs <folder> bus`. Changes: turned so its
+  long axis runs along z (the file is rotated 45°) and its front faces +z, scaled to 10 m, triangles reduced, repainted per city
+  (the transit logo is painted over), destination displays added in the game.
+- **"Bus Stop"** by **Zsky** — https://poly.pizza/m/OWczicNWhO — **CC BY 3.0**. Pack `bus` (pShelter). Changes: scaled to metres,
+  frame / glass repainted per city, timetable added in the game.
+- Fluent Emoji 3D **bus**, **metro** (Microsoft, MIT) in `src/assets/icons3d`.
+
+## 1.49 vehicle sounds (`src/assets/audio/sfx`, cut with ffmpeg: scratchpad `audio/tools/make.mjs`)
+- `sfx-honk.ogg`, `sfx-hornmoto.ogg` — "Car Horn" by 15HPanska_Ruttner_Jan (Freesound 461679), https://commons.wikimedia.org/wiki/File:Car_Horn.wav —
+  **CC0**. Honk = one honk cut out; hornmoto = the same honk pitched ×1.6, played twice.
+- `sfx-hornbus.ogg` — "WWS CityBusMANSG220horn" by **Work With Sounds / Technical Museum of Slovenia**,
+  https://commons.wikimedia.org/wiki/File:WWS_CityBusMANSG220horn.ogg — **CC BY 4.0**. Changes: first 1.1 s, fade out, loudness
+  normalised, mono Ogg Vorbis.
+- `sfx-bikebell.ogg` — "Bicycle-bell-1" by Soundscape_Leuphana, https://commons.wikimedia.org/wiki/File:Bicycle-bell-1.wav — **CC0**.
+- `sfx-trambell.ogg` — "Bell-ring" by qubodup (Freesound 168709), https://commons.wikimedia.org/wiki/File:Bell-ring.flac — **CC0**
+  (pitched down, two strikes).
+- `sfx-enginerev.ogg` — "Nissan Juke - engine and exhaust sound" by **AndCars (YouTube)**,
+  https://commons.wikimedia.org/wiki/File:Nissan_Juke_-_engine_and_exhaust_sound_(YouTube_m9Am72CCFuc).opus — **CC BY 3.0**. Changes:
+  one throttle blip cut out (20.3–22.7 s), fades, loudness normalised, mono Ogg Vorbis.

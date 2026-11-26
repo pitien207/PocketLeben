@@ -57,7 +57,7 @@ export function ClockPanel() {
   if (hour < 18) waits.push({ key: 'evening', label: t('clock.untilEvening'), minutes: minutesUntil(18) })
 
   return (
-    <Sheet title={t('clock.title')} onClose={closePanel}>
+    <Sheet title={t('clock.title')} icon="stopwatch" onClose={closePanel}>
       <div className="mb-3 flex items-center gap-3 rounded-2xl bg-white/80 p-3 shadow-[inset_0_0_0_2px_#f1dcb6]">
         <ClockFace minutes={minutes} />
         <div className="min-w-0 flex-1">

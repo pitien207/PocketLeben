@@ -5,7 +5,7 @@ import { NPCS } from '../../../data/npcs'
 import { ActionSpot, type SpotAction } from '../../components/ActionSpot'
 import { ChatterDirector } from '../../components/npc/ChatterDirector'
 import { NPC } from '../../components/npc/NPC'
-import { Traffic, type Lane } from '../../components/npc/Traffic'
+import { CARS_DE, Traffic, type Lane } from '../../components/npc/Traffic'
 import { BUILDING_GROUPS, PROP_GROUPS } from '../../systems/collisionGroups'
 import { groundMaterial } from '../shared/materials'
 import { PALETTE as P } from '../shared/palette'
@@ -24,6 +24,8 @@ import { fountainWater, kFountain, kLantern, LANTERN_HEAD } from './townProps'
 import { glowMaterial } from '../shared/materials'
 import { modelShapes } from '../shared/models'
 import { MunichGround } from './MunichGround'
+import { UBahnEntrances } from './UBahnEntrances'
+import { BusStops } from '../shared/BusStops'
 import { MunichLife } from './MunichLife'
 
 /**
@@ -320,7 +322,7 @@ const GermanyStreet = memo(function GermanyStreet() {
       <NPC def={NPCS.tom} at={{ x: 3.5, z: 13.3 }} yaw={Math.PI} seatY={0.33} activity="sip" />
       <NPC def={NPCS.sophie} at={{ x: -12.5, z: 0.6 }} path={{ points: [{ x: -29, z: 0.6 }, { x: 12.5, z: 0.6 }], pauseSec: [0.5, 3] }} yieldLines="yieldDe" />
       <NPC def={NPCS.anhKhoa} at={{ x: 13, z: 9.6 }} path={{ points: [{ x: -30, z: 9.6 }, { x: 13, z: 9.6 }], pauseSec: [1, 4] }} yieldLines="yieldDe" />
-      <Traffic lanes={LANES} perLane={3} kinds={[...KINDS]} wrapX={ROAD_WRAP} />
+      <Traffic lanes={LANES} perLane={3} kinds={[...KINDS]} wrapX={ROAD_WRAP} cars={CARS_DE} />
       <ChatterDirector groups={[]} solos={['herrMueller', 'sophie', 'anhKhoa:anhKhoaDe', 'tom', 'wagner']} />
 
       <PfandBottles />
@@ -329,6 +331,9 @@ const GermanyStreet = memo(function GermanyStreet() {
       <Stadtpark />
       <Munich />
       <MunichLife />
+      {/* 1.48 U-Bahn entrances + bus stops (data/transit.ts) */}
+      <UBahnEntrances />
+      <BusStops scene="germany" />
       <TreeClearance />
     </>
   )

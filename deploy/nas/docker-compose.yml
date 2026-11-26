@@ -1,0 +1,53 @@
+# Pocket Leben on a home NAS (UGREEN DXP2800, UGOS Pro "Docker" app → Project). Guide: docs/NAS.md
+# Four containers: the game (web + server), MongoDB, the Cloudflare Tunnel (HTTPS without opening router ports)
+# and Watchtower (pulls the new image after every push to main). Secrets live in .env next to this file.
+name: pocket-leben
+
+services:
+  game:
+    image: ghcr.io/pitien207/pocket-leben:latest
+    restart: unless-stopped
+    environment:
+      PORT: "8080"
+      MONGO_URI: mongodb://mongo:27017
+      MONGO_DB: pocketleben
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+    depends_on:
+      - mongo
+    # Only for testing in the home network (http://<nas-ip>:8090); the tunnel does not need it.
+    ports:
+      - "8090:8080"
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
+
+  mongo:
+    image: mongo:8.0
+    restart: unless-stopped
+    # The N100 has 8 GB shared with UGOS: keep MongoDB's cache small.
+    command: ["--wiredTigerCacheSizeGB", "0.5"]
+    volumes:
+      - ./data/mongo:/data/db
+      - ./backup:/backup
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    restart: unless-stopped
+    command: tunnel --no-autoupdate run
+    environment:
+      TUNNEL_TOKEN: ${CF_TUNNEL_TOKEN}
+    depends_on:
+      - game
+
+  watchtower:
+    image: containrrr/watchtower
+    restart: unless-stopped
+    environment:
+      WATCHTOWER_LABEL_ENABLE: "true"
+      WATCHTOWER_POLL_INTERVAL: "300"
+      WATCHTOWER_CLEANUP: "true"
+      # If its log says "client version 1.25 is too old", uncomment:
+      # DOCKER_API_VERSION: "1.44"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      # Only while the ghcr.io image is private: run `docker login ghcr.io` on the NAS once, then uncomment.
+      # - /root/.docker/config.json:/config.json:ro

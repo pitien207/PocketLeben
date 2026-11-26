@@ -7,7 +7,7 @@ import type { Localized } from '../i18n/localized'
  * Shared numbers (resale rate, fuel price, which scenes allow riding) live in CONFIG.vehicles.
  */
 
-export type VehicleId = 'boWave' | 'xeDap' | 'ongVang' | 'mayTrang' | 'enBac' | 'phongLuu' | 'hatDau' | 'phoCo' | 'giaDinh' | 'chopDo'
+export type VehicleId = 'boWave' | 'xeDap' | 'ongVang' | 'mayTrang' | 'enBac' | 'phongLuu' | 'hatDau' | 'phoCo' | 'giaDinh' | 'chopDo' | 'hopDem' | 'vanCho' | 'banTai' | 'suvSang'
 export type VehicleKind = 'bicycle' | 'motorbike' | 'car'
 /** How a two-wheeler is drawn (shared/ownVehicles.ts). */
 export type BikeStyle = 'bicycle' | 'cub' | 'scooter' | 'vespa' | 'big'
@@ -34,7 +34,7 @@ export interface VehicleDef {
   /** Metres on a full tank. */
   range: number
   style?: BikeStyle
-  /** Car model in the Quaternius pack (shared/carModels.ts). */
+  /** Car model in the Quaternius pack (shared/carModels.ts) or, 1.48, the Kenney Car Kit (kv…, shared/libraryCars.ts). */
   model?: string
   /** Icon3d name for the list. */
   icon: string
@@ -204,6 +204,71 @@ export const VEHICLES: Record<VehicleId, VehicleDef> = {
     range: 1600,
     model: 'SportsCar',
     icon: 'automobile',
+  },
+  // 1.48 more cars (Kenney Car Kit, CC0)
+  hopDem: {
+    id: 'hopDem',
+    kind: 'car',
+    name: { vi: 'Hatchback Hộp Diêm', en: 'Hộp Diêm hatchback' },
+    blurb: { vi: 'Nhỏ, gọn, lách ngõ phố cổ ngon lành. Đỗ xe dễ như đỗ xe máy.', en: 'Small enough for the old-quarter lanes.' },
+    price: 420_000_000,
+    color: '#7cc6a4',
+    color2: '#2a2a30',
+    speed: 3.1,
+    turn: 2.6,
+    accel: 2.0,
+    tank: 35,
+    range: 2500,
+    model: 'kvHatchback',
+    icon: 'automobile',
+  },
+  vanCho: {
+    id: 'vanCho',
+    kind: 'car',
+    name: { vi: 'Xe van Chở Hàng', en: 'Chở Hàng van' },
+    blurb: { vi: 'Thùng rộng: chở hàng cho mẹ, chở cả xóm đi ăn cưới.', en: 'A big boot for deliveries and weddings.' },
+    price: 650_000_000,
+    color: '#f2f2ee',
+    color2: '#2a2a30',
+    speed: 2.9,
+    turn: 2.0,
+    accel: 1.5,
+    tank: 60,
+    range: 2100,
+    model: 'kvVan',
+    icon: 'automobile',
+  },
+  banTai: {
+    id: 'banTai',
+    kind: 'car',
+    name: { vi: 'Bán tải Trâu Vàng', en: 'Trâu Vàng pickup' },
+    blurb: { vi: 'Thùng sau chở được cả cây quất ngày Tết.', en: 'Carries a whole kumquat tree at Tết.' },
+    price: 780_000_000,
+    color: '#e0a43a',
+    color2: '#2a2a30',
+    speed: 3.1,
+    turn: 2.1,
+    accel: 1.7,
+    tank: 75,
+    range: 2300,
+    model: 'kvTruck',
+    icon: 'sport-utility-vehicle',
+  },
+  suvSang: {
+    id: 'suvSang',
+    kind: 'car',
+    name: { vi: 'SUV Sang Trọng Đêm Đen', en: 'Đêm Đen luxury SUV' },
+    blurb: { vi: 'Đen bóng, ghế da, đi đâu cũng được mở cửa đón.', en: 'Black, leather seats, doors opened for you.' },
+    price: 2_100_000_000,
+    color: '#2b2f36',
+    color2: '#c9a24a',
+    speed: 3.4,
+    turn: 2.2,
+    accel: 2.0,
+    tank: 70,
+    range: 1900,
+    model: 'kvSuvLuxury',
+    icon: 'sport-utility-vehicle',
   },
 }
 

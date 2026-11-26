@@ -6,6 +6,7 @@ import { usePlayer } from '../store/playerStore'
 import { useTime } from '../store/timeStore'
 import { useUI } from '../store/uiStore'
 import { Icon3d } from './Icon3d'
+import { Money } from './kit/Amount'
 import { Sheet } from './Sheet'
 
 /**
@@ -135,7 +136,7 @@ function GoldSheet({ initial }: { initial: Mode }) {
   )
 
   return (
-    <Sheet title="Tiệm Vàng Kim Thành" onClose={closePanel}>
+    <Sheet title="Tiệm Vàng Kim Thành" icon="coin" onClose={closePanel}>
       <div className="grid gap-3 land:grid-cols-2 land:items-start">
         <div className="flex flex-col gap-2">
           <PriceBoard day={day} />
@@ -145,7 +146,7 @@ function GoldSheet({ initial }: { initial: Mode }) {
               <div className="font-extrabold">
                 Vàng của bạn: <span className="text-[#b3261e]">{held ? formatChi(held) : 'chưa có'}</span>
               </div>
-              <div className="text-[12px] font-bold text-ink/70">Tiền mặt: {formatMoney(money, currency)}</div>
+              <div className="text-[12px] font-bold text-ink/70">Tiền mặt: <Money amount={money} currency={currency} /></div>
               {held > 0 && (
                 <div className="text-[12px] font-bold text-ink/70">
                   Bán lại hôm nay: {formatMoney(value)} ·{' '}

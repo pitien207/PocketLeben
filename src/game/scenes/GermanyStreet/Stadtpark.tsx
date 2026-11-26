@@ -173,9 +173,10 @@ function parkShapes(): ShapeItem[] {
     [0, 0, 0.62],
     [0.5, 0.2, 0.45],
     [-0.45, 0.25, 0.5],
-  ] as const) s.push({ ico: [r, 1], at: [33.2 + dx, r * 0.8, -12.35 + dz], color: '#6fae5a' })
-  s.push({ sphere: [0.16, 8, 6], at: [32.75, 0.12, -11.75], scale: [1.2, 0.8, 1], color: '#8a6a4a' })
-  s.push({ sphere: [0.05, 6, 4], at: [32.62, 0.13, -11.62], color: '#f2c4a8' })
+  ] as const) s.push({ ico: [r * 0.85, 1], at: [33.45 + dx * 0.8, r * 0.7, -12.6 + dz * 0.6], color: '#6fae5a' })
+  // 1.49 moved back 0.3 m: the bush grew into the kiosk's back wall
+  s.push({ sphere: [0.16, 8, 6], at: [33.0, 0.12, -12.05], scale: [1.2, 0.8, 1], color: '#8a6a4a' })
+  s.push({ sphere: [0.05, 6, 4], at: [32.87, 0.13, -11.95], color: '#f2c4a8' })
   s.push({ sphere: [0.02, 4, 4], at: [32.58, 0.14, -11.57], color: '#2d2430' })
   // Daisy meadow
   for (let i = 0; i < 22; i++) {
@@ -234,7 +235,7 @@ export const Stadtpark = memo(function Stadtpark() {
         <CuboidCollider args={[0.35, 0.7, 1.2]} position={[19.5, 0.7, -7.6]} collisionGroups={PROP_GROUPS} />
         <CuboidCollider args={[0.95, 0.5, 0.55]} position={[29.8, 0.5, -8.4]} collisionGroups={PROP_GROUPS} />
         <CuboidCollider args={[0.95, 0.5, 0.55]} position={[32.6, 0.5, -7.6]} collisionGroups={PROP_GROUPS} />
-        <CylinderCollider args={[0.5, 0.75]} position={[33.2, 0.5, -12.35]} collisionGroups={PROP_GROUPS} />
+        <CylinderCollider args={[0.5, 0.6]} position={[33.45, 0.5, -12.6]} collisionGroups={PROP_GROUPS} />
         <CuboidCollider args={[0.75, 0.6, 0.45]} position={[EIS.x, 0.6, EIS.z]} collisionGroups={PROP_GROUPS} />
       </RigidBody>
 

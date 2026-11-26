@@ -7,6 +7,9 @@ import { ICON3D } from './Icon3d'
  * Picked from the place's id / name, then from its first action's icon; a pushpin otherwise.
  */
 const BY_ID: [RegExp, string][] = [
+  // 1.48 bus stops and U-Bahn entrances (data/transit.ts)
+  [/^bus-/, 'bus-stop'],
+  [/^ubahn-/, 'metro'],
   [/gas|xang|tankstelle/i, 'fuel-pump'],
   [/showroom/i, 'motor-scooter'],
   [/pfand/i, 'recycling-symbol'],
@@ -54,6 +57,8 @@ const BY_NAME: [RegExp, string][] = [
 
 /** Fluent icons of the context-action names that say what a place is (doors and talking say nothing). */
 const BY_ACTION: Record<string, string> = {
+  bus: 'bus-stop',
+  metro: 'metro',
   coffee: 'hot-beverage',
   shop: 'shopping-cart',
   sleep: 'bed',

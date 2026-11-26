@@ -22,6 +22,8 @@ import { SCENE_MAPS } from '../game/scenes/maps'
 import { useWorld } from '../store/worldStore'
 import { EmoteButton, OnlineChip } from './OnlineUI'
 import { useLandscape } from './useMedia'
+import { Hint } from './kit/Hint'
+import { Amount } from './kit/Amount'
 
 /**
  * Top HUD (1.18): one thin line — the clock pill on the left, the three currencies (đồng, euro,
@@ -38,19 +40,21 @@ function BagFullBadge() {
 }
 
 /** One icon of the right-hand rail. */
-export function RailButton({ label, onClick, children, tour, testId }: { label: string; onClick: () => void; children: ReactNode; tour?: string; testId?: string }) {
+export function RailButton({ label, onClick, children, tour, testId, keys }: { label: string; onClick: () => void; children: ReactNode; tour?: string; testId?: string; keys?: string }) {
+  // 1.47: a tooltip for mouse users (the label without the "(M)" — the key shows as a chip)
   return (
+    <Hint label={label.replace(/\s*\([A-Z]\)$/, '')} keys={keys} side="bottom">
     <button
       type="button"
       data-tour={tour}
       data-testid={testId}
       aria-label={label}
-      title={label}
       onClick={onClick}
       className="rail-btn"
     >
       {children}
     </button>
+    </Hint>
   )
 }
 
@@ -123,15 +127,16 @@ const whole = (n: number) => Math.round(n).toLocaleString('vi-VN')
 const euros = (n: number) => n.toLocaleString('vi-VN', { minimumFractionDigits: Number.isInteger(n) ? 0 : 2, maximumFractionDigits: 2 })
 
 /** One currency: its coin overlapping a slim dark pill with the amount; "+…" floats up when it grows. */
-function Wallet({ id, label, value, text, icon }: { id: string; label: string; value: number; text: string; icon: ReactNode }) {
+function Wallet({ id, label, value, text, icon, decimals = 0 }: { id: string; label: string; value: number; text: string; icon: ReactNode; decimals?: number }) {
   const gain = useMoneyGain(value)
   return (
-    <div role="status" aria-label={`${label}: ${text}`} title={label} data-testid={`wallet-${id}`} className="relative flex h-7 items-center">
+    <div role="status" aria-label={`${label}: ${text}`} data-testid={`wallet-${id}`} className="relative flex h-7 items-center">
       <span className={`relative z-10 -mr-3 h-7 w-7 shrink-0 drop-shadow-[0_1px_0_rgba(40,25,15,0.35)] ${gain ? 'animate-coin' : ''}`} key={`coin${gain?.key ?? 0}`}>
         {icon}
       </span>
       <span className="flex h-[1.4rem] items-center rounded-full border border-white/25 bg-[#3a2a22]/80 pr-2 pl-4 font-display text-[13px] leading-none font-extrabold text-[#fff6dc] tabular-nums shadow-[0_2px_6px_rgba(40,25,15,0.25)]">
-        {text}
+        {/* 1.47: the digits roll to the new amount (NumberFlow) */}
+        <Amount value={value} decimals={decimals} />
       </span>
       {gain && (
         <span key={`up${gain.key}`} className="animate-float-up absolute top-full right-0 mt-0.5 rounded-full bg-jade px-1.5 py-0.5 text-[11px] font-black whitespace-nowrap text-white shadow">
@@ -153,7 +158,7 @@ function Wallets() {
   return (
     <div className="pointer-events-auto flex shrink-0 items-center gap-1.5">
       <Wallet id="vnd" label="Việt Nam đồng" value={vnd} text={whole(vnd)} icon={<DongIcon />} />
-      <Wallet id="eur" label="Euro" value={eur} text={euros(eur)} icon={<Icon3d name="euro-banknote" className="h-full w-full" />} />
+      <Wallet id="eur" label="Euro" value={eur} text={euros(eur)} decimals={Number.isInteger(eur) ? 0 : 2} icon={<Icon3d name="euro-banknote" className="h-full w-full" />} />
       <Wallet id="gem" label="Kim cương" value={gems} text={whole(gems)} icon={<Icon3d name="gem-stone" className="h-full w-full" />} />
     </div>
   )
@@ -182,7 +187,7 @@ function Rail({ row }: { row: boolean }) {
             <PhoneBadge />
           </RailButton>
           {cityMap && (
-            <RailButton label={`${t('map.title')} (M)`} onClick={() => openPanel({ type: 'map' })} tour="map" testId="rail-map">
+            <RailButton label={`${t('map.title')} (M)`} keys="M" onClick={() => openPanel({ type: 'map' })} tour="map" testId="rail-map">
               <Icon3d name="world-map" className={RAIL_ICON} />
             </RailButton>
           )}
@@ -203,7 +208,7 @@ function Rail({ row }: { row: boolean }) {
               <Icon3d name="test-tube" className={RAIL_ICON} />
             </RailButton>
           )}
-          <RailButton label={t('hud.settings')} onClick={() => setSettingsOpen(true)}>
+          <RailButton label={t('hud.settings')} keys="Esc" onClick={() => setSettingsOpen(true)} testId="rail-settings">
             <Icon3d name="gear" className={RAIL_ICON} />
           </RailButton>
         </nav>

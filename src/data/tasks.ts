@@ -47,6 +47,9 @@ export type ActionIconName =
   | 'board'
   // 1.44 München: look at a sight
   | 'sight'
+  // 1.48 bus stops and the U-Bahn
+  | 'bus'
+  | 'metro'
 
 export interface TaskAction {
   id: string

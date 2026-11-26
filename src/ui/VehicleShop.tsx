@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
-import { Canvas, useFrame } from '@react-three/fiber'
+import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import type { Group } from 'three'
 import { SHOP_VEHICLES, VEHICLES, type VehicleDef, type VehicleId } from '../data/vehicles'
 import { VehicleMesh } from '../game/components/PlayerVehicle'
-import { vehicleHalf } from '../game/scenes/shared/ownVehicles'
+import { vehicleSize } from '../game/scenes/shared/ownVehicles'
 import { buyVehicle, chooseVehicle, currentVehicle, fuelOf, mount, ownedVehicles, ownsVehicle, plateOf, resaleOf, rideAllowed, sellVehicle, toggleRide, useRide } from '../game/systems/vehicles'
-import { playSfx } from '../game/systems/audio'
+import { hornFor, playSfx } from '../game/systems/audio'
 import { formatMoney } from '../i18n/format'
 import { useT } from '../i18n'
 import { useLocalize } from '../i18n/localized'
@@ -18,6 +18,8 @@ import { useWorld } from '../store/worldStore'
 import { CoinIcon } from './icons'
 import { Icon3d } from './Icon3d'
 import { Sheet } from './Sheet'
+import { Money } from './kit/Amount'
+import { Tabs } from './kit/Tabs'
 import { useIsTouch } from './useIsTouch'
 
 /**
@@ -44,18 +46,46 @@ function Turntable({ def }: { def: VehicleDef }) {
   )
 }
 
+const PREVIEW_FOV = 30
+
+/**
+ * 1.49 The camera distance fits the vehicle's bounding sphere (length, width AND height — the turntable shows it from every
+ * side) into the vertical field of view, so tall Kenney cars no longer spill out of the box.
+ */
+/** Re-aims the preview camera whenever the picked vehicle changes (it was set once, so a car after a bike spilled out). */
+function FrameCamera({ d, look }: { d: number; look: number }) {
+  const camera = useThree((s) => s.camera)
+  useEffect(() => {
+    camera.position.set(0, look + d * 0.34, d * 0.94)
+    camera.lookAt(0, look, 0)
+    camera.updateProjectionMatrix()
+  }, [camera, d, look])
+  return null
+}
+
 function Preview({ def }: { def: VehicleDef }) {
-  const half = vehicleHalf(def)
-  const d = Math.max(half[2], half[0]) * 2.6 + 1.1
+  const [w, h, l] = vehicleSize(def)
+  const r = Math.hypot(w / 2, h / 2, l / 2)
+  const d = (r / Math.tan(((PREVIEW_FOV / 2) * Math.PI) / 180)) * 1.08
+  const look = h * 0.45
   return (
     <div className="relative h-36 overflow-hidden rounded-2xl bg-linear-to-b from-[#fdf6e6] to-[#f1dcb6] shadow-[inset_0_0_0_2px_#e6c99a] short:h-28 land:h-44" data-testid="veh-preview">
-      <Canvas dpr={[1, 1.5]} camera={{ position: [0, d * 0.42, d], fov: 32 }} gl={{ antialias: true, alpha: true }} onCreated={({ camera }) => camera.lookAt(0, half[1] * 0.7, 0)}>
+      <Canvas dpr={[1, 1.5]} camera={{ position: [0, look + d * 0.34, d * 0.94], fov: PREVIEW_FOV }} gl={{ antialias: true, alpha: true }}>
+        <FrameCamera d={d} look={look} />
         <hemisphereLight args={['#fff6e0', '#a08870', 1.6]} />
         <directionalLight position={[3, 5, 4]} intensity={1.6} />
         <Turntable def={def} />
       </Canvas>
     </div>
   )
+}
+
+/** 1.49 list prices short ("420 tr", "2,1 tỷ") — the full number spilled out of the small cards on phones. */
+function shortPrice(v: number): string {
+  const f = (n: number) => n.toLocaleString('vi-VN', { maximumFractionDigits: 1 })
+  if (v >= 1e9) return `${f(v / 1e9)} tỷ`
+  if (v >= 1e6) return `${f(v / 1e6)} tr`
+  return formatMoney(v, 'VND')
 }
 
 function SpeedBar({ value }: { value: number }) {
@@ -145,32 +175,27 @@ export function VehicleShop() {
   ]
 
   return (
-    <Sheet title={t('vehicles.title')} onClose={closePanel}>
+    <Sheet title={t('vehicles.title')} icon="motor-scooter" onClose={closePanel}>
       <div className="mb-2 flex items-center justify-center gap-1.5 text-sm font-bold">
         {t('shop.yourMoney')}:
         <CoinIcon className="text-lg" />
         <span className="font-display text-base font-extrabold tabular-nums" data-testid="veh-money">
-          {formatMoney(money, currency)}
+          <Money amount={money} currency={currency} />
         </span>
       </div>
-      <div className="mb-2 grid grid-cols-3 gap-1 rounded-full bg-ink/10 p-1 text-[12px] font-black">
-        {tabs.map(([id, label]) => (
-          <button
-            key={id}
-            type="button"
-            data-testid={`veh-tab-${id}`}
-            onClick={() => {
-              setTab(id)
-              setConfirm(null)
-              const first = id === 'mine' ? owned[0] : SHOP_VEHICLES.find((v) => (id === 'cars' ? v.kind === 'car' : v.kind !== 'car'))
-              if (first) setPick(first.id)
-            }}
-            className={`truncate rounded-full px-2 py-1 ${tab === id ? 'bg-cream shadow-[0_2px_0_var(--color-outline)]' : 'text-ink/70'}`}
-          >
-            {label}
-          </button>
-        ))}
-      </div>
+      <Tabs
+        value={tab}
+        size="sm"
+        className="mb-2"
+        items={tabs.map(([id, label]) => ({ id, label, testId: `veh-tab-${id}` }))}
+        onChange={(id) => {
+          if (id === tab) return
+          setTab(id)
+          setConfirm(null)
+          const first = id === 'mine' ? owned[0] : SHOP_VEHICLES.find((v) => (id === 'cars' ? v.kind === 'car' : v.kind !== 'car'))
+          if (first) setPick(first.id)
+        }}
+      />
 
       <div className="land:grid land:grid-cols-[1fr_1fr] land:gap-3">
         <div>
@@ -206,7 +231,7 @@ export function VehicleShop() {
           {list.length === 0 ? (
             <p className="rounded-2xl bg-white/70 p-3 text-center text-sm font-bold text-ink/70">{t('vehicles.none')}</p>
           ) : (
-            <ul className="grid grid-cols-2 gap-1.5 short:grid-cols-3 land:grid-cols-2">
+            <ul className="grid grid-cols-2 gap-1.5">
               {list.map((v) => (
                 <li key={v.id}>
                   <button
@@ -220,7 +245,7 @@ export function VehicleShop() {
                     <Icon3d name={v.icon} className="h-7 w-7 shrink-0" />
                     <span className="min-w-0">
                       <span className="block truncate text-[12px] leading-tight font-extrabold">{localize(v.name)}</span>
-                      <span className="block text-[11px] font-bold text-ink/65 tabular-nums">{ownsVehicle(v.id) ? t('vehicles.owned') : formatMoney(v.price, 'VND')}</span>
+                      <span className="block truncate text-[11px] font-bold text-ink/65 tabular-nums" title={formatMoney(v.price, 'VND')}>{ownsVehicle(v.id) ? t('vehicles.owned') : shortPrice(v.price)}</span>
                     </span>
                     <span className="absolute top-0.5 right-1 h-2.5 w-2.5 rounded-full border border-outline" style={{ background: v.color }} />
                   </button>
@@ -294,7 +319,7 @@ export function RideButton() {
       if (e.code === 'KeyF') toggleRide()
       else if (e.code === 'KeyH') {
         const r = useRide.getState().riding
-        if (r) playSfx(VEHICLES[r].kind === 'bicycle' ? 'bell' : 'honk')
+        if (r) playSfx(hornFor(VEHICLES[r].kind))
       }
     }
     window.addEventListener('keydown', onKey)
@@ -306,7 +331,7 @@ export function RideButton() {
   const label = riding ? t('ride.off') : t('ride.on')
   const fuel = riding && def.tank > 0 ? fuelPct : null
   const low = fuel !== null && fuel <= 10
-  const honk = () => playSfx(def.kind === 'bicycle' ? 'bell' : 'honk')
+  const honk = () => playSfx(hornFor(def.kind))
 
   if (isTouch) {
     return (

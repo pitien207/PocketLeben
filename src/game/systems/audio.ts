@@ -29,9 +29,25 @@ function loadSamples(c: AudioContext) {
   }
 }
 /** Per-sample loudness (the recordings differ). */
-const SAMPLE_GAIN: Partial<Record<SfxName, number>> = { click: 0.5, pickup: 0.8, coin: 0.9, till: 0.8, door: 0.7, stamp: 1, ding: 0.9 }
+const SAMPLE_GAIN: Partial<Record<SfxName, number>> = { click: 0.5, pickup: 0.8, coin: 0.9, till: 0.8, door: 0.7, stamp: 1, ding: 0.9, honk: 0.55, hornmoto: 0.5, hornbus: 1.0, bikebell: 0.5, trambell: 0.5, enginerev: 0.5 }
+/** 1.49 recorded vehicle sounds without a synth of their own play this one while the file loads / offline. */
+const SYNTH_STANDIN: Partial<Record<SfxName, SfxName>> = { hornmoto: 'honk', hornbus: 'honk', bikebell: 'bell', trambell: 'bell' }
 
 export type SfxName = 'click' | 'right' | 'wrong' | 'coin' | 'pickup' | 'success' | 'fail' | 'honk' | 'door' | 'stamp' | 'sip' | 'bell' | 'beep' | 'ding' | 'whistle' | 'till' | 'pock' | 'bounce'
+  // 1.49 vehicles (Wikimedia Commons recordings, data/credits.ts): scooter horn, city-bus air horn, bicycle bell, tram bell, a car revving
+  | 'hornmoto' | 'hornbus' | 'bikebell' | 'trambell' | 'enginerev'
+
+export type HornKind = 'bicycle' | 'motorbike' | 'car' | 'bus' | 'tram'
+/** The street honking at you: at most one horn every 1.8 s, so a queue of cars is not a wall of noise. */
+let lastStreetHorn = 0
+export function streetHorn(kind: HornKind) {
+  const now = performance.now()
+  if (now - lastStreetHorn < 1800) return
+  lastStreetHorn = now
+  playSfx(hornFor(kind))
+}
+/** The right horn for a vehicle (1.49). */
+export const hornFor = (kind: HornKind): SfxName => (({ bicycle: 'bikebell', motorbike: 'hornmoto', car: 'honk', bus: 'hornbus', tram: 'trambell' }) as const)[kind]
 export type MusicTheme = 'vn' | 'de' | 'indoor' | null
 
 let ctx: AudioContext | null = null
@@ -148,6 +164,8 @@ export function playSfx(name: SfxName) {
     src.start(t)
     return
   }
+  const standIn = SYNTH_STANDIN[name]
+  if (standIn) return playSfx(standIn)
   switch (name) {
     case 'click':
       tone(1200, t, 0.04, 'sine', 0.12, b)

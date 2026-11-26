@@ -37,7 +37,7 @@ const ROOM_CAP = 25
 /** Scenes everyone shares. Homes, exams and interviews stay private (instances). */
 const PUBLIC_SCENES = new Set(['vietnam', 'hangKhay', 'germany', 'classroom', 'buergeramt', 'university', 'airport', 'careHome'])
 // Private scenes (no room): 1.43 adds the first flight's cabin + München transit (and the back yard, missing since 1.42)
-const ALL_SCENES = new Set([...PUBLIC_SCENES, 'home', 'homeYard', 'examHall', 'embassy', 'wg', 'plane', 'transit'])
+const ALL_SCENES = new Set([...PUBLIC_SCENES, 'home', 'homeYard', 'examHall', 'embassy', 'wg', 'plane', 'transit', 'ubahn'])
 /** 1.41 shop rooms (src/data/shopRoomIds.ts): `shop.<id>`, each one a public room of its own. */
 const SHOP_SCENE = /^shop\.[A-Za-z]{1,24}$/
 const isPublicScene = (scene) => PUBLIC_SCENES.has(scene) || SHOP_SCENE.test(scene)
@@ -75,8 +75,11 @@ async function auth(header) {
   return token ? store.tokenUser(token) : null
 }
 
-/** Behind Azure's ingress the socket address is the proxy: use the forwarded client address. */
-const clientIp = (req) => (req.headers['x-forwarded-for']?.split(',')[0] ?? req.socket.remoteAddress ?? '').trim()
+/**
+ * Behind a proxy the socket address is the proxy: use the client's address. Cloudflare (the NAS tunnel, docs/NAS.md) sends
+ * CF-Connecting-IP; Azure's ingress sends X-Forwarded-For.
+ */
+const clientIp = (req) => (req.headers['cf-connecting-ip'] ?? req.headers['x-forwarded-for']?.split(',')[0] ?? req.socket.remoteAddress ?? '').trim()
 
 // ---------------------------------------------------------------------------------------
 // HTTP: tiny JSON API + static files.

@@ -41,12 +41,12 @@ export default function CreditsPanel({ onClose }: { onClose: () => void }) {
           aria-label={t('settings.close')}
           onClick={onClose}
           data-testid="credits-close"
-          className="absolute top-2 right-2 grid h-9 w-9 place-items-center rounded-full bg-ink/10 text-lg"
+          className="btn-paper absolute top-2 right-2 grid h-9 w-9 place-items-center rounded-full text-lg"
         >
           <CloseIcon />
         </button>
 
-        <div className="max-h-[70dvh] overflow-y-auto overscroll-contain pr-1 short:max-h-[calc(100dvh-7.5rem)]" style={{ touchAction: 'pan-y' }}>
+        <div className="max-h-[70dvh] ui-scroll overflow-y-auto overscroll-contain pr-1 short:max-h-[calc(100dvh-7.5rem)]" style={{ touchAction: 'pan-y' }}>
           <p className="mb-3 text-sm font-semibold text-ink/70">{t('credits.intro')}</p>
           {CREDIT_GROUPS.map((g) => (
             <section key={g.title} className="mb-4">

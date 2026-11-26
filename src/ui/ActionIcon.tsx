@@ -306,6 +306,8 @@ const ICONS: Partial<Record<ActionIconName, (props: Props) => JSX.Element>> = {
   passport: PassportIcon,
   ticket: TicketIcon,
   tram: TramIcon,
+  bus: TramIcon,
+  metro: TramIcon,
   bottle: BottleIcon,
   hanger: HangerIcon,
   laptop: LaptopIcon,
@@ -358,6 +360,8 @@ const THREE_D: Partial<Record<ActionIconName, string>> = {
   seat: 'seat',
   board: 'airplane-departure',
   sight: 'round-pushpin',
+  bus: 'bus',
+  metro: 'metro',
 }
 
 /** 1.42: `flat` forces the old drawing (e.g. inside SVG layouts). */

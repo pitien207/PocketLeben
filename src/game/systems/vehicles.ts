@@ -7,7 +7,7 @@ import { useTime } from '../../store/timeStore'
 import { useUI } from '../../store/uiStore'
 import { useWorld } from '../../store/worldStore'
 import { registerActions } from './actions'
-import { playSfx } from './audio'
+import { hornFor, playSfx } from './audio'
 import { getFlag, registerTests, setFlag } from './conditions'
 import { playerState } from './playerState'
 import { say, vnd } from './say'
@@ -74,7 +74,8 @@ export function mount(id?: VehicleId): boolean {
   live.saved = live.fuel
   setFlag('veh.current', def.id)
   useRide.setState({ riding: def.id, fuelPct: Math.round(live.fuel * 100) })
-  playSfx(def.kind === 'bicycle' ? 'bell' : 'honk')
+  // 1.49 bells for bicycles, a scooter horn for motorbikes, the engine revs when you start a car
+  playSfx(def.kind === 'car' ? 'enginerev' : hornFor(def.kind))
   return true
 }
 

@@ -40,6 +40,8 @@ import { Toasts } from './ui/Toasts'
 import { RotateHint } from './ui/RotateHint'
 import { WorkPanel } from './ui/WorkPanel'
 import { WorkResults } from './ui/WorkResults'
+import { HintProvider } from './ui/kit/Hint'
+import { TransitPanel } from './ui/TransitPanel'
 
 installDebugHooks()
 
@@ -58,6 +60,7 @@ export default function App() {
   }, [language])
 
   return (
+    <HintProvider>
     <div className="relative h-full w-full overflow-hidden">
       <Game />
       {/* DOM overlay. Containers ignore pointers so drags fall through to the 3D view. */}
@@ -95,6 +98,7 @@ export default function App() {
         <MapPanel />
         <PhonePanel />
         <VehicleShop />
+        <TransitPanel />
         <PickleLobby />
         <PickleInvites />
         <CharacterCreate />
@@ -112,5 +116,6 @@ export default function App() {
       </div>
       <LoadingScreen />
     </div>
+    </HintProvider>
   )
 }

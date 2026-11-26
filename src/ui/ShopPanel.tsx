@@ -11,6 +11,7 @@ import { usePlayer } from '../store/playerStore'
 import { useUI } from '../store/uiStore'
 import { CoinIcon } from './icons'
 import { ItemIcon } from './ItemIcon'
+import { Money } from './kit/Amount'
 import { Sheet } from './Sheet'
 
 
@@ -35,11 +36,11 @@ export function ShopPanel() {
   if (!shop) return null
 
   return (
-    <Sheet title={localize(shop.name)} onClose={closePanel}>
+    <Sheet title={localize(shop.name)} icon="shopping-cart" onClose={closePanel}>
       <div className="mb-3 flex items-center justify-center gap-1.5 text-sm font-bold">
         {t('shop.yourMoney')}:
         <CoinIcon className="text-lg" />
-        <span className="font-display text-base font-extrabold tabular-nums">{formatMoney(money, currency)}</span>
+        <Money amount={money} currency={currency} className="font-display text-base font-extrabold tabular-nums" />
         <span className="ml-2 rounded-full bg-ink/10 px-2 py-0.5 text-[12px] font-black tabular-nums">🎒 {t('shop.bagRoom', { kg: formatKg(bagWeight()).replace(' kg', ''), max: bagCapacity() })}</span>
       </div>
       <ul className="grid grid-cols-2 gap-2">

@@ -2,6 +2,7 @@ import type { Vec3 } from '../../../data/config'
 import type { BikeStyle, VehicleDef } from '../../../data/vehicles'
 import manifest from '../../../assets/models/cars.json'
 import { carModelShapes } from './carModels'
+import { isLibraryCar, libraryCarShapes, libraryCarSize } from './libraryCars'
 import { PALETTE as P } from './palette'
 import { bicycleShapes, carShapes, motorbikeShapes } from './props'
 import type { ShapeItem } from './Shapes'
@@ -80,17 +81,26 @@ const CAR_SIZE = new Map((manifest as unknown as { models: { name: string; size:
 
 /** The vehicle as Shapes items (cars use the model once `carsReady`, else the hand-built car). */
 export function vehicleShapes(def: VehicleDef, carsReady: boolean): ShapeItem[] {
-  if (def.kind === 'car') return (carsReady && def.model ? carModelShapes(def.model, def.color) : null) ?? carShapes(def.color)
+  if (def.kind === 'car') {
+    if (isLibraryCar(def.model)) return libraryCarShapes(def.model, def.color) ?? carShapes(def.color)
+    return (carsReady && def.model ? carModelShapes(def.model, def.color) : null) ?? carShapes(def.color)
+  }
   return bikeShapes(def.style ?? 'cub', def.color, def.color2)
 }
 
 /** Half extents [x, y, z] of the collider while riding / of the display stand. */
 export function vehicleHalf(def: VehicleDef): Vec3 {
   if (def.kind === 'car') {
-    const size = (def.model && CAR_SIZE.get(def.model)) || [1.5, 1.4, 3.1]
+    const size = isLibraryCar(def.model) ? libraryCarSize(def.model) : (def.model && CAR_SIZE.get(def.model)) || [1.5, 1.4, 3.1]
     return [size[0] / 2 - 0.02, 0.55, size[2] / 2 - 0.04]
   }
   return def.kind === 'bicycle' ? [0.22, 0.45, 0.6] : [0.26, 0.45, 0.74]
+}
+
+/** 1.49 Real outer size [w, h, l] in metres (the showroom frames the vehicle with it). Two-wheelers include the rider's height. */
+export function vehicleSize(def: VehicleDef): Vec3 {
+  if (def.kind === 'car') return isLibraryCar(def.model) ? libraryCarSize(def.model) : (def.model && CAR_SIZE.get(def.model)) || [1.5, 1.4, 3.1]
+  return def.kind === 'bicycle' ? [0.5, 1.1, 1.7] : [0.6, 1.2, 1.9]
 }
 
 /** The rider pose for two-wheelers (cars hide the driver). */

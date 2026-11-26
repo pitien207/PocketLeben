@@ -4,6 +4,7 @@ import { MUC_SIGHTS } from '../../data/munich'
 import { modelPackReady } from '../scenes/shared/models'
 import { useSettings } from '../../store/settingsStore'
 import { useThree } from '@react-three/fiber'
+import { useRapier } from '@react-three/rapier'
 import { Vector3, type BufferGeometry } from 'three'
 import { useDialogue } from '../../store/dialogueStore'
 import { useFlags } from '../../store/flagsStore'
@@ -28,6 +29,7 @@ import { useGuide } from '../../store/guideStore'
 import { route } from './guide'
 import { localSnapshot } from './netState'
 import { travelTo } from './travel'
+import { busArrivals, busRuntime, trainAt, transitClock } from './transit'
 import { runAction } from './actions'
 import { setFlag } from './conditions'
 import { jumpToChapter, skipStep } from './testMode'
@@ -95,6 +97,8 @@ export function installDebugHooks() {
       /** 1.40 Grab app (offers, order) + its clock, and the vehicle you ride. */
       grab: useGrab,
       grabClock,
+      /** 1.48 buses + U-Bahn: busRuntime / busArrivals (force a bus to stand), transitClock.offset, trainAt(gleis) */
+      transit: { busRuntime, busArrivals, transitClock, trainAt },
       ride: useRide,
       /** 1.39 lighter post effects after a slow-device decline ({ lite }). */
       fxAuto: useFxAuto,
@@ -123,6 +127,45 @@ export function installDebugHooks() {
       project: () => null,
     },
   })
+}
+
+/**
+ * 1.49 Mount inside <Physics> (dev only): `__vh.colliders()` lists every collider of the scene as a plain box (centre, half
+ * extents of its axis-aligned bounds, body type, groups) — the overlap check of the tests (things drawn into each other) reads it.
+ */
+export function PhysicsBridge() {
+  const { world } = useRapier()
+  useEffect(() => {
+    const vh = (window as unknown as { __vh?: Record<string, unknown> }).__vh
+    if (!vh) return
+    vh.colliders = () => {
+      const out: { x: number; y: number; z: number; hx: number; hy: number; hz: number; body: string; groups: number; sensor: boolean; shape: number }[] = []
+      world.forEachCollider((c) => {
+        const t = c.translation()
+        const s = c.shape as unknown as { type: number; halfExtents?: { x: number; y: number; z: number }; radius?: number; halfHeight?: number }
+        let hx = 0
+        let hy = 0
+        let hz = 0
+        if (s.halfExtents) {
+          // turn the box's corners with its rotation (y only in this game) to get axis-aligned bounds
+          const q = c.rotation()
+          const yaw = 2 * Math.atan2(q.y, q.w)
+          const cs = Math.abs(Math.cos(yaw))
+          const sn = Math.abs(Math.sin(yaw))
+          hx = s.halfExtents.x * cs + s.halfExtents.z * sn
+          hz = s.halfExtents.x * sn + s.halfExtents.z * cs
+          hy = s.halfExtents.y
+        } else if (s.radius != null) {
+          hx = hz = s.radius
+          hy = s.halfHeight ?? s.radius
+        } else return
+        const p = c.parent()
+        out.push({ x: t.x, y: t.y, z: t.z, hx, hy, hz, body: p ? ['dynamic', 'fixed', 'kinematicPos', 'kinematicVel'][p.bodyType()] ?? '?' : 'none', groups: c.collisionGroups(), sensor: c.isSensor(), shape: s.type })
+      })
+      return out
+    }
+  }, [world])
+  return null
 }
 
 /** Mount inside <Canvas> (dev only) to give `__vh.project` access to the camera. */

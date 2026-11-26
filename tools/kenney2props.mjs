@@ -7,6 +7,8 @@
 // pack "facade" = Modular Buildings  (European town-house modules: windows with sills, balconies, awnings, doors, roofs)
 // pack "street" = City Kit (Roads)   (1.46: electricity poles + wires, street lights, traffic lights, signs, cones, barriers)
 // pack "towers" = City Kit (Commercial) (1.46: low-detail blocks for the distant skyline, awnings, parasols)
+// pack "vehicles" = Car Kit (1.48: sedans, SUVs, taxi, police, ambulance, fire / garbage trucks, vans, trucks)
+// pack "rail" = Train Kit (1.48: U-Bahn subway cars, city trains, trams, tracks)
 //
 // <kit folder> is the unpacked zip (it holds "Models/GLB format/*.glb" + "…/Textures/colormap.png"). Kenney paints with
 // ONE small palette texture: every triangle takes the colour under its UV centre and triangles of the same colour
@@ -17,7 +19,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import zlib from 'node:zlib'
 import { Vector3 } from 'three'
-import { readGlb } from './glb.mjs'
+import { readGlb, simplifyGroup } from './glb.mjs'
 
 const [PACK, SRC] = process.argv.slice(2)
 if (!PACK || !SRC) throw new Error('usage: node tools/kenney2props.mjs <town|facade> <kit folder> [--sizes]')
@@ -82,6 +84,32 @@ PACKS.towers = {
     SkyA: 'building-skyscraper-a', SkyB: 'building-skyscraper-b', SkyC: 'building-skyscraper-c', SkyD: 'building-skyscraper-d', SkyE: 'building-skyscraper-e',
     Awning: 'detail-awning', AwningWide: 'detail-awning-wide', Overhang: 'detail-overhang', OverhangWide: 'detail-overhang-wide',
     ParasolA: 'detail-parasol-a', ParasolB: 'detail-parasol-b',
+  },
+}
+PACKS.vehicles = {
+  source: 'Car Kit by Kenney (CC0)',
+  prefix: 'kv',
+  // one flat colour per palette cell (16 columns × 4 rows): the gradient split each car into dozens of tones
+  cells: [16, 4],
+  // the wheels are round and detailed (≈ 1000 triangles per car): keep 40 % of big groups
+  simplify: 0.4,
+  models: {
+    Sedan: 'sedan', SedanSports: 'sedan-sports', Hatchback: 'hatchback-sports', Suv: 'suv', SuvLuxury: 'suv-luxury', Taxi: 'taxi',
+    Police: 'police', Ambulance: 'ambulance', Firetruck: 'firetruck', Garbage: 'garbage-truck', Delivery: 'delivery',
+    DeliveryFlat: 'delivery-flat', Van: 'van', Truck: 'truck', TruckFlat: 'truck-flat', Tractor: 'tractor',
+  },
+}
+// 1.48: Train Kit — the U-Bahn (subway cars a = front, b = middle, c = back), trams, rails
+PACKS.rail = {
+  source: 'Train Kit by Kenney (CC0)',
+  prefix: 'kl',
+  cells: [16, 4],
+  models: {
+    SubwayA: 'train-electric-subway-a', SubwayB: 'train-electric-subway-b', SubwayC: 'train-electric-subway-c',
+    CityA: 'train-electric-city-a', CityB: 'train-electric-city-b', CityC: 'train-electric-city-c',
+    TramModern: 'train-tram-modern', TramClassic: 'train-tram-classic', TramRound: 'train-tram-round',
+    Track: 'track', TrackDetailed: 'track-detailed', TrackSingle: 'track-single-detailed', RailStraight: 'railroad-rail-straight',
+    Railroad: 'railroad-straight',
   },
 }
 const cfg = PACKS[PACK]
@@ -186,7 +214,7 @@ function colourGroups(g) {
         if (uv) {
           const u = (uv[tri[0] * 2] + uv[tri[1] * 2] + uv[tri[2] * 2]) / 3
           const w = (uv[tri[0] * 2 + 1] + uv[tri[1] * 2 + 1] + uv[tri[2] * 2 + 1]) / 3
-          c = sample(u, w)
+          c = cfg.cells ? sample((Math.floor((((u % 1) + 1) % 1) * cfg.cells[0]) + 0.5) / cfg.cells[0], (Math.floor((((w % 1) + 1) % 1) * cfg.cells[1]) + 0.5) / cfg.cells[1]) : sample(u, w)
         }
         const col = hex(c)
         const key = fixedMat ?? col
@@ -250,12 +278,19 @@ for (const [short, file] of Object.entries(cfg.models)) {
       idx.push(a, b, c)
     }
     if (!idx.length) continue
+    let verts = local
+    let tri = idx
+    if (cfg.simplify && idx.length / 3 > 300) {
+      const out = await simplifyGroup(local, idx, cfg.simplify, 0.02)
+      verts = out.used.flatMap((i) => local.slice(i * 3, i * 3 + 3))
+      tri = out.idx
+    }
     const v0 = pos16.length / 3
-    pos16.push(...local)
+    pos16.push(...verts)
     const i0 = idx16.length
-    idx16.push(...idx)
-    model.groups.push({ mat: grp.mat, color: grp.color, v: [v0, local.length / 3], i: [i0, idx.length] })
-    tris += idx.length / 3
+    idx16.push(...tri)
+    model.groups.push({ mat: grp.mat, color: grp.color, v: [v0, verts.length / 3], i: [i0, tri.length] })
+    tris += tri.length / 3
   }
   manifest.models[name] = model
   console.log(name.padEnd(20), size.join(' × ').padEnd(22), `min ${model.min.join(',')}`.padEnd(26), model.groups.map((x) => `${x.color}:${x.i[1] / 3}`).join(' '))

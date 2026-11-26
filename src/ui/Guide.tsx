@@ -91,7 +91,7 @@ export function GuideCard() {
   }
 
   return (
-    <Sheet title={t('guide.title')} onClose={closePanel}>
+    <Sheet title={t('guide.title')} icon="compass" onClose={closePanel}>
       {!guide ? (
         <p className="py-3 text-center font-bold">{t('guide.allDone')}</p>
       ) : (

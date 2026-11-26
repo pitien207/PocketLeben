@@ -82,7 +82,7 @@ export function VisaPanel() {
   }
 
   return (
-    <Sheet title={t('visa.title')} onClose={closePanel}>
+    <Sheet title={t('visa.title')} icon="identification-card" onClose={closePanel}>
       {path && (
         <p className="mb-2 text-center text-sm font-extrabold">
           {localize(VISA_PATH_NAMES[path])} · {t('visa.docsCount', { done, total: docs.length })}

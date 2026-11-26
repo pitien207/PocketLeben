@@ -74,7 +74,7 @@ export function JobBoard() {
   const owe = Number(getFlag('german.owe') ?? 0)
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto p-3" data-testid="job-board">
+    <div className="flex min-h-0 flex-1 flex-col gap-2 ui-scroll overflow-y-auto p-3" data-testid="job-board">
       <p className="text-[12px] font-bold text-ink/60">{localize(L('Mỗi việc làm được 1 lần mỗi ngày. Làm 8 và 20 lần thì lên hạng (+10% / +20%).', 'Each job once a day. After 8 and 20 times you rank up (+10% / +20%).'))}</p>
       {VN_JOBS.map((id) => {
         const job = JOBS[id]

@@ -7,7 +7,8 @@ import { ActionSpot, type SpotAction } from '../../components/ActionSpot'
 import { ActiveArea } from '../../components/ActiveArea'
 import { ChibiModel, type MotionState } from '../../components/ChibiModel'
 import { NPC, type NpcPath } from '../../components/npc/NPC'
-import { Traffic } from '../../components/npc/Traffic'
+import { CARS_DE, Traffic } from '../../components/npc/Traffic'
+import { Tram } from './Tram'
 import { playSfx } from '../../systems/audio'
 import { playerState } from '../../systems/playerState'
 import { useTime } from '../../../store/timeStore'
@@ -262,10 +263,12 @@ export const MunichLife = memo(function MunichLife() {
     <>
       <Spots />
       <ActiveArea when={nearMax}>
-        <Traffic lanes={MAX_LANES} perLane={2} kinds={['car', 'bicycle', 'car', 'car']} wrapX={ROAD_WRAP} />
+        <Traffic lanes={MAX_LANES} perLane={2} kinds={['car', 'bicycle', 'car', 'car']} wrapX={ROAD_WRAP} cars={CARS_DE} />
+        {/* 1.48 Tram 19 */}
+        <Tram />
       </ActiveArea>
       <ActiveArea when={nearPrinz}>
-        <Traffic lanes={PRINZ_LANES} perLane={2} kinds={['car', 'car', 'bicycle']} wrapX={ROAD_WRAP} />
+        <Traffic lanes={PRINZ_LANES} perLane={2} kinds={['car', 'car', 'bicycle']} wrapX={ROAD_WRAP} cars={CARS_DE} />
       </ActiveArea>
       <ActiveArea when={nearSurf}>
         <Surfer i={0} />

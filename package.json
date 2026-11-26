@@ -1,7 +1,7 @@
 {
   "name": "pocket-leben",
   "private": true,
-  "version": "1.46.0",
+  "version": "1.49.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -12,6 +12,7 @@
     "start": "node server/index.mjs"
   },
   "dependencies": {
+    "@number-flow/react": "^0.6.2",
     "@phosphor-icons/react": "^2.1.10",
     "@react-three/drei": "^10.7.9",
     "@react-three/fiber": "^9.8.2",
@@ -20,6 +21,7 @@
     "canvas-confetti": "^1.9.4",
     "motion": "^14.14.0",
     "postprocessing": "^6.39.6",
+    "radix-ui": "^1.8.1",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
     "sonner": "^2.0.8",

@@ -4,3 +4,8 @@ dist
 .DS_Store
 server/data
 *.tsbuildinfo
+
+# NAS deploy: secrets and data stay on the NAS
+deploy/nas/.env
+deploy/nas/data/
+deploy/nas/backup/

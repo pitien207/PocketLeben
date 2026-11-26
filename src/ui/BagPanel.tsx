@@ -23,6 +23,7 @@ import { BagIcon, LockIcon, TrashIcon } from './icons'
 import { PaperIcon } from './PaperIcon'
 import { Portrait } from './Portrait'
 import { Sheet } from './Sheet'
+import { Tabs } from './kit/Tabs'
 import { EffectChips } from './ShopPanel'
 
 type Tab = 'items' | 'wardrobe' | 'achievements'
@@ -360,19 +361,8 @@ export function BagPanel() {
     { id: 'achievements', label: t('achievements.title') },
   ]
   return (
-    <Sheet title={t('bag.title')} onClose={closePanel}>
-      <div className="mb-3 flex rounded-full border-2 border-outline bg-cream p-1">
-        {tabs.map((x) => (
-          <button
-            key={x.id}
-            type="button"
-            onClick={() => setTab(x.id)}
-            className={`flex-1 rounded-full px-2 py-1.5 text-[13px] font-extrabold transition ${tab === x.id ? 'bg-lacquer text-gold-light shadow' : 'text-ink/60'}`}
-          >
-            {x.label}
-          </button>
-        ))}
-      </div>
+    <Sheet title={t('bag.title')} icon="backpack" onClose={closePanel}>
+      <Tabs value={tab} onChange={setTab} items={tabs.map((x) => ({ ...x, testId: `bag-tab-${x.id}` }))} label={t('bag.title')} className="mb-3" />
       {tab === 'items' && <Items />}
       {tab === 'wardrobe' && <Wardrobe />}
       {tab === 'achievements' && <Achievements />}

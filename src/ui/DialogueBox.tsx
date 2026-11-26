@@ -86,7 +86,7 @@ export function DialogueBox() {
       <section className="animate-sheet pointer-events-auto w-full max-w-xl short:flex short:max-w-5xl short:flex-row-reverse short:items-end short:gap-3" aria-live="polite">
         {/* Phone on its side: the choices stand to the right of the text instead of piling up over the street. */}
         {!typing && choices.length > 0 && (
-          <div className="mb-2 flex flex-col items-end gap-2 short:mb-0 short:max-h-[calc(100dvh-1.5rem)] short:w-[42%] short:shrink-0 short:items-stretch short:gap-1.5 short:overflow-y-auto short:p-1" data-testid="dialogue-choices">
+          <div className="mb-2 flex flex-col items-end gap-2 short:mb-0 short:max-h-[calc(100dvh-1.5rem)] short:w-[42%] short:shrink-0 short:items-stretch short:gap-1.5 short:ui-scroll overflow-y-auto short:p-1" data-testid="dialogue-choices">
             {choices.map((choice, i) => {
               const cost = choice.cost ?? effectCost(choice.effect)
               const short = cost > money
@@ -95,10 +95,11 @@ export function DialogueBox() {
                   key={i}
                   type="button"
                   onClick={() => chooseOption(i)}
-                  className="animate-pop flex max-w-full items-center gap-2 rounded-2xl btn-jade py-2.5 pr-3 pl-4 text-left text-[15px] font-extrabold active:translate-y-1 active:shadow-none short:justify-between short:py-2 short:text-[14px] short:leading-tight"
+                  className="animate-pop flex max-w-full items-center gap-2 rounded-2xl btn-jade py-2.5 pr-3 pl-3 text-left text-[15px] font-extrabold active:translate-y-1 active:shadow-none short:justify-between short:py-2 short:text-[14px] short:leading-tight"
                   style={{ animationDelay: `${i * 50}ms` }}
                 >
-                  <span>{fillDialogueVars(localize(choice.text))}</span>
+                  {i < 4 && <span aria-hidden="true" className="choice-key h-5 w-5 shrink-0 place-items-center rounded-md bg-white/25 text-[11px] leading-none font-black shadow-[inset_0_-1.5px_0_rgba(0,0,0,0.2)]">{i + 1}</span>}
+                  <span className="min-w-0 flex-1">{fillDialogueVars(localize(choice.text))}</span>
                   {cost > 0 && (
                     <span className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-black ${short ? 'bg-lacquer text-gold-light' : 'bg-gold-light text-ink'}`}>
                       {formatMoney(cost, currency)}
@@ -123,7 +124,7 @@ export function DialogueBox() {
             <span className="opacity-0">{text.slice(shown)}</span>
           </span>
           {!typing && choices.length === 0 && (
-            <span className="animate-nudge absolute right-4 bottom-2 text-xs font-extrabold text-lacquer">▼ {t('dialogue.continue')}</span>
+            <span className="animate-nudge absolute right-4 bottom-2 flex items-center gap-1 text-xs font-extrabold text-lacquer"><span className="inline-block h-0 w-0 border-x-[5px] border-t-[6px] border-x-transparent border-t-lacquer" aria-hidden="true" />{t('dialogue.continue')}</span>
           )}
         </button>
       </section>

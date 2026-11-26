@@ -110,11 +110,26 @@ const PACKS = {
 }
 
 /** Share of the triangles kept per group (1.33 performance pass): trees and plants are cut hard, buildings a little. */
+/**
+ * 1.48 'bus' = CC-BY 3.0 models from poly.pizza (credit in data/credits.ts): a city bus (Nick Ladd, 'Montreal Bus') and a bus
+ * shelter (Zsky, 'Bus Stop'). Own pack because the licence is not CC0. The folder
+ * holds them as polypizza/<file>.glb. Entry [file, scale, opts]: opts.alignZ turns the model so its long axis runs along z
+ * (the bus file is rotated 45°), opts.flip turns it 180° (front = +z), opts.rotY turns it by that many radians.
+ */
+PACKS.bus = {
+  source: 'poly.pizza (CC-BY 3.0): Montreal Bus by Nick Ladd, Bus Stop by Zsky',
+  models: {
+    pBus: ['polypizza/busMtl', 2.45, { alignZ: true, flip: true }],
+    pShelter: ['polypizza/stop', 0.095],
+  },
+}
+
 const KEEP = {
   nature: (name, tris) => (tris < 300 ? 1 : /^(simple|shrub|rock|grass)/.test(name) ? 1 : tris > 1500 ? 0.22 : 0.45),
   city: (name, tris) => (tris < 400 ? 1 : /^b/.test(name) ? 0.6 : 0.5),
   interior: (name, tris) => (tris < 600 ? 1 : 0.6),
   farm: (name, tris) => (tris < 300 ? 1 : 0.5),
+  bus: (name, tris) => (tris < 300 ? 1 : 0.6),
 }
 
 for (const [pack, def] of Object.entries(PACKS)) {
@@ -124,10 +139,67 @@ for (const [pack, def] of Object.entries(PACKS)) {
   const manifest = { source: def.source, models: {} }
   let tris = 0
   for (const [name, entry] of Object.entries(def.models)) {
-    const [file, scale] = Array.isArray(entry) ? entry : [entry, 1]
+    const [file, scale, opts = {}] = Array.isArray(entry) ? entry : [entry, 1]
     const g = readGlb(path.join(SRC, `${file}.glb`))
     const groups = staticGroups(g)
     for (const grp of groups) for (let k = 0; k < grp.pos.length; k++) grp.pos[k] *= scale
+    // 1.48: turn about y (alignZ = the main horizontal axis → z, found from the xz covariance)
+    let turn = opts.rotY ?? 0
+    if (opts.alignZ) {
+      let sx = 0
+      let sz = 0
+      let n = 0
+      for (const grp of groups) for (let k = 0; k < grp.pos.length; k += 3) ((sx += grp.pos[k]), (sz += grp.pos[k + 2]), n++)
+      const cx = sx / n
+      const cz = sz / n
+      let xx = 0
+      let zz = 0
+      let xz = 0
+      for (const grp of groups)
+        for (let k = 0; k < grp.pos.length; k += 3) {
+          const dx = grp.pos[k] - cx
+          const dz = grp.pos[k + 2] - cz
+          xx += dx * dx
+          zz += dz * dz
+          xz += dx * dz
+        }
+      // angle of the main axis from +x (atan2(z, x)), then turn it onto +z
+      const ang = 0.5 * Math.atan2(2 * xz, xx - zz)
+      turn += Math.PI / 2 - ang
+      // 1.49 PCA is only close (mirrors, a door bulge): refine to the turn that makes the model narrowest (min-width box)
+      let bestW = Infinity
+      let bestT = turn
+      for (let dt = -0.2; dt <= 0.2; dt += 0.0005) {
+        const c = Math.cos(turn + dt)
+        const sn = Math.sin(turn + dt)
+        let x0 = Infinity
+        let x1 = -Infinity
+        for (const grp of groups)
+          for (let k = 0; k < grp.pos.length; k += 3) {
+            const x = grp.pos[k] * c - grp.pos[k + 2] * sn
+            if (x < x0) x0 = x
+            if (x > x1) x1 = x
+          }
+        if (x1 - x0 < bestW) {
+          bestW = x1 - x0
+          bestT = turn + dt
+        }
+      }
+      turn = bestT
+    }
+    if (opts.flip) turn += Math.PI
+    if (turn) {
+      // rotate (x, z) by "turn" (x' = x cos − z sin, z' = x sin + z cos)
+      const c = Math.cos(turn)
+      const sn = Math.sin(turn)
+      for (const grp of groups)
+        for (let k = 0; k < grp.pos.length; k += 3) {
+          const x = grp.pos[k]
+          const z = grp.pos[k + 2]
+          grp.pos[k] = x * c - z * sn
+          grp.pos[k + 2] = x * sn + z * c
+        }
+    }
     const min = [Infinity, Infinity, Infinity]
     const max = [-Infinity, -Infinity, -Infinity]
     for (const grp of groups) for (let k = 0; k < grp.pos.length; k++) ((min[k % 3] = Math.min(min[k % 3], grp.pos[k])), (max[k % 3] = Math.max(max[k % 3], grp.pos[k])))

@@ -1,5 +1,6 @@
 import { memo, useEffect, useMemo } from 'react'
 import { useFrame } from '@react-three/fiber'
+import { CuboidCollider, RigidBody } from '@react-three/rapier'
 import { CanvasTexture, MeshLambertMaterial, MeshBasicMaterial, RepeatWrapping, SRGBColorSpace } from 'three'
 import { groundMaterial, lambert, withGroundDetail } from '../shared/materials'
 import { PALETTE as P } from '../shared/palette'
@@ -172,6 +173,11 @@ export const MunichGround = memo(function MunichGround() {
   const shapes = useMemo(groundShapes, [])
   return (
     <>
+      {/* 1.48 a floor under ALL of München: Game's safety floor ends at z −120, so LMU, the Siegestor and the north of the
+          Englischer Garten (down to −150) had nothing to stand on (the player fell through and was put back). */}
+      <RigidBody type="fixed" colliders={false}>
+        <CuboidCollider args={[(MUC.maxX - MUC.minX) / 2 + 12, 0.5, (MUC.maxZ - MUC.minZ) / 2 + 12]} position={[(MUC.maxX + MUC.minX) / 2, -0.5, (MUC.maxZ + MUC.minZ) / 2]} />
+      </RigidBody>
       <mesh rotation-x={-Math.PI / 2} position={[-5, -0.02, -70]} material={lambert('#bcd6a6')} receiveShadow>
         <planeGeometry args={[480, 480]} />
       </mesh>

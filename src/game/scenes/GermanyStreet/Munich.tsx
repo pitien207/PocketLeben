@@ -64,6 +64,7 @@ import { cafeSet, mucRow, mucRowZ, planMucRow } from './munichHouses'
 import { fountainWater, kBeerTable, kCart, kFlagPole, kHedge, kLantern, kStall, LANTERN_HEAD } from './townProps'
 import { libraryPot } from '../shared/props'
 import { carModelShapes, carModelsReady } from '../shared/carModels'
+import { libraryCarShapes } from '../shared/libraryCars'
 import { FISCHBRUNNEN } from './mucLayout'
 
 /**
@@ -146,21 +147,6 @@ function bierbank(d: District, x: number, z: number, rot = 0) {
   d.solid.push(rot ? [x, z, 0.9, 1.15] : [x, z, 1.15, 0.9])
 }
 /** U-Bahn entrance: railings round a stair going down, the blue U on a post. */
-function uBahn(d: District, x: number, z: number, along: 'x' | 'z') {
-  const L = 4
-  const W = 2.2
-  const s: ShapeItem[] = [
-    { box: [W, 0.03, L], at: [0, 0.012, 0], color: '#4a4a50' },
-    { box: [0.08, 1.0, L], at: [-W / 2, 0.5, 0], color: '#8a9098' },
-    { box: [0.08, 1.0, L], at: [W / 2, 0.5, 0], color: '#8a9098' },
-    { box: [W, 1.0, 0.08], at: [0, 0.5, -L / 2], color: '#8a9098' },
-  ]
-  for (let i = 0; i < 6; i++) s.push({ box: [W - 0.2, 0.02, 0.3], at: [0, 0.03, -L / 2 + 0.4 + i * 0.6], color: i % 2 ? '#6a6a70' : '#5a5a60' })
-  d.s.push(place(s, [x, 0, z], along === 'z' ? 0 : Math.PI / 2))
-  d.s.push({ cyl: [0.05, 0.05, 2.8, 6], at: [x + (along === 'z' ? W / 2 + 0.3 : 0), 1.4, z + (along === 'z' ? 0 : W / 2 + 0.3)], color: '#5d6672' })
-  d.glow.push({ box: [0.6, 0.6, 0.6], at: [x + (along === 'z' ? W / 2 + 0.3 : 0), 3.0, z + (along === 'z' ? 0 : W / 2 + 0.3)], color: '#2f62b8' })
-  d.solid.push(along === 'z' ? [x, z, W / 2 + 0.1, L / 2] : [x, z, L / 2, W / 2 + 0.1])
-}
 function litfass(d: District, x: number, z: number) {
   d.s.push({ cyl: [0.45, 0.45, 2.6, 16], at: [x, 1.3, z], color: '#e9e2d0' })
   ;['#ff9b8f', '#a9d6ff', '#ffe08a', '#a8e6cf'].forEach((c, i) => d.s.push({ cyl: [0.46, 0.46, 0.5, 16], at: [x, 0.6 + i * 0.55, z], color: c }))
@@ -247,10 +233,10 @@ function west(): District {
   bench(d, -44, 12, Math.PI)
   bench(d, -62, 12, Math.PI)
   litfass(d, -38, 1.0)
-  uBahn(d, -57, 1.0, 'x')
   // taxis waiting (cream Munich taxis) — parked shapes, no traffic
   for (const x of [-70, -66.5]) {
-    const taxi = carModelsReady() ? carModelShapes('Taxi', '#f2e9c8') : null
+    // 1.48 the Kenney Car Kit taxi in Munich ivory (the Quaternius one while the pack is missing)
+    const taxi = libraryCarShapes('kvTaxi', '#efe3c2') ?? (carModelsReady() ? carModelShapes('Taxi', '#f2e9c8') : null)
     d.s.push(place(taxi ?? [{ box: [1.5, 0.9, 3.0], at: [0, 0.6, 0], color: '#f2e9c8' }, { box: [1.3, 0.55, 1.6], at: [0, 1.3, -0.2], color: '#cfe0e8' }, { box: [0.6, 0.18, 0.2], at: [0, 1.66, -0.2], color: '#f4c04e' }], [x, 0, -1.6], Math.PI / 2))
   }
   d.solid.push([-68.2, -1.6, 3.4, 0.8])
@@ -273,7 +259,8 @@ function altstadtWest(): District {
   for (const x of [-52, -44, -38]) planter(d, x, cz + 1.8, Math.round(-x))
   for (const x of [-55, -47, -41, -35.5]) lamp(d, x, cz - 2.2)
   bench(d, -48.5, cz + 2.6, 0)
-  litfass(d, -66, -34.5)
+  // 1.49 was (−66, −34.5): half inside the corner house of the Frauenplatz row
+  litfass(d, -64.4, -33.4)
   d.s.push(cafeSet([-50, 0, FUZO.z1 - 1.5], 0, '#c8322b'), cafeSet([-45.5, 0, FUZO.z1 - 1.5], 0, '#c8322b'))
   d.solid.push([-50, FUZO.z1 - 1.5, 0.8, 0.6], [-45.5, FUZO.z1 - 1.5, 0.8, 0.6])
   // Frauenplatz: planters and benches south of the church
@@ -299,7 +286,8 @@ function marienplatz(): District {
     [-7, -44],
   ]) lamp(d, x, z)
   hydrant(d, -30.0, -24.7, 0.4)
-  hydrant(d, -8.0, -43.3, -2.2)
+  // 1.49 was (−8.0, −43.3): on the rim of the Fischbrunnen, next to its lamp
+  hydrant(d, -5.4, -44.8, -2.2)
   // café tables in front of the shops, U-Bahn entrance, a Litfaßsäule
   for (const x of [-24, -20.5, -12, -8.5]) {
     d.s.push(cafeSet([x, 0, MARIENPLATZ.z1 - 1.6], 0, x < -15 ? '#f6f1e7' : '#3f7d5c'))
@@ -314,7 +302,7 @@ function marienplatz(): District {
       d.solid.push([x, -44.9, 0.15, 0.15])
     }
   }
-  uBahn(d, -27.5, -39, 'z')
+  // 1.48 the U-Bahn entrances are real now: GermanyStreet/UBahnEntrances.tsx (data/transit.ts U_STATIONS)
   bench(d, -12.5, -30, Math.PI / 2)
   bench(d, -25.5, -30, -Math.PI / 2)
   return d
@@ -366,8 +354,9 @@ function viktualien(): District {
   // the beer garden: chestnut trees and benches, the bar hut
   const bg = BIERGARTEN_VM
   for (const [x, z] of [
-    [bg.x0 + 1.5, bg.z0 + 1.5],
-    [bg.x1 - 1.5, bg.z0 + 1.5],
+    // 1.49 the two south trees stood on the corners of the beer tables: out to the garden corners
+    [bg.x0 + 0.7, bg.z0 + 0.7],
+    [bg.x1 - 0.7, bg.z0 + 0.7],
     [bg.x0 + 1.5, bg.z1 - 1.0],
     [bg.x1 - 1.5, bg.z1 - 1.0],
   ]) fluffy(d, x, z, Math.round(x * 13 + z), 'green', 1.5)
@@ -435,7 +424,6 @@ function north(): District {
   }
   for (let x = -70; x < 34; x += 12) lamp(d, x + 2, MAXSTR.walk0 + 1)
   // Maximilianstraße: fancy shop windows on the south side get flags
-  uBahn(d, -53, -79, 'z')
   return d
 }
 
@@ -625,11 +613,7 @@ function signLabels(): Label[] {
   plate(-34.6, -110.2, 0, 'Englischer Garten')
   plate(34.2, -14, Math.PI / 2, 'Viktualienmarkt')
   plate(-70.8, -4.6, 0, 'Bayerstraße')
-  // U-Bahn station names
-  const ubahn = (x: number, y: number, z: number, rotY: number, name: string) => sign(1.9, 0.45, [x, y, z], rotY, '#2f62b8', '#ffffff', `U  ${name}`)
-  ubahn(-57, 2.3, 2.7, 0, 'Hauptbahnhof')
-  ubahn(-26.2, 2.3, -39, Math.PI / 2, 'Marienplatz')
-  ubahn(-53, 2.3, -76.85, 0, 'Odeonsplatz')
+  // (1.48: the U-Bahn station names are on the pylons of the real entrances, UBahnEntrances.tsx)
   // Viktualienmarkt + beer-garden boards
   sign(3.6, 0.7, [VIKTUALIEN.x1 - 0.2, 2.6, -33], Math.PI / 2, '#3f7d5c', '#fff6d8', 'VIKTUALIENMARKT', 'Mo–Sa 8–20 Uhr')
   sign(3.0, 0.6, [33, 2.9, -35.44], 0, '#3f7fc8', '#ffffff', 'BIERGARTEN')

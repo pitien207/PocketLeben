@@ -453,6 +453,31 @@ export const CONFIG = {
     seed: 9999,
   },
 
+  /** 1.48 Buses (Hà Nội + München) and the München U-Bahn (data/transit.ts, systems/transit.ts). Times in REAL seconds. */
+  transit: {
+    /** Hà Nội bus ticket (đồng) and the MVV single ticket (euro, bus + U-Bahn). */
+    busFareVnd: 8_000,
+    fareEur: 3.9,
+    /** Game minutes per stop ridden. */
+    busMinutesPerStop: 5,
+    ubahnMinutesPerStop: 2,
+    /** A bus drives in from the end of the street (data/transit.ts BUS_EDGE), waits at the stop, leaves; then a gap. */
+    busDwell: 16,
+    busGap: [18, 32] as [number, number],
+    busSpeed: 7,
+    /** U-Bahn: one train per platform every period; arriving / standing (doors open) / leaving seconds. */
+    trainPeriod: 56,
+    trainArrive: 7,
+    trainDwell: 17,
+    trainLeave: 7,
+    /** 1.49 MVV passes from the ticket machines (Fahrkartenautomat): free rides on buses + U-Bahn in München while valid (game days). */
+    passes: {
+      day: { price: 9.7, days: 1 },
+      week: { price: 21.9, days: 7 },
+      month: { price: 63, days: 30 },
+    },
+  },
+
   /** 1.35 Showroom Xe Phố Cổ: your own bicycle / motorbike / car (data/vehicles.ts, systems/vehicles.ts). */
   vehicles: {
     /** Selling back pays this share of the price. */

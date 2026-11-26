@@ -108,8 +108,9 @@ function islandShapes(): ShapeItem[] {
   s.push(...roof([x, 3.35, h.z], h.w, h.d, 2))
   // Trấn Ba pavilion with the preserved giant turtle in a glass case
   const t = N.turtle
-  for (const sx of [-1, 1]) for (const sz of [-1, 1]) s.push({ cyl: [0.12, 0.14, 2.3, 8], at: [t.x + sx * 1.1, 1.15, t.z + sz * 0.9], color: RED })
-  s.push(...roof([t.x, 2.55, t.z], 2.4, 2.0, 1))
+  // 1.49 pillars outside the glass case (they stood in its corners)
+  for (const sx of [-1, 1]) for (const sz of [-1, 1]) s.push({ cyl: [0.12, 0.14, 2.3, 8], at: [t.x + sx * 1.32, 1.15, t.z + sz * 1.02], color: RED })
+  s.push(...roof([t.x, 2.55, t.z], 2.9, 2.4, 1))
   s.push({ box: [2.0, 0.6, 1.4], at: [t.x, 0.3, t.z], color: '#8e6844' })
   s.push({ box: [1.9, 0.6, 1.3], at: [t.x, 0.9, t.z], color: '#cfe8f6' })
   s.push({ sphere: [0.55, 14, 8], at: [t.x, 0.75, t.z], scale: [1.3, 0.45, 1], color: '#6f7a4a' })

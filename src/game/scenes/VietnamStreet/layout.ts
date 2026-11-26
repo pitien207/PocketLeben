@@ -267,7 +267,8 @@ export const CAFE_TABLES: { at: Vec3; stools: string[] }[] = [
 
 export const BENCHES: { at: Vec3; rotY: number }[] = [
   { at: [-0.4, 0, 12.6 + SOUTH], rotY: Math.PI },
-  { at: [7.6, 0, 12.6 + SOUTH], rotY: Math.PI },
+  // 1.49 was x 7.6 — inside the rock of Tháp Bút (NGOC_SON.penTower)
+  { at: [3.4, 0, 12.6 + SOUTH], rotY: Math.PI },
   { at: [-21.0, 0, 12.6 + SOUTH], rotY: Math.PI },
   { at: [-27.5, 0, 12.6 + SOUTH], rotY: Math.PI },
   { at: [-38, 0, 12.6 + SOUTH], rotY: Math.PI },

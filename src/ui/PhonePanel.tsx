@@ -167,7 +167,7 @@ function WorldTab({ online }: { online: boolean }) {
   return (
     <>
       <p className="bg-gold/25 px-3 py-1.5 text-[11px] font-bold text-ink/75">{t('phone.worldNote')}</p>
-      <div ref={list} className="flex flex-1 flex-col gap-1.5 overflow-y-auto overscroll-contain p-2.5" style={{ touchAction: 'pan-y' }} data-testid="world-list">
+      <div ref={list} className="flex flex-1 flex-col gap-1.5 ui-scroll overflow-y-auto overscroll-contain p-2.5" style={{ touchAction: 'pan-y' }} data-testid="world-list">
         {world.length === 0 && <p className="m-auto text-center text-[13px] font-bold text-ink/55">{t('phone.worldEmpty')}</p>}
         {world.map((m, i) => {
           const mine = m.key === me
@@ -226,7 +226,7 @@ function Conversation({ friend, online, onBack }: { friend: Person; online: bool
           <p className="text-[11px] font-bold text-ink/55">{friend.online ? t('phone.isOnline') : t('phone.isOffline')}</p>
         </div>
       </div>
-      <div ref={list} className="flex flex-1 flex-col gap-1.5 overflow-y-auto overscroll-contain p-2.5" style={{ touchAction: 'pan-y' }} data-testid="dm-list">
+      <div ref={list} className="flex flex-1 flex-col gap-1.5 ui-scroll overflow-y-auto overscroll-contain p-2.5" style={{ touchAction: 'pan-y' }} data-testid="dm-list">
         {!msgs?.length && <p className="m-auto text-center text-[13px] font-bold text-ink/55">{t('phone.sayHi', { name: friend.name })}</p>}
         {msgs?.map((m, i) => {
           const mine = m.from === me
@@ -254,7 +254,7 @@ function MessagesTab({ online, chat, setChat, goFriends }: { online: boolean; ch
   const last = (k: string) => dms[k]?.at(-1)?.at ?? 0
   const sorted = [...friends].sort((a, b) => last(b.key) - last(a.key) || Number(b.online) - Number(a.online) || a.name.localeCompare(b.name))
   return (
-    <div className="flex flex-1 flex-col overflow-y-auto overscroll-contain" style={{ touchAction: 'pan-y' }}>
+    <div className="flex flex-1 flex-col ui-scroll overflow-y-auto overscroll-contain" style={{ touchAction: 'pan-y' }}>
       {sorted.length === 0 && (
         <div className="m-auto flex flex-col items-center gap-2 p-4 text-center">
           <p className="text-[13px] font-bold text-ink/60">{t('phone.noFriends')}</p>
@@ -321,7 +321,7 @@ function FriendsTab({ openChat }: { openChat: (k: string) => void }) {
     } else setNote({ text: t(`phone.err.${(r.error ?? 'offline') as SocialError}` as I18nKey), good: false })
   }
   return (
-    <div className="flex flex-1 flex-col overflow-y-auto overscroll-contain pb-3" style={{ touchAction: 'pan-y' }}>
+    <div className="flex flex-1 flex-col ui-scroll overflow-y-auto overscroll-contain pb-3" style={{ touchAction: 'pan-y' }}>
       <form onSubmit={add} className="flex gap-1.5 px-3 pt-3">
         <input
           data-testid="friend-name"

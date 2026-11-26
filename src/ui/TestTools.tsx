@@ -196,7 +196,7 @@ export function TestPanel() {
   const t = useT()
   if (panel?.type !== 'testTools') return null
   return (
-    <Sheet title={t('test.panel')} onClose={closePanel}>
+    <Sheet title={t('test.panel')} icon="test-tube" onClose={closePanel}>
       <TestTools />
     </Sheet>
   )

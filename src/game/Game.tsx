@@ -18,7 +18,7 @@ import { GrabWorld } from './components/GrabWorld'
 import { GuideSystem } from './components/GuideSystem'
 import { PALETTE } from './scenes/shared/palette'
 import { SCENES } from './scenes/registry'
-import { DebugBridge } from './systems/debug'
+import { DebugBridge, PhysicsBridge } from './systems/debug'
 import { LocalEmote, RemotePlayers } from './components/RemotePlayers'
 import { SecretGlints } from './components/SecretGlints'
 import { SECRETS_ENABLED } from '../data/secrets'
@@ -104,6 +104,7 @@ export function Game() {
             <GrabWorld />
             <InteractionSystem />
             <TimeSystem />
+            {import.meta.env.DEV && <PhysicsBridge />}
           </Physics>
           <Weather />
           <SceneReady />

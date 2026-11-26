@@ -572,7 +572,7 @@ function TeleportList() {
   return (
     <details className="rounded-2xl border-2 border-dashed border-gold bg-gold-light/50 px-2 py-1" data-testid="teleport">
       <summary className="cursor-pointer text-[11px] font-black text-lacquer">{t('map.teleportHint')}</summary>
-      <div className="mt-1 flex max-h-[22dvh] flex-wrap gap-1 overflow-y-auto pb-1">
+      <div className="mt-1 flex max-h-[22dvh] flex-wrap gap-1 ui-scroll overflow-y-auto pb-1">
         {places.map((d) => (
           <button key={d.id} type="button" className={btn} onClick={() => teleportPlayer(d.zone.x, d.zone.z + Math.min(d.zone.halfZ, 1) * 0.6)}>
             {d.nameKey ? translate(lang, d.nameKey) : d.name ? localize(d.name) : d.id}
@@ -671,7 +671,7 @@ export function MapPanel() {
           type="button"
           aria-label={t('settings.close')}
           onClick={closePanel}
-          className="absolute top-2 right-2 grid h-9 w-9 place-items-center rounded-full border-2 border-outline bg-cream text-lg shadow-[0_2px_0_var(--color-outline)] active:translate-y-0.5"
+          className="btn-paper absolute top-2 right-2 grid h-9 w-9 place-items-center rounded-full text-lg"
         >
           <CloseIcon />
         </button>

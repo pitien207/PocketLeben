@@ -63,7 +63,7 @@ function LobbySheet() {
   const recently = (name: string) => (invited[name] ?? 0) > Date.now() - 20_000
 
   return (
-    <Sheet title="Sân Pickleball Hàng Khay" onClose={closePanel}>
+    <Sheet title="Sân Pickleball Hàng Khay" icon="sports-medal" onClose={closePanel}>
       <div className="grid gap-3 land:grid-cols-2 land:items-start" data-testid="pb-lobby">
         <div className="flex flex-col gap-2">
           {/* my room */}
@@ -147,7 +147,7 @@ function LobbySheet() {
             <div className="rounded-2xl bg-white/80 p-2.5 shadow-[inset_0_0_0_2px_#f1dcb6]" data-testid="pb-rooms">
               <p className="text-[11px] font-black tracking-wider text-ink/60 uppercase">Các phòng ({rooms.length})</p>
               {rooms.length === 0 && <p className="mt-1 text-sm text-ink/60">Chưa có phòng nào — tạo một phòng rồi mời bạn bè!</p>}
-              <div className="mt-1 flex max-h-44 flex-col gap-1 overflow-y-auto short:max-h-28">
+              <div className="mt-1 flex max-h-44 flex-col gap-1 ui-scroll overflow-y-auto short:max-h-28">
                 {rooms.map((r) => {
                   const mine = room?.id === r.id
                   const waiting = r.state === 'open' && !r.guest
@@ -174,7 +174,7 @@ function LobbySheet() {
             <div className="rounded-2xl bg-white/80 p-2.5 shadow-[inset_0_0_0_2px_#f1dcb6]" data-testid="pb-people">
               <p className="text-[11px] font-black tracking-wider text-ink/60 uppercase">Mời người chơi</p>
               {people.length === 0 && <p className="mt-1 text-sm text-ink/60">Không có ai ở gần hay bạn bè online. Rủ bạn bè vào game nhé!</p>}
-              <div className="mt-1 flex max-h-44 flex-col gap-1 overflow-y-auto short:max-h-28">
+              <div className="mt-1 flex max-h-44 flex-col gap-1 ui-scroll overflow-y-auto short:max-h-28">
                 {people.map((p) => (
                   <div key={p.key} className="flex items-center gap-2 rounded-xl bg-cream/70 px-2 py-1 text-sm">
                     <span className="min-w-0 flex-1 truncate font-bold">{p.name}</span>

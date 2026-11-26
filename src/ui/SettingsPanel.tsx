@@ -4,7 +4,7 @@ import { CONFIG, type QualityLevel } from '../data/config'
 import { exportSave, importSave, resetSave, suspendSaving } from '../game/systems/save'
 import { useT } from '../i18n'
 import { useDialogue } from '../store/dialogueStore'
-import { useSettings, type TimeSpeed } from '../store/settingsStore'
+import { useSettings } from '../store/settingsStore'
 import { useUI } from '../store/uiStore'
 import { CloseIcon } from './icons'
 import CreditsPanel from './CreditsPanel'
@@ -15,41 +15,32 @@ import { api, fetchMe, getAccount, googleLink, pullCloudSave, pushCloudSave, sig
 import { googleSignedOut } from '../net/google'
 import { useNet } from '../store/netStore'
 import { isSandbox } from '../sandbox'
+import { Icon3d } from './Icon3d'
+import { Segmented } from './kit/Tabs'
+import { Toggle } from './kit/Toggle'
 
-function Row({ label, children }: { label: string; children: ReactNode }) {
+function Row({ label, hint, children }: { label: string; hint?: string; children: ReactNode }) {
   return (
-    <div className="flex items-center justify-between gap-3 py-2">
-      <span className="font-extrabold">{label}</span>
+    <div className="flex min-h-11 items-center justify-between gap-3 px-3 py-1.5 [&+&]:border-t [&+&]:border-ink/8">
+      <span className="min-w-0">
+        <span className="block text-[14px] leading-tight font-extrabold">{label}</span>
+        {hint && <span className="block text-[11px] leading-snug font-bold text-ink/55">{hint}</span>}
+      </span>
       {children}
     </div>
   )
 }
 
-function Segmented<T extends string>({
-  value,
-  options,
-  onChange,
-}: {
-  value: T
-  options: { value: T; label: string }[]
-  onChange: (value: T) => void
-}) {
+/** 1.47: settings come in small titled cards (sound, guide, display, data). */
+function Group({ title, icon, children }: { title: string; icon: string; children: ReactNode }) {
   return (
-    <div className="flex rounded-full bg-ink/10 p-1">
-      {options.map((o) => (
-        <button
-          key={o.value}
-          type="button"
-          aria-pressed={o.value === value}
-          onClick={() => onChange(o.value)}
-          className={`rounded-full px-3 py-1.5 text-sm font-extrabold transition ${
-            o.value === value ? 'bg-lacquer text-gold-light shadow' : 'text-ink/60'
-          }`}
-        >
-          {o.label}
-        </button>
-      ))}
-    </div>
+    <section className="mb-3">
+      <h3 className="mb-1 flex items-center gap-1.5 px-1 font-display text-[15px] font-extrabold text-lacquer">
+        <Icon3d name={icon} className="h-5 w-5" />
+        {title}
+      </h3>
+      <div className="ui-group">{children}</div>
+    </section>
   )
 }
 
@@ -100,8 +91,7 @@ function SaveData() {
   }
 
   return (
-    <div className="mt-2 border-t-2 border-dashed border-ink/15 pt-3">
-      <div className="mb-2 font-display text-base font-extrabold text-lacquer">{t('settings.data')}</div>
+    <div className="border-t border-ink/8 px-3 pt-2.5 pb-3">
       <div className="flex flex-wrap gap-2">
         <button type="button" onClick={showExport} className="rounded-full btn-jade px-3 py-1.5 text-sm font-extrabold">
           {t('settings.export')}
@@ -175,7 +165,7 @@ function DeleteCharacter() {
     window.location.reload()
   }
   return (
-    <div className="mt-3 rounded-2xl border-2 border-lacquer/30 bg-lacquer/5 p-3" data-testid="delete-character">
+    <div className="mt-3 rounded-xl border-2 border-lacquer/30 bg-lacquer/5 p-3" data-testid="delete-character">
       <div className="font-display text-base font-extrabold text-lacquer">{t('settings.deleteTitle')}</div>
       <p className="mt-0.5 text-[12px] leading-snug font-bold text-ink/65">{t('settings.deleteText')}</p>
       {step === 'idle' ? (
@@ -285,7 +275,7 @@ function AccountSection() {
     } else void pushCloudSave()
   }
   return (
-    <section className="mb-3 rounded-2xl border-2 border-outline bg-white/70 p-3" data-testid="account-section">
+    <section className="ui-group mb-3 p-3" data-testid="account-section">
       <div className="flex items-center justify-between gap-2">
         <span className="min-w-0">
           <span className="block text-xs font-black text-ink/60">{t('account.title')}</span>
@@ -306,16 +296,11 @@ function AccountSection() {
       </div>
       {account && <GoogleLinkRow />}
       {account ? (
-        <Row label={t('account.online')}>
-          <Segmented
-            value={online ? 'on' : 'off'}
-            options={[
-              { value: 'on', label: t('settings.on') },
-              { value: 'off', label: t('settings.off') },
-            ]}
-            onChange={(v) => setOnline(v === 'on')}
-          />
-        </Row>
+        <div className="-mx-3 mt-1 -mb-1.5">
+          <Row label={t('account.online')}>
+            <Toggle checked={online} onChange={setOnline} label={t('account.online')} testId="toggle-online" />
+          </Row>
+        </div>
       ) : (
         <p className="mt-1 text-[12px] leading-snug font-bold text-ink/60">{t('account.why')}</p>
       )}
@@ -328,7 +313,7 @@ export function SettingsPanel() {
   const t = useT()
   const open = useUI((s) => s.settingsOpen)
   const setOpen = useUI((s) => s.setSettingsOpen)
-  const { musicOn, toggleMusic, sfxOn, toggleSfx, quality, setQuality,  timeSpeed, setTimeSpeed, guideArrows, setGuideArrows, guideHints, setGuideHints, fancy, setFancy } = useSettings()
+  const { musicOn, toggleMusic, sfxOn, toggleSfx, quality, setQuality, guideArrows, setGuideArrows, guideHints, setGuideHints, fancy, setFancy } = useSettings()
   const fullscreen = useFullscreen()
   const taps = useRef({ n: 0, at: 0 })
   const [credits, setCredits] = useState(false)
@@ -347,11 +332,6 @@ export function SettingsPanel() {
 
   if (!open) return null
 
-  const onOff = [
-    { value: 'on', label: t('settings.on') },
-    { value: 'off', label: t('settings.off') },
-  ] as const
-
   return (
     <div
       className="pointer-events-auto absolute inset-0 z-30 modal-scroll bg-ink/30 p-4"
@@ -359,90 +339,70 @@ export function SettingsPanel() {
         if (e.target === e.currentTarget) setOpen(false)
       }}
     >
-      <div role="dialog" aria-modal="true" aria-labelledby="settings-title" className="panel animate-pop relative w-full max-w-sm p-5 pt-7 text-ink short:max-w-md short:pb-3">
-        <h2 id="settings-title" className="absolute -top-4 left-1/2 -translate-x-1/2 rounded-full ribbon px-5 py-1 text-lg whitespace-nowrap">
+      <div role="dialog" aria-modal="true" aria-labelledby="settings-title" className="panel sheet-in relative w-full max-w-sm p-4 pt-7 text-ink short:max-w-md short:pb-3">
+        <h2 id="settings-title" className="absolute -top-4 left-1/2 flex -translate-x-1/2 items-center gap-1.5 rounded-full ribbon py-1 pr-5 pl-4 text-lg whitespace-nowrap">
+          <Icon3d name="gear" className="-my-1 -ml-1 h-6 w-6 drop-shadow-[0_1.5px_0_rgba(74,20,14,0.45)]" />
           {t('settings.title')}
         </h2>
         <button
           type="button"
           aria-label={t('settings.close')}
           onClick={() => setOpen(false)}
-          className="absolute top-2 right-2 grid h-9 w-9 place-items-center rounded-full bg-ink/10 text-lg"
+          className="btn-paper absolute top-2 right-2 grid h-9 w-9 place-items-center rounded-full text-lg"
         >
           <CloseIcon />
         </button>
 
-        <div className="max-h-[70dvh] overflow-y-auto overscroll-contain short:max-h-[calc(100dvh-8.5rem)]" style={{ touchAction: 'pan-y' }}>
+        <div className="ui-scroll ui-fade-y -mx-1 max-h-[70dvh] overflow-y-auto px-1 py-1 short:max-h-[calc(100dvh-8.5rem)]">
           <TestTools />
           <AccountSection />
-          <OfflineStatus />
-          <Row label={t('settings.music')}>
-            <Segmented
-              value={musicOn ? 'on' : 'off'}
-              options={[...onOff]}
-              onChange={(v) => {
-                if ((v === 'on') !== musicOn) toggleMusic()
-              }}
-            />
-          </Row>
-          <Row label={t('settings.sfx')}>
-            <Segmented
-              value={sfxOn ? 'on' : 'off'}
-              options={[...onOff]}
-              onChange={(v) => {
-                if ((v === 'on') !== sfxOn) toggleSfx()
-              }}
-            />
-          </Row>
-          <Row label={t('settings.guideArrows')}>
-            <Segmented value={guideArrows ? 'on' : 'off'} options={[...onOff]} onChange={(v) => setGuideArrows(v === 'on')} />
-          </Row>
-          <Row label={t('settings.guideHints')}>
-            <Segmented value={guideHints ? 'on' : 'off'} options={[...onOff]} onChange={(v) => setGuideHints(v === 'on')} />
-          </Row>
-          <Row label={t('clock.speed')}>
-            <Segmented<TimeSpeed>
-              value={timeSpeed}
-              options={[
-                { value: 'slow', label: t('clock.speed.slow') },
-                { value: 'normal', label: t('clock.speed.normal') },
-                { value: 'fast', label: t('clock.speed.fast') },
-              ]}
-              onChange={setTimeSpeed}
-            />
-          </Row>
-          <Row label={t('settings.graphics')}>
-            <Segmented<QualityLevel>
-              value={quality}
-              options={[
-                { value: 'high', label: t('settings.graphicsHigh') },
-                { value: 'low', label: t('settings.graphicsLow') },
-              ]}
-              onChange={setQuality}
-            />
-          </Row>
-          <Row label={t('settings.fancy')}>
-            <Segmented value={fancy ? 'on' : 'off'} options={[...onOff]} onChange={(v) => setFancy(v === 'on')} />
-          </Row>
-          {fullscreen.supported && (
-            <Row label={t('settings.fullscreen')}>
-              <Segmented
-                value={fullscreen.active ? 'on' : 'off'}
-                options={[...onOff]}
-                onChange={(v) => {
-                  if ((v === 'on') !== fullscreen.active) fullscreen.toggle()
-                }}
+          <Group title={t('settings.secSound')} icon="bell">
+            <Row label={t('settings.music')}>
+              <Toggle checked={musicOn} onChange={(on) => on !== musicOn && toggleMusic()} label={t('settings.music')} testId="toggle-music" />
+            </Row>
+            <Row label={t('settings.sfx')}>
+              <Toggle checked={sfxOn} onChange={(on) => on !== sfxOn && toggleSfx()} label={t('settings.sfx')} testId="toggle-sfx" />
+            </Row>
+          </Group>
+          <Group title={t('settings.secGuide')} icon="compass">
+            <Row label={t('settings.guideArrows')}>
+              <Toggle checked={guideArrows} onChange={setGuideArrows} label={t('settings.guideArrows')} testId="toggle-arrows" />
+            </Row>
+            <Row label={t('settings.guideHints')}>
+              <Toggle checked={guideHints} onChange={setGuideHints} label={t('settings.guideHints')} testId="toggle-hints" />
+            </Row>
+          </Group>
+          <Group title={t('settings.secDisplay')} icon="sparkles">
+            <Row label={t('settings.graphics')}>
+              <Segmented<QualityLevel>
+                value={quality}
+                label={t('settings.graphics')}
+                options={[
+                  { value: 'high', label: t('settings.graphicsHigh'), testId: 'quality-high' },
+                  { value: 'low', label: t('settings.graphicsLow'), testId: 'quality-low' },
+                ]}
+                onChange={setQuality}
               />
             </Row>
-          )}
-
-          <SaveData />
+            <Row label={t('settings.fancy')}>
+              <Toggle checked={fancy} onChange={setFancy} label={t('settings.fancy')} testId="toggle-fancy" />
+            </Row>
+            {fullscreen.supported && (
+              <Row label={t('settings.fullscreen')}>
+                <Toggle checked={fullscreen.active} onChange={(on) => on !== fullscreen.active && fullscreen.toggle()} label={t('settings.fullscreen')} />
+              </Row>
+            )}
+          </Group>
+          <Group title={t('settings.data')} icon="floppy-disk">
+            <OfflineStatus />
+            <SaveData />
+          </Group>
 
           <button
             type="button"
             data-testid="credits-open"
             onClick={() => setCredits(true)}
-            className="mt-4 flex w-full items-center justify-between rounded-2xl bg-ink/8 px-4 py-2.5 text-left text-sm font-extrabold active:translate-y-0.5"
+            className="ui-group flex w-full items-center justify-between px-4 py-2.5 text-left text-sm font-extrabold active:translate-y-0.5"
           >
             {t('settings.credits')}
             <span aria-hidden="true" className="text-ink/50">›</span>

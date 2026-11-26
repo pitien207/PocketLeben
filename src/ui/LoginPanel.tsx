@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { useT } from '../i18n'
 import { getAccount, googleRegister, googleSignIn, serverConfig, signIn, type Account, type AuthError } from '../net/auth'
 import { renderGoogleButton } from '../net/google'
+import { Tabs } from './kit/Tabs'
 import { useSettings } from '../store/settingsStore'
 
 /** The signed-in account, kept in sync across the title screen and the settings. */
@@ -215,7 +216,7 @@ export function LoginPanel({ onClose, onSuccess, onOffline, initialMode = 'login
     </p>
   )
   return (
-    <div className="absolute inset-0 z-[60] modal-scroll overflow-y-auto bg-ink/45 p-4" role="dialog" aria-modal="true" aria-label={t('account.title')} onClick={onClose}>
+    <div className="absolute inset-0 z-[60] modal-scroll ui-scroll overflow-y-auto bg-ink/45 p-4" role="dialog" aria-modal="true" aria-label={t('account.title')} onClick={onClose}>
       <form onSubmit={submit} onClick={(e) => e.stopPropagation()} className="panel animate-pop my-6 w-full max-w-sm p-5" data-testid="login-panel">
         <div className="-mt-9 mb-3 flex justify-center">
           <span className="ribbon px-5 py-1 font-display text-lg font-extrabold">{t(pick ? 'account.pickName' : 'account.title')}</span>
@@ -267,20 +268,12 @@ export function LoginPanel({ onClose, onSuccess, onOffline, initialMode = 'login
                     <span className="h-0.5 flex-1 rounded bg-ink/15" />
                   </div>
                 )}
-                <div className="mb-3 grid grid-cols-2 gap-1 rounded-xl border-2 border-outline bg-ink/10 p-1" role="tablist">
-                  {(['login', 'register'] as const).map((m) => (
-                    <button
-                      key={m}
-                      type="button"
-                      role="tab"
-                      aria-selected={mode === m}
-                      onClick={() => setMode(m)}
-                      className={`rounded-lg py-1.5 text-sm font-black ${mode === m ? 'bg-paper shadow-[0_2px_0_var(--color-outline)]' : 'text-ink/70'}`}
-                    >
-                      {t(m === 'login' ? 'account.login' : 'account.register')}
-                    </button>
-                  ))}
-                </div>
+                <Tabs
+                  value={mode}
+                  onChange={setMode}
+                  className="mb-3"
+                  items={(['login', 'register'] as const).map((m) => ({ id: m, label: t(m === 'login' ? 'account.login' : 'account.register'), testId: `login-tab-${m}` }))}
+                />
                 <label className="mb-2 block text-xs font-black text-ink/70">
                   {t('account.name')}
                   <input className={input} name="username" value={name} onChange={(e) => setName(e.target.value)} autoComplete="username" maxLength={16} data-testid="login-name" required />

@@ -78,7 +78,7 @@ export function BoardingPassPanel() {
   if (panel?.type !== 'boardingPass') return null
   const name = (getAccount()?.name ?? 'Hành khách').toUpperCase()
   return (
-    <Sheet title={t('hud.boardingPass')} onClose={closePanel}>
+    <Sheet title={t('hud.boardingPass')} icon="ticket" onClose={closePanel}>
       <div className="flex flex-col gap-2.5" data-testid="boarding-pass">
         <div className="text-[11px] font-black tracking-[0.12em] text-ink/55">HÀNH KHÁCH · PASSAGIER: <span className="text-ink">{name}</span></div>
         <div className="grid gap-2.5 land:grid-cols-2">
@@ -100,7 +100,7 @@ export function FlightBoardPanel() {
   const now = useTime((s) => s.minutes)
   if (panel?.type !== 'flightBoard') return null
   return (
-    <Sheet title="Abflug · Departures" onClose={closePanel}>
+    <Sheet title="Abflug · Departures" icon="airplane-departure" onClose={closePanel}>
       <div className="flex flex-col gap-2" data-testid="flight-board">
         <div className="overflow-hidden rounded-xl border-2 border-outline bg-[#10141d] text-[#ffd166]" style={{ fontFamily: "'Barlow Condensed', 'Arial Narrow', sans-serif" }}>
           <div className="flex items-center justify-between bg-[#1d2433] px-3 py-1.5 text-[15px] font-extrabold">

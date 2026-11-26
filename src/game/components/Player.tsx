@@ -18,6 +18,7 @@ import { damp, dampAngle, dampFactor } from '../systems/math'
 import { playerState } from '../systems/playerState'
 import { ChibiModel, type MotionState } from './ChibiModel'
 import { localSnapshot } from '../systems/netState'
+import { playSfx } from '../systems/audio'
 import { GRAB_PEOPLE, useGrab } from '../systems/grab'
 
 const CAPSULE_RADIUS = 0.32
@@ -100,6 +101,7 @@ export function Player({ visualRef }: PlayerProps) {
   const rideHalf = rideDef ? vehicleHalf(rideDef) : null
   const heading = useRef(0)
   const rideSpeed = useRef(0)
+  const lastRev = useRef(0)
   const bodyTurned = useRef(false)
   const cargo = useGrab((s) => (s.order && s.order.stage === 'drop' ? (s.order.kind === 'ride' ? `who:${s.order.who}` : s.order.kind) : null))
 
@@ -184,6 +186,14 @@ export function Player({ visualRef }: PlayerProps) {
         const step = vdef.turn * dt
         heading.current += Math.max(-step, Math.min(step, diff))
         want = cfg.walkSpeed * vdef.speed * mag * (0.25 + 0.75 * Math.max(0, Math.cos(diff)))
+      }
+      // 1.49 flooring it from (almost) standing in a car: the engine revs (at most every 4 s)
+      if (vdef.kind === 'car' && rideSpeed.current < 0.8 && want > cfg.walkSpeed * vdef.speed * 0.6) {
+        const now = performance.now()
+        if (now - lastRev.current > 4000) {
+          lastRev.current = now
+          playSfx('enginerev')
+        }
       }
       // Pressing into a wall does not build up speed.
       rideSpeed.current = Math.min(rideSpeed.current, planarSpeed + 1.5)
