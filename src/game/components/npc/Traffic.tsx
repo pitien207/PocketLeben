@@ -42,10 +42,12 @@ interface BikeProps {
   outfit: Outfit
   /** Which car model (cars only). */
   model?: string
+  /** 1.44 wrap at ±wrapX (default CONFIG.traffic.wrapX). */
+  wrapX: number
 }
 
 /** One scooter + helmeted rider cruising a lane. Slows, stops and honks for the player. */
-function TrafficBike({ id, kind, lane, startX, color, outfit, model }: BikeProps) {
+function TrafficBike({ id, kind, lane, startX, color, outfit, model, wrapX }: BikeProps) {
   const vehicle = VEHICLE[kind]
   const group = useRef<Group>(null)
   const rb = useRef<RapierRigidBody>(null)
@@ -89,8 +91,8 @@ function TrafficBike({ id, kind, lane, startX, color, outfit, model }: BikeProps
     s.x += lane.dir * s.speed * dt
     // Cyclists pedal as fast as they travel.
     rider.current.pedal = (rider.current.pedal ?? 0) - s.speed * dt * 2.6
-    if (s.x * lane.dir > cfg.wrapX) {
-      s.x = -lane.dir * cfg.wrapX
+    if (s.x * lane.dir > wrapX) {
+      s.x = -lane.dir * wrapX
       s.cruise = (cfg.speedMin + Math.random() * (cfg.speedMax - cfg.speedMin)) * vehicle.speed
     }
     s.t += dt
@@ -122,7 +124,7 @@ function TrafficBike({ id, kind, lane, startX, color, outfit, model }: BikeProps
 }
 
 /** Motorbike traffic on the main road — the soundtrack of every Vietnamese street. */
-export function Traffic({ lanes, perLane = 2, kinds = ['motorbike'], outfits = RIDER_OUTFITS }: { lanes: Lane[]; perLane?: number; kinds?: VehicleKind[]; outfits?: Outfit[] }) {
+export function Traffic({ lanes, perLane = 2, kinds = ['motorbike'], outfits = RIDER_OUTFITS, wrapX = CONFIG.traffic.wrapX }: { lanes: Lane[]; perLane?: number; kinds?: VehicleKind[]; outfits?: Outfit[]; wrapX?: number }) {
   const bikes = useMemo(() => {
     const list: BikeProps[] = []
     let n = 0
@@ -132,16 +134,17 @@ export function Traffic({ lanes, perLane = 2, kinds = ['motorbike'], outfits = R
           id: `bike-${n}`,
           kind: kinds[n % kinds.length],
           lane,
-          startX: -CONFIG.traffic.wrapX + ((i + 0.5) / perLane) * 2 * CONFIG.traffic.wrapX + n * 3,
+          startX: -wrapX + ((i + 0.5) / perLane) * 2 * wrapX + n * 3,
           color: BIKE_COLORS[n % BIKE_COLORS.length],
           outfit: outfits[n % outfits.length],
           model: CAR_MODELS[(n * 7 + lanes.length) % CAR_MODELS.length],
+          wrapX,
         })
         n++
       }
     }
     return list
-  }, [lanes, perLane, kinds, outfits])
+  }, [lanes, perLane, kinds, outfits, wrapX])
 
   return (
     <>

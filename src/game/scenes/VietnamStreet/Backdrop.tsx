@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 import { PALETTE as P } from '../shared/palette'
 import { fluffyTreeShapes, place } from '../shared/props'
 import { Shapes, type ShapeItem } from '../shared/Shapes'
+import { modelShapes, modelSize, pickBy } from '../shared/models'
 import { ROAD, SIDE_ROAD } from './layout'
 
 /**
@@ -33,6 +34,28 @@ export interface ClearArea {
   maxZ: number
 }
 
+const KAYKIT = ['cBuildingA', 'cBuildingB', 'cBuildingC', 'cBuildingD', 'cBuildingE', 'cBuildingF', 'cBuildingG', 'cBuildingH']
+const TOWERS = ['kcLowA', 'kcLowC', 'kcLowD', 'kcLowE', 'kcLowH', 'kcLowJ', 'kcLowK', 'kcLowL', 'kcLowN', 'kcLowWideA', 'kcLowWideB']
+
+const lum = (hex: string) => 0.299 * parseInt(hex.slice(1, 3), 16) + 0.587 * parseInt(hex.slice(3, 5), 16) + 0.114 * parseInt(hex.slice(5, 7), 16)
+
+/** A KayKit town house scaled to the plot width (its own colours, the main wall tinted toward the ring's colour). */
+function kayKitBlock(seed: number, w: number, color: string): ShapeItem[] | null {
+  const name = pickBy(KAYKIT, seed)
+  const [sw] = modelSize(name)
+  const m = modelShapes(name, { scale: w / sw, paint: (_m, c) => (lum(c) > 205 ? c : rand(seed + c.length) > 0.6 ? color : c) })
+  return m
+}
+
+/** A Kenney low-detail block stretched to w × h × d, walls in the ring's colour, the glass bands dark blue-grey. */
+function towerBlock(seed: number, w: number, h: number, d: number, color: string): ShapeItem[] | null {
+  const name = pickBy(TOWERS, seed)
+  const [sw, sh, sd] = modelSize(name)
+  const m = modelShapes(name, { paint: (_m, c) => (lum(c) < 130 ? '#5d6a7e' : color) })
+  if (!m) return null
+  return [{ group: m, scale: [w / sw, (h + 4) / sh, d / sd] }]
+}
+
 function backdropShapes(colors: string[], roof: string, sideRoad: boolean, tree: 'green' | 'linden', lake: boolean, clear?: ClearArea): ShapeItem[] {
   const s: ShapeItem[] = []
   let seed = 1
@@ -51,8 +74,14 @@ function backdropShapes(colors: string[], roof: string, sideRoad: boolean, tree:
       const h = 5 + rand(seed++) * (ring === 0 ? 8 : 14)
       const color = colors[Math.floor(rand(seed++) * colors.length)]
       const rotY = -a + Math.PI / 2
-      s.push({ box: [w, h, d], at: [x, h / 2, z], rot: [0, rotY, 0], color })
-      s.push({ box: [w + 0.2, 0.3, d + 0.2], at: [x, h + 0.15, z], rot: [0, rotY, 0], color: roof })
+      // 1.46: library blocks — KayKit's little town houses in front, Kenney's low-detail towers behind; boxes as fallback
+      const lib = ring === 0 ? kayKitBlock(seed, w, color) : towerBlock(seed, w, h, d, color)
+      if (lib) {
+        s.push({ group: lib, at: [x, 0, z], rot: [0, rotY + Math.PI, 0] })
+      } else {
+        s.push({ box: [w, h, d], at: [x, h / 2, z], rot: [0, rotY, 0], color })
+        s.push({ box: [w + 0.2, 0.3, d + 0.2], at: [x, h + 0.15, z], rot: [0, rotY, 0], color: roof })
+      }
       if (rand(seed++) > 0.5) {
         const variant = tree === 'linden' ? 'linden' : rand(seed++) > 0.7 ? 'blossom' : 'green'
         s.push(place(fluffyTreeShapes(variant, 1, seed), [x * 0.92, 0, z * 0.92], a, 1.3))

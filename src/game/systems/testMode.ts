@@ -1,4 +1,5 @@
 import { CONFIG } from '../../data/config'
+import { MUC_SIGHT_IDS } from '../../data/munich'
 import type { Condition } from '../../data/conditions'
 import { QUESTS } from '../../data/quests'
 import { SCENES } from '../scenes/registry'
@@ -69,6 +70,8 @@ function satisfy(c: Condition | undefined) {
 
 /** Steps whose condition is a named test, or that need travel, get a hand-written skip. */
 const SKIPS: Record<string, () => void> = {
+  // 1.44 München: seeing every sight
+  'muc.all': () => MUC_SIGHT_IDS.forEach((id) => setFlag(`muc.seen.${id}`, true)),
   // Story 2.1 (chapter 1)
   'start.job': () => setFlag('stats.shifts', Math.max(1, flagNumber('stats.shifts'))),
   'path.choose': () => setFlag('visa.path', visaPath() ?? 'ausbildung'),

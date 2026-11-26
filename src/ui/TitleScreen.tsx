@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
+import { lazy, Suspense, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { useT } from '../i18n'
 import { signOut } from '../net/auth'
 import { useSettings } from '../store/settingsStore'
@@ -6,6 +6,10 @@ import { createTitleAudio } from '../title/titleAudio'
 import { googleSignedOut } from '../net/google'
 import { LoginPanel, useAccount } from './LoginPanel'
 import { PocketStamp, GAME_NAME } from './PocketLogo'
+import { chunk } from '../updates'
+
+/** 1.47: credits & licences, loaded only when opened (the title screen stays tiny). */
+const CreditsPanel = lazy(() => chunk(import('./CreditsPanel')))
 
 /** Day number of the saved game, if there is one (read without loading the game code). */
 function savedDay(): number | null {
@@ -142,6 +146,7 @@ export function TitleScreen({ onPlay, onSandbox, loading = false }: { onPlay?: (
   const [login, setLogin] = useState<'login' | 'register' | null>(null)
   const loginOpen = login !== null
   const [audioStarted, setAudioStarted] = useState(audio.started)
+  const [credits, setCredits] = useState(false)
 
   // Ambience: starts with the first tap / key (browsers need a gesture), follows the music setting.
   useEffect(() => {
@@ -279,7 +284,15 @@ export function TitleScreen({ onPlay, onSandbox, loading = false }: { onPlay?: (
       >
         Hà Nội · <b className="font-bold text-lacquer">07:45</b> · {t('title.weather')}
         <span className="ml-2 opacity-60">v{__APP_VERSION__}</span>
+        <button type="button" data-testid="title-credits" onClick={() => setCredits(true)} className="ml-2 font-semibold text-[#4a3226]/80 underline decoration-[#4a3226]/30 underline-offset-2 hover:text-lacquer">
+          {t('title.credits')}
+        </button>
       </div>
+      {credits && (
+        <Suspense fallback={null}>
+          <CreditsPanel onClose={() => setCredits(false)} />
+        </Suspense>
+      )}
       {login && (
         <LoginPanel
           key={login}

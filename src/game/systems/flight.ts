@@ -18,9 +18,9 @@ import { eurosInHand } from './visa'
 /**
  * 1.43 The first flight to Germany, played instead of a fade (user: "cảnh lên máy bay… transit… tìm cổng"):
  *  1. Nội Bài gate 7 (`flight.depart`) → jet bridge + cabin (scene `plane`): find the seat on your boarding pass.
- *  2. The right seat → night flight → München (scene `transit`): follow "Anschlussflüge" (the "Ausgang" only leads
+ *  2. The right seat → night flight → Frankfurt (scene `transit`): follow "Anschlussflüge" (the "Ausgang" only leads
  *     to the baggage hall), Passkontrolle at "Alle Pässe" (a Q&A in German), read the departures board, find the gate.
- *  3. The right gate → RF … to Frankfurt → Lindenstraße (`de.arrived`).
+ *  3. The right gate → RF … to München → Lindenstraße (`de.arrived`).
  * Flags: fly.seed (the plan, data/flight.ts), fly.boarded, fly.seated, fly.passport, fly.boardRead, fly.wrongSeat,
  * fly.wrongGate, fly.done. Only the FIRST trip (the Tết trip home stays a fade).
  */
@@ -118,7 +118,7 @@ function sit(code?: string) {
 function takeOff() {
   travelTo('transit', 'default', {
     long: true,
-    label: L(`✈ Bay đêm ${LEG1.flight}: Hà Nội → München`, `✈ Night flight ${LEG1.flight}: Hanoi → Munich`),
+    label: L(`✈ Bay đêm ${LEG1.flight}: Hà Nội → Frankfurt`, `✈ Night flight ${LEG1.flight}: Hanoi → Frankfurt`),
     subtitle: L('11 tiếng trên trời… Hạ cánh 06:05 giờ Đức', '11 hours in the air… landing 06:05 German time'),
     tone: 'night',
     onArrive: () => {
@@ -135,8 +135,8 @@ function exitTrap() {
   bumpFlag('fly.exitTried')
   say(
     L(
-      'Lối này ra ngoài lấy hành lý (Gepäckausgabe). Vali của bạn đã được gửi thẳng tới Frankfurt — đi theo biển vàng „Anschlussflüge / Flight connections" mới đúng!',
-      'This way leads out to baggage claim. Your suitcase is checked through to Frankfurt — follow the yellow "Anschlussflüge / Flight connections" signs!',
+      'Lối này ra ngoài lấy hành lý (Gepäckausgabe). Vali của bạn đã được gửi thẳng tới München — đi theo biển vàng „Anschlussflüge / Flight connections" mới đúng!',
+      'This way leads out to baggage claim. Your suitcase is checked through to München — follow the yellow "Anschlussflüge / Flight connections" signs!',
     ),
     'info',
   )
@@ -172,7 +172,7 @@ function atGate(id?: string) {
   const plan = ensureFlightPlan()
   const now = useTime.getState().minutes
   if (id === plan.leg2.gate) {
-    say(L(`„${plan.leg2.flight} nach Frankfurt — richtig! Gute Reise!" (Đúng chuyến rồi, chúc đi vui vẻ!)`, `“${plan.leg2.flight} to Frankfurt — that's right! Have a good trip!”`), 'good')
+    say(L(`„${plan.leg2.flight} nach München — richtig! Gute Reise!" (Đúng chuyến rồi, chúc đi vui vẻ!)`, `“${plan.leg2.flight} to München — that's right! Have a good trip!”`), 'good')
     playSfx('beep')
     window.setTimeout(arrive, 900)
     return true
@@ -182,8 +182,8 @@ function atGate(id?: string) {
   if (f?.decoy)
     say(
       L(
-        `„Das ist ${f.flight} — Ihr Flug ist ${plan.leg2.flight}." Chuyến này cũng đi Frankfurt nhưng là số hiệu khác! Xem lại bảng điện tử.`,
-        `“This is ${f.flight} — your flight is ${plan.leg2.flight}.” Also Frankfurt, but another flight number! Check the board.`,
+        `„Das ist ${f.flight} — Ihr Flug ist ${plan.leg2.flight}." Chuyến này cũng đi München nhưng là số hiệu khác! Xem lại bảng điện tử.`,
+        `“This is ${f.flight} — your flight is ${plan.leg2.flight}.” Also München, but another flight number! Check the board.`,
       ),
       'bad',
     )
@@ -196,13 +196,13 @@ function atGate(id?: string) {
   return true
 }
 
-/** The short hop to Frankfurt, then the train to the new home: chapter 3 begins. */
+/** The short hop to München, then the train to the new home: chapter 3 begins. */
 function arrive() {
   const plan = ensureFlightPlan()
   travelTo('germany', 'default', {
     long: true,
-    label: L(`✈ ${plan.leg2.flight} München → Frankfurt`, `✈ ${plan.leg2.flight} Munich → Frankfurt`),
-    subtitle: L('Rồi tàu ICE về Lindenberg… Chào nước Đức!', 'Then the ICE train to Lindenberg… Hallo Deutschland!'),
+    label: L(`✈ ${plan.leg2.flight} Frankfurt → München`, `✈ ${plan.leg2.flight} Frankfurt → München`),
+    subtitle: L('Rồi S-Bahn vào trung tâm thành phố… Chào München, chào nước Đức!', 'Then the S-Bahn into the city… Servus München!'),
     onArrive: () => {
       setFlag('visa.blocked', 0)
       const t = useTime.getState()

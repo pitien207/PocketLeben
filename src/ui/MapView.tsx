@@ -15,6 +15,7 @@ import { useSettings } from '../store/settingsStore'
 import { useUI } from '../store/uiStore'
 import { useWorld, type SceneId } from '../store/worldStore'
 import { CloseIcon, PinIcon, StarIcon, TargetIcon } from './icons'
+import { iconImage, placeIconName } from './placeIcons'
 import { useTestMode } from '../game/systems/testMode'
 
 /**
@@ -25,7 +26,7 @@ import { useTestMode } from '../game/systems/testMode'
  * Drawn on a canvas, outside React's render loop.
  */
 
-/** This scene has a city map (only the streets of Hà Nội and Lindenberg). */
+/** This scene has a city map (only the streets of Hà Nội and München). */
 export function hasCityMap(scene: SceneId): boolean {
   return !!SCENE_MAPS[scene]
 }
@@ -293,17 +294,29 @@ function draw(canvas: HTMLCanvasElement, view: View, time: number) {
     if (x < -20 || x > w + 20 || z < -20 || z > h + 20) continue
     const name = d.nameKey ? translate(lang, d.nameKey) : d.name ? localize(d.name, lang) : ''
     pins.push({ x, z, name, goal: !!target?.id && target.id === d.id })
-    ctx.fillStyle = '#ffffff'
+    // 1.46: a round badge with the Fluent 3D picture of what the place is (placeIcons.ts); small dots while far out
+    const img = scale >= 1.4 ? iconImage(placeIconName(d, name)) : null
+    const r = img ? Math.min(12, 7 + scale * 0.9) : 4.6
+    ctx.fillStyle = 'rgba(74,58,51,0.25)'
+    ctx.beginPath()
+    ctx.arc(x, z + 1.6, r, 0, Math.PI * 2)
+    ctx.fill()
+    ctx.fillStyle = '#fffaf0'
     ctx.strokeStyle = INK
     ctx.lineWidth = 1.4
     ctx.beginPath()
-    ctx.arc(x, z, 4.6, 0, Math.PI * 2)
+    ctx.arc(x, z, r, 0, Math.PI * 2)
     ctx.fill()
     ctx.stroke()
-    ctx.fillStyle = '#f4b73e'
-    ctx.beginPath()
-    ctx.arc(x, z, 2.6, 0, Math.PI * 2)
-    ctx.fill()
+    if (img) {
+      const k = r * 1.5
+      ctx.drawImage(img, x - k / 2, z - k / 2, k, k)
+    } else {
+      ctx.fillStyle = '#f4b73e'
+      ctx.beginPath()
+      ctx.arc(x, z, 2.6, 0, Math.PI * 2)
+      ctx.fill()
+    }
   }
 
   // 5) friends only (user 1.43: no strangers on the map)
@@ -392,7 +405,7 @@ function draw(canvas: HTMLCanvasElement, view: View, time: number) {
       if (!p.name || p.goal) continue
       const key = p.name.toLowerCase()
       if (shown.has(key)) continue
-      if (tag(p.name, p.x, p.z - 13, '#fff8ea', INK)) shown.add(key)
+      if (tag(p.name, p.x, p.z - 20, '#fff8ea', INK)) shown.add(key)
     }
   }
   for (const r of friends) tag(r.name, X(r.x), Z(r.z) - 14, '#d9f2e3', '#2b7a50')

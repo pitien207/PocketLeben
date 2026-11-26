@@ -311,7 +311,7 @@ const THREE_D: Partial<Record<ItemIconName, string>> = {
   brezel: 'pretzel', doener: 'stuffed-flatbread', schorle: 'cup-with-straw', kaffee: 'hot-beverage', pizza: 'pizza',
   kuchen: 'shortcake', hoa: 'bouquet', pho: 'steaming-bowl', rice: 'sheaf-of-rice', fishSauce: 'amphora',
   che: 'shaved-ice', banhTrang: 'rice-cracker', kem: 'soft-ice-cream', bunCha: 'meat-on-bone', nemRan: 'tamale',
-  lau: 'pot-of-food', com: 'bento-box',
+  lau: 'pot-of-food', com: 'bento-box', oil: 'oil-drum', banhCuon: 'flatbread',
 }
 
 export function ItemIcon({ name, ...props }: Props & { name: ItemIconName }) {

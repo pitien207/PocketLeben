@@ -357,6 +357,7 @@ const THREE_D: Partial<Record<ActionIconName, string>> = {
   enter: 'door',
   seat: 'seat',
   board: 'airplane-departure',
+  sight: 'round-pushpin',
 }
 
 /** 1.42: `flat` forces the old drawing (e.g. inside SVG layouts). */

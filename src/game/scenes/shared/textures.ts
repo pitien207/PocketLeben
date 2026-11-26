@@ -1,3 +1,5 @@
+import { ICON3D } from '../../../ui/Icon3d'
+import { iconForText } from '../../../ui/placeIcons'
 import { CanvasTexture, RepeatWrapping, SRGBColorSpace } from 'three'
 
 /** Procedural canvas textures: no image downloads, crisp on any DPR. */
@@ -59,6 +61,8 @@ export interface SignOptions {
   accent: string
   /** Width/height ratio of the board (default 4). */
   aspect?: number
+  /** 1.46: Fluent 3D picture at the left end (name in src/assets/icons3d); default = picked from the title, false = none. */
+  icon?: string | false
 }
 
 export const SIGN_FONT_FAMILY = "'Baloo 2'"
@@ -71,6 +75,14 @@ const SIGN_FONT = "'Baloo 2', 'Nunito', ui-rounded, 'Segoe UI', system-ui, sans-
 export function makeSignTexture(opts: SignOptions) {
   const { canvas, ctx } = newCanvas(Math.round(256 * (opts.aspect ?? 4)), 256)
   const texture = toTexture(canvas)
+  const iconName = opts.icon === false || (opts.aspect ?? 4) < 2.6 ? null : (opts.icon ?? iconForText(opts.title))
+  const iconSrc = iconName ? ICON3D[iconName] : undefined
+  let icon: HTMLImageElement | null = null
+  if (iconSrc && typeof Image !== 'undefined') {
+    icon = new Image()
+    icon.onload = () => redraw()
+    icon.src = iconSrc
+  }
 
   const redraw = () => {
     const { width: w, height: h } = canvas
@@ -96,14 +108,25 @@ export function makeSignTexture(opts: SignOptions) {
       }
       return px
     }
-    const inner = w - 110
+    // 1.46: a little picture of what the shop is at the left end (Fluent Emoji 3D, MIT), text centred in the rest
+    const pic = icon && icon.complete && icon.naturalWidth > 0 ? icon : null
+    const ip = pic ? h * 0.6 : 0
+    if (pic) {
+      ctx.fillStyle = 'rgba(255,255,255,0.88)'
+      ctx.beginPath()
+      ctx.arc(48 + ip / 2, h / 2, ip * 0.56, 0, Math.PI * 2)
+      ctx.fill()
+      ctx.drawImage(pic, 48, (h - ip) / 2, ip, ip)
+    }
+    const cx = pic ? (w + 48 + ip) / 2 : w / 2
+    const inner = w - 110 - (pic ? ip + 20 : 0)
     ctx.fillStyle = opts.color
     const titlePx = fit(opts.title, 800, opts.subtitle ? 112 : 140, inner)
-    ctx.fillText(opts.title, w / 2, opts.subtitle ? h * 0.42 + (112 - titlePx) * 0.15 : h * 0.53)
+    ctx.fillText(opts.title, cx, opts.subtitle ? h * 0.42 + (112 - titlePx) * 0.15 : h * 0.53)
     if (opts.subtitle) {
       ctx.fillStyle = opts.accent
       fit(opts.subtitle, 700, 46, inner)
-      ctx.fillText(opts.subtitle, w / 2, h * 0.76)
+      ctx.fillText(opts.subtitle, cx, h * 0.76)
     }
     texture.needsUpdate = true
   }

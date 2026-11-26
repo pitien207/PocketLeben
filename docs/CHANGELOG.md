@@ -1,5 +1,188 @@
 # Changelog
 
+## 1.46.0 — Hà Nội từ thư viện mở, đúng kiểu nhà Việt Nam (+ Poly Haven, ambientCG)
+
+### Changed (user: "cập nhật UI map Việt Nam và Đức, nhiều cái chỉ là hình khối tự tạo nhìn khá xấu; tham khảo thư viện; nhân vật giữ nguyên"; "phải hợp với kiến trúc Việt Nam")
+- **Nhà Hà Nội** (`scenes/VietnamStreet/hanoiHouses.ts` `hanoiHouse(style, w, d, rng, opts)`): mặt tiền từ module Kenney
+  *Modular Buildings* xếp theo kiểu Việt — nhà ống hẹp, cửa sổ / cửa đi kiểu Pháp với **cửa chớp xanh** gấp hai bên,
+  **ban công lan can sắt** mỗi tầng, tầng trệt là cửa hàng hoặc **cửa cuốn**, mái bằng có **bồn nước inox** (KayKit),
+  ăng-ten, chậu cây (Quaternius), cục nóng điều hòa, trán tường nhỏ; nhà phố cổ **mái ngói đỏ + tường hồi** (không cửa mái
+  kiểu Âu); nhà Pháp vàng cửa vòm có mansard; **khu tập thể** với chuồng cọp + quần áo phơi; khách sạn mini có biển dọc.
+  Kiểu: tube, tubeTiled, colonial, oldLow, modern, tapThe, hotel; `upperOnly` (chỉ các tầng trên, khi tầng trệt là phòng
+  mở của quán), `ground: false`, `noBalcony1` (chỗ treo biển). Hand-built cũ còn làm fallback khi pack chưa tải.
+- Dùng ở: các dãy nhà trang trí (`decorHouses.ts` → `decorHouse`), mọi `TubeHouse` (Hàng Gai, khối Tây/Đông, văn phòng
+  visa; tầng trệt giữ nguyên vì có cửa tiệm / hàng hóa / biển), 7 quán ăn (tầng trên), Mai Anh / Hoàng Kim / Circle K,
+  Showroom, **Hàng Khay** (ngân hàng, công an, bệnh viện, thư viện, trường = nhà Pháp; khách sạn, rạp, siêu thị… cùng
+  footprint, cửa và biển giữ chỗ), skyline Hàng Khay.
+- **Đồ phố**: đèn đường Kenney (Hàng Đào), đài phun nước đá (Kenney, nước chảy khớp `fountainWater`), ghế nhựa + bàn
+  (KayKit, `stoolShapes` / `cafeTableSetShapes` — cả hai nước), cọc tiêu + rào công trình (Kenney), `kBin` (thùng rác xanh).
+- **Backdrop** (cả hai nước): vòng gần = nhà KayKit, vòng xa = tòa nhà low-detail Kenney thay hộp trơn.
+- **Icon**: bản đồ (M) — mỗi địa điểm có huy hiệu tròn với ảnh Fluent 3D đúng loại (quán ăn, xăng, ngân hàng, thuốc,
+  đền, trường…; `ui/placeIcons.ts`); **biển hiệu 3D** tự có ảnh nhỏ bên trái theo tên tiệm (`SignOptions.icon`, mặc định
+  đoán từ tiêu đề, `false` = không); ItemIcon: dầu ăn, bánh cuốn có ảnh 3D. 33 icon Fluent mới trong `assets/icons3d`.
+- Packs mới: `street` (Kenney City Kit Roads), `towers` (Kenney City Kit Commercial), `citybits` (KayKit City Builder
+  Bits) — `tools/kenney2props.mjs street|towers`, `tools/kaykit2props.mjs <folder> citybits`; Việt Nam + Đức tải thêm
+  town, facade, street, towers, citybits.
+
+### Thư viện mới ngoài Kenney (user: "kết hợp các thư viện, tìm thêm thư viện mở khác, đừng quanh quẩn Kenney")
+- **Poly Haven** (CC0, mô hình ảnh thật) → pack mới **`urban`** (29 mô hình, ~8,9k tam giác, 95 KB): công cụ mới
+  `tools/polyhaven2props.mjs` nướng texture ảnh thành vài màu phẳng (lấy mẫu UV từng tam giác → k-means → lọc đốm) rồi giảm
+  tam giác (meshoptimizer); bộ cột điện ghép (modular kit) thì mỗi bộ phận một màu, giản lược riêng. Tên `u…`, kích thước
+  thật (mét). PNG 16-bit đọc được (`tools/glb.mjs` `readPng`, dùng chung với KayKit).
+- **Cột điện Hà Nội** = cột Poly Haven có xà, sứ cách điện, cầu chì / **biến áp**, sơn lại màu bê tông, cao 10 m, xoay xà
+  ngang dây; giữ cuộn dây thừa + tờ rơi; **hộp công tơ** xám buộc trên cột (cách một cột).
+- **Quán ăn**: chồng **két bia vàng** (lẩu, bún chả), **bình ga đỏ** (bánh cuốn, lẩu, cơm); bếp nhà cũng có bình ga.
+- **Cục nóng điều hòa**: một nửa là mẫu Poly Haven, nửa còn lại Kenney (trộn cho đỡ lặp).
+- **Đèn đại lộ Tràng Tiền** = cột đèn gang Poly Haven (vũng sáng đêm dời theo).
+- **Đình Hàng Gai + đền Ngọc Sơn**: lư hương = *Brass Pot* (Poly Haven), ghế bành gỗ chạm + đèn lồng gỗ trên hiên đình;
+  **mái ngói cong đao** mới (`scenes/shared/vnRoof.ts` `vnRoofShapes`: mái chảy có góc vểnh, mặt dưới tối, bờ nóc có
+  rồng cuộn + ngọc; không thư viện nào có mái Việt nên dựng bằng mặt cong) cho cổng tam quan, hiên đình, cổng Đắc Nguyệt,
+  đền, Trấn Ba.
+- **Quán trà sữa**: thêm một tầng nhà ống (module, tường hồng, cửa chớp hồng) lùi sau biển, cốc trà sữa lên mái mới; vào
+  trong quán thì tầng này ẩn cùng mái như cũ.
+- **Bưu điện Bờ Hồ** = nhà Pháp module (cửa vòm, cửa chớp xanh) + tháp đồng hồ; **Trung tâm Đức ngữ** = nhà Pháp nhỏ hai
+  tầng có ban công sắt.
+- **München**: trụ cứu hỏa đỏ (Poly Haven *Fire Hydrant*) ở Marienplatz.
+- **Mặt đường / vỉa hè** (cả hai nước): vân nhựa đường / bê tông từ **ambientCG** (CC0, *Asphalt026A*, *Concrete034*) →
+  `src/assets/textures/*.webp` 256 px xám, nhân nhẹ (≈ ±10 %) theo tọa độ thế giới (`withGroundDetail` trong
+  `shared/materials.ts`; đường dùng `groundMaterial`, gạch lát truyền `'concrete'`).
+
+### Ghi công & giấy phép (user: "CC-BY, CC-BY-SA, MIT dùng được, ghi công cũng được")
+- Màn hình **"Ghi công & giấy phép"** (`ui/CreditsPanel.tsx`, dữ liệu `data/credits.ts`): mỗi mục = dùng làm gì trong game,
+  tác giả + tên bộ (link nguồn), giấy phép (link), dòng bản quyền (MIT…), "Đã sửa: …"; nhóm Mô hình 3D / Hình ảnh & icon /
+  Âm thanh & nhạc / Phông chữ / Thư viện phần mềm; nút mở toàn văn giấy phép MIT. Ngang điện thoại: 2 cột.
+- Mở từ **Cài đặt** (dòng "Ghi công & giấy phép" dưới phần lưu dữ liệu) và link nhỏ **"Ghi công"** ở góc dưới màn hình tiêu
+  đề (cạnh số phiên bản; tải lười, màn hình tiêu đề vẫn nhẹ). Không bắt buộc xem. Esc / ✕ / bấm nền để đóng; trong Cài đặt,
+  Esc chỉ đóng bảng ghi công.
+- Quy tắc tài nguyên (CLAUDE.md): ưu tiên CC0; **CC-BY, CC-BY-SA, MIT được phép khi ghi công trong màn hình này**;
+  CC-BY-SA để gói riêng; cấm NC / ND / "chỉ dùng cá nhân".
+- Test `v147.mjs`: màn hình tiêu đề (1280×720, 740×340, 360×740) + trong game (Cài đặt → ghi công, Esc, ✕): ALL PASSED.
+
+### Test (headless, scratchpad `v146.mjs`)
+- 13 góc nhìn Hà Nội + 5 góc người chơi + trong quán trà sữa + 3 cảnh đêm + nhà + München: **ALL PASSED** (pack tải, 17 cửa
+  tiệm + mai-door / showroom / cây xăng / Ngọc Sơn còn đăng ký, München tải, không lỗi script). `npm run build` sạch.
+- Hàng Gai (fancy tắt): 232 draw call, ~1,24 M tam giác (gồm bóng); cảnh tĩnh ~220k tam giác, nhân vật ~293k.
+
+### Known / to check
+- Tam giác cảnh Hà Nội tăng ~+150k (nhà) — kiểm tra FPS trên điện thoại. Dev: `window.__noLibHouses = true` trước khi tải
+  = nhà cũ (để so sánh).
+- Nhìn rất gần đỉnh cột điện còn vài mảnh vụn của khớp nối dây (từ góc camera bình thường không thấy).
+- Chưa làm: landmark München (Frauenkirche, Rathaus…), nhà thờ Lớn, cây xăng vẫn dựng tay.
+
+### Phone test checklist
+- [ ] Hàng Gai, Hàng Đào, đại lộ, ngõ: nhà ống có cửa chớp, ban công sắt, mái ngói / bồn nước; không nhấp nháy.
+- [ ] Biển hiệu các quán / tiệm không bị lan can che; biển có ảnh nhỏ.
+- [ ] Hàng Khay: các nhà Pháp, cửa vào tiệm vàng / nhà hàng vẫn hoạt động.
+- [ ] Bản đồ (M): huy hiệu ảnh khi phóng to, chấm khi thu nhỏ.
+- [ ] Buổi tối: đèn Hàng Đào sáng, cửa sổ sáng.
+- [ ] FPS trên điện thoại ở Hàng Đào / Hàng Gai.
+- [ ] Cột điện: xà + sứ + biến áp, hộp công tơ trên cột; dây vẫn nối đúng chỗ.
+- [ ] Quán lẩu / bún chả: két bia vàng, bình ga đỏ; bếp nhà có bình ga.
+- [ ] Đình + đền Ngọc Sơn: mái cong vểnh góc, lư đồng, ghế gỗ trên hiên đình.
+- [ ] Quán trà sữa: có tầng trên; đi vào trong thì tầng trên + mái biến mất, ra ngoài hiện lại.
+- [ ] Bưu điện, Trung tâm Đức ngữ: nhà Pháp, biển không bị che, cửa vào lớp vẫn bấm được.
+- [ ] Mặt đường / vỉa hè có vân nhẹ, không lóa / sọc khi xoay camera (cả München).
+- [ ] Marienplatz: trụ cứu hỏa đỏ.
+- [ ] Màn hình tiêu đề: link "Ghi công" ở góc dưới → bảng ghi công cuộn được, link mở tab mới, ✕ đóng.
+- [ ] Cài đặt → "Ghi công & giấy phép": xoay ngang 2 cột, "Toàn văn giấy phép MIT" mở / đóng.
+
+## 1.45.0 — München đẹp hơn: nhà và đồ phố từ thư viện mở, hết nhấp nháy
+
+### Changed (user: "trau chuốt lại UI bên Đức, cửa tiệm cứ bị nhấp nháy, sạp hàng và đài phun nước không đẹp, chưa giống Munich; tìm thư viện mở, những gì chỉ có hình khối tự tạo phải thay")
+- **Houses** of München (all rows + Lindenstraße + Residenz / LMU) are built from **Kenney *Modular Buildings*** (CC0):
+  every floor is a row of modules — windows with sills, arched windows, balconies, shop windows with awnings, doors —
+  under a full gable roof of slanted pieces with dormers (seen from the follow camera above it is a real roof now).
+  Walls, roofs and awnings are repainted per house in Munich pastels / red tiles / slate / copper; Kenney's gradient
+  palette is reduced to two tones per part (no diagonal light/dark split on windows and walls).
+  (`scenes/GermanyStreet/kenneyHouses.ts`; the hand-built houses stay only as the fallback while the pack loads.)
+- **Street furniture** from **Kenney *Fantasy Town Kit*** (CC0): Viktualienmarkt stalls with canopies and crates of
+  vegetables (KayKit Restaurant Bits), market carts, beer-garden tables and benches (Viktualienmarkt, Chinesischer
+  Turm, Stadtpark kiosk), the old-style street lanterns everywhere (glowing heads at night), round stone fountains
+  (Stachus, the LMU fountains, the Fischbrunnen, the Lindenstraße fountain) in warm limestone with the moving water,
+  clipped hedges in the Hofgarten, flea-market tables, blue-and-white Bavarian flags along the Rathaus and round the
+  Viktualienmarkt, planters with library pots, the Quaternius taxi at the Hauptbahnhof. (`townProps.ts`)
+- New tool `tools/kenney2props.mjs <town|facade> <kit folder>` → model packs `town` and `facade` (one palette colour per
+  group, untextured materials such as Kenney's water keep their colour, sliver triangles dropped).
+
+### Fixed
+- **Flickering shop fronts**: neighbouring hand-built houses overlapped their cornices, trims and roofs in the same
+  plane (z-fighting). The module houses meet edge to edge; a check renders the same view twice — the facades are
+  steady.
+- **White screen** with the fancy look when the camera faced some directions in München: a few sliver triangles had no
+  normal → NaN light → the bloom spread it over the whole screen. Degenerate triangles are dropped by the converter
+  and every merged mesh / library model gets an upward normal where it had none.
+
+### Phone test checklist
+- [ ] Walk Lindenstraße, the Fußgängerzone and Marienplatz slowly with the camera turned in all four directions: no
+      flickering facades, never a white screen (fancy look on).
+- [ ] Houses: windows with sills / balconies / shop windows with awnings, roofs with dormers, different colours.
+- [ ] Viktualienmarkt: stalls with green / red canopies and vegetable crates, carts, the beer garden, flags.
+- [ ] Fountains (Stachus, LMU, Fischbrunnen, Lindenstraße) look like stone fountains with moving water.
+- [ ] Evening: the lanterns glow; lit windows in the houses.
+- [ ] Performance on the phone in Marienplatz / Viktualienmarkt / Englischer Garten.
+
+## 1.44.0 — München: cả thành phố, Pfand dùng chung cho mọi người chơi
+
+### Added — München (user: "xây dựng thành phố bên Đức (Munich), map rộng tương đối như map Việt Nam, có các địa điểm chính")
+- The German map is now **München** (about the size of the Hà Nội map, ~138 × 165 m). Lindenstraße (WG, Bürgeramt,
+  supermarket, Stadtpark…) stays exactly where it was and is one street of the city; everything grows round it
+  (layout in `scenes/GermanyStreet/mucLayout.ts`):
+  - **Hauptbahnhof** (glass hall, clock, DB, S-/U-Bahn signs, taxis) at the west end of Lindenstraße — S-Bahn to work /
+    to the university and a **second Pfand machine**.
+  - **Sendlinger Tor** behind the west fountain → Sendlinger Straße → **Marienplatz**: Neues Rathaus with the
+    **Glockenspiel** (11:00, 12:00, 17:00: 12 little figures dance in the two oriels for 15 minutes, a bell rings),
+    Mariensäule, Fischbrunnen, Altes Rathaus, U-Bahn, café tables.
+  - **Fußgängerzone** (Neuhauser / Kaufingerstraße) from the **Karlstor** + Stachus fountain, shop signs on every house;
+    **Frauenkirche** (two towers with the green onion caps).
+  - **Viktualienmarkt** (stalls, the blue-white **Maibaum**, beer garden under chestnuts) and the **Hofbräuhaus** at the
+    Platzl (shop: Brezel, Schorle).
+  - **Maximilianstraße** and **Prinzregentenstraße** with traffic (only while you are near), **Odeonsplatz**
+    (Feldherrnhalle with its lions, yellow **Theatinerkirche**, Residenz), **Hofgarten** with the Dianatempel.
+  - **Ludwigstraße**: the **LMU** (Studium players walk straight into the lecture hall), two fountains, the **Siegestor**.
+  - **Englischer Garten**: Haus der Kunst, the **Eisbach wave with two surfers**, bridges, **Monopteros** on its hill,
+    **Chinesischer Turm** with a beer garden (shop).
+  - The **Isar** along the east side: promenade, gravel beaches, three bridges, the east bank with the **Friedensengel**;
+    across the river the Maximilianeum, the Deutsches Museum and the Müllersches Volksbad.
+  - Houses: five Munich styles (`munichHouses.ts`: Altbau, stepped-gable Bürgerhaus, Jugendstil, post-war, palais),
+    one merged mesh per district; sights in `landmarks.ts`; people walking / sitting per district (`MunichLife.tsx`,
+    Munich looks incl. Dirndl and Lederhosen); flowing water on the Isar and the Eisbach; the map (M) shows it all.
+- **"Khám phá München"** side quest (chapter 4): stand at a sight → **"Ngắm cảnh"** → a short story about it; 19 sights
+  (`data/munich.ts`), count toast, achievement **"Dân München"**.
+- The fancy look (sky dome, bloom, lit windows at night) now works in Germany too.
+- Story: the German city is München — "Lindenberg" is gone (the university is the **LMU München**), and the first flight
+  now goes **Hà Nội → Frankfurt (transit, Passkontrolle, departures board) → München** (STORY.md updated).
+
+### Added — Pfand all over München (user: "Pfand xuất hiện ngẫu nhiên, tất cả người chơi đều thấy, tối đa 10, lâu không nhặt thì despawn, 1/1000 Pfand vàng, offline 1/5")
+- Bottles turn up at ~80 sensible spots (`server/pfandSpots.mjs`, shared by server and game): pavements by benches,
+  squares, beer gardens, lawns, the Isar beaches. **At most 10 at once**; 3 at first, then one every 20–45 s, never
+  right next to a player or another bottle; **unpicked ones vanish after 5–9 minutes**.
+- **Online**: the server spawns them per München room (`server/pfand.mjs`) — **everyone in the room sees the same
+  bottles**, the first to reach one gets it (the server checks the distance). **Golden bottle: 1 in 1000.**
+- **Offline** (no account, playing offline, the sandbox, or an older server): the game spawns its own with the same
+  rules (`systems/pfandWorld.ts`), **golden: 1 in 5**.
+- The **golden bottle** sparkles and turns slowly; it is worth **10 €** at the machine, has its own bag slot and an
+  achievement **"Chai Pfand vàng"**.
+- Protocol (backward compatible): clients send `caps: ['pfand']`, the server answers `feat: ['pfand']` in
+  'welcome'; old clients never get Pfand messages, new clients on an old server fall back to offline bottles.
+
+### Phone test checklist
+- [ ] Arrive in Germany: the plaque says "München"; walk west → Hauptbahnhof; through the Sendlinger Tor to Marienplatz.
+- [ ] Marienplatz at 11:00 / 12:00 / 17:00: the figures on the Rathaus tower dance, a bell rings.
+- [ ] Walk the Fußgängerzone through the Karlstor; see the Frauenkirche towers; nothing blocks the way, no walls in
+      odd places.
+- [ ] Viktualienmarkt (from the Stadtpark side / Altes Rathaus), Hofbräuhaus: "Mua đồ" works.
+- [ ] Cross Maximilianstraße and Prinzregentenstraße: cars stop for you.
+- [ ] Englischer Garten: the surfers on the Eisbach, cross the bridges, Monopteros, Chinesischer Turm beer garden.
+- [ ] Isar: walk down to the beach, over a bridge to the east bank, see the Friedensengel.
+- [ ] "Ngắm cảnh" at a sight: story toast + "Khám phá München: n/19"; side quest steps tick.
+- [ ] Map (M): streets, river, parks, names readable at 740 × 340.
+- [ ] Offline: a few bottles lie around, more appear, never more than 10; walk over one → bag; a golden one sparkles.
+- [ ] Online with a second phone in München: both see the same bottles; one picks it up → gone for the other.
+- [ ] Return bottles at the supermarket or the Hauptbahnhof: 0,25 € each, golden 10 €.
+- [ ] Studium path: the LMU door on Ludwigstraße leads into the lecture hall.
+- [ ] The first flight: Hà Nội → Frankfurt transit (board: two München flights, find yours) → München.
+- [ ] Performance on the phone: walking around Marienplatz / Englischer Garten stays smooth.
+
 ## 1.43.0 — Chuyến bay đầu tiên: lên máy bay, transit München, chế độ Chơi thử
 
 ### Added — boarding the first flight (user: "cảnh lên máy bay… có đường vào máy bay và tìm chỗ ngồi đúng")

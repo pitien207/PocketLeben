@@ -17,7 +17,7 @@ export const keyItemsHeld = (): KeyItemDef[] => KEY_ITEMS.filter((k) => check(k.
 export function bagWeight(): number {
   let kg = 0
   for (const [id, n] of Object.entries(useInventory.getState().items)) kg += (getItem(id)?.weight ?? 0) * n
-  kg += flagNumber('pfand.carried') * CONFIG.bag.bottleKg
+  kg += (flagNumber('pfand.carried') + flagNumber('pfand.gold')) * CONFIG.bag.bottleKg
   for (const k of keyItemsHeld()) kg += k.weight
   return Math.round(kg * 100) / 100
 }
@@ -64,5 +64,13 @@ export function dropBottle(): boolean {
   const n = flagNumber('pfand.carried')
   if (n <= 0) return false
   setFlag('pfand.carried', n - 1)
+  return true
+}
+
+/** 1.44 throw a golden bottle away (why would you…). */
+export function dropGoldBottle(): boolean {
+  const n = flagNumber('pfand.gold')
+  if (n <= 0) return false
+  setFlag('pfand.gold', n - 1)
   return true
 }

@@ -126,6 +126,9 @@ function furniture(): ShapeItem[] {
     const m = M(name, 0, { scale: 1.12, ...kitchen })
     s.push(m.length ? put(m, kx, 0.04, z, -Math.PI / 2) : { box: [0.6, 0.9, 0.5], at: [kx, 0.45, z], color: '#e8dcc4' })
   }
+  // 1.46: the red LPG bottle next to the stove (Poly Haven, pack urban)
+  const gas = M('uGasTank', 0.55, { paint: (_m: string, c: string) => (parseInt(c.slice(1, 3), 16) - parseInt(c.slice(3, 5), 16) > 40 ? '#c8322b' : '#8d8f94') })
+  if (gas.length) s.push(put(gas, kx - 0.05, 0.04, -1.68, 0.4))
   // a pot on the stove, the rice jar (hũ gạo) on the floor beside the counter
   s.push({ cyl: [0.16, 0.14, 0.18, 12], at: [kx - 0.05, 1.05, -1.15], color: '#b8b8c0' })
   s.push({ cyl: [0.17, 0.2, 0.42, 12], at: [kx - 0.05, 0.25, 0.35], color: '#c49a6c' }, { cyl: [0.12, 0.12, 0.05, 10], at: [kx - 0.05, 0.48, 0.35], color: '#9a6a43' })

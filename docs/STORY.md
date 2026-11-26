@@ -29,7 +29,7 @@ Chương 2  Chọn con đường ──┬── Studium (du học đại học)
 Chương 3  Chào nước Đức: phòng WG, Anmeldung, ngân hàng, bảo hiểm
    │
 Chương 4  ┌── Nhánh Ausbildung: viện dưỡng lão Sonnenhof → thi giữa khóa → thi tốt nghiệp
-          └── Nhánh Studium: Đại học Lindenberg → thi học kỳ → bảo vệ luận văn (vừa học vừa làm Werkstudent)
+          └── Nhánh Studium: Đại học LMU München → thi học kỳ → bảo vệ luận văn (vừa học vừa làm Werkstudent)
    │      (hai nhánh gặp lại nhau)
 Chương 5  Hợp đồng chính thức → Tết về quê → căn hộ riêng → giấy định cư = KẾT THÚC
           (sau kết thúc: nhập quốc tịch, tiết kiệm, …)
@@ -344,8 +344,8 @@ Cảnh buổi tối, cả nhà ngồi quanh mâm cơm. Bố bật đèn bàn th�
 3. 🆕 Đổi tiền Euro ở ngân hàng anh Quân `dep.exchange` (game nhắc: "Lương đầu tiên cuối tuần đầu mới về. Em cần ít nhất ~600 € cho tuần đầu.")
 4. Ra sân bay, chào gia đình, qua **cổng 7** lên máy bay `dep.airport`
 5. 🆕 (1.43) **Trên máy bay: tìm đúng ghế** ghi trên thẻ lên máy bay `dep.seat`
-6. 🆕 (1.43) **Transit München: qua kiểm soát hộ chiếu** `dep.passport`
-7. 🆕 (1.43) **Đọc bảng điện tử, tìm đúng cổng** chuyến bay đi Frankfurt `dep.gate`
+6. 🆕 (1.43) **Transit Frankfurt: qua kiểm soát hộ chiếu** `dep.passport`
+7. 🆕 (1.43) **Đọc bảng điện tử, tìm đúng cổng** chuyến bay đi München `dep.gate`
 
 **Mẹ ở sân bay Nội Bài:**
 - "Con đi đường bình an nhé. Nhớ ăn uống đầy đủ, mặc ấm, rảnh thì gọi video về cho mẹ."
@@ -358,9 +358,9 @@ Cảnh buổi tối, cả nhà ngồi quanh mâm cơm. Bố bật đèn bàn th�
 ### 2.5 🆕 Chuyến bay đầu tiên (1.43) — chơi thật, không chỉ màn hình đen
 Chỉ lần bay **đầu tiên** sang Đức (chuyến về ăn Tết ở chương 5 vẫn là màn chuyển cảnh). Hãng bay là hãng tưởng tượng: **Sông Hồng Air (SH)** và **Rheinflug (RF)**. Số ghế, số hiệu chuyến nối và cổng được bốc ngẫu nhiên một lần cho mỗi người chơi (cờ `fly.seed`), nên thẻ, bảng điện tử và màn hình ở cổng luôn khớp nhau.
 
-**Cổng 7 Nội Bài** (bảng: "MÜNCHEN ✈ 23:45 · SH 701 · Gate 7 · nối chuyến đi Frankfurt"): quẹt thẻ → đồng hồ nhảy tới **23:15** (chuyến bay đêm; không bao giờ lùi giờ) → **thẻ lên máy bay** hiện ra:
-- Chặng 1: **HAN → MUC, SH 701**, lên máy bay 23:15, cất cánh 23:45, cổng 7, **ghế** (ví dụ 27E, hàng 22–31).
-- Chặng 2: **MUC → FRA, RF 20xx**, lên máy bay 09:10, cất cánh 09:40, **cổng: "—"** (xem bảng điện tử ở München).
+**Cổng 7 Nội Bài** (bảng: "FRANKFURT ✈ 23:45 · SH 701 · Gate 7 · nối chuyến đi München"): quẹt thẻ → đồng hồ nhảy tới **23:15** (chuyến bay đêm; không bao giờ lùi giờ) → **thẻ lên máy bay** hiện ra:
+- Chặng 1: **HAN → FRA, SH 701**, lên máy bay 23:15, cất cánh 23:45, cổng 7, **ghế** (ví dụ 27E, hàng 22–31).
+- Chặng 2: **FRA → MUC, RF 20xx**, lên máy bay 09:10, cất cánh 09:40, **cổng: "—"** (xem bảng điện tử ở Frankfurt).
 - Thẻ nằm trong balo (giấy tờ quan trọng) và có nút **vé** trên thanh công cụ cho tới khi đặt chân đến Đức.
 
 **Ống lồng + khoang máy bay** (cảnh `plane`, ban đêm, sân đỗ phía dưới): đi hết ống lồng, rẽ vào cửa trước bên trái.
@@ -371,11 +371,11 @@ Chỉ lần bay **đầu tiên** sang Đức (chuyến về ăn Tết ở chươ
 - Hàng 20–33, mỗi hàng 3 + 3 ghế; biển "27 · A B C" / "27 · D E F" treo trên lối đi. Có 15 hành khách ngồi sẵn; anh Khôi (tiếp viên) đứng cuối khoang.
 - Đứng cạnh một ghế trống → **"Ghế 27E · Ngồi xuống"**.
   - **Sai ghế:** ngồi xuống, rồi "Một hành khách đến: „Entschuldigung… xin lỗi, 25A là ghế của tôi!" Xem lại thẻ lên máy bay nhé." (đứng dậy, cờ `fly.wrongSeat` +1). **Từ lần sai thứ 3** → tiếp viên: "Anh/chị mở thẻ lên máy bay (nút vé) xem lại số ghế nhé — số là hàng, chữ là vị trí trong hàng. Biển số hàng treo ngay trên lối đi ạ." (không nói đáp án).
-  - **Đúng ghế:** "Đúng ghế 27E! Thắt dây an toàn, tắt điện thoại… Máy bay bắt đầu lăn bánh." → màn đêm: "✈ Bay đêm SH 701: Hà Nội → München · 11 tiếng trên trời… Hạ cánh 06:05 giờ Đức" → sáng hôm sau **06:05**.
+  - **Đúng ghế:** "Đúng ghế 27E! Thắt dây an toàn, tắt điện thoại… Máy bay bắt đầu lăn bánh." → màn đêm: "✈ Bay đêm SH 701: Hà Nội → Frankfurt · 11 tiếng trên trời… Hạ cánh 06:05 giờ Đức" → sáng hôm sau **06:05**.
 
-**Sân bay München — transit** (cảnh `transit`, ở Đức → ví chuyển sang Euro; ở đây và trên máy bay **không bị "ngủ gục"** dù đồng hồ ở 2–7 giờ sáng):
+**Sân bay Frankfurt — transit** (cảnh `transit`, ở Đức → ví chuyển sang Euro; ở đây và trên máy bay **không bị "ngủ gục"** dù đồng hồ ở 2–7 giờ sáng):
 1. **Hành lang đến:** biển đôi — xanh lá "← Ausgang · Exit / Gepäckausgabe · Baggage claim", vàng "↓ Anschlussflüge · Flight connections".
-   - Bấm cửa **Ausgang** → "Lối này ra ngoài lấy hành lý (Gepäckausgabe). Vali của bạn đã được gửi thẳng tới Frankfurt — đi theo biển vàng „Anschlussflüge / Flight connections" mới đúng!"
+   - Bấm cửa **Ausgang** → "Lối này ra ngoài lấy hành lý (Gepäckausgabe). Vali của bạn đã được gửi thẳng tới München — đi theo biển vàng „Anschlussflüge / Flight connections" mới đúng!"
 2. **Passkontrolle** (cửa chắn kính, hai làn):
    - Làn **"EU · EWR · CH — Nur EU-Bürger"**, bà Hoffmann: „Dieser Schalter ist nur für EU-Bürger. Mit einem vietnamesischen Pass gehen Sie bitte zum Schalter Alle Pässe — dort drüben." (Quầy này chỉ dành cho công dân EU…)
    - Làn **"Alle Pässe · All passports"**, ông Krüger (Bundespolizei): „Guten Morgen! Der Nächste, bitte. Ihren Reisepass?"
@@ -383,19 +383,19 @@ Chỉ lần bay **đầu tiên** sang Đức (chuyến về ăn Tết ở chươ
        - „Guten Morgen. Ihren Reisepass, bitte." — ✅ "Guten Morgen! Hier, bitte." · 🟡 (đưa cả xấp giấy tờ) → "Nur den Pass, bitte." · ❌ "Passport? Yes, yes!"
        - „Was ist der Zweck Ihrer Reise?" — ✅ "Ich mache eine Ausbildung oder ein Studium hier. Hier ist mein Visum." · 🟡 "Urlaub!" → "Mit diesem Visum?" · ❌ "Ich weiß nicht…"
        - „Wie lange bleiben Sie in Deutschland?" — ✅ "Mehrere Jahre — so lange wie meine Ausbildung oder mein Studium." · 🟡 "Für immer!" · ❌ "Zwei Wochen." → "Das passt nicht zu Ihrem Visum."
-       - „Wo werden Sie wohnen?" — ✅ "Zuerst in Lindenberg, in einer WG. Die Adresse habe ich hier." · 🟡 "In einem Hotel, glaube ich." · ❌ "Keine Ahnung."
+       - „Wo werden Sie wohnen?" — ✅ "Zuerst in München, in einer WG. Die Adresse habe ich hier." · 🟡 "In einem Hotel, glaube ich." · ❌ "Keine Ahnung."
        - „Haben Sie genug Geld für die ersten Wochen?" — ✅ "Ja, ich habe Euro dabei und mein Gehalt kommt bald." · 🟡 "Mein Geld ist noch in Vietnam." · ❌ "Nein."
-       - „Wohin fliegen Sie jetzt weiter?" — ✅ "Nach Frankfurt, mit dem Anschlussflug." → "Dann beeilen Sie sich!" · 🟡 "Ich bleibe in München." · ❌ "Nach Hause."
+       - „Wohin fliegen Sie jetzt weiter?" — ✅ "Nach München, mit dem Anschlussflug." → "Dann beeilen Sie sich!" · 🟡 "Ich bleibe in Frankfurt." · ❌ "Nach Hause."
      - Qua: "„Willkommen in Deutschland!" — Cộp! Dấu nhập cảnh đã đóng vào hộ chiếu. Cửa chắn mở." · Trượt: "Ông Krüger nhíu mày: „Noch einmal, bitte — langsam."" (nói chuyện lại, làm lại).
      - "„Entschuldigung, langsamer bitte?"" → „Na klar. Rei-se-pass, bit-te." (ông ấy mỉm cười chờ).
-3. **Sảnh transit:** Duty Free, quầy "Brezel & Kaffee", ghế chờ, **bảng điện tử "Abflug · Departures"** giữa sảnh (bấm "Xem bảng điện tử" để đọc to trên điện thoại). 9 chuyến 06:20–11:25, cột Zeit / Flug / Ziel / Gate / Bemerkung (Gestartet = đã cất cánh, Boarding = đang lên máy bay, Gate offen = cổng đã mở, Verspätet = trễ, Letzter Aufruf = gọi lần cuối, Planmäßig = đúng giờ). **Bẫy:** có **hai chuyến đi Frankfurt** — một chuyến sớm (06:20, số hiệu gần giống, đang Boarding ngay lúc bạn tới) và chuyến của bạn (09:40); thêm một chuyến số hiệu đảo hai chữ số cuối (ví dụ RF 2074 đi Paris).
+3. **Sảnh transit:** Duty Free, quầy "Brezel & Kaffee", ghế chờ, **bảng điện tử "Abflug · Departures"** giữa sảnh (bấm "Xem bảng điện tử" để đọc to trên điện thoại). 9 chuyến 06:20–11:25, cột Zeit / Flug / Ziel / Gate / Bemerkung (Gestartet = đã cất cánh, Boarding = đang lên máy bay, Gate offen = cổng đã mở, Verspätet = trễ, Letzter Aufruf = gọi lần cuối, Planmäßig = đúng giờ). **Bẫy:** có **hai chuyến đi München** — một chuyến sớm (06:20, số hiệu gần giống, đang Boarding ngay lúc bạn tới) và chuyến của bạn (09:40); thêm một chuyến số hiệu đảo hai chữ số cuối (ví dụ RF 2074 đi Paris).
 4. **Hai dãy cổng:** biển "← G 10 – G 14 · Flugsteige · Gates · H 27 – H 31 →". Mỗi cổng có quầy, nhân viên, số cổng và **màn hình riêng** (chuyến kế tiếp ở cổng đó).
-   - Cổng của chuyến Frankfurt kia: "„Das ist RF 2041 — Ihr Flug ist RF 2047." Chuyến này cũng đi Frankfurt nhưng là số hiệu khác! Xem lại bảng điện tử."
+   - Cổng của chuyến München kia: "„Das ist RF 2041 — Ihr Flug ist RF 2047." Chuyến này cũng đi München nhưng là số hiệu khác! Xem lại bảng điện tử."
    - Cổng khác: "„Dieser Flug geht nach Wien." (Chuyến ở cổng H27 bay đi Wien.) Không phải chuyến của bạn — xem lại bảng điện tử." · Cổng trống: "Cổng … đang trống…"
-   - **Đúng cổng:** "„RF 2047 nach Frankfurt — richtig! Gute Reise!" (Đúng chuyến rồi, chúc đi vui vẻ!)" → "✈ RF 2047 München → Frankfurt · Rồi tàu ICE về Lindenberg… Chào nước Đức!" → Lindenstraße, khoảng **12:00** cùng ngày (`de.arrived`).
-- Hướng dẫn (mũi tên) chỉ đường chung chung (giữa lối đi, bảng điện tử, chỗ rẽ G/H) — **việc đọc số ghế, số hiệu chuyến bay và cổng là của người chơi.** Gợi ý trên máy bay chỉ nói "xem số ghế trên thẻ"; gợi ý ở München chỉ ghi cổng sau khi đã đọc bảng.
+   - **Đúng cổng:** "„RF 2047 nach München — richtig! Gute Reise!" (Đúng chuyến rồi, chúc đi vui vẻ!)" → "✈ RF 2047 Frankfurt → München · Rồi S-Bahn vào trung tâm… Chào München, chào nước Đức!" → Lindenstraße, khoảng **12:00** cùng ngày (`de.arrived`).
+- Hướng dẫn (mũi tên) chỉ đường chung chung (giữa lối đi, bảng điện tử, chỗ rẽ G/H) — **việc đọc số ghế, số hiệu chuyến bay và cổng là của người chơi.** Gợi ý trên máy bay chỉ nói "xem số ghế trên thẻ"; gợi ý ở Frankfurt chỉ ghi cổng sau khi đã đọc bảng.
 - Xem lại thẻ lúc nào cũng được: nút vé trên thanh công cụ, hoặc balo → "Thẻ lên máy bay" (hiện "Ghế 27E" + nút "Xem thẻ").
-- Không có bản đồ trên máy bay và trong sân bay (bản đồ chỉ có ở phố Hà Nội và Lindenberg).
+- Không có bản đồ trên máy bay và trong sân bay (bản đồ chỉ có ở phố Hà Nội và München).
 
 ---
 
@@ -599,11 +599,11 @@ Trò chơi: Bin làm bài, bạn phải tìm lỗi sai trong lời giải trư�
 ## 3. Chương 3 · Đặt chân đến Đức
 
 ### Lời dẫn ✈️
-> Mười hai tiếng bay. Cửa máy bay mở ra, không khí lạnh và lạ. Không còn tiếng còi xe máy, không còn trà đá vỉa hè. Lindenstraße đón bạn bằng hàng cây đoạn, chiếc tram màu vàng và một núi giấy tờ mới: phòng ở, Anmeldung, ngân hàng, bảo hiểm.
+> Mười hai tiếng bay. Cửa máy bay mở ra, không khí lạnh và lạ. Không còn tiếng còi xe máy, không còn trà đá vỉa hè. München đón bạn bằng hai tháp Frauenkirche, tiếng chuông Glockenspiel ở Marienplatz, con phố Lindenstraße rợp cây đoạn với chiếc tram màu vàng — và một núi giấy tờ mới: phòng ở, Anmeldung, ngân hàng, bảo hiểm.
 >
 > *"Aller Anfang ist schwer." — Mọi khởi đầu đều khó.*
 
-Đến nơi: sáng hôm sau, 9:00, Lindenstraße (thành phố Lindenberg), +10 tâm trạng. Chưa có phòng thì ngủ hostel (25 €/đêm).
+Đến nơi: sáng hôm sau, 9:00, Lindenstraße (München), +10 tâm trạng. Chưa có phòng thì ngủ hostel (25 €/đêm).
 
 ### 3.1 Chào nước Đức! `arrival`
 1. Tìm phòng: WG-Casting ở Lindenstraße 12 `arr.wg` (tiền phòng 95 €/tuần)
@@ -638,6 +638,37 @@ Trò chơi: Bin làm bài, bạn phải tìm lỗi sai trong lời giải trư�
 - Đổi hết tiền Việt sang Euro.
 
 ---
+
+### 3.2 🆕 (1.44) Thành phố München — bản đồ & Pfand
+
+**Bản đồ München** (rộng gần bằng bản đồ Hà Nội; Lindenstraße là một con phố trong thành phố, giữ nguyên vị trí cũ):
+- Phía tây Lindenstraße: **Hauptbahnhof** (ga trung tâm: đi S-Bahn tới chỗ làm / đại học, máy trả Pfand trong ga), taxi màu kem, lối xuống U-Bahn.
+- Sau đài phun nước phía tây: **Sendlinger Tor** → phố **Sendlinger Straße** lên phía bắc.
+- **Phố đi bộ Neuhauser / Kaufingerstraße** từ **Karlstor** (cổng thành, đài phun nước Stachus) tới **Marienplatz**.
+- **Marienplatz**: Neues Rathaus với tháp **Glockenspiel** (11h, 12h, 17h — các hình nhân trên tháp nhảy múa 15 phút, chuông vang), **Mariensäule** (cột Đức Mẹ vàng), Fischbrunnen, Altes Rathaus, U-Bahn Marienplatz, quán cà phê.
+- **Frauenkirche** (hai tháp mũ xanh) ở Frauenplatz, phía tây Marienplatz.
+- **Viktualienmarkt** (sau Altes Rathaus, ngay phía bắc Stadtpark): sạp rau quả, cây **Maibaum** sọc xanh-trắng, vườn bia dưới tán dẻ; **Hofbräuhaus** ở Platzl (mua Brezel, Schorle).
+- **Maximilianstraße** (đường lớn có xe) → cầu Maximiliansbrücke qua sông Isar → **Maximilianeum** bên kia sông.
+- **Odeonsplatz**: Feldherrnhalle (hai con sư tử), **Theatinerkirche** vàng, Residenz; **Hofgarten** với đền Diana.
+- **Prinzregentenstraße** (đường lớn) → Luitpoldbrücke → **Friedensengel** (thiên thần vàng) bờ đông.
+- **Ludwigstraße**: **Đại học LMU** (sinh viên nhánh Studium đi bộ vào giảng đường được, khỏi đi tram), hai đài phun nước, **Siegestor**.
+- **Englischer Garten**: **Haus der Kunst**, **sóng Eisbach** có người lướt sóng, cầu gỗ, đồi **Monopteros**, **Chinesischer Turm** + vườn bia (mua Brezel, Apfelschorle, kem).
+- **Sông Isar** dọc phía đông: lối đi ven sông, **bãi sỏi** (người ngồi phơi nắng), ba cây cầu, bờ đông; nhìn sang **Deutsches Museum** và nhà tắm Müllersches Volksbad.
+
+**Nhiệm vụ phụ "Khám phá München"** (chương 4, sau khi đến Đức): đứng ở mỗi địa danh → nút **"Ngắm cảnh"** → một đoạn giới thiệu ngắn (cờ `muc.seen.<id>`, đếm "Khám phá München: n/19").
+1. Marienplatz: ngắm Neues Rathaus (Glockenspiel) `muc.rathaus`
+2. Ngắm hai tháp Frauenkirche `muc.frauenkirche`
+3. Dạo chợ Viktualienmarkt, xem cây Maibaum `muc.markt`
+4. Englischer Garten: xem lướt sóng Eisbach `muc.eisbach`
+5. Ra bãi sỏi bờ sông Isar `muc.isar`
+6. Ngắm hết 19 địa danh `muc.all` → thành tích **"Dân München" 🥨**
+(19 địa danh: Neues Rathaus, Mariensäule, Frauenkirche, Karlstor, Sendlinger Tor, Hauptbahnhof, Viktualienmarkt, Hofbräuhaus, Feldherrnhalle, Theatinerkirche, Hofgarten, Haus der Kunst, sóng Eisbach, Monopteros, Chinesischer Turm, Siegestor, LMU, bờ Isar, Friedensengel.)
+
+**Nhặt Pfand khắp München:**
+- Chai xuất hiện **ngẫu nhiên** ở ~80 chỗ hợp lý (vỉa hè, cạnh ghế đá, quảng trường, vườn bia, bãi cỏ, bãi sỏi bờ Isar…), **cùng lúc tối đa 10 chai**; đầu tiên có 3 chai, rồi cứ 20–45 giây thêm một chai (không bao giờ hiện ngay dưới chân ai). Chai nằm lâu không ai nhặt (5–9 phút) thì **biến mất**.
+- **Chơi online:** máy chủ rải chai cho cả phòng — **mọi người chơi cùng phòng thấy cùng những chai đó**, ai tới trước nhặt trước. **Chai Pfand vàng: 1/1000.**
+- **Chơi offline** (không tài khoản, chơi thử, mất mạng): game tự rải chai theo cùng luật, **chai vàng 1/5**.
+- Đi qua chai là nhặt (nếu ba lô còn chỗ, mỗi chai 0,35 kg). Trả ở máy Pfand (siêu thị Lindenstraße hoặc ga Hauptbahnhof): **0,25 €/chai**, **chai vàng 10 €** (lấp lánh, tự xoay — nhìn từ xa đã thấy). Thành tích **"Chai Pfand vàng" ✨**.
 
 ## 4. Chương 4 · Học nghề / Đại học ở Đức ⟵ **HAI NHÁNH**
 
@@ -679,10 +710,10 @@ Trò chơi: Bin làm bài, bạn phải tìm lỗi sai trong lời giải trư�
 - Cụ sa sút trí tuệ đi tìm mẹ · Huyết áp bình thường? · Bàn giao ca chiều thế nào?
 - Ông Krause không chịu ăn · Ai thuộc đội ngũ viện dưỡng lão? · Vì sao bạn trở thành điều dưỡng? · Một cụ đột nhiên bị sốt.
 
-### 4B. Nhánh STUDIUM (Đại học Lindenberg — cử nhân điều dưỡng, vừa học vừa làm)
+### 4B. Nhánh STUDIUM (Đại học LMU München — cử nhân điều dưỡng, vừa học vừa làm)
 
 **Sinh viên năm nhất** `uniStart`
-1. Nhập học ở Đại học Lindenberg (đi tram, phí học kỳ 320 € gồm vé tàu cả kỳ) `uni.enroll`
+1. Nhập học ở Đại học LMU München (đi tram, phí học kỳ 320 € gồm vé tàu cả kỳ) `uni.enroll`
 2. Nghe bài giảng đầu tiên của GS. Schulz `uni.first`
 3. Làm Werkstudent: một ca ở viện dưỡng lão Sonnenhof `uni.job`
 
@@ -728,14 +759,14 @@ Trò chơi: Bin làm bài, bạn phải tìm lỗi sai trong lời giải trư�
 4. Uống Kaffee với Bà Gerda `lo.kaffee`
 
 **Bà Gerda** (cảm động nhất chương 4):
-- "Guten Tag! Bạn mới đến Lindenberg à? Ngồi đây với bà một lát, xem lũ vịt kìa."
+- "Guten Tag! Bạn mới đến München à? Ngồi đây với bà một lát, xem lũ vịt kìa."
 - Dạy từ: die Ente (vịt), der Igel (nhím), die Sternschnuppe (sao băng), die Schaukel, der Teich, Gänseblümchen.
 - Cảnh Kaffee: "Bà có mang theo bình Kaffee với bánh táo tự nướng. Ngồi xuống đây… Từ ngày ông Heinz mất, mấy đứa cháu thì ở tận Úc, bà ít khi có ai nói chuyện. Cảm ơn cháu đã ngồi với bà mấy hôm nay."
 - "Ở Đức người ta có chữ 'Leih-Oma' — bà ngoại 'mượn'. Cháu có muốn chủ nhật nào cũng ra đây uống Kaffee với bà không?"
   - "Dạ có! Từ nay bà là bà của cháu 💛" (cờ `gerda.friend`, hiện ở phần kết)
 - Sau đó:
   - "Mein Schatz! Hôm nay ăn gì chưa? Bà để dành cho cháu miếng bánh táo đây."
-  - "Bà kể với hội bạn ở nhà thờ về cháu suốt — người điều dưỡng Việt Nam giỏi nhất Lindenberg!"
+  - "Bà kể với hội bạn ở nhà thờ về cháu suốt — người điều dưỡng Việt Nam giỏi nhất München!"
 - Chú nhím Herbert ở góc công viên.
 
 **Nhân vật khác ở Đức:**
@@ -795,7 +826,7 @@ Thẻ kết thúc ghi số liệu (tiền tiết kiệm…) và **các dòng k�
 
 | Điều kiện | Dòng kết |
 |---|---|
-| Đi Studium | 🎓 Bạn đã đi con đường đại học: cử nhân điều dưỡng ở Lindenberg, vừa học vừa làm Werkstudent. |
+| Đi Studium | 🎓 Bạn đã đi con đường đại học: cử nhân điều dưỡng ở München, vừa học vừa làm Werkstudent. |
 | Đi Ausbildung | 🩺 Bạn đã đi con đường học nghề: ba năm Ausbildung ở Sonnenhof, từ học viên thành Pflegefachkraft. |
 | 🆕 Từng nợ đến mức 3 rồi trả hết | 🏠 Có lúc căn nhà vàng ở Hàng Gai mất cả tivi lẫn chiếc xe Wave của bố. Bạn đã trả hết từng đồng — giờ đồng hồ lại tích tắc trên tường. |
 | 🆕 Ký Cầu nối | 🤝 Chương trình Cầu nối Sonnenhof đã đưa bạn sang Đức; hai năm làm việc ở Sonnenhof hóa ra là hai năm đẹp nhất. |

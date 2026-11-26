@@ -102,6 +102,11 @@ export function Lighting() {
       scene.fog.color.copy(s.fog).lerp(RAIN_FOG, grey)
       scene.fog.near = 30 - rain * 8 - fog * 22
       scene.fog.far = 80 - rain * 22 - fog * 46
+      // dev: overview screenshots of a whole map (tests set window.__noFog)
+      if (import.meta.env.DEV && (window as { __noFog?: boolean }).__noFog) {
+        scene.fog.near = 400
+        scene.fog.far = 900
+      }
     }
     if (hemi.current) {
       hemi.current.color.copy(s.hemiSky)

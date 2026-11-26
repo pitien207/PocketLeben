@@ -228,7 +228,7 @@ export const EXPLORE_DIALOGUES: Record<string, DialogueDef> = {
         text: [
           L('Mein Schatz! Hôm nay ăn gì chưa? Bà để dành cho cháu miếng bánh táo đây.', 'Mein Schatz! Have you eaten? I saved you a slice of apple cake.'),
           L('Herbert hôm qua lại ra chào bà đấy. Chắc nó nhớ cháu.', 'Herbert came out to say hello yesterday. He must miss you.'),
-          L('Bà kể với hội bạn ở nhà thờ về cháu suốt — người điều dưỡng Việt Nam giỏi nhất Lindenberg!', 'I keep telling my church friends about you — the best Vietnamese nurse in Lindenberg!'),
+          L('Bà kể với hội bạn ở nhà thờ về cháu suốt — người điều dưỡng Việt Nam giỏi nhất München!', 'I keep telling my church friends about you — the best Vietnamese nurse in München!'),
         ],
         choices: [
           { text: L('Bà dạy cháu thêm từ mới nhé (+XP)', 'Teach me more words (+XP)'), if: { not: { test: 'park.wordsToday' } }, effect: { type: 'action', id: 'park.words' }, next: 'words' },
@@ -237,7 +237,7 @@ export const EXPLORE_DIALOGUES: Record<string, DialogueDef> = {
       },
       hello: {
         text: [
-          L('Guten Tag! Bạn mới đến Lindenberg à? Ngồi đây với bà một lát, xem lũ vịt kìa.', 'Guten Tag! New in Lindenberg? Sit with me a moment — look at the ducks.'),
+          L('Guten Tag! Bạn mới đến München à? Ngồi đây với bà một lát, xem lũ vịt kìa.', 'Guten Tag! New in München? Sit with me a moment — look at the ducks.'),
           L('Ach, du schon wieder! Hôm nay lũ vịt (die Enten) đói lắm đấy.', 'Ach, you again! The ducks (die Enten) are hungry today.'),
         ],
         choices: [

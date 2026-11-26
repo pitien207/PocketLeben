@@ -150,7 +150,7 @@ export const CLOTHES: ClothingDef[] = [
   c('muetze', 'Mũ len Mütze', 'Beanie', 'hat', 'flohmarkt', 5, { accessory: 'beanie', accent: '#d4473b' }, '#d4473b'),
   c('lederjacke', 'Áo khoác da Lederjacke', 'Leather jacket', 'shirt', 'flohmarkt', 20, { shirt: '#5b4636', top: 'jacket' }, '#5b4636'),
   c('blazer', 'Áo vest Blazer (đi phỏng vấn)', 'Blazer (for interviews)', 'shirt', 'flohmarkt', 16, { shirt: '#2f3a4d', top: 'jacket' }, '#2f3a4d'),
-  c('uniHoodie', 'Hoodie Uni Lindenberg', 'Uni Lindenberg hoodie', 'shirt', 'flohmarkt', 14, { shirt: '#2c5aa0', top: 'hoodie' }, '#2c5aa0'),
+  c('uniHoodie', 'Hoodie LMU', 'LMU hoodie', 'shirt', 'flohmarkt', 14, { shirt: '#2c5aa0', top: 'hoodie' }, '#2c5aa0'),
   c('sommerkleid', 'Váy hè Sommerkleid', 'Summer dress', 'shirt', 'flohmarkt', 15, { shirt: '#a9d6ff', top: 'dress' }, '#a9d6ff'),
   c('schal', 'Khăn len Schal', 'Wool scarf', 'neck', 'flohmarkt', 6, { neck: 'scarf', neckColor: '#d4473b' }, '#d4473b'),
   c('krawatte', 'Cà vạt Krawatte', 'Tie', 'neck', 'flohmarkt', 5, { neck: 'tie', neckColor: '#2c5aa0' }, '#2c5aa0'),

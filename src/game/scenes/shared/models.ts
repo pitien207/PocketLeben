@@ -9,6 +9,18 @@ import interiorUrl from '../../../assets/models/interior.bin?url'
 import interiorJson from '../../../assets/models/interior.json'
 import farmUrl from '../../../assets/models/farm.bin?url'
 import farmJson from '../../../assets/models/farm.json'
+import townUrl from '../../../assets/models/town.bin?url'
+import townJson from '../../../assets/models/town.json'
+import facadeUrl from '../../../assets/models/facade.bin?url'
+import facadeJson from '../../../assets/models/facade.json'
+import streetUrl from '../../../assets/models/street.bin?url'
+import streetJson from '../../../assets/models/street.json'
+import towersUrl from '../../../assets/models/towers.bin?url'
+import towersJson from '../../../assets/models/towers.json'
+import citybitsUrl from '../../../assets/models/citybits.bin?url'
+import citybitsJson from '../../../assets/models/citybits.json'
+import urbanUrl from '../../../assets/models/urban.bin?url'
+import urbanJson from '../../../assets/models/urban.json'
 import type { Vec3 } from '../../../data/config'
 import type { ShapeItem } from './Shapes'
 
@@ -25,7 +37,15 @@ import type { ShapeItem } from './Shapes'
 
 /** 1.40 "food" = KayKit Restaurant Bits (CC0, tools/kaykit2props.mjs): pots, bowls, stools, tables, crates, jars… */
 /** 1.41 "interior" = Quaternius Ultimate House Interior (CC0): shelves, chairs, sofas, lamps, cabinets for the shop rooms (names start with i). */
-export type ModelPack = 'nature' | 'city' | 'food' | 'interior' | 'farm'
+/** 1.45 Kenney (CC0, tools/kenney2props.mjs): "town" = Fantasy Town Kit (stalls, fountains, lanterns, banners, hedges; names kt…),
+ * "facade" = Modular Buildings (town-house modules 1 × 0.625 × 1, front +z, Kenney origin; names kf…). */
+/** 1.46 "street" = Kenney City Kit Roads (electricity poles + wires, street / traffic lights, signs, cones; names kr…, Kenney
+ * size: a street light is 0.675), "towers" = Kenney City Kit Commercial (low-detail blocks, skyscrapers, awnings, parasols;
+ * names kc…), "citybits" = KayKit City Builder Bits (street furniture, water tower, small town houses; names c…). */
+/** 1.46 "urban" = Poly Haven (CC0, photo-textured props baked to flat colours by tools/polyhaven2props.mjs): power poles with
+ * transformers, aircon units, utility boxes, plastic crates / chairs, gas tanks, lamps, pots, brass incense pot, Chinese
+ * stool / armchair, barrels, roller shutter, hydrant, seating (names u…; real-world metres; groups c0 = darkest…). */
+export type ModelPack = 'nature' | 'city' | 'food' | 'interior' | 'farm' | 'town' | 'facade' | 'street' | 'towers' | 'citybits' | 'urban'
 interface Group {
   mat: string
   color: string
@@ -50,13 +70,19 @@ const PACKS: Record<ModelPack, { url: string; data: Manifest }> = {
   interior: { url: interiorUrl, data: interiorJson as unknown as Manifest },
   /** 1.42 Quaternius Crops (CC0): vegetables, grass, bamboo, an orange tree (names start with f). */
   farm: { url: farmUrl, data: farmJson as unknown as Manifest },
+  town: { url: townUrl, data: townJson as unknown as Manifest },
+  facade: { url: facadeUrl, data: facadeJson as unknown as Manifest },
+  street: { url: streetUrl, data: streetJson as unknown as Manifest },
+  towers: { url: towersUrl, data: towersJson as unknown as Manifest },
+  citybits: { url: citybitsUrl, data: citybitsJson as unknown as Manifest },
+  urban: { url: urbanUrl, data: urbanJson as unknown as Manifest },
 }
 
 const built = new Map<string, BufferGeometry[]>()
 const loading: Partial<Record<ModelPack, Promise<void>>> = {}
 const ready: Partial<Record<ModelPack, boolean>> = {}
 
-const PACK_ORDER: ModelPack[] = ['nature', 'city', 'food', 'interior', 'farm']
+const PACK_ORDER: ModelPack[] = ['nature', 'city', 'food', 'interior', 'farm', 'town', 'facade', 'street', 'towers', 'citybits', 'urban']
 const packOf = (name: string): ModelPack | null => PACK_ORDER.find((p) => name in PACKS[p].data.models) ?? null
 
 export const modelPackReady = (pack: ModelPack) => !!ready[pack]
@@ -84,6 +110,10 @@ export function loadModelPack(pack: ModelPack): Promise<void> {
             // Flat shading, like the rest of the low-poly world
             const flat = indexed.toNonIndexed()
             flat.computeVertexNormals()
+            // 1.45: a sliver triangle (its corners rounded to the same millimetre) has no normal → NaN light → the
+            // bloom of the fancy look spread the NaN over the whole screen (all white). Give it an upward normal.
+            const nrm = flat.attributes.normal.array as Float32Array
+            for (let k = 0; k < nrm.length; k += 3) if (!(Math.abs(nrm[k]) + Math.abs(nrm[k + 1]) + Math.abs(nrm[k + 2]) > 1e-6)) nrm[k + 1] = 1
             indexed.dispose()
             return flat
           }),

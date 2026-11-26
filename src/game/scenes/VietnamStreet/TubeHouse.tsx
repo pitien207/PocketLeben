@@ -7,6 +7,8 @@ import { place, softPlantShapes, stoolShapes } from '../shared/props'
 import { Shapes, type ShapeItem } from '../shared/Shapes'
 import { SignBoard } from '../shared/SignBoard'
 import type { SignOptions } from '../shared/textures'
+import { seeded } from './decorHouses'
+import { bougainvilleaLib, hanoiHouse } from './hanoiHouses'
 
 export interface HousePalette {
   wall: string
@@ -79,28 +81,11 @@ function groceryShapes(openW: number, f: number): ShapeItem[] {
 
 const FLOOR_H = 2.8
 
-/** A narrow, deep "nhà ống": shop-front ground floor, balconies above; Old Quarter tiled roof or a water tank. */
-function tubeHouseShapes(o: TubeHouseOptions): ShapeItem[] {
-  // (grocery front replaces the dark doorway, shutter and stools below)
-  const { width: w, depth: d, floors, palette: c } = o
-  const H = floors * FLOOR_H
-  const f = d / 2 // front face z
-  const s: ShapeItem[] = []
-
-  // Main block + roof parapet
-  s.push({ box: [w, H, d], at: [0, H / 2, 0], color: c.wall })
-  if (o.oldQuarter) {
-    // Eave moulding under the tiled roof
-    s.push({ box: [w + 0.16, 0.18, 0.3], at: [0, H + 0.02, f + 0.05], color: c.trim })
-  } else {
-    s.push({ box: [w + 0.12, 0.6, 0.2], at: [0, H + 0.3, f - 0.1], color: c.trim })
-    s.push({ box: [w * 0.36, 0.32, 0.22], at: [0, H + 0.75, f - 0.1], color: c.trim })
-    s.push({ cyl: [0.12, 0.12, 0.08, 10], at: [0, H + 0.75, f + 0.02], rot: [Math.PI / 2, 0, 0], color: c.accent })
-  }
-  s.push({ box: [0.16, 0.45, d - 0.2], at: [-w / 2 + 0.08, H + 0.22, 0], color: c.trim })
-  s.push({ box: [0.16, 0.45, d - 0.2], at: [w / 2 - 0.08, H + 0.22, 0], color: c.trim })
-  s.push({ box: [w, 0.45, 0.16], at: [0, H + 0.22, -f + 0.08], color: c.trim })
-
+/** The hand-built ground floor (open shop front, grocery, wooden folding doors, number plate, stools) — 1.46 also used in
+ * front of the library facade, because shop doors, signs and goods belong to the game's places. */
+function tubeGroundShapes(o: TubeHouseOptions, s: ShapeItem[]) {
+  const { width: w, depth: d, palette: c } = o
+  const f = d / 2
   // Ground floor: open shop-front with a half-rolled shutter
   const openW = w * 0.78
   const sideW = (w - openW) / 2
@@ -139,6 +124,35 @@ function tubeHouseShapes(o: TubeHouseOptions): ShapeItem[] {
     s.push(place(stoolShapes(P.coral), [openW * 0.32, 0, f - 0.25]))
     s.push(place(stoolShapes(P.sky2), [openW * 0.32, 0.31, f - 0.25]))
   }
+
+}
+
+/** A narrow, deep "nhà ống": shop-front ground floor, balconies above; Old Quarter tiled roof or a water tank. */
+function tubeHouseShapes(o: TubeHouseOptions): ShapeItem[] {
+  // 1.46: library facade above a hand-built shop floor; the old all-primitive house is the fallback
+  const lib = libraryTubeHouse(o)
+  if (lib) return lib
+  // (grocery front replaces the dark doorway, shutter and stools below)
+  const { width: w, depth: d, floors, palette: c } = o
+  const H = floors * FLOOR_H
+  const f = d / 2 // front face z
+  const s: ShapeItem[] = []
+
+  // Main block + roof parapet
+  s.push({ box: [w, H, d], at: [0, H / 2, 0], color: c.wall })
+  if (o.oldQuarter) {
+    // Eave moulding under the tiled roof
+    s.push({ box: [w + 0.16, 0.18, 0.3], at: [0, H + 0.02, f + 0.05], color: c.trim })
+  } else {
+    s.push({ box: [w + 0.12, 0.6, 0.2], at: [0, H + 0.3, f - 0.1], color: c.trim })
+    s.push({ box: [w * 0.36, 0.32, 0.22], at: [0, H + 0.75, f - 0.1], color: c.trim })
+    s.push({ cyl: [0.12, 0.12, 0.08, 10], at: [0, H + 0.75, f + 0.02], rot: [Math.PI / 2, 0, 0], color: c.accent })
+  }
+  s.push({ box: [0.16, 0.45, d - 0.2], at: [-w / 2 + 0.08, H + 0.22, 0], color: c.trim })
+  s.push({ box: [0.16, 0.45, d - 0.2], at: [w / 2 - 0.08, H + 0.22, 0], color: c.trim })
+  s.push({ box: [w, 0.45, 0.16], at: [0, H + 0.22, -f + 0.08], color: c.trim })
+
+  tubeGroundShapes(o, s)
 
   // Upper floors: balcony, railing, glass door, louvred shutters, plants
   const doorW = w * 0.42
@@ -242,6 +256,47 @@ function tubeHouseShapes(o: TubeHouseOptions): ShapeItem[] {
     s.push(place(softPlantShapes(P.leaf, c.accent), [-w / 2 + 0.6, H, f - 0.8], 0, 1.1))
   }
 
+  return s
+}
+
+function libraryTubeHouse(o: TubeHouseOptions): ShapeItem[] | null {
+  const { width: w, depth: d, floors, palette: c } = o
+  const seed = Math.round(w * 1000 + d * 10 + floors) + c.wall.charCodeAt(2) * 7 + c.shutter.charCodeAt(3)
+  const r = seeded(seed)
+  const lib = hanoiHouse(o.oldQuarter ? 'tubeTiled' : 'tube', w, d, r, {
+    floors,
+    fh: FLOOR_H,
+    wall: c.wall,
+    rail: c.railing,
+    awning: c.shutter,
+    ground: false,
+    roofTank: !!o.roofTank,
+    airCon: !!o.airCon,
+  })
+  if (!lib) return null
+  const s = lib
+  const f = d / 2
+  // a cornice between the shop floor and the balconies, like the old houses
+  s.push({ box: [w + 0.12, 0.2, 0.3], at: [0, FLOOR_H, f + 0.05], color: c.trim })
+  tubeGroundShapes(o, s)
+  if (o.oldQuarter) {
+    s.push({ box: [w + 0.02, 0.55, 0.03], at: [0, 0.27, f + 0.005], color: '#c99a52' })
+    for (let m = 0; m < 2; m++) {
+      s.push({ box: [0.22, 0.28, 0.1], at: [-w / 2 + 0.38 + m * 0.26, 2.75, f + 0.08], color: '#d9d6cf' })
+      s.push({ box: [0.12, 0.08, 0.02], at: [-w / 2 + 0.38 + m * 0.26, 2.8, f + 0.14], color: '#7fb8e8' })
+    }
+  }
+  if (o.flag) {
+    const fy = FLOOR_H + 1.9
+    const fx = w / 2 - 0.35
+    s.push({ cyl: [0.025, 0.025, 1.5, 6], at: [fx, fy, f + 0.55], rot: [0.75, 0, 0], color: '#c9c3b8' })
+    s.push({ box: [0.03, 0.42, 0.62], at: [fx, fy + 0.25, f + 0.95], rot: [0.12, 0, 0], color: '#da251d' })
+    s.push({ ico: [0.07, 0], at: [fx + 0.02, fy + 0.27, f + 0.94], scale: [0.3, 1, 1], color: '#ffde00' })
+  }
+  if (o.bougainvillea) {
+    const b = bougainvilleaLib(w, f, FLOOR_H * 2, seeded(seed + 5))
+    if (b) s.push(...b)
+  }
   return s
 }
 

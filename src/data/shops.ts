@@ -62,6 +62,26 @@ export const SHOPS = {
     items: ['apfelschorle', 'brezel', 'kaffee', 'spaghettiEis'],
     hours: [10, 22],
   },
+  // 1.44 München (scenes/GermanyStreet/MunichLife.tsx)
+  hofbraeuhaus: {
+    id: 'hofbraeuhaus',
+    name: { vi: 'Hofbräuhaus', en: 'Hofbräuhaus', de: 'Hofbräuhaus' },
+    items: ['brezel', 'apfelschorle', 'schorle', 'kaffee'],
+    hours: [10, 24],
+  },
+  biergarten: {
+    id: 'biergarten',
+    name: { vi: 'Vườn bia Chinesischer Turm', en: 'Chinese Tower beer garden', de: 'Biergarten am Chinesischen Turm' },
+    items: ['brezel', 'apfelschorle', 'spaghettiEis'],
+    hours: [10, 22],
+  },
+  viktualienmarkt: {
+    id: 'viktualienmarkt',
+    name: { vi: 'Chợ Viktualienmarkt', en: 'Viktualienmarkt', de: 'Viktualienmarkt' },
+    items: ['broetchen', 'kuchen', 'apfelschorle', 'brezel'],
+    hours: [8, 20],
+    closedSunday: true,
+  },
   eiswagen: {
     id: 'eiswagen',
     name: { vi: 'Xe kem Luca', en: 'Luca’s ice-cream cart', de: 'Lucas Eiswagen' },

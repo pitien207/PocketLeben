@@ -33,9 +33,12 @@ export const ACHIEVEMENTS: AchievementDef[] = [
   A('careHeart', '💗', 'Trái tim điều dưỡng', 'Heart of care', 'Một ca chăm sóc với 100% hài lòng', 'A care shift at 100% satisfaction', { flag: 'achv.perfectCare' }),
   A('pfand50', '🍾', 'Thợ săn Pfand', 'Pfand hunter', 'Trả 50 chai Pfand', 'Return 50 Pfand bottles', { flag: 'stats.bottles', atLeast: 50 }),
   A('pfandKoenig', '👑', 'Pfandkönig', 'Pfand king', 'Trả 1.000 chai Pfand', 'Return 1,000 Pfand bottles', { flag: 'stats.bottles', atLeast: 1000 }),
+  // 1.44 München
+  A('pfandGold', '✨', 'Chai Pfand vàng', 'Golden bottle', 'Nhặt được một chai Pfand vàng', 'Find a golden Pfand bottle', { flag: 'stats.goldBottles', atLeast: 1 }),
+  A('muenchner', '🥨', 'Dân München', 'Münchner', 'Ngắm hết các địa danh của München', 'See every sight of Munich', { test: 'muc.allSeen' }),
   A('schwarzfahrer', '🎫', 'Đi tàu chui…', 'Fare dodger…', 'Đi tàu không có vé', 'Ride without a ticket', { flag: 'stats.schwarzfahren', atLeast: 1 }),
   A('nightOwl', '🦉', 'Cú đêm', 'Night owl', 'Ngủ gục ngoài đường một lần', 'Fall asleep on the street once', { flag: 'stats.passedOut', atLeast: 1 }),
-  A('student', '🎒', 'Sinh viên Đức', 'Student in Germany', 'Nhập học ở Đại học Lindenberg', 'Enrol at Lindenberg University', { flag: 'uni.enrolled' }),
+  A('student', '🎒', 'Sinh viên Đức', 'Student in Germany', 'Nhập học ở Đại học LMU München', 'Enrol at LMU Munich', { flag: 'uni.enrolled' }),
   A('bachelor', '🎓', 'Cử nhân!', 'Bachelor!', 'Bảo vệ thành công luận văn', 'Defend your Bachelor thesis', { flag: 'uni.degree' }),
   A('packMule', '🐪', 'Lạc đà thồ hàng', 'Pack mule', 'Nhồi ba lô đầy tới giới hạn', 'Fill your backpack to the limit', { flag: 'achv.bagFull' }),
   A('zwischen', '📝', 'Nửa chặng đường', 'Halfway there', 'Thi đậu giữa khóa', 'Pass the mid-term exam', { flag: 'care.zwischen' }),

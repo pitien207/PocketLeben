@@ -51,9 +51,9 @@ export const KEY_ITEMS: KeyItemDef[] = [
   K('certB1', 'certificate', 'Chứng chỉ B1', 'B1 certificate', 'Zertifikat B1', 'Cần cho visa, hợp đồng và định cư.', 'Needed for the visa, the contract and residence.', 0.02, { germanLevel: 3 }),
   K('visaFolder', 'folder', 'Hồ sơ visa', 'Visa folder', 'Visumsmappe', 'Giấy tờ, bản dịch, công chứng.', 'Documents, translations, certified copies.', 0.4, { all: [{ flag: 'visa.path' }, { noFlag: 'de.arrived' }] }),
   K('visa', 'visa', 'Visa Đức', 'German visa', 'Deutsches Visum', 'Dán trong hộ chiếu. Quý lắm!', 'Stuck in your passport. Precious!', 0.01, { all: [{ dayReached: 'visa.readyDay' }, { noFlag: 'pr.granted' }] }),
-  K('flight', 'ticket', 'Vé máy bay', 'Plane ticket', 'Flugticket', 'Hà Nội → München → Frankfurt.', 'Hanoi → Munich → Frankfurt.', 0.01, { all: [{ flag: 'visa.flight' }, { noFlag: 'fly.boarded' }, { noFlag: 'de.arrived' }] }),
+  K('flight', 'ticket', 'Vé máy bay', 'Plane ticket', 'Flugticket', 'Hà Nội → Frankfurt → München.', 'Hanoi → Frankfurt → München.', 0.01, { all: [{ flag: 'visa.flight' }, { noFlag: 'fly.boarded' }, { noFlag: 'de.arrived' }] }),
   // 1.43 scanned at gate 7: the pass with the seat and the connecting flight (ui/BoardingPass.tsx)
-  K('boardingPass', 'ticket', 'Thẻ lên máy bay', 'Boarding pass', 'Bordkarte', 'SH 701 Hà Nội → München, nối chuyến đi Frankfurt. Mở bằng nút vé trên thanh công cụ.', 'SH 701 Hanoi → Munich, connecting to Frankfurt.', 0.01, { all: [{ flag: 'fly.boarded' }, { noFlag: 'de.arrived' }] }),
+  K('boardingPass', 'ticket', 'Thẻ lên máy bay', 'Boarding pass', 'Bordkarte', 'SH 701 Hà Nội → Frankfurt, nối chuyến đi München. Mở bằng nút vé trên thanh công cụ.', 'SH 701 Hanoi → Frankfurt, connecting to München.', 0.01, { all: [{ flag: 'fly.boarded' }, { noFlag: 'de.arrived' }] }),
   K('meldung', 'document', 'Giấy Anmeldung', 'Registration certificate', 'Meldebescheinigung', 'Xác nhận đăng ký cư trú.', 'Proof of registered address.', 0.02, { flag: 'de.anmeldung' }),
   K('bankCard', 'bankCard', 'Thẻ ngân hàng', 'Bank card', 'Bankkarte', 'Girokonto ở Sparbank.', 'Current account at Sparbank.', 0.01, { flag: 'de.bank' }),
   K('insurance', 'insuranceCard', 'Thẻ bảo hiểm y tế', 'Health insurance card', 'Versichertenkarte', 'Đi khám không lo.', 'See a doctor worry-free.', 0.01, { flag: 'de.insurance' }),

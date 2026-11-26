@@ -11,6 +11,8 @@ import { groundMaterial } from '../shared/materials'
 import { PALETTE as P } from '../shared/palette'
 import { fluffyTreeShapes, place, softPlantShapes, stoolShapes } from '../shared/props'
 import { Shapes, type ShapeItem } from '../shared/Shapes'
+import { modelShapes } from '../shared/models'
+import { vnRoofShapes } from '../shared/vnRoof'
 import { SignBoard } from '../shared/SignBoard'
 import type { SignOptions } from '../shared/textures'
 import { bicycleShapes, motorbikeShapes } from '../shared/vehicles'
@@ -60,9 +62,8 @@ function dinhShapes(): ShapeItem[] {
     s.push({ box: [0.5, 0.18, 0.5], at: [x, 3.3, F], color: GOLD })
   }
   s.push({ box: [D.x1 - D.x0, 0.4, 0.5], at: [cx, 3.55, F], color: RED })
-  s.push({ box: [3.2, 0.5, 1.4], at: [cx, 4.0, F], rot: [0, 0, 0], color: TILE })
-  s.push({ box: [3.4, 0.12, 1.6], at: [cx, 3.78, F], color: '#7a4434' })
-  for (const side of [-1, 1]) s.push({ cyl: [0, 0.12, 0.45, 6], at: [cx + side * 1.65, 4.25, F], rot: [0, 0, -side * 0.6], color: TILE })
+  // 1.46: curved tiled roofs (shared/vnRoof.ts) over the gate and the hall
+  s.push(...vnRoofShapes([cx, 3.75, F], 3.0, 0.9, { color: TILE, overhang: 0.35, rise: 0.55, curl: 0.3, pearl: false }))
   // Courtyard walls (the east one is also the alley's wall)
   s.push({ box: [0.3, 2.2, F - D.hallZ], at: [D.x0 + 0.15, 1.1, (F + D.hallZ) / 2], color: '#f2e2b8' })
   s.push({ box: [0.3, 2.6, F + 13], at: [D.x1 - 0.15, 1.3, (F - 13) / 2], color: '#efe0bd' })
@@ -72,8 +73,12 @@ function dinhShapes(): ShapeItem[] {
   // Incense urn (lư hương) and two stone lanterns
   const { x: ux, z: uz } = D.urn
   s.push({ cyl: [0.5, 0.6, 0.35, 12], at: [ux, 0.17, uz], color: '#cfc8bb' })
-  s.push({ cyl: [0.45, 0.32, 0.5, 14], at: [ux, 0.6, uz], color: '#b8863a' })
-  s.push({ torus: [0.44, 0.05, 6, 16], at: [ux, 0.86, uz], rot: [Math.PI / 2, 0, 0], color: '#d9a43a' })
+  const urn = modelShapes('uBrassPot', { height: 0.66, paint: (_m: string, c: string) => (parseInt(c.slice(1, 3), 16) > 0xb0 ? '#d9a43a' : '#9a6a2a') })
+  if (urn) s.push({ group: urn, at: [ux, 0.34, uz] })
+  else {
+    s.push({ cyl: [0.45, 0.32, 0.5, 14], at: [ux, 0.6, uz], color: '#b8863a' })
+    s.push({ torus: [0.44, 0.05, 6, 16], at: [ux, 0.86, uz], rot: [Math.PI / 2, 0, 0], color: '#d9a43a' })
+  }
   for (let i = 0; i < 7; i++) s.push({ cyl: [0.008, 0.008, 0.4, 3], at: [ux - 0.15 + (i % 4) * 0.1, 1.05, uz - 0.08 + Math.floor(i / 4) * 0.16], rot: [(i % 3) * 0.08, 0, (i % 2 ? 1 : -1) * 0.07], color: RED })
   for (const x of [D.x0 + 1.3, D.x1 - 1.3]) {
     s.push({ box: [0.4, 0.9, 0.4], at: [x, 0.45, F - 1.4], color: '#cfc8bb' })
@@ -99,14 +104,15 @@ function dinhShapes(): ShapeItem[] {
   // Altar glimpse through the middle door
   s.push({ box: [0.9, 0.5, 0.3], at: [cx, 1.0, hz - 1.18], color: '#c8322b' })
   s.push({ cyl: [0.08, 0.06, 0.12, 8], at: [cx, 1.3, hz - 1.15], color: '#d9a43a' })
-  // Roof: two big slopes, a ridge with "dragon" curls at the ends
-  s.push({ box: [D.x1 - D.x0 + 0.6, 0.22, 2.3], at: [cx, 3.55, hz - 0.65], rot: [0.42, 0, 0], color: TILE })
-  s.push({ box: [D.x1 - D.x0 + 0.6, 0.22, 2.3], at: [cx, 3.55, hz - 2.75], rot: [-0.42, 0, 0], color: TILE })
-  s.push({ box: [D.x1 - D.x0 + 0.4, 0.28, 0.3], at: [cx, 4.05, hz - 1.7], color: '#7a4434' })
-  for (const side of [-1, 1]) {
-    s.push({ torus: [0.28, 0.07, 6, 12, Math.PI * 1.3], at: [cx + side * (D.x1 - D.x0) * 0.5, 4.3, hz - 1.7], rot: [0, Math.PI / 2, side > 0 ? 0.5 : 2.6], color: '#3f7d5c' })
+  // Roof: the big curved hip roof with upturned corners over the front of the hall
+  s.push(...vnRoofShapes([cx, 3.1, hz - 1.7], D.x1 - D.x0 - 0.4, 3.4, { color: TILE, overhang: 0.55, rise: 1.25, curl: 0.55 }))
+  // Carved wooden armchairs and a stool on the veranda (Poly Haven, pack urban)
+  for (const [dx, rot] of [[-3.1, 0.3], [3.1, -0.3]] as const) {
+    const ch = modelShapes('uChineseChair', { height: 1.1 })
+    if (ch) s.push({ group: ch, at: [cx + dx, 0.4, hz - 0.95], rot: [0, rot, 0] })
   }
-  s.push({ sphere: [0.2, 10, 8], at: [cx, 4.35, hz - 1.7], color: GOLD })
+  const lan = modelShapes('uLantern', { height: 0.5 })
+  if (lan) for (const dx of [-1.4, 1.4]) s.push({ group: lan, at: [cx + dx, 0.4, hz - 0.6] })
   return s
 }
 

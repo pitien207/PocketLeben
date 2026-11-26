@@ -83,10 +83,10 @@ export function BoardingPassPanel() {
         <div className="text-[11px] font-black tracking-[0.12em] text-ink/55">HÀNH KHÁCH · PASSAGIER: <span className="text-ink">{name}</span></div>
         <div className="grid gap-2.5 land:grid-cols-2">
           <Coupon testPrefix="bp1" from={LEG1.from} fromCity={LEG1.fromCity} to={LEG1.to} toCity={LEG1.toCity} flight={LEG1.flight} boarding={LEG1.boarding} dep={LEG1.dep} gate={LEG1.gate} seat={plan.seat} highlight />
-          <Coupon testPrefix="bp2" from="MUC" fromCity="München" to={plan.leg2.to} toCity={plan.leg2.toCity} flight={plan.leg2.flight} boarding={plan.leg2.boarding} dep={plan.leg2.dep} gate="—" seat={plan.leg2.seat} />
+          <Coupon testPrefix="bp2" from="FRA" fromCity="Frankfurt" to={plan.leg2.to} toCity={plan.leg2.toCity} flight={plan.leg2.flight} boarding={plan.leg2.boarding} dep={plan.leg2.dep} gate="—" seat={plan.leg2.seat} />
         </div>
         <p className="rounded-xl bg-butter/60 px-3 py-2 text-[12px] leading-snug font-bold text-ink/75">
-          Ghế <b>{plan.seat}</b>: hàng {plan.row}, chữ {plan.letter}. Chặng 2 chưa có cổng — ở München xem <b>bảng điện tử „Abflug"</b> để biết cổng của chuyến <b>{plan.leg2.flight}</b>.
+          Ghế <b>{plan.seat}</b>: hàng {plan.row}, chữ {plan.letter}. Chặng 2 chưa có cổng — ở Frankfurt xem <b>bảng điện tử „Abflug"</b> để biết cổng của chuyến <b>{plan.leg2.flight}</b>.
         </p>
       </div>
     </Sheet>
@@ -144,7 +144,7 @@ export function FlightBoardPanel() {
           ))}
         </p>
         <p className="rounded-xl bg-butter/60 px-3 py-2 text-[12px] leading-snug font-bold text-ink/75">
-          Thẻ của bạn: chuyến <b>{plan.leg2.flight}</b> đi Frankfurt, cất cánh {hhmm(plan.leg2.dep)}. So số hiệu chuyến bay, không chỉ tên thành phố!
+          Thẻ của bạn: chuyến <b>{plan.leg2.flight}</b> đi München, cất cánh {hhmm(plan.leg2.dep)}. So số hiệu chuyến bay, không chỉ tên thành phố!
         </p>
       </div>
     </Sheet>

@@ -1,7 +1,7 @@
 import type { GateId } from '../../../data/flight'
 
 /**
- * 1.43 Transit at München (scenes/Transit). You come off the plane at the +Z end and walk toward −Z:
+ * 1.43 Transit at Frankfurt (scenes/Transit). You come off the plane at the +Z end and walk toward −Z:
  * arrival corridor (with the wrong way out, "Ausgang") → Passkontrolle (EU lane / all passports) → transit hall
  * with the departures board → two piers, gates G on the left, H on the right.
  */

@@ -219,7 +219,7 @@ export const QA_SETS = {
    * APS (Akademische Prüfstelle): checks that your school record is real. Like the real one, the
    * examiner asks about your school years, the subjects and their content, and your study plans.
    */
-  /** 1.43 Passkontrolle in München on the first flight (systems/flight.ts): the first German you speak in Germany. */
+  /** 1.43 Passkontrolle in Frankfurt on the first flight (systems/flight.ts): the first German you speak in Germany. */
   einreise: {
     title: { vi: 'Kiểm soát hộ chiếu · Passkontrolle', en: 'Passport control · Passkontrolle', de: 'Passkontrolle' },
     asker: 'bpOfficer',
@@ -240,7 +240,7 @@ export const QA_SETS = {
         a(0, 'Zwei Wochen.', 'Two weeks.', 'Das passt nicht zu Ihrem Visum. (Không khớp với visa.)', 'That doesn’t match your visa.'),
       ]),
       q('„Wo werden Sie wohnen?" (Bạn sẽ ở đâu?)', '“Where will you live?”', [
-        a(2, 'Zuerst in Lindenberg, in einer WG. Die Adresse habe ich hier.', 'First in Lindenberg, in a flat share. I have the address here.', 'Sehr gut.', 'Very good.'),
+        a(2, 'Zuerst in München, in einer WG. Die Adresse habe ich hier.', 'First in München, in a flat share. I have the address here.', 'Sehr gut.', 'Very good.'),
         a(1, 'In einem Hotel, glaube ich.', 'In a hotel, I think.', 'Glauben Sie? (Bạn nghĩ vậy à?)', 'You think so?'),
         a(0, 'Keine Ahnung.', 'No idea.', 'Hmm…', 'Hmm…'),
       ]),
@@ -250,8 +250,8 @@ export const QA_SETS = {
         a(0, 'Nein.', 'No.', 'Das ist ein Problem…', 'That’s a problem…'),
       ]),
       q('„Wohin fliegen Sie jetzt weiter?" (Giờ bay tiếp đi đâu?)', '“Where are you flying on to now?”', [
-        a(2, 'Nach Frankfurt, mit dem Anschlussflug.', 'To Frankfurt, on the connecting flight.', 'Dann beeilen Sie sich! (Nhanh lên nhé!)', 'Then hurry!'),
-        a(1, 'Ich bleibe in München.', 'I’m staying in Munich.', 'Ihr Ticket sagt Frankfurt. (Vé ghi Frankfurt mà.)', 'Your ticket says Frankfurt.'),
+        a(2, 'Nach München, mit dem Anschlussflug.', 'To München, on the connecting flight.', 'Dann beeilen Sie sich! (Nhanh lên nhé!)', 'Then hurry!'),
+        a(1, 'Ich bleibe in Frankfurt.', 'I’m staying in Frankfurt.', 'Ihr Ticket sagt München. (Vé ghi München mà.)', 'Your ticket says München.'),
         a(0, 'Nach Hause.', 'Home.', 'Jetzt schon? (Về luôn á?)', 'Already?'),
       ]),
     ],

@@ -8,7 +8,8 @@ import { PALETTE as P } from '../shared/palette'
 import { place, softPlantShapes } from '../shared/props'
 import { Shapes, type ShapeItem } from '../shared/Shapes'
 import { SignBoard } from '../shared/SignBoard'
-import { balcony, tiledRoof, win } from './decorHouses'
+import { balcony, seeded, tiledRoof, win } from './decorHouses'
+import { hanoiHouse } from './hanoiHouses'
 import { EATERIES, type EateryId, type EateryLot } from './layout'
 
 /**
@@ -53,6 +54,12 @@ const LOOKS: Record<BuiltId, Look> = {
 const M = (name: string, h: number, o: ModelOptions = {}): ShapeItem[] => modelShapes(name, { ...o, height: h }) ?? []
 const put = (items: ShapeItem[], x: number, y: number, z: number, rot = 0): ShapeItem => place(items, [x, y, z], rot)
 const plastic = (color: string): ModelOptions => ({ paint: () => color })
+/** 1.46 Poly Haven (pack urban): a stack of yellow beer crates and the red LPG bottle every kitchen has. */
+const BEER: ModelOptions = { paint: (m) => (m === 'c0' ? '#9c7a1c' : '#e8b92a') }
+function crates(s: ShapeItem[], x: number, z: number, n: number, rot = 0) {
+  for (let i = 0; i < n; i++) s.push(put(M('uCrate', 0.25, BEER), x + (i % 2) * 0.03, i * 0.25, z, rot + (i % 2) * 0.08))
+}
+const gasTank = (s: ShapeItem[], x: number, z: number, rot = 0) => s.push(put(M('uGasTank', 0.58, { paint: (_m, c) => (parseInt(c.slice(1, 3), 16) - parseInt(c.slice(3, 5), 16) > 40 ? '#c8322b' : parseInt(c.slice(1, 3), 16) - parseInt(c.slice(3, 5), 16) > 20 ? '#9a2a24' : '#8d8f94') }), x, 0, z, rot))
 
 /** The low plastic table + stools of every Hà Nội pavement, a few bowls, chilli sauce and a tissue roll. */
 function tableSet(s: ShapeItem[], x: number, z: number, look: Look, seed: number, seats = 4) {
@@ -108,7 +115,7 @@ function shell(s: ShapeItem[], glow: ShapeItem[], e: EateryLot, look: Look, seed
   const H = GH + look.floors * FH
   // Closed part behind the room, the storeys above, the side walls of the room
   s.push({ box: [e.w, GH, d - ROOM], at: [0, GH / 2, -ROOM - (d - ROOM) / 2], color: look.wall })
-  s.push({ box: [e.w, H - GH, d], at: [0, GH + (H - GH) / 2, -d / 2], color: look.wall })
+  if (!modelShapes('kfBlock')) s.push({ box: [e.w, H - GH, d], at: [0, GH + (H - GH) / 2, -d / 2], color: look.wall })
   for (const side of [-1, 1]) s.push({ box: [0.24, GH, ROOM], at: [side * (hw - 0.12), GH / 2, -ROOM / 2], color: look.wall })
   for (const side of [-1, 1]) s.push({ box: [0.3, GH + 0.1, 0.3], at: [side * (hw - 0.15), GH / 2, -0.12], color: look.trim })
   // Floor tiles (checkered), the back wall painted lighter, a doorway to the kitchen with a bead curtain
@@ -135,23 +142,39 @@ function shell(s: ShapeItem[], glow: ShapeItem[], e: EateryLot, look: Look, seed
   }
   // The band where the sign hangs, then windows, balconies and the roof
   s.push({ box: [e.w + 0.06, 1.0, 0.1], at: [0, GH + 0.5, 0.04], color: look.trim })
+  // 1.46: the floors above from library modules (Kenney facade + KayKit / Quaternius roof things); hand-built as fallback
+  const lib = hanoiHouse(look.roof === 'tile' ? 'tubeTiled' : 'tube', e.w, d, seeded(seed * 13 + 5), {
+    upperOnly: true,
+    noBalcony1: true,
+    fh: FH,
+    floors: look.floors + 1,
+    wall: look.wall,
+    rail: look.shutter,
+    awning: look.awning[0],
+    airCon: true,
+  })
+  if (lib) s.push({ group: lib, at: [0, GH - FH, -d / 2] })
   const bays = Math.max(1, Math.floor((e.w - 0.6) / 1.5))
   const step = (e.w - 0.4) / bays
-  for (let fl = 0; fl < look.floors; fl++) {
+  for (let fl = 0; fl < (lib ? 0 : look.floors); fl++) {
     const y0 = GH + fl * FH
     s.push({ box: [e.w + 0.14, 0.16, 0.2], at: [0, y0 + FH - 0.05, 0.06], color: look.trim })
     for (let b = 0; b < bays; b++) win(s, -e.w / 2 + 0.2 + (b + 0.5) * step, y0 + 1.9, 0, 0.7, 1.25, look.trim, WINDOW_GLASS[(b + fl + seed) % WINDOW_GLASS.length], look.shutter)
     if (fl > 0) balcony(s, 0, y0 + 0.9, 0, e.w - 0.9, look.trim, '#3a3a40', 0.6)
   }
-  if (look.roof === 'tile') tiledRoof(s, e.w, H, 0)
+  if (lib) {
+    // roof done by the library house
+  } else if (look.roof === 'tile') tiledRoof(s, e.w, H, 0)
   else {
     s.push({ box: [e.w + 0.1, 0.5, 0.15], at: [0, H + 0.25, 0.02], color: look.trim })
     s.push({ cyl: [0.42, 0.42, 0.9, 12], at: [hw - 0.9, H + 0.75, -d + 1.2], rot: [0, 0, Math.PI / 2], color: '#d6dbe2' })
     s.push(place(softPlantShapes(P.leaf, '#c97b63', seed + 3), [-hw + 0.7, H, -0.6], seed, 0.9))
   }
   // AC unit and a flower pot on the first floor
-  s.push({ box: [0.7, 0.45, 0.3], at: [hw - 0.6, GH + 1.3, 0.18], color: '#eef0f2' })
-  s.push({ cyl: [0.14, 0.14, 0.02, 10], at: [hw - 0.6, GH + 1.3, 0.34], rot: [Math.PI / 2, 0, 0], color: '#9aa0aa' })
+  if (!lib) {
+    s.push({ box: [0.7, 0.45, 0.3], at: [hw - 0.6, GH + 1.3, 0.18], color: '#eef0f2' })
+    s.push({ cyl: [0.14, 0.14, 0.02, 10], at: [hw - 0.6, GH + 1.3, 0.34], rot: [Math.PI / 2, 0, 0], color: '#9aa0aa' })
+  }
   // Striped awning over the open front, a scalloped edge, fairy lights
   const n = Math.max(6, Math.round(e.w / 0.42))
   for (let i = 0; i < n; i++) s.push({ box: [e.w / n + 0.002, 0.04, 1.15], at: [-hw + ((i + 0.5) * e.w) / n, GH - 0.42, 0.5], rot: [0.32, 0, 0], color: look.awning[i % 2] })
@@ -184,6 +207,7 @@ function fill(id: BuiltId, s: ShapeItem[], glow: ShapeItem[], e: EateryLot, look
       s.push(put(M('bowl', 0.07), -hw + 1.75, 0.92, -ROOM + 1.2))
       tableSet(s, -0.6, -1.4, look, 1)
       tableSet(s, -hw + 1.0, 1.05, look, 2)
+      crates(s, hw - 0.4, -ROOM + 0.5, 3, 0.2)
       break
     }
     case 'banhCuon': {
@@ -200,6 +224,7 @@ function fill(id: BuiltId, s: ShapeItem[], glow: ShapeItem[], e: EateryLot, look
       tableSet(s, 0.7, -1.2, look, 3)
       tableSet(s, -0.5, -2.6, look, 4, 3)
       tableSet(s, hw - 1.0, 1.05, look, 5)
+      gasTank(s, sx - 0.1, sz - 0.6)
       s.push(put(M('jarC', 0.22), hw - 0.5, 0, -ROOM + 0.4))
       break
     }
@@ -208,6 +233,9 @@ function fill(id: BuiltId, s: ShapeItem[], glow: ShapeItem[], e: EateryLot, look
       hotpotTable(s, glow, 0.2, -1.5, look, 1)
       counter(s, hw - 1.3, -ROOM + 0.75, 1.9, 0.6, '#3a2a22', '#8a5a3c', 0.85)
       drinksFridge(s, glow, hw - 0.6, -ROOM + 1.7)
+      crates(s, hw - 0.45, -ROOM + 2.6, 4)
+      crates(s, hw - 0.45, -ROOM + 3.05, 2, 0.1)
+      gasTank(s, -hw + 0.4, -ROOM + 0.4)
       s.push(put(M('shelfDeco', 1.2), -1.2, 1.25, -ROOM + 0.3))
       // Red lanterns from the ceiling
       for (const x of [-hw + 1.5, 0.2, hw - 1.4])
@@ -260,6 +288,7 @@ function fill(id: BuiltId, s: ShapeItem[], glow: ShapeItem[], e: EateryLot, look
       tableSet(s, -0.6, -2.5, look, 9)
       tableSet(s, hw - 1.1, -2.6, look, 10, 3)
       tableSet(s, 0.9, 1.1, look, 11)
+      gasTank(s, -hw + 0.5, -1.35, 0.5)
       drinksFridge(s, glow, -hw + 0.6, -ROOM + 0.5)
       break
     }

@@ -223,7 +223,7 @@ function connect() {
   useNet.getState().set({ status: 'connecting', name: account.name })
   const socket = new WebSocket(socketUrl())
   ws = socket
-  socket.onopen = () => socket.send(JSON.stringify({ t: 'auth', token: account.token, caps: ['batch'] }))
+  socket.onopen = () => socket.send(JSON.stringify({ t: 'auth', token: account.token, caps: ['batch', 'pfand'] }))
   socket.onmessage = onMessage
   socket.onclose = (e) => {
     if (ws !== socket) return

@@ -12,7 +12,7 @@ import { SignBoard } from '../shared/SignBoard'
 import type { SignOptions } from '../shared/textures'
 
 /**
- * Universität Lindenberg (chapter 4A, Studium): a bright lecture hall with long desk rows
+ * LMU München (chapter 4A, Studium): a bright lecture hall with long desk rows
  * facing a double blackboard and a projector screen, the professor's lectern, a library
  * corner with tall shelves and a group-work table, and the student office counter.
  */
@@ -40,7 +40,7 @@ const BOARD: SignOptions = {
   aspect: 3.2,
 }
 const UNI_SIGN: SignOptions = {
-  title: 'Universität Lindenberg',
+  title: 'LMU München',
   subtitle: 'Fakultät Gesundheit & Pflege',
   background: '#244a7a',
   border: '#f4c04e',

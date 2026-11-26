@@ -4,6 +4,7 @@ import type { Vec3 } from '../../../data/config'
 import { BUILDING_GROUPS } from '../../systems/collisionGroups'
 import { PALETTE as P } from '../shared/palette'
 import { Shapes, type ShapeItem } from '../shared/Shapes'
+import { moduleHouse } from './kenneyHouses'
 
 export interface AltbauOptions {
   width: number
@@ -41,7 +42,7 @@ function altbauShapes(o: AltbauOptions): ShapeItem[] {
   for (let i = 0; i < dormers; i++) {
     const x = -w / 2 + (w / dormers) * (i + 0.5)
     s.push({ box: [0.9, 0.9, 0.8], at: [x, H + 0.75, f - 1.2], color: o.wall })
-    s.push({ box: [0.6, 0.55, 0.05], at: [x, H + 0.75, f - 0.78], color: '#a9c8dc' })
+    s.push({ box: [0.6, 0.55, 0.05], at: [x, H + 0.75, f - 0.78], color: '#8fc4d8' })
     s.push({ box: [1.05, 0.12, 0.95], at: [x, H + 1.25, f - 1.2], color: o.roof })
   }
   s.push({ box: [0.5, 1.3, 0.5], at: [w * 0.3, H + 1.5, -0.6], color: '#b5524a' })
@@ -53,7 +54,7 @@ function altbauShapes(o: AltbauOptions): ShapeItem[] {
     for (let c = 0; c < cols; c++) {
       const x = -w / 2 + (w / cols) * (c + 0.5)
       s.push({ box: [0.95, 1.6, 0.06], at: [x, y, f + 0.01], color: P.white })
-      s.push({ box: [0.78, 1.42, 0.07], at: [x, y, f + 0.02], color: '#a9c8dc' })
+      s.push({ box: [0.78, 1.42, 0.07], at: [x, y, f + 0.02], color: '#8fc4d8' })
       s.push({ box: [0.05, 1.42, 0.09], at: [x, y, f + 0.03], color: P.white })
       s.push({ box: [0.78, 0.05, 0.09], at: [x, y + 0.25, f + 0.03], color: P.white })
       s.push({ box: [1.05, 0.08, 0.22], at: [x, y - 0.84, f + 0.1], color: o.trim })
@@ -70,7 +71,7 @@ function altbauShapes(o: AltbauOptions): ShapeItem[] {
     const x = o.doorX
     s.push({ box: [1.5, 2.7, 0.08], at: [x, 1.35, f + 0.02], color: o.trim })
     s.push({ box: [1.2, 2.4, 0.1], at: [x, 1.2, f + 0.04], color: '#6a4a3a' })
-    s.push({ cyl: [0.6, 0.6, 0.1, 12], at: [x, 2.4, f + 0.04], rot: [Math.PI / 2, 0, 0], scale: [1, 1, 0.5], color: '#a9c8dc' })
+    s.push({ cyl: [0.6, 0.6, 0.1, 12], at: [x, 2.4, f + 0.04], rot: [Math.PI / 2, 0, 0], scale: [1, 1, 0.5], color: '#8fc4d8' })
     s.push({ sphere: [0.05, 6, 6], at: [x + 0.4, 1.15, f + 0.12], color: '#c9a64a' })
     s.push({ box: [1.6, 0.14, 0.7], at: [x, 0.07, f + 0.35], color: '#b8aa98' })
     s.push({ box: [0.3, 0.22, 0.03], at: [x + 1.0, 2.0, f + 0.06], color: '#4f6fa8' })
@@ -79,7 +80,7 @@ function altbauShapes(o: AltbauOptions): ShapeItem[] {
       const wx = x + side * 2.0
       if (Math.abs(wx) > w / 2 - 0.5) continue
       s.push({ box: [0.95, 1.3, 0.06], at: [wx, 1.6, f + 0.01], color: P.white })
-      s.push({ box: [0.78, 1.12, 0.07], at: [wx, 1.6, f + 0.02], color: '#a9c8dc' })
+      s.push({ box: [0.78, 1.12, 0.07], at: [wx, 1.6, f + 0.02], color: '#8fc4d8' })
     }
   }
   return s
@@ -87,8 +88,11 @@ function altbauShapes(o: AltbauOptions): ShapeItem[] {
 
 export function Altbau({ position, ...o }: AltbauOptions & { position: Vec3 }) {
   const { width, depth, floors, wall, trim, roof, doorX, flowers } = o
+  // 1.45 Kenney modules (kenneyHouses.ts) like the rest of München; the hand-built house while the pack is missing
   const shapes = useMemo(
-    () => altbauShapes({ width, depth, floors, wall, trim, roof, doorX, flowers }),
+    () =>
+      moduleHouse('altbau', width, depth, Math.round(width * 100 + floors), { floors, wall, roof: roof === '#6b7280' ? '#5f6672' : roof, doorX }) ??
+      altbauShapes({ width, depth, floors, wall, trim, roof, doorX, flowers }),
     [width, depth, floors, wall, trim, roof, doorX, flowers],
   )
   const H = floors * FLOOR_H + 0.4

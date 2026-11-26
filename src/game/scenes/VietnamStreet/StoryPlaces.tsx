@@ -10,6 +10,8 @@ import { BUILDING_BACK_Z, HOME, SOUTH } from './layout'
 import { Shapes, type ShapeItem } from '../shared/Shapes'
 import { SignBoard } from '../shared/SignBoard'
 import type { SignOptions } from '../shared/textures'
+import { seeded } from './decorHouses'
+import { hanoiHouse } from './hanoiHouses'
 
 /** Where the story happens on the Hà Nội street (chapters 1–2). */
 
@@ -61,6 +63,16 @@ function centerShapes(): ShapeItem[] {
   const { x, front: f, width: w } = CENTER
   const wall = '#f2c46d'
   const trim = '#fff3d6'
+  // 1.46: a little colonial house of library modules (arched door, French windows with green shutters, iron balcony,
+  // tiled roof); the hand-built facade below stays as the fallback
+  const lib = hanoiHouse('colonial', w, 1.9, seeded(404), { floors: 2, fh: 3.1, wall, rail: '#2c5c43', shutter: '#3f7d5c', shop: false, airCon: false })
+  if (lib) {
+    s.push({ group: lib, at: [x, 0, f - 0.95] })
+    s.push({ box: [1.8, 0.1, 0.45], at: [x, 0.05, f + 0.25], color: '#d3cdc4' })
+    s.push(place(bicycleShapes('#4f86d9'), [x - 1.65, 0, f + 0.6], Math.PI / 2 - 0.15))
+    s.push(place(bicycleShapes('#ff9fb2'), [x + 1.7, 0, f + 0.6], Math.PI / 2 + 0.1))
+    return s
+  }
   s.push({ box: [w, 6.2, 0.8], at: [x, 3.1, f - 0.4], color: wall })
   s.push({ box: [w + 0.15, 0.25, 0.25], at: [x, 3.05, f + 0.05], color: trim })
   s.push({ box: [w + 0.2, 0.3, 0.3], at: [x, 6.25, f], color: trim })

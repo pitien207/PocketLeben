@@ -1,6 +1,6 @@
 # Pocket Leben — notes for Claude
 
-Mobile-first cute 3D web game: Hà Nội Old Quarter (side jobs, family, debts) → learn German A1–B1 → visa → Germany (WG, Bürgeramt, care-home
+Mobile-first cute 3D web game: Hà Nội Old Quarter (side jobs, family, debts) → learn German A1–B1 → visa → Germany = **München** since 1.44 (WG, Bürgeramt, care-home
 Ausbildung **or** Studium at the university → contract → Tết trip home → own flat → permanent residence = ending;
 citizenship post-game). Plan: `docs/POCKET_LEBEN_PLAN.md` (the user calls it "docs/PLAN.md"). Progress + phone test lists: `docs/CHANGELOG.md`. **Full story for the user to read/edit: `docs/STORY.md`** (Vietnamese; every chapter, branch, dialogue, number, ending line) — keep it in sync when story content changes; when the user edits it, diff it and implement.
 **Keep this file up to date** when architecture, conventions or workflow change (it saves re-reading the code).
@@ -63,7 +63,77 @@ Server: plain Node ESM `server/index.mjs` + `server/store.mjs` (MongoDB API — 
 - Chibi extras (1.39): `chibi/parts.ts` `Carry` `paddle` = the PADDLE on the fan bone (follows the forearm); MotionState `swing` 0…1; server `cleanSnap` passes `held: paddle` and `swing`; RemotePlayers gives such remotes the paddle.
 - Characters (toon style from the user's chibi.js): `components/ChibiModel.tsx` = rig + animation (bones: root, torso, head, eyes(unused), thigh/shin ×2, arm/forearm ×2, glass, fan; two-bone IK for riding and sipping) with THREE skinned meshes on one skeleton: body (all clothes/hair merged + the four limb tubes, `toonBodyMaterial`), face (head sphere with a painted canvas texture, per-character material; blinking swaps the texture) and outline (inverted hull, coarser, visible within 26 m). Pieces in `components/chibi/`: `rig.ts` (skeleton constants), `parts.ts` (rigid shapes per bone: hands, hats/accessories, carried things; calls the two below), `hair.ts` (1.16.1, user: hair must not be stacked balls — a **hair shell** per style from `SHELLS` (cut line `len` by azimuth, pointed clump `tips`, strand ridges, `gather` = pulled back to a tie with strands running toward it, `hug` = short hair down to the nape, curtain beyond `FALL` for bob/long) + **swept locks** `sweep()` for ponytail, twin tails, braid (plaits), buns (one coiled lock), side wisps, ahoge, spikes, curls, each with a scrunchie `tie()`; the light "angel ring" only at detail ≥ 0.6), `cloth.ts` (1.16.1, clothes that fit: torso = garment lathe `topGeo` per cut in `CUTS` (hem with a lip) over a pelvis lathe; collars/plackets/pockets/lapels/aprons/straps/ties = `patch()` cut out of the oval body surface (`bodyR`, `around`, `SZ` = depth 0.9); skirts = pleated lathes with an inside; **arms and legs = one tube each skinned to BOTH bones** (`limbGeometries`, `limbTube`, soft blend at elbow/knee; sleeves, cuffs, trouser hems, socks are bands of the tube via `limbRings`); shoes with extruded soles `shoeShapes`; small details (prints, buttons, laces) only when k ≥ 0.4 so the coarse outline mesh skips them), `geom.ts` (`grid`, `sweep`, `keyed`, `clump`/`tip` profiles), `face.ts` (face texture, 512×256, cached by skin/eyes/expression/lashes), `materials.ts` (toon gradient, outline shader). Custom geometries are cached by style + detail + (for torso pieces) the cut — include every input in the cache key. Triangles (1.16.1, street): characters ≈ 244k incl. outline (was 192k). Bones must have world matrices before `bind()` (group.updateMatrixWorld). Mesh detail: `detail` prop (`DETAIL` factors scale sphere/cyl/torus segments at build time; player "high", everyone else "low") — characters dominate the triangle budget, keep new body parts modest. Driven by plain-data `MotionState` (speed, sit, seatY, ride, pedal, sip, fan, arms, kick, held). Outfit (`data/npcs.ts` `Outfit`) has colours + `hairStyle` (bob, short, bun, long, ponytail, twin, curly, spiky, buzz), `accessory` (nonLa, glasses, sunglasses, helmet, beanie, cap, beret, bow, flowerCrown, catEars, headphones), cuts `top: tee|long|sleeveless|hoodie|jacket|dress|aoDai` (dress forces a skirt, aoDai pants), `bottom: shorts|pants|skirt`, `neck: scarf|tie` + `neckColor`, `eye` colour; geometry cached by outfit value. `ui/Portrait.tsx` draws the same styles in 2D (`HairBack` / `HairFront` / `Braid`: bangs with points, tapered locks with ties) — update both. Clothes slot `neck`; shop `gift` = secret rewards (`giftClothing`). Server `cleanSnap` whitelists outfit keys — add new Outfit fields there too. Material: `characterMaterial` (rim light, never faded).
 - Hồ Gươm + Đền Ngọc Sơn: `VietnamStreet/HoGuom.tsx` (lake, railing with a gap) + `NgocSon.tsx` (walkable Thê Húc bridge = tilted `CuboidCollider` deck segments following `deckY(t) = peak·sin(πt)`, railing walls, island ring wall, temple, incense `place.incense` in `systems/explore.ts`); numbers in `layout.ts` `NGOC_SON`; `Boundaries.tsx` south wall has the bridge gap; map rects in `maps.ts` (vietnam maxZ 38). NPCs cuTu, duKhach, duKhach2.
-- Streets: Hà Nội `VietnamStreet/layout.ts` (`PLAY` x −32…34; west block = `WestBlock.tsx`, east block `EAST` = `EastBlock.tsx`: đình, alley, juice shop, bookshop, night market), Lindenstraße `GermanyStreet/index.tsx` (`PLAY` x −32…34; Altbau row ends at `ROW_END` 14.5, east = `Stadtpark.tsx`). `Backdrop` takes `clear={PLAY}` so distant blocks never stand in the play area. Map data for the 🗺️ view: `scenes/maps.ts` (update rects when buildings move).
+- **1.44 München** (scene id stays `germany`): Lindenstraße (`GermanyStreet/index.tsx`, unchanged positions) is one street of
+  the city. Layout = `GermanyStreet/mucLayout.ts` (`MUC` bounds x −72…66, z −150…14.5; `LINDEN`, `HBF`, `SENDLINGER`,
+  `ROW_N1/ROW_FN/ROW_MS` house rows, `FUZO`, `MARIENPLATZ`, `RATHAUS`, `FRAUENKIRCHE`, `VIKTUALIEN`, `HOFBRAEU`,
+  `MAXSTR`/`PRINZ` roads + lanes, `ODEONSPLATZ`, `HOFGARTEN`, `LUDWIG`, `LMU`, `GARTEN`, `EISBACH` (+ bridges),
+  `ISAR` x bands + `BRIDGES`, `ROAD_WRAP` 82). NOTE the file name: `Munich.tsx` and a `munich.ts` clash on Windows
+  (case-insensitive) — keep the layout in `mucLayout.ts`. `munichHouses.ts` = 5 house styles (`mucRow`, `mucRowZ`,
+  `planMucRow`, front = +Z at depth/2 like decorHouses), `landmarks.ts` = every sight as `Sight {s, glow, solid}`
+  (solids [x, z, halfX, halfZ] → colliders), `Munich.tsx` = districts (ONE merged mesh each; trees beside houses go into
+  `fitted` and only that mesh is rebuilt by the tree fit), one glow mesh, ONE `LabelSheet` for all signs, one fixed body
+  with all colliders + invisible walls (map edge, Isar water between bridges, Eisbach between its bridges),
+  `MunichGround.tsx` (paving plane, squares, roads, parks, Isar/Eisbach + scrolling streak texture), `MunichLife.tsx`
+  (crowds per district via `ActiveArea`, Eisbach surfers, `Glockenspiel` 11/12/17 h, Maximilian-/Prinzregentenstraße
+  traffic, ActionSpots `muc-<sight>`: "Ngắm cảnh" → `muc.sight`; Hbf = S-Bahn (`de.tram`) + Pfand return; LMU door
+  `muc.walkUni`; shops hofbraeuhaus / biergarten / viktualienmarkt). Sights data `data/munich.ts` (`MUC_SIGHTS`, 19),
+  logic `systems/munich.ts` (flags `muc.seen.<id>`, test `muc.allSeen`, side quest `muenchen`). Traffic got a
+  `wrapX` prop. Map: `maps.ts` germany reads mucLayout. Test: scratchpad `v144.mjs <out>` (server 8798 + vite 5199
+  with VH_SERVER) + `pfandsim.mjs <repo>` (server Pfand logic, no browser).
+- **1.44 Pfand** (bottles all over München): spots `server/pfandSpots.mjs` (+ `.d.mts`; imported by the game too —
+  only APPEND spots, indices are on the wire). Server `server/pfand.mjs` `createPfand({clients, rooms})`: per room of
+  scene germany, `PFAND_RULES` (max 10, start 3, gap 20–45 s, life 5–9 min, gold 1/1000, not near players/other
+  bottles, take radius 4 m), messages `pfand` / `pfand+` / `pfand-` / `pfand.got` / `pfand.no` ← `pfand.take`;
+  only for clients with `caps: ['pfand']`; 'welcome' carries `feat: ['pfand']`. Client `systems/pfandWorld.ts`
+  (`startPfand()` in boot listens to net messages; `tickPfand()` per frame from `GermanyStreet/PfandBottles.tsx`;
+  `pfandShared()` = feature + München room + online, else LOCAL spawning with `CONFIG.pfand` — gold 1/5). Store
+  `pfandStore` {mode, bottles, pending}. Flags `pfand.carried` / `pfand.gold` (bag weight, BagPanel slot
+  `goldBottles`), `stats.goldBottles`, test `pfand.carrying`; return `de.pfandReturn` (supermarket + Hbf): 0,25 € /
+  gold `CONFIG.pfand.goldValue` 10 €. Dev: `__vh.pfandSpawn(spot, gold)`, `__vh.pfandSpots`, `__vh.mucSights()`. Tests move `__vh.pfandClock.offset` (NEVER patch performance.now: Rapier panics), `__vh.look(from, at, fov)` (free camera FOV defaults to 22°), `window.__noFog = true` (dev) for whole-map shots.
+- **1.45 library look for München** (user: replace hand-built shapes with open-library models): model packs **facade**
+  (Kenney Modular Buildings, names `kf…`, Kenney origin, modules 1 × 0.625 × 1, front +z) and **town** (Kenney Fantasy
+  Town Kit, names `kt…`, centred, base y 0) from `tools/kenney2props.mjs <town|facade> <unzipped kit>` (download Kenney
+  zips through puppeteer Chrome: scratchpad `kdl.mjs <slug> <out.zip>`; curl fails TLS). Germany loads packs nature,
+  city, food, town, facade + the car models. `GermanyStreet/kenneyHouses.ts` `moduleHouse(style, w, d, seed, opts)`
+  (styles altbau / jugendstil / nachkrieg / palais / giebel; rows of modules per floor stretched to the house, plain
+  body behind the SZ-deep facade layer, a full gable of kfRoofSlanted(Window) pieces front + back, `facadePaint` =
+  wall / roof / awning / glass in TWO tones each — never shade per sampled tone: Kenney's gradient palette split quads
+  diagonally) — used by `mucHouse` (munichHouses.ts; the old builders are the fallback) and `Altbau.tsx`.
+  `GermanyStreet/townProps.ts`: kStall (+ KayKit crates), kBeerTable, kLantern (+ glow sphere at LANTERN_HEAD),
+  kFountain + fountainWater(x, z, r) for FountainWater, kCart, kHedge, kFlagPole, STONE_PAINT. Houses in a row must
+  meet edge to edge, never overlap coplanar parts (that was the 1.44 flicker). **NaN guard**: zero / NaN normals give
+  NaN light and the fancy bloom turns the whole screen white — models.ts and Shapes.buildShapes fix them; the
+  converter drops sliver triangles. Tests: scratchpad `v145.mjs <out>` (views, render stats, flicker = the same view
+  twice must not change), `diag3.mjs` (follow camera turned 4 ways), `diag4.mjs` (hide mesh categories to find a
+  white-out). Dev: `__vh.modelReady(pack)`, `__vh.threeScene()`.
+- **1.46 Poly Haven + ambientCG (user: "kết hợp các thư viện, tìm thư viện mở khác chứ không quanh quẩn Kenney")**: pack
+  **`urban`** (names `u…`, real-world metres, groups `c0…` by colour or `n…` per part) from `tools/polyhaven2props.mjs
+  <folder>` (Poly Haven 1k glTF + diffuse maps as PNG; download with scratchpad `phdl.mjs <out> <asset…>` — api.polyhaven.com
+  and dl.polyhaven.org work with fetch/curl): texture sampled per triangle → k-means colours → speckle filter →
+  meshoptimizer; `only` / `skip` node regexes pick ONE variant (many files hold 2 variants side by side!), `perNode` for
+  modular kits (power poles). Used: `PowerLines` poles (uPoleCross / uPoleFuse / uPoleTransformer + uUtilityBox), eateries
+  (uCrate beer crates, uGasTank), Home kitchen (uGasTank; Home loads `urban`), hanoiHouses AC units (half uAircon), avenue
+  lamps (uLampTall; LampPools spots follow), đình / Ngọc Sơn (uBrassPot urn, uChineseChair, uLantern), München hydrants
+  (`hydrant()` in Munich.tsx). `tools/glb.mjs` `readPng` (8/16-bit) is shared. **Ground grain**: `withGroundDetail(material,
+  'asphalt' | 'concrete', scale, strength)` in shared/materials.ts multiplies an ambientCG grey map
+  (`src/assets/textures/*.webp`) in world space; `groundMaterial` has it, paving materials pass 'concrete'. **Vietnamese
+  roofs**: `shared/vnRoof.ts` `vnRoofShapes(at, w, d, {tiers, rise, curl, color…})` (curved hip roof with upturned corners,
+  ridge curls, pearl) — use it for any temple / đình / gate roof. Café (`Cafe.tsx`) has a library upper floor inside the
+  cut-away roof group; post office + German centre = `hanoiHouse('colonial')`. Test: scratchpad `v146.mjs <out>` (vite 5199).
+- **1.46 Hà Nội library look**: `VietnamStreet/hanoiHouses.ts` `hanoiHouse(style, w, d, rng, opts)` =
+  Kenney facade modules laid out the Vietnamese way (styles tube / tubeTiled / colonial / oldLow / modern / tapThe / hotel;
+  bays = module at `BAY` of the width + wall strips where louvred shutters fold; iron balconies, roller shutters, tập thể
+  cages, pediments, gable walls; KayKit `cWatertower` repainted steel, Quaternius pots, `kfAcA`). Options `upperOnly`
+  (callers with an open ground room: Eateries, HangBong, Showroom — place the group at y = groundH − fh), `ground: false`
+  (TubeHouse keeps its hand-built shop floor), `noBalcony1` (sign on floor 1). Null without the pack → old builders.
+  Dev `window.__noLibHouses = true` = old houses. Packs `street` (kr…), `towers` (kc…), `citybits` (c…). Shared props:
+  `kStreetLamp` / `lampHead`, `kBin`, library stools / tables / cones / fences in props.ts. Map pins + sign pictures:
+  `ui/placeIcons.ts` (`placeIconName`, `iconForText`, `iconImage`), `SignOptions.icon`. User wants it **Vietnamese**,
+  never European-looking (no dormers on Old Quarter roofs).
+- **1.44 story**: the German city is München ("Lindenberg" removed; university = LMU München); the first flight =
+  Hà Nội → **Frankfurt** (scene `transit`, same scene, texts swapped) → München. Fancy look (`fx/fxState.ts`) now in
+  every country.
+- Streets: Hà Nội `VietnamStreet/layout.ts` (`PLAY` x −32…34; west block = `WestBlock.tsx`, east block `EAST` = `EastBlock.tsx`: đình, alley, juice shop, bookshop, night market), Lindenstraße `GermanyStreet/index.tsx` (old `PLAY` x −32…34 — the map edges are in Munich.tsx since 1.44; Altbau row ends at `ROW_END` 14.5, east = `Stadtpark.tsx`). `Backdrop` takes `clear={PLAY}` so distant blocks never stand in the play area. Map data for the 🗺️ view: `scenes/maps.ts` (update rects when buildings move).
 - Cars (1.22): traffic cars are **Quaternius Cars Pack (CC0)** models — `tools/obj2cars.mjs <folder>` converts the OBJ/MTL into `src/assets/models/cars.bin` (Int16 mm vertices + Uint16 indices per material) + `cars.json`; `shared/carModels.ts` (`loadCarModels`, `carModelShapes(name, color)` → Shapes items, flat normals, body material repainted, `paint: 'dark'` = darker shade) used by `Traffic.tsx` (model per vehicle from `CAR_MODELS`). Hand-built fallback while loading: `shared/props.ts` `carShapes(color)` 1.5 × 3.1 m, hatchback or sedan by a hash of the colour, glass cabin = cached `ExtrudeGeometry` of the side profile (`cabinGeometry`), pillars tilt with the glass (A: `rot −wa`, C: `+ra`); `Traffic.tsx` car collider half [0.78, 0.75, 1.58].
 - Riders: `npc/Traffic.tsx` uses `RIDES[kind]` (riderZ, seatY, grip, foot, lean, pedalRadius) — change a vehicle's shape ⇒ update its anchors in `vehicles.ts`.
 - Materials (`shared/materials.ts`): scene meshes use `vertexColorMaterial`; occlusion (1.38) = scene materials are `transparent` (alpha 1 normally, depth written): a soft alpha fade near the lens (2.0–3.2 m) + a smooth see-through tube (alpha ~0.25) between the camera and the player — no dither (user found it odd, it sparkled on phones) (`occlusion.target` = look point, `occlusion.feet` = player feet; the lowest 0.45 m above the feet stays solid). **Outdoors the CameraRig no longer lifts / zooms in for buildings** (user) — only rooms (`baseZoom < 1`) keep that. The player is visible behind walls via a **silhouette** mesh (`ChibiModel` `silhouette` prop, `chibi/materials.ts` `silhouetteMaterial`: depthFunc GreaterDepth + stencil NotEqual 1; every character material writes stencil 1 via `marksStencil()` so the player's own hidden inner parts never tint). Canvas needs `gl={{ stencil: true }}`. Ground never fades; `overlayMaterial` for markers.
@@ -356,7 +426,14 @@ Server: plain Node ESM `server/index.mjs` + `server/store.mjs` (MongoDB API — 
   portrait phones to turn (once; `visa-hunter-rotate-hint`). New full-screen UI: check it at 740 × 340 too
   (scratchpad test `land.mjs <out>`).
 - HUD top, joystick bottom-left, action buttons bottom-right.
-- Original/CC0 assets only (procedural except the CC0 car models, 1.22; libraries MIT/zlib/ISC are fine — 1.32 post effects) — log in `src/assets/CREDITS.md`. Downloading assets: kenney.nl / opengameart / itch fail TLS on this machine (incomplete chain) — never bypass verification; GitHub and quaternius.com (Drive links) work. Prefer converting into the Shapes pipeline (vertex colours, one draw call) over loading GLTF scenes.
+- Asset licences (user, 1.46: "ghi công cũng được"): CC0 preferred; **CC-BY, CC-BY-SA and MIT are allowed with credit**.
+  Every non-CC0 asset needs: author, title, source link, licence + link, "what we changed" — shown to PLAYERS in an in-game
+  credits screen (`ui/CreditsPanel.tsx` ← `data/credits.ts` `CREDIT_GROUPS`: what / by / source / license / copyright /
+  changes; opened from Settings and the title link "Ghi công"; title-safe, no imports in the data file) — add an entry
+  there for every new non-own asset or bundled library, plus `src/assets/CREDITS.md`.
+  CC-BY-SA assets go in their OWN pack / folder (never merged into a CC0 pack file) and our modified versions stay CC-BY-SA.
+  MIT: keep the copyright line + licence text. Never CC-BY-NC / ND or "free for personal use". Libraries MIT/zlib/ISC are fine.
+  Log everything in `src/assets/CREDITS.md`. Downloading assets: kenney.nl / opengameart / itch fail TLS on this machine (incomplete chain) — never bypass verification; GitHub and quaternius.com (Drive links) work. Prefer converting into the Shapes pipeline (vertex colours, one draw call) over loading GLTF scenes.
 - Keep draw calls low: merge static shapes with `Shapes`; characters are 1 draw call each. Street ≈ 65 calls, interiors 10–25.
 - Hooks: never call hooks conditionally (`a || useX()` is a bug).
 - GLSL: `half` is reserved — don't use it as a variable name.
@@ -366,6 +443,8 @@ Server: plain Node ESM `server/index.mjs` + `server/store.mjs` (MongoDB API — 
 
 ## Testing (headless, scratchpad scripts)
 Scratchpad: `C:\Users\nghia\AppData\Local\Temp\claude\627b47bef90453e3\bf9c0947-1757-4f86-8200-2916becb1661\scratchpad\` (puppeteer-core + system Chrome, swiftshader).
+1.46 session scratchpad (v146.mjs, phdl.mjs, detail.mjs = ambientCG → grey webp via sharp, Poly Haven sources in `phsrc/`):
+`C:\Users\nghia\AppData\Local\Temp\claude\aacfe38da20c250a\6b714af7-f3c4-4530-9910-6c8dc2e105f1\scratchpad\` (node_modules = junction).
 - `land.mjs <out>` 1.30 (scratchpad `C:\Users\nghia\AppData\Local\Temp\claude\627b47bef90453e3\18ca7d65-28a2-4000-abd0-9a472de2137b\scratchpad\`, node_modules = junction): landscape 844×390, 740×340, tablet 1180×820 — HUD overlaps, dialogue + toast, bag, settings, quiz, tea, Circle K (scan → pay), Grab (offers, map size, camera area, pad steers), rotate hint in portrait (vite 5199 only).
 - `brand.mjs <out>` 1.31 (same scratchpad): page title, splash without JS, title-screen name + stamp (landscape / portrait / desktop, fakes webdriver=false), loading-screen name text, run button not covered + toggles, Settings footer name.
 - `v121.mjs <out> [phone] [ck|grab|home|cars]` 1.21: plays a Circle K day shift through the DOM (scan, microwave timing, change from the drawer, crates), a rank-1 night shift (transfers, event), drives Grab with a BFS bot via arrow keys (headless swiftshader runs the game ~3× slower than real time — measure by the in-game clock), house levels 0–3, car shots. `car.mjs <out> [germany]` stands in a lane so a car stops in front of you, then photographs it. Scratchpad of that session: `C:\Users\nghia\AppData\Local\Temp\claude\627b47bef90453e3\8b86376e-58bd-421c-adf3-8b64f41261ae\scratchpad\` (node_modules is a junction to the older scratchpad's).

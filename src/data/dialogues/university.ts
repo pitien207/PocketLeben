@@ -3,7 +3,7 @@ import { useFlags } from '../../store/flagsStore'
 import { CONFIG } from '../config'
 import type { DialogueDef } from '../dialogueTypes'
 
-/** Chapter 4A: Universität Lindenberg — professor, student office, classmates. */
+/** Chapter 4A: LMU München — professor, student office, classmates. */
 
 const L = (vi: string, en: string, de?: string): Localized => ({ vi, en, de })
 const num = (key: string) => {

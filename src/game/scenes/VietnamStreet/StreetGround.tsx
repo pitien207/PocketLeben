@@ -1,7 +1,7 @@
 import { useEffect, useMemo } from 'react'
 import { CuboidCollider, RigidBody } from '@react-three/rapier'
 import { MeshLambertMaterial } from 'three'
-import { groundMaterial, lambert } from '../shared/materials'
+import { groundMaterial, lambert, withGroundDetail } from '../shared/materials'
 import { PALETTE as P } from '../shared/palette'
 import { Shapes, type ShapeItem } from '../shared/Shapes'
 import { makeTileTexture } from '../shared/textures'
@@ -118,7 +118,7 @@ export function StreetGround() {
     const d = PAVE.maxZ - PAVE.minZ
     // One repeat = 2×2 m (the texture holds 4 tiles).
     const map = makeTileTexture(P.pavement, P.pavementGrout, w / 2, d / 2)
-    return { w, d, material: new MeshLambertMaterial({ map }) }
+    return { w, d, material: withGroundDetail(new MeshLambertMaterial({ map }), 'concrete', 3.1, 0.45) }
   }, [])
   useEffect(
     () => () => {

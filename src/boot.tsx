@@ -11,6 +11,7 @@ import { useWorld } from './store/worldStore'
 import { useUI } from './store/uiStore'
 import { startNet } from './net/client'
 import { startSocial } from './net/social'
+import { startPfand } from './game/systems/pfandWorld'
 import { startPickleball } from './game/systems/pickleball'
 import { startSecrets } from './game/systems/secrets'
 import { SECRETS_ENABLED } from './data/secrets'
@@ -45,6 +46,8 @@ initAudio()
 if (!sandbox) {
   startSocial()
   startPickleball()
+  // 1.44 München Pfand bottles shared through the server (offline: spawned locally)
+  startPfand()
   startNet()
 }
 // 1.42 updates: we are in the game now (reload only at a good moment), and save before any reload

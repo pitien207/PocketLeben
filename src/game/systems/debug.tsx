@@ -1,4 +1,8 @@
 import { useEffect } from 'react'
+import { devSpawnBottle, pfandClock, pfandShared, PFAND_SPOTS } from './pfandWorld'
+import { MUC_SIGHTS } from '../../data/munich'
+import { modelPackReady } from '../scenes/shared/models'
+import { useSettings } from '../../store/settingsStore'
 import { useThree } from '@react-three/fiber'
 import { Vector3, type BufferGeometry } from 'three'
 import { useDialogue } from '../../store/dialogueStore'
@@ -72,6 +76,15 @@ export function installDebugHooks() {
       care: useCare,
       minigame: useMinigame,
       pfand: usePfand,
+      /** 1.44 drop a bottle at PFAND_SPOTS[spot] (offline mode), the shared mode flag */
+      pfandSpawn: devSpawnBottle,
+      pfandShared,
+      pfandSpots: PFAND_SPOTS,
+      /** 1.45 is a model pack loaded (nature, city, food, town, facade…)? */
+      modelReady: modelPackReady,
+      pfandClock,
+      mucSights: () => MUC_SIGHTS,
+      settings: useSettings,
       toasts: useToasts,
       guide: useGuide,
       /** Multiplayer: other players as last received, and the account / cloud-save helpers. */
@@ -96,8 +109,8 @@ export function installDebugHooks() {
         outfit: usePlayer.getState().outfit,
       }),
       /** Fixed inspection camera: __vh.look([x,y,z], [x,y,z]); __vh.look() returns to the player. */
-      look: (from?: [number, number, number], at?: [number, number, number]) => {
-        cameraState.free = from && at ? { from, at } : null
+      look: (from?: [number, number, number], at?: [number, number, number], fov?: number) => {
+        cameraState.free = from && at ? { from, at, fov } : null
         cameraState.snap = true
       },
       route,
@@ -119,6 +132,7 @@ export function DebugBridge() {
     const vh = (window as unknown as { __vh?: Record<string, unknown> }).__vh
     if (!vh) return
     vh.cameraPos = () => get().camera.position.toArray()
+    vh.threeScene = () => get().scene
     vh.renderInfo = () => {
       const { calls, triangles } = get().gl.info.render
       return { calls, triangles }

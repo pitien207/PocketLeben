@@ -45,6 +45,8 @@ export type ActionIconName =
   // 1.43 the first flight
   | 'seat'
   | 'board'
+  // 1.44 München: look at a sight
+  | 'sight'
 
 export interface TaskAction {
   id: string

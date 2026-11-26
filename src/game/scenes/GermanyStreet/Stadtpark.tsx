@@ -12,6 +12,8 @@ import { Shapes, type ShapeItem } from '../shared/Shapes'
 import { SignBoard } from '../shared/SignBoard'
 import type { SignOptions } from '../shared/textures'
 import { fitTree, useBlockerVersion } from '../shared/treeFit'
+import { kBeerTable, kLantern, LANTERN_HEAD } from './townProps'
+import { glowMaterial } from '../shared/materials'
 
 /**
  * Stadtpark (map extension 1.7), east of the bakery: a duck pond, a playground with
@@ -134,6 +136,11 @@ function parkShapes(): ShapeItem[] {
   s.push(place(benchShapes('#3a4a44'), [BENCH.x, 0, BENCH.z], Math.PI))
   s.push(place(benchShapes('#3a4a44'), [22.6, 0, -6.3], Math.PI))
   for (const x of [18.5, 27.0, 33.0]) {
+    const lib = kLantern()
+    if (lib) {
+      s.push(place(lib, [x, 0, -5.4], x))
+      continue
+    }
     s.push({ cyl: [0.05, 0.08, 3.2, 8], at: [x, 1.6, -5.4], color: '#3a4a44' })
     s.push({ sphere: [0.22, 10, 8], at: [x, 3.3, -5.4], color: '#fff2b3' })
   }
@@ -148,6 +155,13 @@ function parkShapes(): ShapeItem[] {
     [29.8, -8.4],
     [32.6, -7.6],
   ]) {
+    const set = kBeerTable()
+    if (set) {
+      s.push(place(set, [tx, 0, tz]))
+      s.push({ cyl: [0.05, 0.05, 2.0, 6], at: [tx, 1.2, tz], color: '#ffffff' })
+      s.push({ cyl: [0.02, 1.1, 0.35, 12], at: [tx, 2.2, tz], color: '#d4473b' })
+      continue
+    }
     s.push({ box: [1.8, 0.06, 0.6], at: [tx, 0.75, tz], color: P.wood })
     for (const dx of [-0.7, 0.7]) s.push({ box: [0.06, 0.72, 0.5], at: [tx + dx, 0.36, tz], color: P.woodDark })
     for (const dz of [-0.55, 0.55]) s.push({ box: [1.8, 0.05, 0.28], at: [tx, 0.45, tz + dz], color: P.wood })
@@ -182,6 +196,7 @@ function parkShapes(): ShapeItem[] {
 }
 
 const at = (x: number, y: number, z: number): Vec3 => [x, y, z]
+const PARK_GLOW: ShapeItem[] = [18.5, 27.0, 33.0].map((x) => ({ sphere: [0.17, 10, 8], at: [x, LANTERN_HEAD, -5.4], color: '#ffe7a8' }))
 const SWING_ACTIONS: SpotAction[] = [{ id: 'swing', labelKey: 'action.swing', icon: 'swing', action: 'park.swing', primary: true }]
 const DUCKS: SpotAction[] = [{ id: 'ducks', labelKey: 'action.feedDucks', icon: 'duck', action: 'park.ducks', primary: true }]
 const KIOSK_ACTIONS: SpotAction[] = [{ id: 'shop', labelKey: 'action.shop', icon: 'shop', action: 'de.openShop', arg: 'kiosk', primary: true }]
@@ -191,11 +206,13 @@ export const Stadtpark = memo(function Stadtpark() {
   const ground = useMemo(groundShapes, [])
   const fit = useBlockerVersion()
   const park = useMemo(parkShapes, [fit])
+  const parkGlow = useMemo(() => !!kLantern(), [])
   const { x0, x1, z0, z1 } = PARK
   return (
     <>
       <Shapes shapes={ground} material={groundMaterial} castShadow={false} />
       <Shapes shapes={park} />
+      {parkGlow && <Shapes shapes={PARK_GLOW} material={glowMaterial} castShadow={false} receiveShadow={false} />}
       <SignBoard options={PARK_SIGN} width={2.4} position={[GATE.x0 - 1.4, 1.35, z1 + 0.12]} />
       <SignBoard options={KIOSK_SIGN} width={2.2} position={[KIOSK.x, 2.0, KIOSK.z + 1.06]} flat />
       <RigidBody type="fixed" colliders={false}>

@@ -1,5 +1,5 @@
 /**
- * 1.43 The first flight to Germany (pure data, no stores): Hà Nội → München (transit, Passkontrolle) → Frankfurt.
+ * 1.43 The first flight to Germany (pure data, no stores): Hà Nội → Frankfurt (transit, Passkontrolle) → München.
  * Everything a player has to read — the seat on the boarding pass, the connecting flight, the departures board,
  * the gate screens — comes from ONE seed (flag `fly.seed`), so the board, the pass and the gates always agree.
  * Airlines are made up (Sông Hồng Air "SH", Rheinflug "RF").
@@ -19,7 +19,7 @@ export const GATES = ['G10', 'G12', 'G14', 'H27', 'H29', 'H31'] as const
 export type GateId = (typeof GATES)[number]
 
 /** Times in minutes after midnight (the game's clock). */
-export const LEG1 = { flight: 'SH 701', from: 'HAN', fromCity: 'Hà Nội', to: 'MUC', toCity: 'München', gate: '7', boarding: 23 * 60 + 15, dep: 23 * 60 + 45, arr: 6 * 60 + 5 }
+export const LEG1 = { flight: 'SH 701', from: 'HAN', fromCity: 'Hà Nội', to: 'FRA', toCity: 'Frankfurt', gate: '7', boarding: 23 * 60 + 15, dep: 23 * 60 + 45, arr: 6 * 60 + 5 }
 export const LEG2_TIMES = { boarding: 9 * 60 + 10, dep: 9 * 60 + 40, arr: 10 * 60 + 45 }
 
 export interface BoardRow {
@@ -29,7 +29,7 @@ export interface BoardRow {
   gate: GateId
   /** The player's connecting flight. */
   mine?: boolean
-  /** The other Frankfurt flight (an earlier one, another number). */
+  /** The other München flight (an earlier one, another number). */
   decoy?: boolean
   /** Minutes late (shown as a new time). */
   delay?: number
@@ -40,7 +40,7 @@ export interface FlightPlan {
   seat: string
   row: number
   letter: SeatLetter
-  leg2: { flight: string; to: 'FRA'; toCity: 'Frankfurt'; gate: GateId; seat: string; boarding: number; dep: number; arr: number }
+  leg2: { flight: string; to: 'MUC'; toCity: 'München'; gate: GateId; seat: string; boarding: number; dep: number; arr: number }
   /** Departures board of the transit airport, sorted by time. */
   rows: BoardRow[]
 }
@@ -79,7 +79,7 @@ export function flightPlan(seed: number): FlightPlan {
   }
   const gates = shuffle(GATES, r)
   const [gMine, gDecoy, g3, g4, g5, g6] = gates
-  // Flight numbers: mine, an earlier Frankfurt flight close to it, and one with two digits swapped.
+  // Flight numbers: mine, an earlier München flight close to it, and one with two digits swapped.
   const n = 2030 + Math.floor(r() * 60)
   const mine = n % 10 === Math.floor(n / 10) % 10 ? n + 1 : n
   const decoy = mine - 2 - Math.floor(r() * 5)
@@ -88,12 +88,12 @@ export function flightPlan(seed: number): FlightPlan {
   const cities = shuffle(OTHER_CITIES, r)
   const num = () => `RF ${1100 + Math.floor(r() * 880)}`
   const rows: BoardRow[] = [
-    { time: 6 * 60 + 20, flight: `RF ${decoy}`, dest: 'Frankfurt', gate: gDecoy, decoy: true },
+    { time: 6 * 60 + 20, flight: `RF ${decoy}`, dest: 'München', gate: gDecoy, decoy: true },
     { time: 6 * 60 + 45, flight: num(), dest: cities[0], gate: g3 },
     { time: 7 * 60 + 30, flight: `RF ${swapped}`, dest: cities[1], gate: g4 },
     { time: 8 * 60 + 10, flight: num(), dest: cities[2], gate: gDecoy },
     { time: 8 * 60 + 55, flight: num(), dest: cities[3], gate: g5, delay: 25 },
-    { time: LEG2_TIMES.dep, flight: `RF ${mine}`, dest: 'Frankfurt', gate: gMine, mine: true },
+    { time: LEG2_TIMES.dep, flight: `RF ${mine}`, dest: 'München', gate: gMine, mine: true },
     { time: 10 * 60 + 15, flight: num(), dest: cities[4], gate: g6 },
     { time: 10 * 60 + 50, flight: num(), dest: cities[5], gate: g3 },
     { time: 11 * 60 + 25, flight: num(), dest: cities[6], gate: g4 },
@@ -104,7 +104,7 @@ export function flightPlan(seed: number): FlightPlan {
     seat: `${row}${letter}`,
     row,
     letter,
-    leg2: { flight: `RF ${mine}`, to: 'FRA', toCity: 'Frankfurt', gate: gMine, seat: seat2, ...LEG2_TIMES },
+    leg2: { flight: `RF ${mine}`, to: 'MUC', toCity: 'München', gate: gMine, seat: seat2, ...LEG2_TIMES },
     rows,
   }
 }

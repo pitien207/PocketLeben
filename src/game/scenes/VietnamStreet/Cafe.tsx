@@ -11,6 +11,8 @@ import { cafeTableSetShapes, place, softPlantShapes } from '../shared/props'
 import { Shapes, type ShapeItem } from '../shared/Shapes'
 import { makeSignTexture, makeStripeTexture, SIGN_FONT_FAMILY } from '../shared/textures'
 import { CAFE_INTERIOR } from './layout'
+import { seeded } from './decorHouses'
+import { hanoiHouse } from './hanoiHouses'
 
 const W = 7 // width
 const D = 6 // depth of the open hall
@@ -123,21 +125,29 @@ function cafeShapes(): ShapeItem[] {
 
 /** Roof slab + sign board: hidden (but still shadow-casting) while the player is inside. */
 function roofShapes(): ShapeItem[] {
+  // 1.46: one floor of a Hà Nội nhà ống above the shop (library modules), set back 1.1 m behind the roof sign (a little terrace); it cuts away
+  // with the roof when you walk in. Without the pack the café stays one storey.
+  const UP_FH = 2.9
+  const UP_Y = H + 0.25
+  const UP_D = D + STORE_D - 1.1
+  const upper = hanoiHouse('tube', W - 0.2, UP_D, seeded(71), { upperOnly: true, floors: 2, fh: UP_FH, wall: '#ffd9df', rail: '#b0486a', shutter: '#e8697d', roofTank: false, plants: true, airCon: true })
   // The shop's mascot on the roof: a giant cup of bubble tea with a straw
   const cupX = 2.75
-  const cupY = H + 0.25
+  const cupY = upper ? UP_Y + UP_FH + 0.15 : H + 0.25
+  const cupZ = upper ? F - 2.3 : F - 0.75
   const cup: ShapeItem[] = [
-    { cyl: [0.5, 0.36, 1.1, 16], at: [cupX, cupY + 0.55, F - 0.75], color: '#e9c39a' },
-    { cyl: [0.4, 0.36, 0.3, 16], at: [cupX, cupY + 0.16, F - 0.75], color: '#5a4038' },
-    { cyl: [0.53, 0.53, 0.08, 16], at: [cupX, cupY + 1.13, F - 0.75], color: '#f8a5b4' },
-    { cyl: [0.07, 0.07, 0.9, 8], at: [cupX + 0.12, cupY + 1.5, F - 0.75], rot: [0, 0, -0.22], color: '#ff6f91' },
+    { cyl: [0.5, 0.36, 1.1, 16], at: [cupX, cupY + 0.55, cupZ], color: '#e9c39a' },
+    { cyl: [0.4, 0.36, 0.3, 16], at: [cupX, cupY + 0.16, cupZ], color: '#5a4038' },
+    { cyl: [0.53, 0.53, 0.08, 16], at: [cupX, cupY + 1.13, cupZ], color: '#f8a5b4' },
+    { cyl: [0.07, 0.07, 0.9, 8], at: [cupX + 0.12, cupY + 1.5, cupZ], rot: [0, 0, -0.22], color: '#ff6f91' },
   ]
   for (let i = 0; i < 7; i++) {
     const a = (i / 7) * Math.PI * 2
-    cup.push({ sphere: [0.085, 8, 6], at: [cupX + Math.sin(a) * 0.37, cupY + 0.12 + (i % 2) * 0.14, F - 0.75 + Math.cos(a) * 0.37], color: '#2f221f' })
+    cup.push({ sphere: [0.085, 8, 6], at: [cupX + Math.sin(a) * 0.37, cupY + 0.12 + (i % 2) * 0.14, cupZ + Math.cos(a) * 0.37], color: '#2f221f' })
   }
   return [
     ...cup,
+    ...(upper ? [{ group: upper, at: [0, UP_Y - UP_FH, F - 1.1 - UP_D / 2] as Vec3 }] : []),
     { box: [W + 0.3, 0.25, D + 0.3], at: [0, H + 0.125, 0], color: TRIM },
     { box: [3.9, 1.1, 0.12], at: [0, H + 0.82, F - 0.12], color: TRIM },
     { box: [0.12, 0.5, 0.12], at: [-1.6, H + 0.25, F - 0.25], color: P.darkSteel },

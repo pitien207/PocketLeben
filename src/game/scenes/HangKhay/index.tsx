@@ -7,8 +7,10 @@ import { ActionSpot, type SpotAction } from '../../components/ActionSpot'
 import { NPC } from '../../components/npc/NPC'
 import { Traffic } from '../../components/npc/Traffic'
 import { BUILDING_GROUPS, PROP_GROUPS } from '../../systems/collisionGroups'
-import { glowMaterial, groundMaterial } from '../shared/materials'
+import { glowMaterial, groundMaterial, withGroundDetail } from '../shared/materials'
 import { modelFrontAt, modelShapes, modelSize, pickBy } from '../shared/models'
+import { seeded } from '../VietnamStreet/decorHouses'
+import { hanoiHouse, type HanoiStyle } from '../VietnamStreet/hanoiHouses'
 import { PALETTE as P } from '../shared/palette'
 import { libraryTree, place, softPlantShapes, stoolShapes } from '../shared/props'
 import { FountainWater, type FountainSpec } from '../shared/FountainWater'
@@ -54,8 +56,27 @@ function front(b: Building, out: number, along = 0): [number, number] {
 }
 const faceYaw = (b: Building) => (b.face === 'north' ? Math.PI : b.face === 'west' ? -Math.PI / 2 : Math.PI / 2)
 
+/** 1.46 (user: "phải hợp với kiến trúc Việt Nam"): Hàng Khay's houses as Hà Nội houses — the French colonial bank, police,
+ * hospital, library and school, mini hotels, modern shops and a nhà ống gold shop — from library modules (hanoiHouses),
+ * on the same footprint as the old Quaternius buildings (doors, signs and colliders stay where they were). */
+const HK_STYLE: Record<string, HanoiStyle> = {
+  bank: 'colonial', cinema: 'modern', bookstore: 'colonial', restaurant: 'colonial', hotel: 'hotel', supermarket: 'modern', phoneShop: 'modern',
+  karaoke: 'hotel', gym: 'modern', goldShop: 'tube', hospital: 'colonial', police: 'colonial', library: 'colonial', school: 'colonial',
+}
+const HK_FH = 3.2
+const hkLibrary = () => !!modelShapes('kfBlock')
+
+function hanoiBuilding(b: Building): ShapeItem[] | null {
+  const { w, d, h } = placement(b)
+  const style = HK_STYLE[b.id ?? ''] ?? 'tube'
+  const floors = Math.max(2, Math.min(style === 'hotel' ? 6 : 4, Math.round(h / HK_FH)))
+  return hanoiHouse(style, w, d, seeded(Math.round(b.x * 10 + b.z)), { floors, fh: HK_FH, wall: b.wall, shop: style !== 'colonial', noBalcony1: true })
+}
+
 function buildingShapes(b: Building): ShapeItem[] {
   const { at, rotY } = placement(b)
+  const lib = hanoiBuilding(b)
+  if (lib) return [place(lib, at, rotY)]
   const wall = b.wall
   const wall2 = b.wall2 ?? shade(wall, 0.08)
   const items = modelShapes(b.model, {
@@ -265,19 +286,26 @@ function skylineShapes(): ShapeItem[] {
   const s: ShapeItem[] = []
   const colors = ['#f2c46d', '#f4dfae', '#e8b04a', '#f6e7c4', '#d9c6a1', '#f0b9a0', '#cfe0c8', '#d9cbe8']
   let k = 0
-  const block = (x: number, z: number, w: number, d: number) => {
+  const block = (x: number, z: number, w: number, d: number, rotY = 0) => {
     const h = 6 + ((k * 7) % 5) * 2.5
+    // 1.46: Hà Nội houses (library modules) instead of plain boxes
+    const lib = hanoiHouse(k % 4 === 3 ? 'tapThe' : 'tube', w, d, seeded(k + 700), { floors: Math.max(2, Math.round(h / 2.9)), wall: colors[k % colors.length], airCon: false, plants: false })
+    if (lib) {
+      s.push(place(lib, [x, 0, z], rotY))
+      k++
+      return
+    }
     s.push({ box: [w, h, d], at: [x, h / 2, z], color: colors[k % colors.length] })
     s.push({ box: [w + 0.2, 0.3, d + 0.2], at: [x, h + 0.15, z], color: '#c8653d' })
     k++
   }
   for (let x = -70; x < 72; x += 9) {
     if (x > BA_TRIEU.px0 - 6 && x < BA_TRIEU.px1 + 3) continue
-    block(x, PLAY.maxZ + 8 + (k % 2) * 3, 8, 7)
+    block(x, PLAY.maxZ + 8 + (k % 2) * 3, 8, 7, Math.PI)
   }
   for (let z = OZ + 22; z < OZ + 70; z += 9) {
-    block(PLAY.minX - 9 - (k % 2) * 2, z, 7, 8)
-    block(PLAY.maxX + 9 + (k % 2) * 2, z, 7, 8)
+    block(PLAY.minX - 9 - (k % 2) * 2, z, 8, 7, Math.PI / 2)
+    block(PLAY.maxX + 9 + (k % 2) * 2, z, 8, 7, -Math.PI / 2)
   }
   for (let i = 0; i < 18; i++) {
     const t = libraryTree(i % 3 ? 'green' : 'blossom', i + 900, 1)
@@ -305,10 +333,11 @@ function Signs() {
       {BUILDINGS.filter((b) => b.id).map((b) => {
         const { w, d } = placement(b)
         const width = Math.min(w * 0.8, b.model === 'b4Story_Wide_2Doors' ? 9 : 5.2)
-        const y = b.model === 'b1Story_Sign' ? 3.3 : 3.75
+        const lib = hkLibrary()
+        const y = lib ? HK_FH + 0.55 : b.model === 'b1Story_Sign' ? 3.3 : 3.75
         // 1.36: flat on the real wall at that height (the bounding box front includes steps and canopies)
-        const wall = modelFrontAt(b.model, y - 0.55, y + 0.55, width / 2)
-        const [x, z] = front(b, wall === null ? 0.42 : 0.1 - (d / 2 - wall))
+        const wall = lib ? d / 2 : modelFrontAt(b.model, y - 0.55, y + 0.55, width / 2)
+        const [x, z] = front(b, wall === null ? 0.42 : 0.12 - (d / 2 - wall))
         return <SignBoard key={b.id} options={CITY_PLACES[b.id!].sign} width={width} position={[x, y, z]} rotation={[0, faceYaw(b), 0]} />
       })}
       <SignBoard options={CITY_PLACES.flowerMarket.sign} width={3.4} position={[FLOWER_MARKET.x + 2.1, 2.6, FLOWER_MARKET.z0 - 2.0]} rotation={[0, Math.PI / 2, 0]} />
@@ -329,7 +358,7 @@ export const HangKhay = memo(function HangKhay() {
     const w = PLAY.maxX - PLAY.minX + 1.2
     const d = PARK.z0 - PLAY.minZ
     const map = makeTileTexture(P.pavement, P.pavementGrout, w / 2, d / 2)
-    return { w, d, material: new MeshLambertMaterial({ map }) }
+    return { w, d, material: withGroundDetail(new MeshLambertMaterial({ map }), 'concrete', 3.1, 0.45) }
   }, [])
   useEffect(
     () => () => {

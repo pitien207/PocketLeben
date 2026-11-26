@@ -7,7 +7,7 @@ import type { KeyItemDef } from '../data/keyItems'
 import { SKILLS, type SkillId } from '../data/skills'
 import { CONFIG } from '../data/config'
 import { eatFromBag } from '../game/systems/effects'
-import { bagCapacity, bagWeight, dropBottle, dropItem, formatKg, keyItemsHeld } from '../game/systems/bag'
+import { bagCapacity, bagWeight, dropBottle, dropGoldBottle, dropItem, formatKg, keyItemsHeld } from '../game/systems/bag'
 import { flagNumber } from '../game/systems/conditions'
 import { currentFlightPlan } from '../game/systems/flight'
 import { isWearing, takeOff, wear } from '../game/systems/wardrobe'
@@ -60,9 +60,10 @@ function WeightBar() {
 type Slot =
   | { kind: 'item'; id: string; count: number; item: ItemDef }
   | { kind: 'bottles'; count: number }
+  | { kind: 'goldBottles'; count: number }
   | { kind: 'paper'; paper: KeyItemDef }
 
-const slotKey = (s: Slot) => (s.kind === 'item' ? `item:${s.id}` : s.kind === 'paper' ? `paper:${s.paper.id}` : 'bottles')
+const slotKey = (s: Slot) => (s.kind === 'item' ? `item:${s.id}` : s.kind === 'paper' ? `paper:${s.paper.id}` : s.kind)
 const MIN_SLOTS = 12
 
 /** One square in the grid: icon, count, a lock on important papers. */
@@ -76,11 +77,11 @@ function SlotTile({ slot, selected, onSelect }: { slot: Slot | null; selected: b
         onClick={onSelect}
         data-testid={`slot-${slotKey(slot)}`}
         className={`relative grid h-full w-full place-items-center rounded-xl border-2 text-[34px] transition active:translate-y-0.5 ${
-          selected ? 'border-lacquer bg-white shadow-[0_0_0_3px_var(--color-gold)]' : paper ? 'border-outline bg-gold-light' : 'border-outline bg-white/90'
+          selected ? 'border-lacquer bg-white shadow-[0_0_0_3px_var(--color-gold)]' : paper || slot.kind === 'goldBottles' ? 'border-outline bg-gold-light' : 'border-outline bg-white/90'
         } shadow-[inset_0_-3px_0_rgba(74,50,38,0.15)]`}
       >
         {slot.kind === 'item' && <ItemIcon name={slot.item.icon} />}
-        {slot.kind === 'bottles' && <ActionIcon name="bottle" />}
+        {(slot.kind === 'bottles' || slot.kind === 'goldBottles') && <ActionIcon name="bottle" />}
         {slot.kind === 'paper' && <PaperIcon kind={slot.paper.icon} />}
         {slot.kind !== 'paper' && slot.count > 1 && (
           <span className="absolute right-0.5 bottom-0.5 rounded-md border border-outline bg-ink px-1 text-[11px] leading-tight font-black text-cream tabular-nums">
@@ -158,6 +159,24 @@ function SlotDetail({ slot }: { slot: Slot }) {
       </div>
     )
   }
+  if (slot.kind === 'goldBottles') {
+    return (
+      <div className="flex items-center gap-3">
+        <span className="grid h-14 w-14 shrink-0 place-items-center rounded-xl border-2 border-outline bg-gold-light text-[38px]">
+          <ActionIcon name="bottle" />
+        </span>
+        <span className="min-w-0 flex-1">
+          <span className="block font-display text-base leading-tight font-extrabold">
+            {t('bag.goldBottles')} ×{slot.count}
+          </span>
+          <span className="block text-[12px] leading-snug font-bold text-ink/70">
+            {t('bag.goldBottlesHint', { value: CONFIG.pfand.goldValue })} · {formatKg(CONFIG.bag.bottleKg)}
+          </span>
+        </span>
+        <DropButton label={t('bag.drop')} onDrop={dropGoldBottle} />
+      </div>
+    )
+  }
   if (slot.kind === 'bottles') {
     return (
       <div className="flex items-center gap-3">
@@ -216,6 +235,8 @@ function Items() {
   }
   const bottles = flagNumber('pfand.carried')
   if (bottles > 0) slots.push({ kind: 'bottles', count: bottles })
+  const gold = flagNumber('pfand.gold')
+  if (gold > 0) slots.push({ kind: 'goldBottles', count: gold })
   for (const paper of keyItemsHeld()) slots.push({ kind: 'paper', paper })
   const grid: (Slot | null)[] = [...slots]
   while (grid.length < MIN_SLOTS || grid.length % 4) grid.push(null)

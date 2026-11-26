@@ -586,9 +586,9 @@ export const STEP_GUIDES: Record<string, StepGuide> = {
   'dep.gate': {
     targets: [{ if: { noFlag: 'fly.boardRead' }, target: { scene: 'transit', spot: 'transit-board' } }, { target: { scene: 'transit', at: [0, 0, -7.2] } }],
     hint: L(
-      'Bảng „Abflug" giữa sảnh: tìm chuyến {flight2} đi Frankfurt (cẩn thận, có hai chuyến đi Frankfurt!). Cổng: {gate2}. Đi theo biển G ← / → H rồi đưa thẻ ở quầy cổng.',
-      'The “Abflug” board in the hall: find {flight2} to Frankfurt (careful, two flights go to Frankfurt!). Gate: {gate2}. Follow G ← / → H and show your pass at the gate desk.',
-      'Abflugtafel: {flight2} nach Frankfurt. Gate: {gate2}.',
+      'Bảng „Abflug" giữa sảnh: tìm chuyến {flight2} đi München (cẩn thận, có hai chuyến đi München!). Cổng: {gate2}. Đi theo biển G ← / → H rồi đưa thẻ ở quầy cổng.',
+      'The “Abflug” board in the hall: find {flight2} to München (careful, two flights go to München!). Gate: {gate2}. Follow G ← / → H and show your pass at the gate desk.',
+      'Abflugtafel: {flight2} nach München. Gate: {gate2}.',
     ),
   },
 
@@ -658,6 +658,32 @@ export const STEP_GUIDES: Record<string, StepGuide> = {
       'Back to your WG room → the laptop desk → Insurance.',
       'Zurück in die WG → Laptop → Versicherung.',
     ),
+  },
+
+  // 1.44 Khám phá München (sights: data/munich.ts)
+  'muc.rathaus': {
+    targets: [{ target: { scene: 'germany', spot: 'muc-rathaus' } }],
+    hint: L("Từ Lindenstraße đi qua Sendlinger Tor (phía tây, sau đài phun nước) lên phía bắc là tới Marienplatz. Đứng trước tháp Neues Rathaus → Ngắm cảnh.", "Through the Sendlinger Tor (west, behind the fountain) north to Marienplatz. Stand before the town-hall tower → Look.", "Through the Sendlinger Tor (west, behind the fountain) north to Marienplatz. Stand before the town-hall tower → Look."),
+  },
+  'muc.frauenkirche': {
+    targets: [{ target: { scene: 'germany', spot: 'muc-frauenkirche' } }],
+    hint: L("Frauenkirche ở phía tây Marienplatz, sau phố đi bộ Kaufingerstraße. Đứng trước cửa chính giữa hai tháp.", "West of Marienplatz, behind Kaufingerstraße. Stand at the portal between the towers.", "West of Marienplatz, behind Kaufingerstraße. Stand at the portal between the towers."),
+  },
+  'muc.markt': {
+    targets: [{ target: { scene: 'germany', spot: 'muc-viktualienmarkt' } }],
+    hint: L("Viktualienmarkt ở phía đông Marienplatz (sau Altes Rathaus), ngay phía bắc Stadtpark. Đứng dưới cây Maibaum sọc xanh-trắng.", "East of Marienplatz, north of the Stadtpark. Stand under the blue-and-white maypole.", "East of Marienplatz, north of the Stadtpark. Stand under the blue-and-white maypole."),
+  },
+  'muc.eisbach': {
+    targets: [{ target: { scene: 'germany', spot: 'muc-eisbach' } }],
+    hint: L("Đi lên phía bắc tới Prinzregentenstraße, qua Haus der Kunst là tới bờ suối Eisbach — có người lướt sóng!", "Go north to Prinzregentenstraße; behind the Haus der Kunst is the Eisbach wave.", "Go north to Prinzregentenstraße; behind the Haus der Kunst is the Eisbach wave."),
+  },
+  'muc.isar': {
+    targets: [{ target: { scene: 'germany', spot: 'muc-isar' } }],
+    hint: L("Sông Isar chảy dọc phía đông thành phố. Đi xuống bãi sỏi bên bờ tây.", "The Isar runs along the east side. Walk down to the gravel bank.", "The Isar runs along the east side. Walk down to the gravel bank."),
+  },
+  'muc.all': {
+    targets: [],
+    hint: L('Mở bản đồ (M): các địa danh có tên. Đứng ở mỗi nơi → Ngắm cảnh. Còn Siegestor, Monopteros, Chinesischer Turm, Friedensengel…', 'Open the map (M). Stand at each sight → Look.', 'Karte (M) öffnen, an jedem Ort → Anschauen.'),
   },
 
   // Chapter 4 — the first workday
@@ -866,10 +892,10 @@ export const SCENE_LINKS: { from: SceneId; to: SceneId; via: GuidePoint; label: 
   { from: 'embassy', to: 'vietnam', via: { spot: 'embassy-exit' }, label: L('Về nhà bằng xe ôm', 'Ride home', 'Nach Hause fahren') },
   { from: 'vietnam', to: 'airport', via: { npc: 'anhTu' }, label: L('Đi xe ôm Anh Tú', 'Ride with Tú (xe ôm)', 'Mit Tú (Motorradtaxi)') },
   { from: 'airport', to: 'vietnam', via: { spot: 'airport-exit' }, label: L('Về nhà', 'Go back home', 'Zurück nach Hause') },
-  // 1.43 the first flight: gate 7 → the cabin → transit in München → Frankfurt
+  // 1.43 the first flight: gate 7 → the cabin → transit in Frankfurt → München
   { from: 'airport', to: 'plane', via: { spot: 'gate' }, label: L('Lên máy bay', 'Board the plane', 'Einsteigen') },
   { from: 'plane', to: 'transit', via: { at: [0, 0, -6] }, label: L('Tìm ghế, ngồi xuống', 'Find your seat', 'Platz suchen') },
-  { from: 'transit', to: 'germany', via: { spot: 'transit-board' }, label: L('Tìm cổng bay đi Frankfurt', 'Find the gate to Frankfurt', 'Gate nach Frankfurt finden') },
+  { from: 'transit', to: 'germany', via: { spot: 'transit-board' }, label: L('Tìm cổng bay đi München', 'Find the gate to München', 'Gate nach München finden') },
   { from: 'germany', to: 'wg', via: { spot: 'de-wg' }, label: L('Vào Lindenstraße 12', 'Into Lindenstraße 12', 'In die Lindenstraße 12') },
   { from: 'wg', to: 'germany', via: { spot: 'wg-exit' }, label: L('Ra phố', 'Out to the street', 'Auf die Straße') },
   { from: 'germany', to: 'buergeramt', via: { spot: 'de-amt' }, label: L('Vào Bürgeramt', 'Into the Bürgeramt', 'Ins Bürgeramt') },

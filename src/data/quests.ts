@@ -229,8 +229,8 @@ export const QUESTS: QuestDef[] = [
       step('dep.airport', 'Ra sân bay, chào gia đình rồi qua cổng 7 lên máy bay', 'Go to the airport, say goodbye, board at gate 7', { any: [{ flag: 'fly.boarded' }, { flag: 'de.arrived' }] }),
       // 1.43 the first flight is played (systems/flight.ts)
       step('dep.seat', 'Trên máy bay: tìm đúng ghế ghi trên thẻ lên máy bay', 'On the plane: find the seat on your boarding pass', { any: [{ flag: 'fly.seated' }, { flag: 'de.arrived' }] }),
-      step('dep.passport', 'Transit München: theo biển "Anschlussflüge", qua kiểm soát hộ chiếu', 'Munich transit: follow "Anschlussflüge", pass passport control', { any: [{ flag: 'fly.passport' }, { flag: 'de.arrived' }] }),
-      step('dep.gate', 'Đọc bảng điện tử, tìm đúng cổng chuyến bay đi Frankfurt', 'Read the departures board, find the gate of your flight to Frankfurt', { flag: 'de.arrived' }),
+      step('dep.passport', 'Transit Frankfurt: theo biển "Anschlussflüge", qua kiểm soát hộ chiếu', 'Frankfurt transit: follow "Anschlussflüge", pass passport control', { any: [{ flag: 'fly.passport' }, { flag: 'de.arrived' }] }),
+      step('dep.gate', 'Đọc bảng điện tử, tìm đúng cổng chuyến bay đi München', 'Read the departures board, find the gate of your flight to München', { flag: 'de.arrived' }),
     ],
   },
   {
@@ -268,6 +268,22 @@ export const QUESTS: QuestDef[] = [
       step('life.pfand', 'Nhặt và trả 20 chai Pfand', 'Collect and return 20 Pfand bottles', { flag: 'stats.bottles', atLeast: 20 }),
       step('life.clothes', 'Mua đồ ở chợ Flohmarkt', 'Buy something at the flea market', { flag: 'stats.clothes', atLeast: 1 }),
       step('life.call', 'Gọi video về cho gia đình (laptop phòng WG)', 'Video-call your family (WG laptop)', { flag: 'stats.calls', atLeast: 1 }),
+    ],
+  },
+  {
+    // 1.44 München (data/munich.ts sights, systems/munich.ts)
+    id: 'muenchen',
+    chapter: 4,
+    title: L('Khám phá München', 'Exploring Munich'),
+    after: 'arrival',
+    side: true,
+    steps: [
+      step('muc.rathaus', 'Marienplatz: ngắm Neues Rathaus (Glockenspiel chơi lúc 11h, 12h, 17h)', 'Marienplatz: see the New Town Hall (Glockenspiel at 11, 12, 17)', { flag: 'muc.seen.rathaus' }),
+      step('muc.frauenkirche', 'Ngắm hai tháp Frauenkirche', 'See the towers of the Frauenkirche', { flag: 'muc.seen.frauenkirche' }),
+      step('muc.markt', 'Dạo chợ Viktualienmarkt, xem cây Maibaum', 'Walk round the Viktualienmarkt and its maypole', { flag: 'muc.seen.viktualienmarkt' }),
+      step('muc.eisbach', 'Englischer Garten: xem lướt sóng Eisbach', 'Englischer Garten: watch the Eisbach surfers', { flag: 'muc.seen.eisbach' }),
+      step('muc.isar', 'Ra bãi sỏi bờ sông Isar', 'Go down to the gravel banks of the Isar', { flag: 'muc.seen.isar' }),
+      step('muc.all', 'Ngắm hết các địa danh của München', 'See every sight of Munich', { test: 'muc.allSeen' }),
     ],
   },
   {
@@ -327,7 +343,7 @@ export const QUESTS: QuestDef[] = [
     after: 'arrival',
     when: STUDIUM,
     steps: [
-      step('uni.enroll', `Nhập học ở Đại học Lindenberg (đi tram, ${U.semesterFee} €)`, `Enrol at Lindenberg University (tram, ${U.semesterFee} €)`, { flag: 'uni.enrolled' }),
+      step('uni.enroll', `Nhập học ở Đại học LMU München (đi tram, ${U.semesterFee} €)`, `Enrol at LMU Munich (tram, ${U.semesterFee} €)`, { flag: 'uni.enrolled' }),
       step('uni.first', 'Nghe bài giảng đầu tiên của GS. Schulz', 'Attend Prof. Schulz’s first lecture', { flag: 'stats.lectures', atLeast: 1 }),
       step('uni.job', 'Làm Werkstudent: một ca ở viện dưỡng lão Sonnenhof', 'Werkstudent job: one shift at the Sonnenhof care home', { flag: 'stats.careShifts', atLeast: 1 }),
     ],

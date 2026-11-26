@@ -15,7 +15,7 @@ import { spendTime, weekdayIndex } from './time'
 
 /**
  * Chapter 4A — Studium: a dual nursing degree (B.Sc. Pflegewissenschaft) at Universität
- * Lindenberg. Enrol, attend lectures, do group work in the library, pass the semester
+ * München. Enrol, attend lectures, do group work in the library, pass the semester
  * exam (Klausur) and defend the Bachelor thesis. Werkstudent shifts at the care home pay
  * the bills. The degree also makes you a qualified nurse, so chapter 5 is shared.
  */

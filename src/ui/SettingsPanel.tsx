@@ -7,6 +7,7 @@ import { useDialogue } from '../store/dialogueStore'
 import { useSettings, type TimeSpeed } from '../store/settingsStore'
 import { useUI } from '../store/uiStore'
 import { CloseIcon } from './icons'
+import CreditsPanel from './CreditsPanel'
 import { TestTools } from './TestTools'
 import { pushToast } from '../store/toastStore'
 import { AUTH_ERRORS, GoogleButton, LoginPanel, useAccount } from './LoginPanel'
@@ -330,6 +331,7 @@ export function SettingsPanel() {
   const { musicOn, toggleMusic, sfxOn, toggleSfx, quality, setQuality,  timeSpeed, setTimeSpeed, guideArrows, setGuideArrows, guideHints, setGuideHints, fancy, setFancy } = useSettings()
   const fullscreen = useFullscreen()
   const taps = useRef({ n: 0, at: 0 })
+  const [credits, setCredits] = useState(false)
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -438,6 +440,16 @@ export function SettingsPanel() {
 
           <button
             type="button"
+            data-testid="credits-open"
+            onClick={() => setCredits(true)}
+            className="mt-4 flex w-full items-center justify-between rounded-2xl bg-ink/8 px-4 py-2.5 text-left text-sm font-extrabold active:translate-y-0.5"
+          >
+            {t('settings.credits')}
+            <span aria-hidden="true" className="text-ink/50">›</span>
+          </button>
+
+          <button
+            type="button"
             onClick={() => setOpen(false)}
             className="mt-4 w-full rounded-2xl btn-lacquer py-3 font-display text-lg font-extrabold active:translate-y-1 active:shadow-none"
           >
@@ -460,6 +472,7 @@ export function SettingsPanel() {
           </p>
         </div>
       </div>
+      {credits && <CreditsPanel onClose={() => setCredits(false)} />}
     </div>
   )
 }

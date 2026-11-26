@@ -15,8 +15,8 @@ import { Shapes, type ShapeItem } from '../shared/Shapes'
 import { GATE_SPOTS, T } from './layout'
 
 /**
- * 1.43 Transit in München (systems/flight.ts): follow "Anschlussflüge" (not "Ausgang"), pass the Passkontrolle at the
- * "Alle Pässe" desk, read the departures board, find the gate of your connecting flight to Frankfurt.
+ * 1.43 Transit in Frankfurt (systems/flight.ts): follow "Anschlussflüge" (not "Ausgang"), pass the Passkontrolle at the
+ * "Alle Pässe" desk, read the departures board, find the gate of your connecting flight to München.
  */
 
 const C = {
@@ -69,7 +69,7 @@ function hallShapes(): ShapeItem[] {
   wallX(co.x0, T.exit.z + 0.7, co.z1)
   wallX(co.x1, co.z0, co.z1)
   wallZ(co.z1, co.x0, co.x1, 0.9)
-  // Frosted glass exit doors (closed for you: your suitcase flies on to Frankfurt)
+  // Frosted glass exit doors (closed for you: your suitcase flies on to München)
   s.push({ box: [0.12, 2.3, 1.4], at: [co.x0, 1.15, T.exit.z], color: '#cfe3ee' })
   s.push({ box: [0.14, 2.3, 0.05], at: [co.x0, 1.15, T.exit.z], color: C.frame })
   s.push({ box: [0.3, 0.25, 1.5], at: [co.x0, 2.4, T.exit.z], color: C.green })

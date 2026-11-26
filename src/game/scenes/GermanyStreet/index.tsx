@@ -1,6 +1,5 @@
-import { memo, useEffect, useMemo } from 'react'
+import { memo, useMemo } from 'react'
 import { CuboidCollider, CylinderCollider, RigidBody } from '@react-three/rapier'
-import { MeshLambertMaterial } from 'three'
 import type { Vec3 } from '../../../data/config'
 import { NPCS } from '../../../data/npcs'
 import { ActionSpot, type SpotAction } from '../../components/ActionSpot'
@@ -8,24 +7,31 @@ import { ChatterDirector } from '../../components/npc/ChatterDirector'
 import { NPC } from '../../components/npc/NPC'
 import { Traffic, type Lane } from '../../components/npc/Traffic'
 import { BUILDING_GROUPS, PROP_GROUPS } from '../../systems/collisionGroups'
-import { groundMaterial, lambert } from '../shared/materials'
+import { groundMaterial } from '../shared/materials'
 import { PALETTE as P } from '../shared/palette'
 import { benchShapes, coneShapes, place, plantShapes, treeShapes } from '../shared/props'
 import { FountainWater, type FountainSpec } from '../shared/FountainWater'
 import { Shapes, type ShapeItem } from '../shared/Shapes'
 import { SignBoard } from '../shared/SignBoard'
-import { makeTileTexture, type SignOptions } from '../shared/textures'
-import { Backdrop } from '../VietnamStreet/Backdrop'
+import type { SignOptions } from '../shared/textures'
 import { Altbau } from './Altbau'
 import { PfandBottles } from './PfandBottles'
 import { Stadtpark } from './Stadtpark'
 import { fitTree, TreeClearance, useBlockerVersion } from '../shared/treeFit'
+import { LINDEN_ROW_X0, ROAD_WRAP } from './mucLayout'
+import { Munich } from './Munich'
+import { fountainWater, kFountain, kLantern, LANTERN_HEAD } from './townProps'
+import { glowMaterial } from '../shared/materials'
+import { modelShapes } from '../shared/models'
+import { MunichGround } from './MunichGround'
+import { MunichLife } from './MunichLife'
 
 /**
  * Lindenstraße (chapter 3–4): an Altbau street with the WG, the Bürgeramt, a supermarket,
  * a bakery and bank, a tram stop, a Döner kiosk and a flea market across the road.
  * West end (map extension): an Apotheke, the Asia-Markt and a small square with a fountain.
  * East end (1.7): the Stadtpark (Stadtpark.tsx).
+ * 1.44: the street is now one street of München — the whole city grows round it (munich.ts, Munich.tsx).
  */
 
 const FRONT = -4.5
@@ -33,8 +39,6 @@ const FRONT = -4.5
 const PLAY = { minX: -32, maxX: 34, minZ: FRONT, maxZ: 14.5 }
 /** Where the Altbau row ends and the Stadtpark begins. */
 const ROW_END = 14.5
-/** Nothing from the distant skyline may stand in the street or the park. */
-const CLEAR = { ...PLAY, minZ: -13 }
 const MID_X = (PLAY.minX + PLAY.maxX) / 2
 const PLAY_W = PLAY.maxX - PLAY.minX
 const DEPTH = 8.5
@@ -44,7 +48,6 @@ const LANES: Lane[] = [
   { z: 7.25, dir: 1 },
   { z: 4.55, dir: -1 },
 ]
-const GERMAN_COLORS = ['#c9d8e8', '#f2d9b8', '#e8c4b8', '#d8e4c8', '#efe2c4', '#cfc4e0']
 const KINDS = ['car', 'bicycle'] as const
 
 const sign = (title: string, subtitle: string, background: string, color: string, aspect = 4): SignOptions => ({
@@ -67,41 +70,23 @@ const SIGNS = {
   asia: sign('ASIA-MARKT', 'Reis · Nudeln · Nước mắm · Phở', '#c8322b', '#ffe08a', 4.4),
 }
 
+/** The Lindenstraße road + tram rails (the paving and the grass are MunichGround's since 1.44). */
 function GermanyGround() {
-  const paving = useMemo(() => {
-    const map = makeTileTexture('#dcd7cf', '#c2bbb0', PLAY_W + 1.2, 28)
-    return new MeshLambertMaterial({ map })
-  }, [])
-  useEffect(
-    () => () => {
-      paving.map?.dispose()
-      paving.dispose()
-    },
-    [paving],
-  )
   const road = useMemo<ShapeItem[]>(() => {
-    const s: ShapeItem[] = [{ box: [160, 0.02, ROAD.maxZ - ROAD.minZ], at: [0, 0.005, (ROAD.minZ + ROAD.maxZ) / 2], color: '#8f97a6' }]
+    const s: ShapeItem[] = [{ box: [200, 0.02, ROAD.maxZ - ROAD.minZ], at: [-20, 0.005, (ROAD.minZ + ROAD.maxZ) / 2], color: '#8f97a6' }]
     // Tram rails down the middle
-    for (const z of [5.45, 5.65, 6.15, 6.35]) s.push({ box: [160, 0.012, 0.06], at: [0, 0.02, z], color: '#c9ccd2' })
+    for (const z of [5.45, 5.65, 6.15, 6.35]) s.push({ box: [200, 0.012, 0.06], at: [-20, 0.02, z], color: '#c9ccd2' })
     // Curbs and a zebra crossing
-    s.push({ box: [160, 0.12, 0.22], at: [0, 0.06, ROAD.minZ], color: '#cfcac0' })
-    s.push({ box: [160, 0.12, 0.22], at: [0, 0.06, ROAD.maxZ], color: '#cfcac0' })
+    s.push({ box: [200, 0.12, 0.22], at: [-20, 0.06, ROAD.minZ], color: '#cfcac0' })
+    s.push({ box: [200, 0.12, 0.22], at: [-20, 0.06, ROAD.maxZ], color: '#cfcac0' })
+    // 1.44 crossings at Sendlinger Straße and the Isar promenade
+    for (const x of [-30.8, 38]) for (let z = ROAD.minZ + 0.45; z < ROAD.maxZ - 0.2; z += 0.8) s.push({ box: [2.2, 0.01, 0.42], at: [x, 0.022, z], color: P.roadLine })
     for (let z = ROAD.minZ + 0.45; z < ROAD.maxZ - 0.2; z += 0.8) s.push({ box: [2.2, 0.01, 0.42], at: [-6, 0.022, z], color: P.roadLine })
     // Park strip across the road
     s.push({ box: [PLAY_W, 0.03, 3.6], at: [MID_X, 0.01, 12.4], color: '#b9d9a0' })
     return s
   }, [])
-  return (
-    <>
-      <mesh rotation-x={-Math.PI / 2} position={[0, -0.02, 0]} material={lambert('#bcd6a6')} receiveShadow>
-        <planeGeometry args={[220, 220]} />
-      </mesh>
-      <mesh rotation-x={-Math.PI / 2} position={[MID_X, 0, 0.5]} material={paving} receiveShadow>
-        <planeGeometry args={[PLAY_W + 0.2, 28]} />
-      </mesh>
-      <Shapes shapes={road} material={groundMaterial} castShadow={false} />
-    </>
-  )
+  return <Shapes shapes={road} material={groundMaterial} castShadow={false} />
 }
 
 /** Street furniture: trees, lamps, bins, Litfaßsäule, tram stop, kiosk, flea market. */
@@ -120,8 +105,13 @@ function streetShapes(): ShapeItem[] {
   ]) {
     s.push(fitTree(treeShapes(Math.round(x * 7 + z) % 5 === 0 ? 'birch' : 'linden', Math.round(x * 7 + z)), [x, 0, z], x * 0.7, 1.15))
   }
-  // Classic lamp posts
-  for (const x of [-27, -19.5, -8, 3.8, 10.8]) {
+  // Classic lamp posts (1.45: the Kenney lantern; its glowing head is in LAMP_GLOW)
+  for (const x of LAMP_XS) {
+    const lib = kLantern()
+    if (lib) {
+      s.push(place(lib, [x, 0, 2.75], x))
+      continue
+    }
     s.push({ cyl: [0.06, 0.09, 3.6, 8], at: [x, 1.8, 2.75], color: '#3a4a44' })
     s.push({ box: [0.34, 0.45, 0.34], at: [x, 3.75, 2.75], color: '#3a4a44' })
     s.push({ box: [0.26, 0.32, 0.26], at: [x, 3.72, 2.75], color: '#fff2b3' })
@@ -153,11 +143,17 @@ function streetShapes(): ShapeItem[] {
   // Bike rack with a bike
   s.push({ box: [1.4, 0.06, 0.06], at: [1.8, 0.7, -3.7], color: P.steel })
   for (const x of [1.2, 1.8, 2.4]) s.push({ torus: [0.3, 0.03, 4, 12, Math.PI], at: [x, 0.05, -3.7], rot: [0, Math.PI / 2, 0], color: P.steel })
-  // Flea market tables and bench across the road
+  // Flea market tables and bench across the road (1.45: Kenney market tables with second-hand goods)
   for (const [x, c] of [
     [2.6, '#a9d6ff'],
     [4.4, '#ffe08a'],
   ] as const) {
+    const table = modelShapes('ktStall', { paint: (_m, col) => (parseInt(col.slice(1, 3), 16) > 150 ? '#a07a52' : col) })
+    if (table) {
+      s.push(place([{ group: table, scale: [1.3, 2.05, 1.6] }], [x, 0, 12.4], Math.PI / 2))
+      for (let i = 0; i < 4; i++) s.push({ box: [0.3, 0.12 + (i % 2) * 0.1, 0.3], at: [x - 0.55 + i * 0.36, 0.84 + (i % 2) * 0.05, 12.35], color: [c, P.rose, P.mint, P.white][i] })
+      continue
+    }
     s.push({ box: [1.6, 0.06, 0.8], at: [x, 0.75, 12.4], color: P.woodDark })
     s.push({ box: [1.5, 0.7, 0.04], at: [x, 0.38, 12.75], color: '#c4a074' })
     for (let i = 0; i < 4; i++) s.push({ box: [0.3, 0.12 + (i % 2) * 0.1, 0.3], at: [x - 0.55 + i * 0.36, 0.84 + (i % 2) * 0.05, 12.35], color: [c, P.rose, P.mint, P.white][i] })
@@ -180,7 +176,10 @@ const WEST_TREES: [number, number][] = [
 ]
 const FOUNTAIN = { x: -29.6, z: -1.2 }
 /** 1.42 moving water (shared/FountainWater). */
-const FOUNTAIN_WATER: FountainSpec[] = [{ x: FOUNTAIN.x, z: FOUNTAIN.z, basinY: 0.49, basinR: 1.15, bowlY: 1.71, bowlR: 0.48, topY: 1.8, jet: 0.5 }]
+const OLD_FOUNTAIN_WATER: FountainSpec[] = [{ x: FOUNTAIN.x, z: FOUNTAIN.z, basinY: 0.49, basinR: 1.15, bowlY: 1.71, bowlR: 0.48, topY: 1.8, jet: 0.5 }]
+const LAMP_XS = [-27, -19.5, -8, 3.8, 10.8]
+/** 1.45 the lantern heads (glowMaterial → they shine at night). */
+const LAMP_GLOW: ShapeItem[] = LAMP_XS.map((x) => ({ sphere: [0.17, 10, 8], at: [x, LANTERN_HEAD, 2.75], color: '#ffe7a8' }))
 
 /** West end: Apotheke display, Asia-Markt crates, a fountain square with benches. */
 function westShapes(): ShapeItem[] {
@@ -198,10 +197,14 @@ function westShapes(): ShapeItem[] {
   for (let i = 0; i < 3; i++) s.push({ box: [0.5, 0.18, 0.32], at: [-22.4, 0.1 + i * 0.19, FRONT + 0.5], color: i % 2 ? '#f6f1e7' : '#e8dcc0' })
   // Fountain square: round basin, column, water, benches facing it
   const { x: fx, z: fz } = FOUNTAIN
-  s.push({ cyl: [1.3, 1.4, 0.5, 20], at: [fx, 0.25, fz], color: '#cfc8bb' })
-  s.push({ cyl: [1.15, 1.15, 0.05, 20], at: [fx, 0.46, fz], color: '#8cc2d8' })
-  s.push({ cyl: [0.18, 0.22, 1.3, 10], at: [fx, 0.9, fz], color: '#cfc8bb' })
-  s.push({ cyl: [0.5, 0.3, 0.2, 12], at: [fx, 1.6, fz], color: '#cfc8bb' })
+  const fountain = kFountain(1.4)
+  if (fountain) s.push(place(fountain, [fx, 0, fz]))
+  else {
+    s.push({ cyl: [1.3, 1.4, 0.5, 20], at: [fx, 0.25, fz], color: '#cfc8bb' })
+    s.push({ cyl: [1.15, 1.15, 0.05, 20], at: [fx, 0.46, fz], color: '#8cc2d8' })
+    s.push({ cyl: [0.18, 0.22, 1.3, 10], at: [fx, 0.9, fz], color: '#cfc8bb' })
+    s.push({ cyl: [0.5, 0.3, 0.2, 12], at: [fx, 1.6, fz], color: '#cfc8bb' })
+  }
   s.push(place(benchShapes('#3a4a44'), [fx - 2.4, 0, fz + 1.0], Math.PI / 2 + 0.3))
   s.push(place(benchShapes('#3a4a44'), [fx + 2.4, 0, fz + 1.0], -Math.PI / 2 - 0.3))
   s.push(place(benchShapes('#3a4a44'), [-21, 0, 11.6], Math.PI))
@@ -238,7 +241,7 @@ const WG_ACTIONS: SpotAction[] = [
 const AMT: SpotAction[] = [{ id: 'enter', labelKey: 'action.enter', icon: 'door', action: 'de.enterBuergeramt', primary: true }]
 const MARKET: SpotAction[] = [
   { id: 'shop', labelKey: 'action.shop', icon: 'shop', action: 'de.openShop', arg: 'supermarkt', primary: true },
-  { id: 'pfand', labelKey: 'action.pfandReturn', icon: 'bottle', action: 'de.pfandReturn', if: { flag: 'pfand.carried', atLeast: 1 } },
+  { id: 'pfand', labelKey: 'action.pfandReturn', icon: 'bottle', action: 'de.pfandReturn', if: { test: 'pfand.carrying' } },
 ]
 const BAKERY: SpotAction[] = [{ id: 'shop', labelKey: 'action.shop', icon: 'shop', action: 'de.openShop', arg: 'baeckerei', primary: true }]
 const KIOSK: SpotAction[] = [{ id: 'shop', labelKey: 'action.shop', icon: 'shop', action: 'de.openShop', arg: 'imbiss', primary: true }]
@@ -255,9 +258,12 @@ const at = (x: number, y: number, z: number): Vec3 => [x, y, z]
 const GermanyStreet = memo(function GermanyStreet() {
   const fit = useBlockerVersion()
   const street = useMemo(streetShapes, [fit])
+  const lanterns = useMemo(() => !!kLantern(), [])
+  const fountainWaterSpec = useMemo(() => (kFountain(1.4) ? [fountainWater(FOUNTAIN.x, FOUNTAIN.z, 1.4)] : OLD_FOUNTAIN_WATER), [])
   const market = useMemo(supermarketShapes, [])
   return (
     <>
+      <MunichGround />
       <GermanyGround />
       <Altbau position={[-9.5, 0, CZ]} width={7} depth={DEPTH} floors={4} wall="#a9c8e8" trim="#ffffff" roof="#6b7280" doorX={0} flowers />
       <Altbau position={[-2.0, 0, CZ]} width={6.5} depth={DEPTH} floors={3} wall="#e8dcc0" trim="#ffffff" roof="#b5524a" doorX={0} />
@@ -279,7 +285,8 @@ const GermanyStreet = memo(function GermanyStreet() {
       <SignBoard options={SIGNS.doener} width={1.6} position={[9.2, 2.05, 1.56]} />
 
       <Shapes shapes={street} />
-      <FountainWater fountains={FOUNTAIN_WATER} />
+      <FountainWater fountains={fountainWaterSpec} />
+      {lanterns && <Shapes shapes={LAMP_GLOW} material={glowMaterial} castShadow={false} receiveShadow={false} />}
       <RigidBody type="fixed" colliders={false}>
         {[[-11.5, 2.4], [-3.6, 2.4], [5.6, 2.4], [12.6, 2.4], [-10, 12.8], [-2, 13.2], [7.5, 12.8], [12.2, 13.2], ...WEST_TREES].map(([x, z]) => (
           <CylinderCollider key={`t${x},${z}`} args={[0.8, 0.25]} position={[x, 0.8, z]} collisionGroups={PROP_GROUPS} />
@@ -293,11 +300,8 @@ const GermanyStreet = memo(function GermanyStreet() {
         <CuboidCollider args={[0.45, 0.85, 0.3]} position={[6.7, 0.85, FRONT + 0.3]} collisionGroups={PROP_GROUPS} />
         <CuboidCollider args={[1.8, 0.45, 0.45]} position={[3.5, 0.45, 12.5]} collisionGroups={PROP_GROUPS} />
         <CuboidCollider args={[0.8, 0.45, 0.25]} position={[-4, 0.45, 11.6]} collisionGroups={PROP_GROUPS} />
-        {/* Invisible bounds (incl. a wall just behind the facades so nobody slips between houses) */}
-        <CuboidCollider args={[(ROW_END - PLAY.minX) / 2 + 0.5, 4, 0.3]} position={[(ROW_END + PLAY.minX) / 2, 4, FRONT - 0.5]} collisionGroups={PROP_GROUPS} />
-        <CuboidCollider args={[0.5, 4, 15]} position={[PLAY.minX - 0.5, 4, 0.5]} collisionGroups={PROP_GROUPS} />
-        <CuboidCollider args={[0.5, 4, 15]} position={[PLAY.maxX, 4, 0.5]} collisionGroups={PROP_GROUPS} />
-        <CuboidCollider args={[PLAY_W / 2 + 0.5, 4, 0.5]} position={[MID_X, 4, 14.5]} collisionGroups={PROP_GROUPS} />
+        {/* A wall just behind the facades so nobody slips between houses (1.44: the map edges are in Munich.tsx) */}
+        <CuboidCollider args={[(ROW_END - LINDEN_ROW_X0) / 2, 4, 0.3]} position={[(ROW_END + LINDEN_ROW_X0) / 2, 4, FRONT - 0.5]} collisionGroups={PROP_GROUPS} />
       </RigidBody>
 
       {/* Doors and counters */}
@@ -316,14 +320,15 @@ const GermanyStreet = memo(function GermanyStreet() {
       <NPC def={NPCS.tom} at={{ x: 3.5, z: 13.3 }} yaw={Math.PI} seatY={0.33} activity="sip" />
       <NPC def={NPCS.sophie} at={{ x: -12.5, z: 0.6 }} path={{ points: [{ x: -29, z: 0.6 }, { x: 12.5, z: 0.6 }], pauseSec: [0.5, 3] }} yieldLines="yieldDe" />
       <NPC def={NPCS.anhKhoa} at={{ x: 13, z: 9.6 }} path={{ points: [{ x: -30, z: 9.6 }, { x: 13, z: 9.6 }], pauseSec: [1, 4] }} yieldLines="yieldDe" />
-      <Traffic lanes={LANES} perLane={2} kinds={[...KINDS]} />
+      <Traffic lanes={LANES} perLane={3} kinds={[...KINDS]} wrapX={ROAD_WRAP} />
       <ChatterDirector groups={[]} solos={['herrMueller', 'sophie', 'anhKhoa:anhKhoaDe', 'tom', 'wagner']} />
 
       <PfandBottles />
       <NPC def={NPCS.herrLi} at={{ x: -24.4, z: -2.9 }} yaw={0} zone={{ x: -23.4, z: -2.6, halfX: 2.0, halfZ: 1.0 }} />
       <NPC def={NPCS.frauBeck} at={{ x: FOUNTAIN.x - 2.3, z: FOUNTAIN.z + 1.0 }} yaw={Math.PI / 2 + 0.3} seatY={0.45} />
-      <Backdrop colors={GERMAN_COLORS} roof="#8a5a52" sideRoad={false} tree="linden" clear={CLEAR} />
       <Stadtpark />
+      <Munich />
+      <MunichLife />
       <TreeClearance />
     </>
   )

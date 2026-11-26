@@ -5,6 +5,7 @@ import type { Vec3 } from '../../../data/config'
 import { glowMaterial } from './materials'
 import { PALETTE as P } from './palette'
 import { Shapes, type ShapeItem } from './Shapes'
+import { modelShapes } from './models'
 import { PROP_GROUPS } from '../../systems/collisionGroups'
 
 export interface PoleSpec {
@@ -38,11 +39,37 @@ function wire(a: Vector3, b: Vector3, sag: number): ShapeItem {
   return { geometry: new TubeGeometry(curve, 14, 0.022, 4, false), color: P.wire }
 }
 
+/** Wood of the Poly Haven poles → the grey concrete of Hà Nội poles (brownish colours only; metal and porcelain stay). */
+const concretePaint = (_m: string, c: string) => {
+  const r = parseInt(c.slice(1, 3), 16)
+  const b = parseInt(c.slice(5, 7), 16)
+  if (r - b < 12) return c
+  return r < 0x48 ? '#77736c' : '#a29d94'
+}
+
+/**
+ * 1.46: the pole itself (crossarm, insulators, fuses, transformer) is a Poly Haven model (pack urban) scaled to the
+ * 10 m of a Hà Nội pole and turned so the crossarm runs across the wires; the coiled spare cable and the posters stay.
+ */
+function libraryPole(p: PoleSpec): ShapeItem[] | null {
+  const name = p.transformer ? 'uPoleTransformer' : (Math.round(p.x * 3 + p.z * 7) & 1) === 0 ? 'uPoleCross' : 'uPoleFuse'
+  const m = modelShapes(name, { height: POLE_HEIGHT, paint: concretePaint })
+  if (!m) return null
+  const out: ShapeItem[] = [{ group: m, at: [p.x, 0, p.z], rot: [0, Math.PI / 2, 0] }]
+  // the grey meter / junction box strapped to every other pole
+  const box = (Math.round(p.x * 5 + p.z) & 1) === 0 ? modelShapes('uUtilityBox', { height: 0.75, paint: (_m, c) => (parseInt(c.slice(1, 3), 16) < 0x58 ? '#6f7378' : '#a7abb0') }) : null
+  if (box) out.push({ group: box, at: [p.x, 1.55, p.z + 0.32] })
+  return out
+}
+
 function poleShapes(p: PoleSpec): ShapeItem[] {
   const { x, z } = p
+  const lib = libraryPole(p)
   const items: ShapeItem[] = [
-    { cyl: [0.11, 0.16, POLE_HEIGHT, 8], at: [x, POLE_HEIGHT / 2, z], color: P.concrete },
-    { box: [0.12, 0.12, 1.4], at: [x, 9.55, z], color: '#bdb5aa' },
+    ...(lib ?? [
+      { cyl: [0.11, 0.16, POLE_HEIGHT, 8], at: [x, POLE_HEIGHT / 2, z], color: P.concrete } as ShapeItem,
+      { box: [0.12, 0.12, 1.4], at: [x, 9.55, z], color: '#bdb5aa' } as ShapeItem,
+    ]),
     // The famous tangle of spare cable coiled around the pole.
     { torus: [0.26, 0.05, 5, 14], at: [x, 7.7, z], rot: [Math.PI / 2 + 0.2, 0, 0], color: P.wire },
     { torus: [0.21, 0.045, 5, 14], at: [x, 7.45, z], rot: [Math.PI / 2 - 0.25, 0.3, 0], color: P.wire },
@@ -50,10 +77,10 @@ function poleShapes(p: PoleSpec): ShapeItem[] {
     { box: [0.34, 0.45, 0.02], at: [x, 1.6, z + 0.15], color: P.butter },
     { box: [0.3, 0.3, 0.02], at: [x, 2.15, z + 0.15], rot: [0, 0, 0.1], color: P.sky2 },
   ]
-  for (const off of WIRE_OFFSETS) {
+  for (const off of lib ? [] : WIRE_OFFSETS) {
     items.push({ cyl: [0.035, 0.035, 0.12, 6], at: [x, 9.67, z + off], color: P.white })
   }
-  if (p.transformer) {
+  if (p.transformer && !lib) {
     items.push({ cyl: [0.28, 0.28, 0.8, 10], at: [x + 0.38, 6.8, z], color: P.steel })
     items.push({ box: [0.5, 0.06, 0.3], at: [x + 0.2, 6.35, z], color: '#bdb5aa' })
   }

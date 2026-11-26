@@ -188,3 +188,29 @@ When done, tell me how to run it and what to test on my phone.
   hàng) dùng camera xa hơn.
 
 **Sau này (chưa làm):** tiệm ở Đức, các nơi "sắp mở cửa" ở Hàng Khay, quán trà sữa (đã đi vào được ngoài phố).
+
+
+---
+
+## Trạng thái 1.46 — Hà Nội từ thư viện mở, kiểu nhà Việt Nam (xong phần chính, 2026-11-26)
+
+Yêu cầu: thay nhà cửa, phố xá, icon "hình khối tự tạo" ở map Việt Nam và Đức bằng thư viện mở; **nhân vật giữ nguyên**;
+**phải hợp kiến trúc Việt Nam**; Hà Nội trước, Đức sau; **kết hợp nhiều thư viện, không chỉ Kenney** (user).
+
+**Thư viện đang dùng**: Kenney (facade, town, street, towers), KayKit (food, citybits), Quaternius (nature, city,
+interior, farm, animals), **Poly Haven** (pack `urban`, `tools/polyhaven2props.mjs`: cột điện + biến áp, điều hòa,
+hộp công tơ, két bia, ghế nhựa, bình ga, đèn, lư đồng, ghế gỗ, đèn lồng, trụ cứu hỏa…), **ambientCG** (vân nhựa đường /
+bê tông cho mặt đất), Fluent Emoji 3D (icon). Không có bộ nhà Việt/Á CC0 → chi tiết Việt (cửa chớp, lan can sắt, cửa
+cuốn, chuồng cọp, **mái ngói cong đao** `shared/vnRoof.ts`) tự dựng trên khung thư viện.
+
+**Đã xong** (chi tiết CHANGELOG 1.46): nhà Hà Nội (`hanoiHouses.ts`) ở mọi dãy phố, quán ăn, Hàng Bông, Showroom, Hàng
+Khay, quán trà sữa (thêm tầng), bưu điện, Trung tâm Đức ngữ; cột điện Poly Haven; đồ phố; đình + đền Ngọc Sơn (mái cong,
+lư đồng); đèn đại lộ; mặt đất có vân; Backdrop; icon bản đồ + biển hiệu. Test `v146.mjs` ALL PASSED, build sạch.
+
+**Còn lại (khi user muốn)**:
+1. Hà Nội: nhà thờ Lớn + cây xăng vẫn dựng tay; chợ đêm (`EastBlock.tsx`); chậu cây / bồn cây / bóng bay / tượng; bớt tam
+   giác nhà nếu điện thoại chậm.
+2. Đức: landmark trong `GermanyStreet/landmarks.ts` (Frauenkirche, Rathaus, Siegestor…), đồ phố Lindenstraße còn khối,
+   đèn giao thông / biển. Ứng viên Poly Haven cho Đức: *modular_street_seating*, *street_lamp_02* (đèn tường),
+   *security_light*, *wooden_picnic_table* (đã có trong pack `urban` trừ street seating).
+3. Thư viện có thể tìm thêm: Poly Haven textures (gạch, ngói), Quaternius *buildings_pack_2/3*, *street_pack*.

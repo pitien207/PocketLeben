@@ -11,6 +11,8 @@ import { BUILDING_GROUPS, PROP_GROUPS } from '../../systems/collisionGroups'
 import { vehicleShapes } from '../shared/ownVehicles'
 import { place, softPlantShapes } from '../shared/props'
 import { PALETTE as P } from '../shared/palette'
+import { seeded } from './decorHouses'
+import { hanoiHouse } from './hanoiHouses'
 import { Shapes, type ShapeItem } from '../shared/Shapes'
 import { SignBoard } from '../shared/SignBoard'
 import type { SignOptions } from '../shared/textures'
@@ -61,10 +63,15 @@ function showroomShapes(): ShapeItem[] {
   s.push({ box: [W, H, 0.3], at: [CX, H / 2, B + 0.15], color: wall })
   for (const x of [X0 + 0.15, X1 - 0.15]) s.push({ box: [0.3, H, D], at: [x, H / 2, (F + B) / 2], color: wall })
   s.push({ box: [W, 0.25, D], at: [CX, H - 0.12, (F + B) / 2], color: '#fbf8f2' })
-  s.push({ box: [W, 3.4, D], at: [CX, H + 1.7, (F + B) / 2], color: '#f2e2c4' })
-  s.push({ box: [W - 1.2, 1.5, 0.06], at: [CX, H + 1.75, F + 0.03], color: '#bfe6f2' })
-  for (let x = X0 + 2; x < X1 - 1; x += 2) s.push({ box: [0.12, 1.5, 0.08], at: [x, H + 1.75, F + 0.05], color: '#ffffff' })
-  s.push({ box: [W + 0.3, 0.3, D + 0.3], at: [CX, H + 3.55, (F + B) / 2], color: '#d9cfbd' })
+  // 1.46: the floors above from library modules (wide glass, a flat roof with the water tank); hand-built fallback
+  const lib = hanoiHouse('tube', W, D, seeded(53), { upperOnly: true, fh: 3.2, floors: 2, wall: '#f2e2c4', rail: '#3b3b44', airCon: true })
+  if (lib) s.push(place(lib, [CX, H - 3.2, (F + B) / 2], 0))
+  else {
+    s.push({ box: [W, 3.4, D], at: [CX, H + 1.7, (F + B) / 2], color: '#f2e2c4' })
+    s.push({ box: [W - 1.2, 1.5, 0.06], at: [CX, H + 1.75, F + 0.03], color: '#bfe6f2' })
+    for (let x = X0 + 2; x < X1 - 1; x += 2) s.push({ box: [0.12, 1.5, 0.08], at: [x, H + 1.75, F + 0.05], color: '#ffffff' })
+    s.push({ box: [W + 0.3, 0.3, D + 0.3], at: [CX, H + 3.55, (F + B) / 2], color: '#d9cfbd' })
+  }
   // Front: two pillars, the red fascia, the rolled-up shutter, a strip of bunting
   for (const x of [X0 + 0.25, X1 - 0.25]) s.push({ box: [0.5, H, 0.5], at: [x, H / 2, F - 0.1], color: '#e3d8c4' })
   s.push({ box: [W + 0.2, 1.0, 0.4], at: [CX, H - 0.4, F], color: '#c8322b' })

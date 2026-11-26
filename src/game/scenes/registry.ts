@@ -80,7 +80,7 @@ export const SCENES: Record<SceneId, SceneInfo> = {
       /** 1.41 in front of each shop door (data/shopRooms.ts). */
       ...shopStreetSpawns(),
     },
-    load: withModels(['nature', 'city', 'food'], () => import('./VietnamStreet')),
+    load: withModels(['nature', 'city', 'food', 'town', 'facade', 'street', 'towers', 'citybits', 'urban'], () => import('./VietnamStreet')),
   },
   home: {
     id: 'home',
@@ -90,7 +90,7 @@ export const SCENES: Record<SceneId, SceneInfo> = {
     plaque: { style: 'room', title: { vi: 'Nhà mình', en: 'Home', de: 'Zuhause' }, subtitle: { vi: 'Số 12, ngõ Hàng Gai', en: 'No. 12, Hàng Gai lane', de: 'Nr. 12, Hàng-Gai-Gasse' } },
     spawns: { default: { x: 3.4, z: 2.4, yaw: 0 }, bed: { x: -2.2, z: -0.7, yaw: 0 }, backDoor: { x: 0.95, z: -2.2, yaw: 0 } },
     cameraZoom: 0.8,
-    load: withModels(['nature', 'interior'], () => import('./Home')),
+    load: withModels(['nature', 'interior', 'urban'], () => import('./Home')),
   },
   /** 1.42 the back yard with the hens (scenes/HomeYard, systems/homeYard.ts): outdoors, private. */
   homeYard: {
@@ -159,19 +159,19 @@ export const SCENES: Record<SceneId, SceneInfo> = {
     country: 'vn',
     indoor: true,
     name: { vi: 'Chuyến bay SH 701', en: 'Flight SH 701' },
-    plaque: { style: 'room', title: { vi: 'Chuyến bay SH 701', en: 'Flight SH 701' }, subtitle: { vi: 'Hà Nội → München · tìm ghế trên thẻ lên máy bay', en: 'Hanoi → Munich · find the seat on your boarding pass' } },
+    plaque: { style: 'room', title: { vi: 'Chuyến bay SH 701', en: 'Flight SH 701' }, subtitle: { vi: 'Hà Nội → Frankfurt · tìm ghế trên thẻ lên máy bay', en: 'Hanoi → Frankfurt · find the seat on your boarding pass' } },
     spawns: { default: { x: -6.5, z: 13.4, yaw: 0 }, aisle: { x: 0, z: -0.4, yaw: 0 } },
     cameraZoom: 0.9,
     journey: true,
     load: withModels(['nature'], () => import('./Plane')),
   },
-  /** 1.43 transit at München: Passkontrolle, the departures board, gates G / H. */
+  /** 1.43 transit at Frankfurt: Passkontrolle, the departures board, gates G / H. */
   transit: {
     id: 'transit',
     country: 'de',
     indoor: true,
-    name: { vi: 'Sân bay München (transit)', en: 'Munich Airport (transit)', de: 'Flughafen München' },
-    plaque: { style: 'german', title: { vi: 'Flughafen München', en: 'Flughafen München', de: 'Flughafen München' }, subtitle: { vi: 'Transit · nối chuyến đi Frankfurt', en: 'Transfer · connecting to Frankfurt', de: 'Transfer · Anschlussflüge' } },
+    name: { vi: 'Sân bay Frankfurt (transit)', en: 'Frankfurt Airport (transit)', de: 'Flughafen Frankfurt' },
+    plaque: { style: 'german', title: { vi: 'Flughafen Frankfurt', en: 'Flughafen Frankfurt', de: 'Flughafen Frankfurt' }, subtitle: { vi: 'Transit · nối chuyến đi München', en: 'Transfer · connecting to München', de: 'Transfer · Anschlussflüge' } },
     spawns: { default: { x: 0, z: 14.4, yaw: 0 }, hall: { x: 3, z: 1.4, yaw: 0 } },
     cameraZoom: 0.95,
     journey: true,
@@ -181,15 +181,22 @@ export const SCENES: Record<SceneId, SceneInfo> = {
     id: 'germany',
     country: 'de',
     indoor: false,
-    name: { vi: 'Lindenstraße, nước Đức', en: 'Lindenstraße, Germany', de: 'Lindenstraße' },
-    plaque: { style: 'german', title: { vi: 'Lindenstraße', en: 'Lindenstraße', de: 'Lindenstraße' }, subtitle: { vi: 'Nước Đức', en: 'Germany', de: 'Mitte' } },
+    // 1.44 the whole of München (scenes/GermanyStreet: Lindenstraße + the city round it)
+    name: { vi: 'München, nước Đức', en: 'Munich, Germany', de: 'München' },
+    plaque: { style: 'german', title: { vi: 'München', en: 'München', de: 'München' }, subtitle: { vi: 'Lindenstraße · Bayern', en: 'Lindenstraße · Bavaria', de: 'Lindenstraße · Bayern' } },
     spawns: {
       default: { x: -1.0, z: -1.2, yaw: 0 },
       wg: { x: -9.5, z: -3.2, yaw: 0 },
       buergeramt: { x: -2.0, z: -3.2, yaw: 0 },
       tram: { x: 3.4, z: 0.4, yaw: 0 },
+      /** 1.44 sights of München (test tools / tests) */
+      marienplatz: { x: -19, z: -27, yaw: 0 },
+      hbf: { x: -50, z: -1.5, yaw: 0 },
+      garten: { x: 10, z: -114, yaw: 0 },
+      isar: { x: 38, z: -40, yaw: 0 },
     },
-    load: withModels(['nature', 'city'], () => import('./GermanyStreet')),
+    // 1.45 the car models too (parked taxis are built once when the city mounts)
+    load: withModels(['nature', 'city', 'food', 'town', 'facade', 'street', 'towers', 'citybits', 'urban'], () => import('./GermanyStreet').then((m) => import('./shared/carModels').then((c) => c.loadCarModels()).then(() => m, () => m))),
   },
   buergeramt: {
     id: 'buergeramt',
@@ -215,8 +222,8 @@ export const SCENES: Record<SceneId, SceneInfo> = {
     id: 'university',
     country: 'de',
     indoor: true,
-    name: { vi: 'Đại học Lindenberg', en: 'Lindenberg University', de: 'Universität Lindenberg' },
-    plaque: { style: 'room', title: { vi: 'Universität Lindenberg', en: 'Lindenberg University', de: 'Universität Lindenberg' }, subtitle: { vi: 'Hörsaal 2 · Khoa Điều dưỡng', en: 'Lecture hall 2 · Nursing', de: 'Hörsaal 2 · Pflege' } },
+    name: { vi: 'Đại học LMU München', en: 'LMU Munich', de: 'LMU München' },
+    plaque: { style: 'room', title: { vi: 'LMU München', en: 'LMU Munich', de: 'LMU München' }, subtitle: { vi: 'Hörsaal 2 · Khoa Điều dưỡng', en: 'Lecture hall 2 · Nursing', de: 'Hörsaal 2 · Pflege' } },
     spawns: { default: { x: 5.0, z: 3.6, yaw: 0 } },
     cameraZoom: 0.95,
     load: withModels(['nature'], () => import('./University')),

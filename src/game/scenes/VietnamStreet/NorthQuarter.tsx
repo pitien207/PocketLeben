@@ -5,12 +5,15 @@ import { NPC } from '../../components/npc/NPC'
 import { BUILDING_GROUPS, PROP_GROUPS } from '../../systems/collisionGroups'
 import { glowMaterial } from '../shared/materials'
 import { PALETTE as P } from '../shared/palette'
-import { benchShapes, bicycleShapes, cycloShapes, fluffyTreeShapes, motorbikeShapes, place, softPlantShapes } from '../shared/props'
+import { benchShapes, bicycleShapes, cycloShapes, fluffyTreeShapes, kStreetLamp, lampHead, motorbikeShapes, place, softPlantShapes } from '../shared/props'
+import { modelShapes } from '../shared/models'
+import { fountainWater, kFountain } from '../GermanyStreet/townProps'
 import { Shapes, type ShapeItem } from '../shared/Shapes'
 import { FountainWater, type FountainSpec } from '../shared/FountainWater'
 import { SignBoard } from '../shared/SignBoard'
 import type { SignOptions } from '../shared/textures'
 import { decorHouse, planRow, seeded, type DecorLot } from './decorHouses'
+import { hanoiHouse } from './hanoiHouses'
 import { ActionSpot, type SpotAction } from '../../components/ActionSpot'
 import { Traffic } from '../../components/npc/Traffic'
 import { ActiveArea } from '../../components/ActiveArea'
@@ -212,6 +215,16 @@ function clockShapes(): ShapeItem[] {
   const f = 3
   const wall = '#f0c878'
   const trim = '#fff6e0'
+  // 1.46: the building is a colonial house of library modules (tall French windows, green shutters, iron balconies);
+  // the hand-built arcade stays as the fallback. The clock tower is drawn on top either way.
+  const lib = hanoiHouse('colonial', w, 6, seeded(907), { floors: 2, fh: 3.8, wall, rail: '#3f7d5c', shutter: '#3f7d5c', roofTank: false, plants: false, airCon: false, shop: true, noBalcony1: true })
+  if (lib) s.push(...lib)
+  else clockBody(s, w, f, wall, trim)
+  clockTower(s, f, wall, trim)
+  return s
+}
+
+function clockBody(s: ShapeItem[], w: number, f: number, wall: string, trim: string) {
   s.push({ box: [w, 7.6, 6], at: [0, 3.8, 0], color: wall })
   s.push({ box: [w + 0.3, 0.3, 6.3], at: [0, 7.75, 0], color: trim })
   s.push({ box: [w + 0.2, 0.2, 0.3], at: [0, 3.9, f + 0.08], color: trim })
@@ -229,6 +242,9 @@ function clockShapes(): ShapeItem[] {
     for (const side of [-1, 1]) s.push({ box: [0.36, 1.7, 0.06], at: [x + side * 0.56, 5.6, f + 0.04], color: '#3f7d5c' })
   }
   s.push({ box: [0.3, 3.6, 0.2], at: [w / 2, 1.8, f + 0.08], color: trim })
+}
+
+function clockTower(s: ShapeItem[], f: number, wall: string, trim: string) {
   // Clock tower
   s.push({ box: [3, 5, 3], at: [0, 10.2, f - 1.4], color: wall })
   s.push({ box: [3.3, 0.3, 3.3], at: [0, 12.7, f - 1.4], color: trim })
@@ -238,7 +254,6 @@ function clockShapes(): ShapeItem[] {
   s.push({ box: [0.08, 0.75, 0.04], at: [0, 11.1, f + 0.19], color: '#3a2a20' })
   s.push({ box: [0.5, 0.08, 0.04], at: [0.22, 10.8, f + 0.19], color: '#3a2a20' })
   for (let i = 0; i < 12; i++) s.push({ box: [0.06, 0.16, 0.03], at: [Math.sin((i * Math.PI) / 6) * 0.82, 10.8 + Math.cos((i * Math.PI) / 6) * 0.82, f + 0.18], rot: [0, 0, (-i * Math.PI) / 6], color: '#5b4030' })
-  return s
 }
 
 const TREE_XS = (() => {
@@ -290,6 +305,14 @@ function propShapes(): { solid: ShapeItem[]; glow: ShapeItem[] } {
   for (const x of LAMP_XS) {
     for (const [z, dir] of [[walk.z0 - 1.0, -1], [walk.z1 + 1.0, 1]] as const) {
       const lx = x + (dir > 0 ? 3 : 0)
+      // 1.46: Kenney's curved street light (pack street), arm toward the middle of the walking street
+      const lamp = kStreetLamp('#2f4a40', 4.2)
+      if (lamp) {
+        const h = lampHead(4.2)
+        s.push(place(lamp, [lx, 0, z], dir > 0 ? Math.PI : 0))
+        glow.push({ sphere: [0.16, 10, 8], at: [lx, h[1] - 0.08, z - dir * h[2]], scale: [1, 0.6, 1.4], color: '#fff2b3' })
+        continue
+      }
       s.push({ cyl: [0.06, 0.09, 3.8, 6], at: [lx, 1.9, z], color: '#3f5a52' })
       s.push({ cyl: [0.16, 0.2, 0.2, 8], at: [lx, 0.1, z], color: '#3f5a52' })
       s.push({ box: [0.05, 0.05, 0.7], at: [lx, 3.75, z + dir * 0.3], color: '#3f5a52' })
@@ -325,12 +348,16 @@ function propShapes(): { solid: ShapeItem[]; glow: ShapeItem[] } {
 
   // The square: fountain, flower beds, trees
   const { x: fx, z: fz } = plaza.fountain
-  s.push({ cyl: [1.75, 1.9, 0.5, 24], at: [fx, 0.25, fz], color: '#d3cdc4' })
+  const fountain = kFountain(1.9)
+  if (fountain) s.push(place(fountain, [fx, 0, fz]))
+  else s.push({ cyl: [1.75, 1.9, 0.5, 24], at: [fx, 0.25, fz], color: '#d3cdc4' })
+  if (!fountain) {
   s.push({ cyl: [1.55, 1.55, 0.08, 24], at: [fx, 0.5, fz], color: '#9fd8f0' })
   s.push({ cyl: [0.2, 0.3, 1.4, 10], at: [fx, 0.95, fz], color: '#c9c3b8' })
   s.push({ cyl: [0.8, 0.3, 0.25, 16], at: [fx, 1.6, fz], color: '#d3cdc4' })
   s.push({ cyl: [0.7, 0.7, 0.05, 16], at: [fx, 1.72, fz], color: '#9fd8f0' })
   s.push({ cyl: [0.1, 0.14, 0.5, 8], at: [fx, 1.95, fz], color: '#c9c3b8' })
+  }
   // (1.42: the water itself moves — FountainWater in the component)
   for (const [x, z] of PLAZA_TREES) {
     s.push({ box: [1.6, 0.3, 1.6], at: [x, 0.15, z], color: '#cfc8bb' })
@@ -439,6 +466,12 @@ function gasShapes(): ShapeItem[] {
   AVE_TREES.forEach(([x, z], i) => s.push(fitTree(fluffyTreeShapes(i % 4 === 1 ? 'blossom' : 'green', 2, i + 300), [x, 0, z], i * 1.3, 1.25)))
   for (let x = PLAY.minX + 8.5; x < PLAY.maxX; x += 18) {
     for (const [z, dir] of [[ave.z0 + 0.5, -1], [ave.z1 - 0.5, 1]] as const) {
+      // 1.46: Poly Haven's cast-iron lamp post (pack urban), the hand-built arm lamp without it
+      const lamp = modelShapes('uLampTall', { height: 5.2, paint: (m, c) => (m === 'c2' ? '#fff2b3' : c) })
+      if (lamp) {
+        s.push({ group: lamp, at: [x, 0, z + dir * 0.4] })
+        continue
+      }
       s.push({ cyl: [0.07, 0.11, 6.4, 6], at: [x, 3.2, z], color: '#5d6170' })
       s.push({ box: [0.07, 0.07, 1.6], at: [x, 6.35, z + dir * 0.8], color: '#5d6170' })
       s.push({ box: [0.3, 0.1, 0.6], at: [x, 6.28, z + dir * 1.5], color: '#fff2b3' })
@@ -486,10 +519,13 @@ const WALKERS = {
 }
 
 /** 1.42 the square's fountain: moving water (shared/FountainWater). */
-const PLAZA_FOUNTAIN: FountainSpec[] = [{ x: plaza.fountain.x, z: plaza.fountain.z, basinY: 0.54, basinR: 1.55, bowlY: 1.745, bowlR: 0.7, topY: 2.2, jet: 0.7 }]
+const PLAZA_FOUNTAIN_OLD: FountainSpec[] = [{ x: plaza.fountain.x, z: plaza.fountain.z, basinY: 0.54, basinR: 1.55, bowlY: 1.745, bowlR: 0.7, topY: 2.2, jet: 0.7 }]
+/** 1.46: the water fits Kenney's stone fountain (townProps) when the pack is there. */
+const plazaFountain = (): FountainSpec[] => (modelShapes('ktFountainDetail') ? [fountainWater(plaza.fountain.x, plaza.fountain.z, 1.9)] : PLAZA_FOUNTAIN_OLD)
 
 export const NorthQuarter = memo(function NorthQuarter() {
   const houses = useMemo(houseShapes, [])
+  const fountains = useMemo(plazaFountain, [])
   const churchS = useMemo(churchShapes, [])
   const clockS = useMemo(clockShapes, [])
   const fit = useBlockerVersion()
@@ -506,7 +542,7 @@ export const NorthQuarter = memo(function NorthQuarter() {
       <Shapes shapes={houses} />
       <Shapes shapes={landmarks} />
       <Shapes shapes={props.solid} />
-      <FountainWater fountains={PLAZA_FOUNTAIN} />
+      <FountainWater fountains={fountains} />
       <Shapes shapes={props.glow} material={glowMaterial} castShadow={false} receiveShadow={false} />
       {placed.map((p) => (
         <SignBoard key={p.options.title} options={p.options} width={p.width} position={[p.x, 3.32, p.z]} rotation={p.back ? [0, Math.PI, 0] : [0, 0, 0]} />

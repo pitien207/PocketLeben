@@ -11,19 +11,20 @@
 // `--sizes` only prints each model's size at scale 1.
 import fs from 'node:fs'
 import path from 'node:path'
-import zlib from 'node:zlib'
 import { Vector3 } from 'three'
-import { readGltf, simplifyGroup } from './glb.mjs'
+import { readGltf, readPng, simplifyGroup } from './glb.mjs'
 
 const SRC = process.argv[2]
-if (!SRC) throw new Error('usage: node tools/kaykit2props.mjs <folder> [--sizes]')
+if (!SRC) throw new Error('usage: node tools/kaykit2props.mjs <folder> [food|citybits] [--sizes]')
+/** 1.46: the same converter for KayKit City Builder Bits (pack "citybits", names start with c). */
+const PACK = process.argv[3] && !process.argv[3].startsWith('--') ? process.argv[3] : 'food'
 const SIZES = process.argv.includes('--sizes')
 const OUT = path.resolve('src/assets/models')
 
 /** name in the game → [file, scale]. Kept at KayKit's own size (a table is 1 m high); scenes size them with
  * modelShapes(…, { height }). */
 const S = 1
-const MODELS = {
+const FOOD_MODELS = {
   potLarge: ['pot_large', S],
   potA: ['pot_A', S],
   potStew: ['pot_A_stew', S],
@@ -81,62 +82,21 @@ const MODELS = {
   papertowel: ['papertowel', S],
 }
 
-// --- A small PNG reader (8-bit RGB / RGBA, not interlaced: what the atlas is) ---------------------------------------
-function readPng(file) {
-  const b = fs.readFileSync(file)
-  let p = 8
-  let w = 0
-  let h = 0
-  let type = 0
-  const idat = []
-  while (p < b.length) {
-    const len = b.readUInt32BE(p)
-    const kind = b.toString('ascii', p + 4, p + 8)
-    const data = b.subarray(p + 8, p + 8 + len)
-    if (kind === 'IHDR') {
-      w = data.readUInt32BE(0)
-      h = data.readUInt32BE(4)
-      if (data[8] !== 8 || data[12] !== 0) throw new Error('PNG: only 8-bit, non-interlaced')
-      type = data[9]
-    } else if (kind === 'IDAT') idat.push(data)
-    else if (kind === 'IEND') break
-    p += 12 + len
-  }
-  const bpp = type === 6 ? 4 : type === 2 ? 3 : 0
-  if (!bpp) throw new Error('PNG: only RGB / RGBA')
-  const raw = zlib.inflateSync(Buffer.concat(idat))
-  const stride = w * bpp
-  const px = Buffer.alloc(h * stride)
-  for (let y = 0; y < h; y++) {
-    const f = raw[y * (stride + 1)]
-    const src = raw.subarray(y * (stride + 1) + 1, (y + 1) * (stride + 1))
-    for (let x = 0; x < stride; x++) {
-      const a = x >= bpp ? px[y * stride + x - bpp] : 0
-      const up = y > 0 ? px[(y - 1) * stride + x] : 0
-      const c = x >= bpp && y > 0 ? px[(y - 1) * stride + x - bpp] : 0
-      let v = src[x]
-      if (f === 1) v += a
-      else if (f === 2) v += up
-      else if (f === 3) v += (a + up) >> 1
-      else if (f === 4) {
-        const pp = a + up - c
-        const pa = Math.abs(pp - a)
-        const pb = Math.abs(pp - up)
-        const pc = Math.abs(pp - c)
-        v += pa <= pb && pa <= pc ? a : pb <= pc ? up : c
-      }
-      px[y * stride + x] = v & 255
-    }
-  }
-  return { w, h, sample: (u, v) => {
-    const x = Math.min(w - 1, Math.max(0, Math.floor((((u % 1) + 1) % 1) * w)))
-    const y = Math.min(h - 1, Math.max(0, Math.floor((((v % 1) + 1) % 1) * h)))
-    const o = y * stride + x * bpp
-    return [px[o], px[o + 1], px[o + 2]]
-  } }
+/** 1.46 KayKit City Builder Bits (https://github.com/KayKit-Game-Assets/KayKit-City-Builder-Bits-1.0, CC0): street
+ * furniture and the small coloured town houses. KayKit size: a road tile is 2 m. */
+const CITY_MODELS = {
+  cStreetlight: ['streetlight', S], cBench: ['bench', S], cHydrant: ['firehydrant', S], cTrashA: ['trash_A', S], cTrashB: ['trash_B', S],
+  cDumpster: ['dumpster', S], cBoxA: ['box_A', S], cBoxB: ['box_B', S], cWatertower: ['watertower', S], cBush: ['bush', S],
+  cTrafficA: ['trafficlight_A', S], cTrafficB: ['trafficlight_B', S], cTrafficC: ['trafficlight_C', S],
+  cBuildingA: ['building_A_withoutBase', S], cBuildingB: ['building_B_withoutBase', S], cBuildingC: ['building_C_withoutBase', S],
+  cBuildingD: ['building_D_withoutBase', S], cBuildingE: ['building_E_withoutBase', S], cBuildingF: ['building_F_withoutBase', S],
+  cBuildingG: ['building_G_withoutBase', S], cBuildingH: ['building_H_withoutBase', S],
 }
+const MODELS = PACK === 'citybits' ? CITY_MODELS : FOOD_MODELS
+const TEXTURE = PACK === 'citybits' ? 'citybits_texture.png' : 'restaurantbits_texture.png'
+const SOURCE = PACK === 'citybits' ? 'KayKit City Builder Bits by Kay Lousberg (CC0)' : 'KayKit Restaurant Bits by Kay Lousberg (CC0)'
 
-const atlas = readPng(path.join(SRC, 'restaurantbits_texture.png'))
+const atlas = readPng(path.join(SRC, TEXTURE))
 const hex = (rgb) => '#' + rgb.map((c) => Math.round(c).toString(16).padStart(2, '0')).join('')
 
 /** Triangles of a model in world space, grouped by atlas swatch (8 columns × 4 rows). */
@@ -182,7 +142,7 @@ function swatchGroups(g) {
 
 const pos16 = []
 const idx16 = []
-const manifest = { source: 'KayKit Restaurant Bits by Kay Lousberg (CC0)', models: {} }
+const manifest = { source: SOURCE, models: {} }
 let tris = 0
 for (const [name, [file, scale]] of Object.entries(MODELS)) {
   const g = readGltf(path.join(SRC, `${file}.gltf`))
@@ -233,7 +193,7 @@ if (!SIZES) {
   const buf = Buffer.alloc(pos16.length * 2 + idx16.length * 2)
   pos16.forEach((v, k) => buf.writeInt16LE(v, k * 2))
   idx16.forEach((v, k) => buf.writeUInt16LE(v, pos16.length * 2 + k * 2))
-  fs.writeFileSync(path.join(OUT, 'food.bin'), buf)
-  fs.writeFileSync(path.join(OUT, 'food.json'), JSON.stringify(manifest))
-  console.log('food.bin', buf.length, 'bytes,', tris, 'triangles')
+  fs.writeFileSync(path.join(OUT, `${PACK}.bin`), buf)
+  fs.writeFileSync(path.join(OUT, `${PACK}.json`), JSON.stringify(manifest))
+  console.log(`${PACK}.bin`, buf.length, 'bytes,', tris, 'triangles')
 }

@@ -137,6 +137,10 @@ export function buildShapes(items: ShapeItem[]): BufferGeometry {
   const merged = parts.length > 0 ? mergeGeometries(parts, false) : new BufferGeometry()
   for (const p of parts) p.dispose()
   if (!merged) throw new Error('Shapes: failed to merge geometries')
+  // 1.45: a zero / NaN normal (a sliver triangle, a squashed shape) gives NaN light, and the fancy look's bloom spreads
+  // a NaN pixel over the whole screen. Point such normals up.
+  const nrm = merged.attributes.normal?.array as Float32Array | undefined
+  if (nrm) for (let k = 0; k < nrm.length; k += 3) if (!(Math.abs(nrm[k]) + Math.abs(nrm[k + 1]) + Math.abs(nrm[k + 2]) > 1e-6)) ((nrm[k] = 0), (nrm[k + 1] = 1), (nrm[k + 2] = 0))
   merged.computeBoundingSphere()
   return merged
 }

@@ -7,6 +7,8 @@ import { NPC } from '../../components/npc/NPC'
 import { BUILDING_GROUPS, PROP_GROUPS } from '../../systems/collisionGroups'
 import { fluffyTreeShapes, place } from '../shared/props'
 import { Shapes, type ShapeItem } from '../shared/Shapes'
+import { vnRoofShapes } from '../shared/vnRoof'
+import { modelShapes } from '../shared/models'
 import { SignBoard } from '../shared/SignBoard'
 import type { SignOptions } from '../shared/textures'
 import { NGOC_SON as N } from './layout'
@@ -54,22 +56,9 @@ function bridgeShapes(): ShapeItem[] {
   return s
 }
 
-/** A two-tier temple roof with upturned corners (the classic Vietnamese silhouette). */
+/** A temple roof with upturned corners (1.46: the curved hip roof of shared/vnRoof.ts). */
 function roof(at: Vec3, w: number, d: number, tiers = 2): ShapeItem[] {
-  const s: ShapeItem[] = []
-  for (let t = 0; t < tiers; t++) {
-    const k = 1 - t * 0.32
-    const y = at[1] + t * 0.95
-    s.push({ box: [w * k + 0.5, 0.22, d * k * 0.55], at: [at[0], y, at[2] - d * k * 0.22], rot: [0.38, 0, 0], color: TILE })
-    s.push({ box: [w * k + 0.5, 0.22, d * k * 0.55], at: [at[0], y, at[2] + d * k * 0.22], rot: [-0.38, 0, 0], color: TILE })
-    s.push({ box: [w * k + 0.3, 0.2, 0.24], at: [at[0], y + 0.24, at[2]], color: '#5b3427' })
-    for (const sx of [-1, 1]) for (const sz of [-1, 1]) {
-      s.push({ cyl: [0, 0.13, 0.55, 5], at: [at[0] + sx * (w * k * 0.5 + 0.2), y + 0.12, at[2] + sz * d * k * 0.38], rot: [sz * -0.5, 0, sx * -0.9], color: TILE })
-    }
-    if (t < tiers - 1) s.push({ box: [w * k * 0.7, 0.75, d * k * 0.6], at: [at[0], y + 0.45, at[2]], color: '#f2c46d' })
-  }
-  s.push({ sphere: [0.18, 8, 6], at: [at[0], at[1] + (tiers - 1) * 0.95 + 0.45, at[2]], color: GOLD })
-  return s
+  return vnRoofShapes(at, w, d, { tiers, color: TILE, overhang: 0.45, rise: Math.min(1.6, d * 0.45) })
 }
 
 function islandShapes(): ShapeItem[] {
@@ -89,8 +78,13 @@ function islandShapes(): ShapeItem[] {
   // Courtyard: incense urn, two lanterns, the old banyan
   const u = N.urn
   s.push({ cyl: [0.55, 0.65, 0.35, 12], at: [u.x, 0.18, u.z], color: '#cfc8bb' })
-  s.push({ cyl: [0.5, 0.35, 0.55, 14], at: [u.x, 0.62, u.z], color: '#b8863a' })
-  s.push({ torus: [0.48, 0.05, 6, 16], at: [u.x, 0.9, u.z], rot: [Math.PI / 2, 0, 0], color: '#d9a43a' })
+  // 1.46: the bronze urn is Poly Haven's brass pot (pack urban); hand-built without the pack
+  const urn = modelShapes('uBrassPot', { height: 0.72, paint: (_m: string, c: string) => (parseInt(c.slice(1, 3), 16) > 0xb0 ? '#d9a43a' : '#9a6a2a') })
+  if (urn) s.push({ group: urn, at: [u.x, 0.35, u.z] })
+  else {
+    s.push({ cyl: [0.5, 0.35, 0.55, 14], at: [u.x, 0.62, u.z], color: '#b8863a' })
+    s.push({ torus: [0.48, 0.05, 6, 16], at: [u.x, 0.9, u.z], rot: [Math.PI / 2, 0, 0], color: '#d9a43a' })
+  }
   for (let i = 0; i < 9; i++) s.push({ cyl: [0.008, 0.008, 0.42, 3], at: [u.x - 0.2 + (i % 5) * 0.1, 1.08, u.z - 0.1 + Math.floor(i / 5) * 0.2], rot: [0, 0, ((i % 3) - 1) * 0.07], color: '#c8322b' })
   for (const k of [-1, 1]) {
     s.push({ box: [0.4, 1.0, 0.4], at: [x + k * 2.6, 0.5, u.z + 0.6], color: '#cfc8bb' })

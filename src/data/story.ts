@@ -63,7 +63,7 @@ export const CHAPTER_INTROS: Record<number, ChapterIntro> = {
 export const EPILOGUE: { if: Condition; text: Localized }[] = [
   {
     if: { flag: 'visa.path', is: 'studium' },
-    text: L('🎓 Bạn đã đi con đường đại học: cử nhân điều dưỡng ở Lindenberg, vừa học vừa làm Werkstudent.', '🎓 You took the university path: a nursing Bachelor’s in Lindenberg, studying and working as a Werkstudent.'),
+    text: L('🎓 Bạn đã đi con đường đại học: cử nhân điều dưỡng ở München, vừa học vừa làm Werkstudent.', '🎓 You took the university path: a nursing Bachelor’s in München, studying and working as a Werkstudent.'),
   },
   {
     if: { not: { flag: 'visa.path', is: 'studium' } },

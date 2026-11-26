@@ -13,6 +13,7 @@ import { openStore } from './store.mjs'
 import { GOOGLE_CLIENT_ID, verifyGoogleToken } from './google.mjs'
 import { createSocial } from './social.mjs'
 import { createPickleball } from './pickleball.mjs'
+import { createPfand } from './pfand.mjs'
 
 const scrypt = promisify(scryptCb)
 const PORT = Number(process.env.PORT ?? 8787)
@@ -342,6 +343,8 @@ const social = createSocial({ store, auth, keyOf, readBody, send, clientOf, broa
 Object.assign(routes, social.routes)
 // 1.39 pickleball lobby + match relay (server/pickleball.mjs)
 const pickleball = createPickleball({ clients })
+// 1.44 Pfand bottles shared by everyone in a München room (server/pfand.mjs)
+const pfand = createPfand({ clients, rooms })
 
 http.on('upgrade', (req, socket, head) => {
   if (!req.url.startsWith('/ws')) return socket.destroy()
@@ -463,6 +466,7 @@ function joinRoom(c, scene) {
   c.outfitKey = JSON.stringify(c.snap?.outfit ?? null)
   c.ws.send(JSON.stringify({ t: 'room', room, players: others.map((o) => ({ id: o.id, name: o.name, s: o.snap })) }))
   broadcast(room, { t: 'join', id: c.id, name: c.name, s: c.snap }, c.id)
+  pfand.onJoin(c, room)
 }
 
 wss.on('connection', (ws) => {
@@ -487,14 +491,15 @@ wss.on('connection', (ws) => {
       clearTimeout(timeout)
       // One connection per account: a new tab replaces the old one.
       for (const other of clients.values()) if (other.user === user) other.ws.close(4002, 'replaced')
-      c = { id: nextId++, user, name: account.name, ws, scene: null, room: null, snap: null, lastSnap: 0, lastEmote: 0, batch: Array.isArray(msg.caps) && msg.caps.includes('batch'), dirty: false, outfitDirty: false, outfitKey: '' }
+      c = { id: nextId++, user, name: account.name, ws, scene: null, room: null, snap: null, lastSnap: 0, lastEmote: 0, batch: Array.isArray(msg.caps) && msg.caps.includes('batch'), pfand: Array.isArray(msg.caps) && msg.caps.includes('pfand'), dirty: false, outfitDirty: false, outfitKey: '' }
       clients.set(c.id, c)
-      ws.send(JSON.stringify({ t: 'welcome', id: c.id, name: c.name, key: user, v: GAME_VERSION }))
+      ws.send(JSON.stringify({ t: 'welcome', id: c.id, name: c.name, key: user, v: GAME_VERSION, feat: ['pfand'] }))
       void social.presence(user, true)
       return
     }
     const now = Date.now()
     if (pickleball.onMessage(c, msg)) return
+    if (pfand.onMessage(c, msg)) return
     if (msg.t === 'chat' || msg.t === 'dm') {
       await social.onMessage(c, msg).catch((e) => console.error('chat', e))
       return

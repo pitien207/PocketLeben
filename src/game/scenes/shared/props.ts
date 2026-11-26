@@ -150,8 +150,10 @@ export function plantShapes(leaf: string = P.leaf, pot: string = P.terracotta, s
   ]
 }
 
-/** Tiny plastic stool, the iconic sidewalk café seat. */
+/** Tiny plastic stool, the iconic sidewalk café seat. 1.46: KayKit's stool (pack food) painted in one plastic colour. */
 export function stoolShapes(color: string): ShapeItem[] {
+  const lib = modelShapes('stool', { height: 0.32, paint: () => color })
+  if (lib) return [{ group: lib, scale: [0.72, 1, 0.72] }]
   return [
     { cyl: [0.17, 0.2, 0.05, 12], at: [0, 0.3, 0], color },
     { cyl: [0.15, 0.2, 0.27, 12], at: [0, 0.14, 0], color },
@@ -160,10 +162,16 @@ export function stoolShapes(color: string): ShapeItem[] {
 
 /** Low table + four stools + two iced coffees. */
 export function cafeTableSetShapes(stoolColors: string[]): ShapeItem[] {
+  // 1.46: KayKit's small round table (pack food), the hand-built one as fallback
+  const table = modelShapes('tableSmall', { height: 0.52, paint: (_m, c) => (parseInt(c.slice(1, 3), 16) < 0x70 ? P.darkSteel : P.steel) })
   const items: ShapeItem[] = [
-    { cyl: [0.42, 0.42, 0.05, 16], at: [0, 0.5, 0], color: P.steel },
-    { cyl: [0.05, 0.05, 0.46, 6], at: [0, 0.25, 0], color: P.darkSteel },
-    { cyl: [0.22, 0.22, 0.03, 10], at: [0, 0.02, 0], color: P.darkSteel },
+    ...(table
+      ? [{ group: table, scale: [0.85, 1, 0.85] } as ShapeItem]
+      : ([
+          { cyl: [0.42, 0.42, 0.05, 16], at: [0, 0.5, 0], color: P.steel },
+          { cyl: [0.05, 0.05, 0.46, 6], at: [0, 0.25, 0], color: P.darkSteel },
+          { cyl: [0.22, 0.22, 0.03, 10], at: [0, 0.02, 0], color: P.darkSteel },
+        ] as ShapeItem[])),
     // cà phê sữa đá: glass + coffee + straw
     { cyl: [0.055, 0.045, 0.16, 8], at: [0.15, 0.6, 0.05], color: P.coffee },
     { cyl: [0.01, 0.01, 0.12, 4], at: [0.17, 0.72, 0.05], rot: [0, 0, -0.25], color: P.rose },
@@ -189,8 +197,14 @@ export function benchShapes(color: string = P.mint): ShapeItem[] {
   ]
 }
 
-/** Striped road barrier (marks the edge of the playable area). */
+/** Striped road barrier (marks the edge of the playable area). 1.46: Kenney construction fences (pack street). */
 export function barrierShapes(width: number): ShapeItem[] {
+  const n = Math.max(1, Math.round(width / 1.9))
+  const fence = modelShapes('krFence', { height: 0.95 })
+  if (fence) {
+    const len = (0.375 * 0.95) / 0.179
+    return Array.from({ length: n }, (_, i): ShapeItem => ({ group: fence, at: [-width / 2 + (width / n) * (i + 0.5), 0, 0], rot: [0, Math.PI / 2, 0], scale: [1, 1, width / n / len] }))
+  }
   const items: ShapeItem[] = [
     { box: [0.12, 0.9, 0.12], at: [-width / 2 + 0.1, 0.45, 0], color: P.darkSteel },
     { box: [0.12, 0.9, 0.12], at: [width / 2 - 0.1, 0.45, 0], color: P.darkSteel },
@@ -208,11 +222,27 @@ export function barrierShapes(width: number): ShapeItem[] {
 }
 
 export function coneShapes(): ShapeItem[] {
+  const lib = modelShapes('krCone', { height: 0.6 })
+  if (lib) return lib
   return [
     { box: [0.4, 0.05, 0.4], at: [0, 0.025, 0], color: P.coral },
     { cyl: [0.04, 0.16, 0.55, 10], at: [0, 0.3, 0], color: P.coral },
     { cyl: [0.105, 0.125, 0.1, 10], at: [0, 0.3, 0], color: P.white },
   ]
+}
+
+/**
+ * 1.46 street lamp from Kenney City Kit Roads (pack street, curved arm), painted; the arm reaches toward −z. Returns
+ * null while the pack is missing. `LAMP_HEAD` = where the bulb is (for the glow sphere / light pool).
+ */
+export function kStreetLamp(color = '#34474a', height = 4.3): ShapeItem[] | null {
+  return modelShapes('krLightCurved', { height, paint: (_m, c) => (c === '#ffffff' ? '#fff6d8' : color) })
+}
+export const lampHead = (height = 4.3): Vec3 => [0, (0.645 * height) / 0.675, (-0.07 * height) / 0.675]
+
+/** 1.46 green street bins (KayKit dumpster, pack citybits) — Hà Nội's Urenco carts are the same green. */
+export function kBin(height = 1.0): ShapeItem[] | null {
+  return modelShapes('cDumpster', { height })
 }
 
 const cabins = new Map<string, BufferGeometry>()

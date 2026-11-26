@@ -278,9 +278,21 @@ export const CONFIG = {
   /** Collecting deposit bottles (plan §6 side hustles). */
   pfand: {
     perBottle: 0.25,
-    onStreet: 8,
-    respawnSec: [35, 80] as [number, number],
+    /** 1.44 the golden bottle: what the machine pays for it. */
+    goldValue: 10,
     pickupRadius: 0.9,
+    /**
+     * 1.44 bottles spawn at random spots of München (server/pfandSpots.mjs). Online the SERVER spawns them for the
+     * whole room with its own copy of these rules (server/pfand.mjs PFAND_RULES, gold 1 in 1000); offline (or
+     * against an older server) the game spawns its own with these numbers.
+     */
+    max: 10,
+    start: 3,
+    gapSec: [20, 45] as [number, number],
+    lifeSec: [300, 540] as [number, number],
+    goldChanceOffline: 1 / 5,
+    playerGap: 9,
+    bottleGap: 6,
   },
 
   save: {

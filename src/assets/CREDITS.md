@@ -1,6 +1,8 @@
 # Asset credits
 
-Every asset must be CC0 or our own (plan §2, §9). List each one here with its source and license.
+Assets are CC0 or our own; since 1.46 CC-BY, CC-BY-SA and MIT are allowed WITH credit. List each one here with its source
+and licence (developer notes) AND in `src/data/credits.ts` — that list is what players see in the game (Settings →
+"Ghi công & giấy phép", and the title screen link).
 
 ## 3D models
 - All geometry (player, NPCs, Saigon street, embassy, airport, German street, Altbau houses, WG,
@@ -21,6 +23,38 @@ Every asset must be CC0 or our own (plan §2, §9). List each one here with its 
 - **Shop interiors** (1.41) — shelves, chairs, sofas, lamps, cabinets, kitchen units, carpets, curtains, stools from
   **Quaternius *Ultimate House Interior Pack*** — license **CC0 1.0** — same mirror (`public/glb/house_interior_pack`),
   converted by `node tools/glb2props.mjs <folder> interior` into `src/assets/models/interior.bin/.json` (scaled ×0.5).
+
+## Hà Nội library look (1.46)
+- `src/assets/models/street.bin` + `street.json` — **City Kit (Roads)** by **Kenney** (https://kenney.nl/assets/city-kit-roads),
+  license **CC0 1.0**: street lights, construction fences and cones, poles, signs, traffic lights (names `kr…`).
+- `src/assets/models/towers.bin` + `towers.json` — **City Kit (Commercial)** by **Kenney** (https://kenney.nl/assets/city-kit-commercial),
+  license **CC0 1.0**: low-detail blocks for the distant skyline, awnings, parasols (names `kc…`).
+- `src/assets/models/citybits.bin` + `citybits.json` — **City Builder Bits** by **Kay Lousberg (KayKit)**
+  (https://github.com/KayKit-Game-Assets/KayKit-City-Builder-Bits-1.0), license **CC0 1.0**: water tower, bins, benches,
+  little town houses for the backdrop (names `c…`). Converted by `tools/kaykit2props.mjs <folder> citybits`.
+- Hà Nội façades reuse Kenney's *Modular Buildings* (pack facade, below); shutters, iron balconies, roller shutters and
+  tập thể cages are drawn by the game (no library has Vietnamese ones).
+- More Fluent Emoji 3D icons (MIT, microsoft/fluentui-emoji) for map pins and shop signs: bank, camera, pill, post office,
+  hospital, school, film projector, microphone, books, police light, flexed biceps, beer mug, church, hotel, temple, …
+- `src/assets/models/urban.bin` + `urban.json` — models from **Poly Haven** (https://polyhaven.com/models), license
+  **CC0 1.0**: *Modular Electricity Poles* (James Ray Cock), *Exterior Aircon Unit*, *Utility Box 01/02*, *Plastic Crate 02*,
+  *Plastic Monobloc Chair 01*, *Small LPG Tank*, *Street Lamp 01/02*, *Planter Pot Clay*, *Ceramic Vase 03*, *Concrete Road
+  Barrier*, *Fire Hydrant*, *Trashbag*, *Water Manhole Cover*, *Metal Trash Can*, *Outdoor Table Chair Set 01*, *Wooden
+  Picnic Table*, *Brass Pot 01*, *Chinese Stool*, *Chinese Armchair*, *Barrel 02*, *Rollershutter Door*, *Security Light*,
+  *Wooden Lantern 01* (authors listed on each model's Poly Haven page). The photo textures are baked into a few flat
+  colours and the meshes simplified by `tools/polyhaven2props.mjs` (names `u…`).
+- `src/assets/textures/asphalt.webp` + `concrete.webp` — grey detail maps made from **ambientCG** *Asphalt026A* and
+  *Concrete034* (https://ambientcg.com, license **CC0 1.0**), shrunk to 256 px and normalised; multiplied softly onto roads
+  and pavements (`withGroundDetail` in `scenes/shared/materials.ts`).
+- Curved Vietnamese temple roofs (`scenes/shared/vnRoof.ts`) are generated in code — original work.
+
+## München (1.45)
+- `src/assets/models/facade.bin` + `facade.json` — **Modular Buildings** by **Kenney** (https://kenney.nl/assets/modular-buildings),
+  license **CC0 1.0**: window, balcony, shop-window, door and roof modules for the town houses.
+- `src/assets/models/town.bin` + `town.json` — **Fantasy Town Kit** by **Kenney** (https://kenney.nl/assets/fantasy-town-kit),
+  license **CC0 1.0**: market stalls, benches, carts, fountains, lanterns, banners, hedges, rocks.
+- Converted by `tools/kenney2props.mjs` (colours taken from Kenney's palette texture, repainted per house in the game).
+  Thank you, Kenney!
 
 ## Textures
 - Fabric prints in `src/assets/patterns/*.svg` (hoa sen, hoa mai, hoa đào, trống đồng, thổ cẩm, caro, sóng nước, hoa nhí,

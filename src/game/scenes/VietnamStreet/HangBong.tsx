@@ -6,6 +6,8 @@ import { ActionSpot, type SpotAction } from '../../components/ActionSpot'
 import { BUILDING_GROUPS } from '../../systems/collisionGroups'
 import { PALETTE as P } from '../shared/palette'
 import { place, softPlantShapes } from '../shared/props'
+import { seeded } from './decorHouses'
+import { hanoiHouse } from './hanoiHouses'
 import { Shapes, type ShapeItem } from '../shared/Shapes'
 import { SignBoard } from '../shared/SignBoard'
 import type { SignOptions } from '../shared/textures'
@@ -43,15 +45,23 @@ function maiShapes(): ShapeItem[] {
   const w = M.x1 - M.x0
   const d = M.z1 - M.z0
   const f = M.x1
-  s.push({ box: [w, 9.4, d], at: [cx, 4.7, cz], color: '#f3d9c4' })
-  for (const y of [3.2, 6.4]) s.push({ box: [0.22, 0.18, d + 0.1], at: [f + 0.06, y, cz], color: '#fff3d6' })
-  s.push({ box: [w + 0.4, 0.22, d + 0.4], at: [cx, 9.5, cz], color: '#c8653d' })
+  // 1.46: the two floors above from library modules (hanoiHouses), the hand-built ones as fallback
+  const lib = hanoiHouse('tube', d, w, seeded(41), { upperOnly: true, fh: 3.2, floors: 3, wall: '#f3d9c4', rail: '#2c5c43', awning: '#3f7d5c' })
+  if (lib) {
+    s.push({ box: [w, 3.2, d], at: [cx, 1.6, cz], color: '#f3d9c4' })
+    s.push(place(lib, [cx, 0, cz], Math.PI / 2))
+  } else {
+    s.push({ box: [w, 9.4, d], at: [cx, 4.7, cz], color: '#f3d9c4' })
+    s.push({ box: [w + 0.4, 0.22, d + 0.4], at: [cx, 9.5, cz], color: '#c8653d' })
+  }
+  for (const y of lib ? [3.2] : [3.2, 6.4]) s.push({ box: [0.22, 0.18, d + 0.1], at: [f + 0.06, y, cz], color: '#fff3d6' })
   // Ground floor: a narrow door onto the stairs, mailboxes, a shoe rack
   s.push({ box: [0.08, 2.4, 1.1], at: [f + 0.02, 1.2, M.door], color: '#fff3d6' })
   s.push({ box: [0.08, 2.15, 0.9], at: [f + 0.05, 1.08, M.door], color: '#3a2b24' })
   for (let i = 0; i < 6; i++) s.push({ box: [0.5 - i * 0.02, 0.06, 0.8], at: [f - 0.25 - i * 0.12, 0.08 + i * 0.3, M.door], color: '#8e5a34' })
   ;['#c8322b', '#2f6fb0', '#3f7d5c'].forEach((c, i) => s.push({ box: [0.08, 0.22, 0.3], at: [f + 0.06, 1.3, M.door - 1.0 - i * 0.34], color: c }))
   s.push({ box: [0.3, 0.4, 0.8], at: [f + 0.2, 0.2, M.door + 1.05], color: '#b98a5a' })
+  if (lib) return s
   // 2nd floor (the office): a wide window with photos of smiling students, an AC unit
   s.push({ box: [0.06, 1.5, d - 1.2], at: [f + 0.03, 4.75, cz], color: '#cfe8f6' })
   ;['#ffe08a', '#ffb3c7', '#a9d6ff', '#b8e6c9'].forEach((c, i) => s.push({ box: [0.03, 0.42, 0.34], at: [f + 0.07, 4.9 + (i % 2) * 0.1, cz - 1.1 + i * 0.72], color: c }))
@@ -72,10 +82,14 @@ function hoangKimShapes(): ShapeItem[] {
   const w = H.x1 - H.x0
   const d = H.z1 - H.z0
   const f = H.x0
-  // Upper floors: glossy grey with gold trims (a little too fancy)
-  s.push({ box: [w, 4.2, d], at: [cx, 4.7, cz], color: '#d9dde6' })
-  s.push({ box: [w + 0.3, 0.2, d + 0.3], at: [cx, 6.9, cz], color: '#d4a72c' })
-  s.push({ box: [0.06, 2.6, d - 0.8], at: [f - 0.03, 4.9, cz], color: '#4b5d73' })
+  // Upper floors: glossy grey with gold trims (a little too fancy) — 1.46 library modules when the pack is there
+  const lib = hanoiHouse('modern', d, w, seeded(43), { upperOnly: true, fh: 2.7, floors: 3, wall: '#d9dde6', rail: '#d4a72c', awning: '#d4a72c' })
+  if (lib) s.push(place(lib, [cx, 0, cz], -Math.PI / 2))
+  else {
+    s.push({ box: [w, 4.2, d], at: [cx, 4.7, cz], color: '#d9dde6' })
+    s.push({ box: [w + 0.3, 0.2, d + 0.3], at: [cx, 6.9, cz], color: '#d4a72c' })
+    s.push({ box: [0.06, 2.6, d - 0.8], at: [f - 0.03, 4.9, cz], color: '#4b5d73' })
+  }
   // Ground floor: open shop front with a desk, chairs, a water cooler, posters of planes
   s.push({ box: [0.4, 2.6, d], at: [H.x1 - 0.2, 1.3, cz], color: '#eef0f4' })
   for (const z of [H.z0 + 0.1, H.z1 - 0.1]) s.push({ box: [w, 2.6, 0.2], at: [cx, 1.3, z], color: '#d9dde6' })
@@ -104,10 +118,14 @@ function circleKShapes(): ShapeItem[] {
   s.push({ box: [w + 0.06, 0.12, d + 0.06], at: [cx, 2.3, cz], color: '#f39a2b' })
   // Shelves behind the glass, a drinks fridge glow
   for (let i = 0; i < 3; i++) s.push({ box: [w - 0.6, 0.05, 0.3], at: [cx, 0.6 + i * 0.45, cz - 0.5], color: ['#ffd23f', '#a9d6ff', '#ff9fb2'][i] })
-  // Two floors of housing above
-  s.push({ box: [w, 5.6, d], at: [cx, 5.8, cz], color: '#f0b9a0' })
-  s.push({ box: [w + 0.3, 0.2, d + 0.3], at: [cx, 8.7, cz], color: '#c8653d' })
-  for (const y of [4.6, 7.1]) s.push({ box: [w - 0.8, 1.2, 0.06], at: [cx, y, f + 0.02], color: '#cfe8f6' })
+  // Two floors of housing above (1.46: library modules, hand-built fallback)
+  const lib = hanoiHouse('tube', w, d, seeded(47), { upperOnly: true, fh: 3.0, floors: 3, wall: '#f0b9a0', rail: '#4f5d75', airCon: true })
+  if (lib) s.push(place(lib, [cx, 0, cz], 0))
+  else {
+    s.push({ box: [w, 5.6, d], at: [cx, 5.8, cz], color: '#f0b9a0' })
+    s.push({ box: [w + 0.3, 0.2, d + 0.3], at: [cx, 8.7, cz], color: '#c8653d' })
+    for (const y of [4.6, 7.1]) s.push({ box: [w - 0.8, 1.2, 0.06], at: [cx, y, f + 0.02], color: '#cfe8f6' })
+  }
   // Plastic stools and a table outside, like every corner store in Hà Nội
   for (const x of [cx - 0.55, cx + 0.55]) s.push({ cyl: [0.16, 0.13, 0.32, 8], at: [x, 0.16, f + 0.7], color: '#2f8c7f' })
   s.push({ box: [0.6, 0.04, 0.45], at: [cx, 0.45, f + 0.75], color: '#d4202a' })
@@ -156,7 +174,7 @@ export function HangBong() {
       <SignBoard options={PLAQUE} width={0.9} position={[M.x1 - 0.5, 2.6, M.z1 + 0.06]} />
       <RigidBody type="fixed" colliders={false}>
         <CuboidCollider args={[(M.x1 - M.x0) / 2, 4.7, (M.z1 - M.z0) / 2]} position={[(M.x0 + M.x1) / 2, 4.7, (M.z0 + M.z1) / 2]} collisionGroups={BUILDING_GROUPS} />
-        <CuboidCollider args={[(H.x1 - H.x0) / 2, 3.4, (H.z1 - H.z0) / 2]} position={[(H.x0 + H.x1) / 2, 3.4, (H.z0 + H.z1) / 2]} collisionGroups={BUILDING_GROUPS} />
+        <CuboidCollider args={[(H.x1 - H.x0) / 2, 4.1, (H.z1 - H.z0) / 2]} position={[(H.x0 + H.x1) / 2, 4.1, (H.z0 + H.z1) / 2]} collisionGroups={BUILDING_GROUPS} />
         <CuboidCollider args={[(K.x1 - K.x0) / 2, 4.4, (K.z1 - K.z0) / 2]} position={[(K.x0 + K.x1) / 2, 4.4, (K.z0 + K.z1) / 2]} collisionGroups={BUILDING_GROUPS} />
       </RigidBody>
       <ActionSpot id="mai-door" nameKey="interact.maiOffice" zone={{ x: M.x1 + 0.6, z: M.door, halfX: 0.6, halfZ: 0.8 }} actions={MAI_DOOR} />

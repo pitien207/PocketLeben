@@ -2,6 +2,7 @@
 // Only what the Quaternius packs use: one binary buffer, float/uint accessors, node TRS / matrix.
 import fs from 'node:fs'
 import path from 'node:path'
+import zlib from 'node:zlib'
 import { Matrix4, Quaternion, Vector3 } from 'three'
 
 export function readGlb(file) {
@@ -126,3 +127,63 @@ export async function simplifyGroup(pos, idx, keep, error = 0.04) {
   }
   return { idx: newIdx, used }
 }
+
+// --- A small PNG reader (8-bit RGB / RGBA, not interlaced: what the atlas is) ---------------------------------------
+export function readPng(file) {
+  const b = fs.readFileSync(file)
+  let p = 8
+  let w = 0
+  let h = 0
+  let type = 0
+  let depth = 8
+  const idat = []
+  while (p < b.length) {
+    const len = b.readUInt32BE(p)
+    const kind = b.toString('ascii', p + 4, p + 8)
+    const data = b.subarray(p + 8, p + 8 + len)
+    if (kind === 'IHDR') {
+      w = data.readUInt32BE(0)
+      h = data.readUInt32BE(4)
+      depth = data[8]
+      if ((depth !== 8 && depth !== 16) || data[12] !== 0) throw new Error('PNG: only 8/16-bit, non-interlaced')
+      type = data[9]
+    } else if (kind === 'IDAT') idat.push(data)
+    else if (kind === 'IEND') break
+    p += 12 + len
+  }
+  const channels = type === 6 ? 4 : type === 2 ? 3 : 0
+  const bpp = channels * (depth / 8)
+  if (!bpp) throw new Error('PNG: only RGB / RGBA')
+  const raw = zlib.inflateSync(Buffer.concat(idat))
+  const stride = w * bpp
+  const px = Buffer.alloc(h * stride)
+  for (let y = 0; y < h; y++) {
+    const f = raw[y * (stride + 1)]
+    const src = raw.subarray(y * (stride + 1) + 1, (y + 1) * (stride + 1))
+    for (let x = 0; x < stride; x++) {
+      const a = x >= bpp ? px[y * stride + x - bpp] : 0
+      const up = y > 0 ? px[(y - 1) * stride + x] : 0
+      const c = x >= bpp && y > 0 ? px[(y - 1) * stride + x - bpp] : 0
+      let v = src[x]
+      if (f === 1) v += a
+      else if (f === 2) v += up
+      else if (f === 3) v += (a + up) >> 1
+      else if (f === 4) {
+        const pp = a + up - c
+        const pa = Math.abs(pp - a)
+        const pb = Math.abs(pp - up)
+        const pc = Math.abs(pp - c)
+        v += pa <= pb && pa <= pc ? a : pb <= pc ? up : c
+      }
+      px[y * stride + x] = v & 255
+    }
+  }
+  return { w, h, sample: (u, v) => {
+    const x = Math.min(w - 1, Math.max(0, Math.floor((((u % 1) + 1) % 1) * w)))
+    const y = Math.min(h - 1, Math.max(0, Math.floor((((v % 1) + 1) % 1) * h)))
+    const o = y * stride + x * bpp
+    const b = depth / 8
+    return [px[o], px[o + b], px[o + 2 * b]]
+  } }
+}
+

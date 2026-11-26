@@ -15,9 +15,9 @@ const W = 12
 const D = 8
 const STYLE = { wall: '#f2f6fa', wallLow: '#e1e8f0', floor: '#e8eef4', floorAlt: '#dbe4ee', trim: '#ffffff', window: '#bfe3ff' }
 const BOARD: SignOptions = {
-  // 1.43 the first flight goes via München (systems/flight.ts)
+  // 1.43 the first flight goes via Frankfurt (systems/flight.ts)
   title: 'MÜNCHEN  ✈  23:45',
-  subtitle: 'SH 701 · Gate 7 · nối chuyến đi Frankfurt',
+  subtitle: 'SH 701 · Gate 7 · nối chuyến đi München',
   background: '#2f2f38',
   border: '#4a4a55',
   color: '#ffd166',

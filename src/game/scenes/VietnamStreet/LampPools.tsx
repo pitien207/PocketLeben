@@ -40,7 +40,7 @@ function lampSpots(): [number, number, number][] {
   }
   // Tràng Tiền avenue: tall lamps
   for (let x = PLAY.minX + 8.5; x < PLAY.maxX; x += 18) {
-    for (const [z, dir] of [[ave.z0 + 0.5, -1], [ave.z1 - 0.5, 1]] as const) spots.push([x, z + dir * 1.8, 5.6])
+    for (const [z, dir] of [[ave.z0 + 0.5, -1], [ave.z1 - 0.5, 1]] as const) spots.push([x, z + dir * 0.6, 4.8])
   }
   return spots
 }

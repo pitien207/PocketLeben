@@ -1,4 +1,6 @@
-import { Color, MeshBasicMaterial, MeshLambertMaterial, Vector3, type Material, type Mesh } from 'three'
+import { Color, MeshBasicMaterial, MeshLambertMaterial, RepeatWrapping, TextureLoader, Vector3, type Material, type Mesh, type Texture } from 'three'
+import asphaltUrl from '../../../assets/textures/asphalt.webp?url'
+import concreteUrl from '../../../assets/textures/concrete.webp?url'
 import { fxUniforms } from '../../fx/fxState'
 
 /**
@@ -147,8 +149,42 @@ export function updateFadeSwap(camera: Vector3, target: Vector3) {
   }
 }
 
+/**
+ * 1.46 ground grain: a CC0 photo texture (ambientCG Asphalt026A / Concrete034, turned into 256 px grey detail maps,
+ * src/assets/textures) multiplied softly (about ±10 %) onto flat ground colours in world space, so roads and pavements are
+ * not plain colour fields. One texture fetch; the map loads lazily (until then the factor is 1).
+ */
+const detailLoader = new TextureLoader()
+function detailTexture(url: string) {
+  const t = detailLoader.load(url)
+  t.wrapS = t.wrapT = RepeatWrapping
+  t.anisotropy = 4
+  return t
+}
+let asphaltMap: Texture | null = null
+let concreteMap: Texture | null = null
+export function withGroundDetail<M extends MeshLambertMaterial>(material: M, kind: 'asphalt' | 'concrete' = 'asphalt', scale = 2.6, strength = 0.6): M {
+  material.onBeforeCompile = (shader) => {
+    if (kind === 'asphalt') asphaltMap ??= detailTexture(asphaltUrl)
+    else concreteMap ??= detailTexture(concreteUrl)
+    shader.uniforms.uDetail = { value: kind === 'asphalt' ? asphaltMap : concreteMap }
+    shader.vertexShader = shader.vertexShader
+      .replace('#include <common>', '#include <common>\nvarying vec2 vDetailXZ;')
+      .replace('#include <worldpos_vertex>', '#include <worldpos_vertex>\nvDetailXZ = (modelMatrix * vec4(transformed, 1.0)).xz;')
+    shader.fragmentShader = shader.fragmentShader
+      .replace('#include <common>', '#include <common>\nvarying vec2 vDetailXZ;\nuniform sampler2D uDetail;')
+      .replace(
+        '#include <color_fragment>',
+        `#include <color_fragment>
+        diffuseColor.rgb *= 1.0 + (texture2D(uDetail, vDetailXZ / ${scale.toFixed(2)}).r - 0.5) * ${strength.toFixed(2)};`,
+      )
+  }
+  material.customProgramCacheKey = () => `vh-ground-${kind}-${scale}-${strength}`
+  return material
+}
+
 /** For ground-level geometry (roads, markings) that must never fade. */
-export const groundMaterial = new MeshLambertMaterial({ vertexColors: true })
+export const groundMaterial = withGroundDetail(new MeshLambertMaterial({ vertexColors: true }))
 
 /** Never faded: characters and gameplay-critical props (e.g. the drink being made). */
 export const solidMaterial = new MeshLambertMaterial({ vertexColors: true })

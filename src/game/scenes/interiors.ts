@@ -53,7 +53,7 @@ export const EXAM_HALL = {
   exit: { x: 4.6, z: 3.3 },
 }
 
-/** Universität Lindenberg: lecture hall (long desk rows) + library corner + student office. */
+/** LMU München: lecture hall (long desk rows) + library corner + student office. */
 export const UNIVERSITY = {
   w: 14,
   d: 10,

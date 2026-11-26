@@ -1,6 +1,7 @@
 import { PALETTE as P } from '../shared/palette'
 import { place, softPlantShapes } from '../shared/props'
 import type { ShapeItem } from '../shared/Shapes'
+import { bougainvilleaLib, hanoiHouse, type HanoiStyle } from './hanoiHouses'
 
 /**
  * Houses that are only there to be looked at (1.17, the north quarter): six styles of Hà Nội
@@ -383,7 +384,33 @@ export function planRow(x0: number, x1: number, seed: number): DecorLot[] {
   return lots
 }
 
+const LIB_STYLE: Record<DecorStyle, HanoiStyle> = { colonial: 'colonial', modern: 'modern', tapThe: 'tapThe', oldLow: 'oldLow', pastel: 'tube', hotel: 'hotel' }
+
+/** 1.46: the hotel's blade sign up the side (lit plates, no text) — goes with the library facade too. */
+function hotelBlade(s: ShapeItem[], w: number, f: number, H: number, r: Rng) {
+  const blade = pick(r, ['#d4202a', '#2c5aa0', '#d98a2b'])
+  s.push({ box: [0.5, H - 4.2, 0.22], at: [w / 2 - 0.35, 3.4 + (H - 4.2) / 2, f + 0.45], color: blade })
+  const plates = Math.floor((H - 4.8) / 1.1)
+  for (let i = 0; i < plates; i++) s.push({ box: [0.34, 0.7, 0.24], at: [w / 2 - 0.35, 4.1 + i * 1.1, f + 0.45], color: i % 2 ? '#ffe08a' : '#ffffff' })
+}
+
 export function decorHouse(style: DecorStyle, width: number, depth: number, seed: number): ShapeItem[] {
+  // 1.46: library facades first (Kenney modules + KayKit / Quaternius roof things), the hand-built house only as fallback
+  const lr = seeded(seed)
+  const lib = hanoiHouse(LIB_STYLE[style], width, depth, lr, style === 'pastel' ? { shop: true } : {})
+  if (lib) {
+    if (style === 'hotel') {
+      let top = 0
+      for (const it of lib) if ('box' in it && it.at) top = Math.max(top, it.at[1] + it.box[1] / 2)
+      hotelBlade(lib, width, depth / 2, Math.min(top, 17), lr)
+    }
+    const rb = seeded(seed * 7 + 3)
+    if ((style === 'colonial' || style === 'tapThe' || style === 'oldLow') && rb() < 0.42) {
+      const b = bougainvilleaLib(width, depth / 2, style === 'colonial' ? 3.2 : style === 'tapThe' ? 2.75 : 2.9, rb)
+      if (b) lib.push(...b)
+    }
+    return lib
+  }
   const shapes = BUILDERS[style](width, depth, seeded(seed))
   // 1.23: about four in ten of the old houses have hoa giấy (bougainvillea) climbing the front.
   // Not on pastel lots (their sign hangs on the balcony) nor on the modern / hotel fronts.

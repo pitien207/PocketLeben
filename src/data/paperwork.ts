@@ -201,8 +201,8 @@ export const PORTAL_FIELDS: FormField[] = [
     label: 'Anschrift in Deutschland',
     hint: L('Địa chỉ ở Đức', 'Address in Germany'),
     options: {
-      ausbildung: ['Pflegeheim Sonnenhof, Lindenberg', 'Hotel am Flughafen Frankfurt', 'Noch unbekannt'],
-      studium: ['Studienkolleg Lindenberg (Wohnheim)', 'Hotel am Flughafen Frankfurt', 'Noch unbekannt'],
+      ausbildung: ['Pflegeheim Sonnenhof, München', 'Hotel am Flughafen München', 'Noch unbekannt'],
+      studium: ['Studienkolleg München (Wohnheim)', 'Hotel am Flughafen München', 'Noch unbekannt'],
     },
   },
   { label: 'Geplante Einreise', hint: L('Ngày dự kiến nhập cảnh', 'Planned entry'), options: ['in 4 Wochen', 'gestern', 'irgendwann'] },
@@ -226,14 +226,14 @@ export const CLAUSE_DOCS = {
     task: L('Tìm 3 điều khoản quan trọng nhất: lương, thời hạn ràng buộc, số tiền phải hoàn lại.', 'Find the 3 key clauses: salary, how long you are bound, what you would pay back.'),
     mistakes: 2,
     lines: [
-      { text: L('Arbeitgeber: Pflegeheim Sonnenhof GmbH, Lindenberg (Deutschland)', 'Employer: Sonnenhof care home, Lindenberg (Germany)') },
-      { text: L('Sonnenhof trả: học phí B1, lệ phí thi B1, vé máy bay Hà Nội → Frankfurt.', 'Sonnenhof pays: B1 course, B1 exam fee, flight Hà Nội → Frankfurt.') },
+      { text: L('Arbeitgeber: Pflegeheim Sonnenhof GmbH, München (Deutschland)', 'Employer: Sonnenhof care home, München (Germany)') },
+      { text: L('Sonnenhof trả: học phí B1, lệ phí thi B1, vé máy bay Hà Nội → München.', 'Sonnenhof pays: B1 course, B1 exam fee, flight Hà Nội → München.') },
       { text: L('Ausbildungsvergütung: 1.490 € brutto/Monat im 1. Jahr (≈ 1.150 € netto).', 'Training pay: €1,490 gross per month in year 1 (≈ €1,150 net).'), mark: L('Lương: ghi rõ trước thuế và sau thuế', 'Salary: gross and net stated') },
       { text: L('Probezeit: 6 Monate. Urlaub: 30 Tage im Jahr.', 'Probation: 6 months. Holidays: 30 days a year.') },
       { text: L('Nach dem Abschluss: 2 Jahre Arbeit als Pflegefachkraft im Sonnenhof.', 'After graduating: 2 years as a nurse at Sonnenhof.'), mark: L('Thời hạn ràng buộc: 2 năm sau tốt nghiệp', 'Bound for 2 years after graduating') },
       { text: L('Arbeitszeit: 38,5 Stunden pro Woche, Schichtdienst.', 'Working time: 38.5 hours a week, shifts.') },
       { text: L('Bei Kündigung vorher: anteilige Rückzahlung der Kosten, höchstens 3.000 €.', 'If you quit earlier: you repay part of the costs, at most €3,000.'), mark: L('Hoàn lại: tối đa 3.000 €, theo tỷ lệ', 'Repayment: at most €3,000, pro rata') },
-      { text: L('Gerichtsstand: Lindenberg. Vertrag auf Deutsch und Vietnamesisch.', 'Jurisdiction: Lindenberg. Contract in German and Vietnamese.') },
+      { text: L('Gerichtsstand: München. Vertrag auf Deutsch und Vietnamesisch.', 'Jurisdiction: München. Contract in German and Vietnamese.') },
     ],
   },
   hoangKim: {

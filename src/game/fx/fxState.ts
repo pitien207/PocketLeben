@@ -5,7 +5,7 @@ import { SCENES } from '../scenes/registry'
 
 /**
  * 1.32 "đồ họa đẹp" (setting `fancy`): sky dome, post effects, lit windows, glowing lamps.
- * Only in the Vietnam scenes for now (the user wants to see Hà Nội first); Germany is unchanged.
+ * 1.44: Germany (München) too — first only Hà Nội (the user wanted to see it there first).
  */
 export const fxState = {
   /** 0 = day, 1 = full night (lamps on). Written by Lighting every frame. */
@@ -21,14 +21,14 @@ export const fxUniforms = {
 }
 
 export function fancyOn(): boolean {
-  return useSettings.getState().fancy && SCENES[useWorld.getState().scene].country === 'vn'
+  return useSettings.getState().fancy && !!SCENES[useWorld.getState().scene]
 }
 
 /** React: true while the fancy look applies to the current scene. */
 export function useFancy(): boolean {
   const on = useSettings((s) => s.fancy)
   const scene = useWorld((s) => s.scene)
-  return on && SCENES[scene].country === 'vn'
+  return on && !!SCENES[scene]
 }
 
 const smooth = (a: number, b: number, x: number) => {
